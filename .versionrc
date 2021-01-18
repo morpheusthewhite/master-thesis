@@ -1,0 +1,10 @@
+{
+    "types": [
+        {"type": "feat", "section": "Features"},
+        {"type": "fix", "section": "Bug Fixes"},
+        {"type": "docs", "hidden": false,  "section": "Thesis"}
+    ],
+    "compareUrlFormat": "github.com/morpheusthewhite/master-thesis/compare/{{previousTag}}...{{currentTag}}",
+    "issueUrlFormat": "github.com/morpheusthewhite/master-thesis/issues/{{id}}",
+    "userUrlFormat": "github.com/morpheusthewhite"
+}
