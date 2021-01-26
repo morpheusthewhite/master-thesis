@@ -56,16 +56,25 @@ class RedditCollector(Collector):
 
         return content
 
-    def __submission_to_thread__(self, submission) -> treelib.Tree:
+    def __submission_to_thread__(self, submission, keyword) -> treelib.Tree:
         """Use a submission to create the associated thread (of comments)
 
         Args:
             submission: the praw submission from which comments are extracted
+            keyword (str): keyword used for filtering submissions
 
         Returns:
             Tree: A Tree object associated to comments of the submission
             (which is the root)
         """
+        # retrieve content object
+        content = self.__submission_to_content__(submission, keyword)
+
+        # modify the id to follow convention user for `parent_id` attribute
+        # of comment
+        submission_id = f"t3_{submission.id}"
+
+        # retrieve comments
         # TODO: increase the limit?
         submission.comments.replace_more(limit=COMMENT_LIMIT)
         comment_forest = submission.comments
@@ -73,21 +82,11 @@ class RedditCollector(Collector):
         thread = treelib.Tree()
 
         # the submission represents the root node in the tree collecting
-        # all the replies
-
-        # modify the id to follow convention user for `parent_id` attribute
-        # of comment
-        submission_id = f"t3_{submission.id}"
-
-        thread.create_node(submission_id, submission_id)
+        # all the replies. The associated data is a content object
+        thread.create_node(submission_id, submission_id, data=content)
 
         # iterate over comments to the submission
         for comment in comment_forest.list():
-
-            # TODO: check MoreComment?
-            #  if isinstance(comment, praw.models.MoreComments):
-            #      continue
-            #  else:
 
             # modify the id to follow convention user for `parent_id`
             id_ = f"t1_{comment.id}"
@@ -114,10 +113,9 @@ class RedditCollector(Collector):
         for i, content_id in enumerate(contents_id):
             submission = self.reddit.submission(content_id)
 
-            content = self.__submission_to_content__(submission, keyword)
-            thread = self.__submission_to_thread__(submission)
+            thread = self.__submission_to_thread__(submission, keyword)
 
-            yield (content, thread)
+            yield (thread)
 
             if i >= ncontents:
                 break
