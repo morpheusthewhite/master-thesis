@@ -19,7 +19,8 @@ class RedditCollector(Collector):
 
         self.reddit = praw.Reddit()
 
-    def __find_contents_id__(self, ncontents: int, keyword: Optional[str], page: Optional[str]) -> list[str]:
+    def __find_contents_id__(self, ncontents: int, keyword: Optional[str],
+                             page: Optional[str]) -> list[str]:
         """Find contents
 
         Args:
@@ -101,7 +102,21 @@ class RedditCollector(Collector):
 
         return thread
 
-    def collect(self, ncontents, keyword=None, page=None) -> list[Content]:
+    def collect(self, ncontents, keyword=None, page=None) \
+            -> list[treelib.Tree]:
+        """collect content and their relative comments as tree.
+
+        Args:
+            ncontents: number of submission to find
+            keyword: a keyword used for filtering the content
+            page: one or more subreddits where to get content
+            (look at praw package documentation for details on the syntax)
+
+        Returns:
+            list[Tree]: a list of tree, each associated to a submission.
+            The root node is associated to the content itself and its `data`
+            is a Content object, while for the other nodes it is a `Comment`
+        """
         contents_id = self.__find_contents_id__(ncontents, keyword, page)
 
         for i, content_id in enumerate(contents_id):
@@ -111,6 +126,6 @@ class RedditCollector(Collector):
 
             yield (thread)
 
-            if i >= ncontents:
+            if i + 1 >= ncontents:
                 break
 
