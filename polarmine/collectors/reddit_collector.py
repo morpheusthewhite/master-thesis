@@ -4,6 +4,7 @@ from typing import Optional
 
 from polarmine.collectors.collector import Collector
 from polarmine.content import Content
+from polarmine.comment import Comment
 
 
 COMMENT_LIMIT = 10
@@ -92,18 +93,11 @@ class RedditCollector(Collector):
             id_ = f"t1_{comment.id}"
             parent = comment.parent_id
 
-            author = comment.author
-            text = comment.body
-            # time is represent in UTC
-            time = comment.created_utc
-            # TODO: you should probably create a class for this
-            data = {
-                "author": author,
-                "text": text,
-                "timestamp": time
-            }
+            # polarmine comment object, store minimal set of information
+            comment_pm = Comment(comment.body, comment.author,
+                                 comment.created_utc)
 
-            thread.create_node(id_, id_, parent, data)
+            thread.create_node(id_, id_, parent, data=comment_pm)
 
         return thread
 
