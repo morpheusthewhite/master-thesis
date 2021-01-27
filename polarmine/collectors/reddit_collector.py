@@ -25,19 +25,22 @@ class RedditCollector(Collector):
 
         Args:
             ncontents (int): number of contents to return
-            keyword (Optional[str]): keyword used for filtering content
+            keyword (Optional[str]): keyword used for filtering content.
+                If page is not None then it is ignored
             page (Optional[str]): the starting page from which content is
-            found
+                found. A + separated list of subreddits (no space). For more
+                info on the accepted format see
+                https://praw.readthedocs.io/en/latest/code_overview/reddit_instance.html#praw.Reddit.subreddit
 
         Returns:
             list[str]: the list of found praw submissions
         """
-        if keyword is None:
-            r_all = self.reddit.subreddit("all")
-            contents_id = r_all.hot()
+        if page is not None:
+            contents_id = self.reddit.subreddit(page).hot()
+        elif keyword is not None:
+            contents_id = self.reddit.subreddit("all").search(keyword)
         else:
-            # TODO
-            pass
+            contents_id = self.reddit.subreddit("all").hot()
 
         return contents_id
 
@@ -67,7 +70,7 @@ class RedditCollector(Collector):
 
         Returns:
             Tree: A Tree object associated to comments of the submission
-            (which is the root)
+                (which is the root)
         """
         # retrieve content object
         content = self.__submission_to_content__(submission, keyword)
@@ -108,14 +111,17 @@ class RedditCollector(Collector):
 
         Args:
             ncontents: number of submission to find
-            keyword: a keyword used for filtering the content
-            page: one or more subreddits where to get content
-            (look at praw package documentation for details on the syntax)
+            keyword (Optional[str]): keyword used for filtering content.
+                If page is not None then it is ignored
+            page (Optional[str]): the starting page from which content is
+                found. A + separated list of subreddits (no space). For more
+                info on the accepted format see
+                https://praw.readthedocs.io/en/latest/code_overview/reddit_instance.html#praw.Reddit.subreddit
 
         Returns:
             list[Tree]: a list of tree, each associated to a submission.
-            The root node is associated to the content itself and its `data`
-            is a Content object, while for the other nodes it is a `Comment`
+                The root node is associated to the content itself and its `data`
+                is a Content object, while for the other nodes it is a `Comment`
         """
         contents_id = self.__find_contents_id__(ncontents, keyword, page)
 
