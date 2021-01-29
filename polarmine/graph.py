@@ -2,12 +2,12 @@ import graph_tool.all as gt
 import treelib
 
 
-class PolarizationGraph(gt.Graph):
+class PolarizationGraph():
 
     """A graph class providing methods for polarization analysis """
 
-    def __init__(self, threads: list[treelib.Tree], *args, **kwargs):
-        super(gt.Graph, self).__init__(*args, **kwargs)
+    def __init__(self, threads: list[treelib.Tree]):
+        self.graph = gt.Graph()
 
         # dictionary storing user:vertex_index
         self.users = {}
@@ -46,7 +46,8 @@ class PolarizationGraph(gt.Graph):
                     comment_vertex = self.get_user_vertex(comment_author)
 
                     # and add the edge
-                    self.add_edge(comment_vertex, node_vertex)
+                    # TODO weights
+                    self.graph.add_edge(comment_vertex, node_vertex)
 
                     # equeue this child
                     queue.append(child)
@@ -55,14 +56,14 @@ class PolarizationGraph(gt.Graph):
         vertex_index = self.users.get(user)
 
         if vertex_index is None:
-            vertex = self.add_vertex()
+            vertex = self.graph.add_vertex()
 
             # get the index and add it to the dictionary
-            vertex_index = self.vertex_index[vertex]
+            vertex_index = self.graph.vertex_index[vertex]
             self.users[user] = vertex_index
         else:
             # retrieve the vertex object from the graph
-            vertex = self.vertex(vertex_index)
+            vertex = self.graph.vertex(vertex_index)
 
         return vertex
 
