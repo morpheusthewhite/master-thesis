@@ -1,5 +1,5 @@
 <!-- ABOUT THE PROJECT -->
-## master-thesis
+# master-thesis
 
 Source code of my master thesis at KTH Institute of technology and Polytechnic University of Turin
 
