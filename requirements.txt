@@ -1,3 +1,5 @@
 praw
 python-twitter
 treelib
+pytorch
+transformers
