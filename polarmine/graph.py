@@ -3,6 +3,7 @@ import treelib
 from transformers import pipeline
 
 from polarmine.comment import Comment
+from polarmine.content import Content
 
 LABEL_NEGATIVE="NEGATIVE"
 LABEL_POSITIVE="POSITIVE"
@@ -21,10 +22,12 @@ class PolarizationGraph():
         # edge weights (calculated with sentiment analysis classifier)
         self.weights = self.graph.new_edge_property("double")
         self.times = self.graph.new_edge_property("double")
+        self.contents = self.graph.new_edge_property("object")
 
         # make properties internal
         self.graph.edge_properties["weights"] = self.weights
         self.graph.edge_properties["times"] = self.times
+        self.graph.edge_properties["contents"] = self.contents
 
         # initialization of sentiment analysis classifier
         # the default one is used, but if better alternatives are found
@@ -40,7 +43,6 @@ class PolarizationGraph():
 
             # get the content, associated to the root node
             content = root.data
-            # TODO: add content to edge as well as time, use content object
 
             # TODO: do you want to add the root to the graph? Seems so
 
@@ -68,13 +70,14 @@ class PolarizationGraph():
                     comment_vertex = self.get_user_vertex(comment_author)
 
                     # and add the edge
-                    self.graph.add_edge(comment_vertex, node_vertex, comment)
+                    self.add_edge(comment_vertex, node_vertex, comment,
+                                        content)
 
                     # equeue this child
                     queue.append(child)
 
     def add_edge(self, vertex_source: gt.Vertex, vertex_target: gt.Vertex,
-                 comment: Comment):
+                 comment: Comment, content: Content):
         edge = self.graph.add_edge(vertex_source, vertex_target)
 
         # return a list of dictionary of this type
@@ -93,7 +96,7 @@ class PolarizationGraph():
 
         self.weights[edge] = sentiment_score
         self.times[edge] = comment.time
-        # TODO add time and link to content
+        self.contents[edge] = content
 
     def get_user_vertex(self, user: str) -> gt.Vertex:
         vertex_index = self.users.get(user)
