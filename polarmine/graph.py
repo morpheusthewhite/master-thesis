@@ -20,9 +20,11 @@ class PolarizationGraph():
         # definition of graph property maps
         # edge weights (calculated with sentiment analysis classifier)
         self.weights = self.graph.new_edge_property("double")
+        self.times = self.graph.new_edge_property("double")
 
         # make properties internal
         self.graph.edge_properties["weights"] = self.weights
+        self.graph.edge_properties["times"] = self.times
 
         # initialization of sentiment analysis classifier
         # the default one is used, but if better alternatives are found
@@ -90,6 +92,7 @@ class PolarizationGraph():
             sentiment_score = sentiment_unsigned_score
 
         self.weights[edge] = sentiment_score
+        self.times[edge] = comment.time
         # TODO add time and link to content
 
     def get_user_vertex(self, user: str) -> gt.Vertex:

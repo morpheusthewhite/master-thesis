@@ -44,7 +44,8 @@ class RedditCollector(Collector):
 
         return contents_id
 
-    def __submission_to_content__(self, submission, keyword: str) -> Content:
+    def __submission_to_content__(self, submission: praw.models.Submission,
+                                  keyword: str) -> Content:
         """Create a Content object from a submission
 
         Args:
@@ -61,7 +62,8 @@ class RedditCollector(Collector):
 
         return content
 
-    def __submission_to_thread__(self, submission, keyword) -> treelib.Tree:
+    def __submission_to_thread__(self, submission: praw.models.Submission,
+                                 keyword: str) -> treelib.Tree:
         """Use a submission to create the associated thread (of comments)
 
         Args:
@@ -105,8 +107,8 @@ class RedditCollector(Collector):
 
         return thread
 
-    def collect(self, ncontents, keyword=None, page=None) \
-            -> list[treelib.Tree]:
+    def collect(self, ncontents: int, keyword: str = None,
+                page: str = None) -> list[treelib.Tree]:
         """collect content and their relative comments as tree.
 
         Args:

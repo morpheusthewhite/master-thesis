@@ -1,10 +1,11 @@
 class Content():
-    def __init__(self, url, text, date, author, keyword=None, **kwargs):
+    def __init__(self, url: str, text: str, time: float, author: str,
+                 keyword: str = None, **kwargs):
         super(Content, self).__init__(**kwargs)
 
         self.url = url
         self.text = text
-        self.date = date
+        self.time = time
         self.author = author
         self.keyword = keyword
 
