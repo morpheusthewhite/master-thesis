@@ -113,3 +113,7 @@ class PolarizationGraph():
 
         return vertex
 
+    def draw(self):
+        gt.graph_draw(self.graph)
+
+
