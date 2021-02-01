@@ -58,7 +58,7 @@ class RedditCollector(Collector):
         # TODO: just consider the title?
         content = Content(submission.url, submission.title,
                           submission.created_utc,
-                          submission.author, keyword)
+                          hash(submission.author), keyword)
 
         return content
 
@@ -100,7 +100,7 @@ class RedditCollector(Collector):
             parent = comment.parent_id
 
             # polarmine comment object, store minimal set of information
-            comment_pm = Comment(comment.body, comment.author,
+            comment_pm = Comment(comment.body, hash(comment.author),
                                  comment.created_utc)
 
             thread.create_node(id_, id_, parent, data=comment_pm)
