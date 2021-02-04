@@ -54,7 +54,7 @@ class TwitterCollector(Collector):
         if keyword is not None:
             cursor = tweepy.Cursor(self.twitter.search, q=keyword,
                                    tweet_mode="extended")
-        if page is not None:
+        elif page is not None:
             cursor = tweepy.Cursor(self.twitter.user_timeline, screen_name=page,
                                    tweet_mode="extended", exclude_replies=True)
         else:
