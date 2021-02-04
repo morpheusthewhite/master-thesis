@@ -14,10 +14,6 @@ class TwitterCollector(Collector):
         super(TwitterCollector, self).__init__(**kwargs)
 
         consumer_key, consumer_secret, auth_key, auth_secret = self.__get_keys__()
-        #  self.twitter = twitter.Api(consumer_key=consumer_key,
-        #                             consumer_secret=consumer_secret,
-        #                             access_token_key=auth_key,
-        #                             access_token_secret=auth_secret)
 
         # authorize twitter, initialize tweepy
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -43,7 +39,18 @@ class TwitterCollector(Collector):
         return consumer_key, consumer_secret, auth_key, auth_secret
 
     def __find_statuses__(self, ncontents: int, keyword: Optional[str],
-                             page: Optional[str]) -> list[str]:
+                             page: Optional[str]) -> list[tweepy.Status]:
+        """Find n statuses containing `keyword` or from a certain user `page`.
+            Either `keyword` or `page` must not be None
+
+        Args:
+            ncontents (int): the number of statuses to find
+            keyword (Optional[str]): the keyword used to filter tweets
+            page (Optional[str]): the user from which tweets are retrieved
+
+        Returns:
+            list[tweepy.Status]: a list of statuses
+        """
         if keyword is not None:
             cursor = tweepy.Cursor(self.twitter.search, q=keyword,
                                    tweet_mode="extended")
@@ -51,22 +58,21 @@ class TwitterCollector(Collector):
             cursor = tweepy.Cursor(self.twitter.user_timeline, screen_name=page,
                                    tweet_mode="extended")
         else:
-            # TODO: can this be implemented?
             raise NotImplementedError
 
         return list(cursor.items(ncontents))
 
-    def __reply_to_thread__(self, reply: tweepy.Status, limit=10000) -> treelib.Tree:
-        # TODO update docs
-        """Use a submission to create the associated thread (of comments)
+    def __reply_to_thread__(self, reply: tweepy.Status, limit: int = 10000) \
+            -> treelib.Tree:
+        """Find thread of comments associated to a certain reply
 
         Args:
-            submission: the praw submission from which comments are extracted
-            keyword (str): keyword used for filtering submissions
+            reply (tweepy.Status): the status for which reply are looked for
+            limit (int): maximum number of tweets to check when looking
+                for replies
 
         Returns:
-            Tree: A Tree object associated to comments of the submission
-                (which is the root)
+            treelib.Tree: the Tree of comment replies
         """
         reply_author_name = reply.author.screen_name
         reply_id = reply.id
@@ -112,16 +118,19 @@ class TwitterCollector(Collector):
 
     def __status_to_thread__(self, status: tweepy.Status,
                              keyword: str, limit: int) -> treelib.Tree:
-        # TODO update docs
-        """Use a submission to create the associated thread (of comments)
+        """Find thread of comments associated to a certain status
 
         Args:
-            submission: the praw submission from which comments are extracted
-            keyword (str): keyword used for filtering submissions
+            status (tweepy.Status): the status for which reply are looked for
+            keyword (str): the keyword used to filter status
+            limit (int): maximum number of tweets to check when looking
+                for replies
 
         Returns:
-            Tree: A Tree object associated to comments of the submission
-                (which is the root)
+            treelib.Tree: the Tree of comment replies. The root node,
+                corresponding to the status itself, is associated with a
+                `Content` object in the node `data` while the other node have
+                a `Comment` object
         """
         status_author_name = status.author.screen_name
         status_id = status.id
