@@ -56,7 +56,7 @@ class TwitterCollector(Collector):
                                    tweet_mode="extended")
         if page is not None:
             cursor = tweepy.Cursor(self.twitter.user_timeline, screen_name=page,
-                                   tweet_mode="extended")
+                                   tweet_mode="extended", exclude_replies=True)
         else:
             raise NotImplementedError
 
