@@ -88,7 +88,10 @@ class RedditCollector(Collector):
 
         # the submission represents the root node in the tree collecting
         # all the replies. The associated data is a content object
-        thread.create_node(submission_id, submission_id, data=content)
+        # in this case the tag (submitter user) is the author
+        # (no crossposting at the moment)
+        thread.create_node(tag=content.author, identifier=submission_id,
+                           data=content)
 
         # iterate over comments to the submission
         for comment in comment_forest.list():
@@ -101,7 +104,8 @@ class RedditCollector(Collector):
             comment_pm = Comment(comment.body, hash(comment.author),
                                  comment.created_utc)
 
-            thread.create_node(id_, id_, parent, data=comment_pm)
+            thread.create_node(tag=comment.author, identifier=id_,
+                               parent=parent, data=comment_pm)
 
         return thread
 
