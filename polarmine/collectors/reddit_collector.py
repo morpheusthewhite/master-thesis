@@ -7,9 +7,6 @@ from polarmine.content import Content
 from polarmine.comment import Comment
 
 
-COMMENT_LIMIT = 10
-
-
 class RedditCollector(Collector):
     """collects content from reddit
     """
@@ -63,12 +60,14 @@ class RedditCollector(Collector):
         return content
 
     def __submission_to_thread__(self, submission: praw.models.Submission,
-                                 keyword: str) -> treelib.Tree:
+                                 keyword: str, limit: int) -> treelib.Tree:
         """Use a submission to create the associated thread (of comments)
 
         Args:
             submission: the praw submission from which comments are extracted
             keyword (str): keyword used for filtering submissions
+            limit (int): maximum number of comments to unfold in the
+                highest level
 
         Returns:
             Tree: A Tree object associated to comments of the submission
@@ -82,8 +81,7 @@ class RedditCollector(Collector):
         submission_id = f"t3_{submission.id}"
 
         # retrieve comments
-        # TODO: increase the limit?
-        submission.comments.replace_more(limit=COMMENT_LIMIT)
+        submission.comments.replace_more(limit)
         comment_forest = submission.comments
 
         thread = treelib.Tree()
@@ -108,7 +106,7 @@ class RedditCollector(Collector):
         return thread
 
     def collect(self, ncontents: int, keyword: str = None,
-                page: str = None) -> list[treelib.Tree]:
+                page: str = None, limit: int = 10000) -> list[treelib.Tree]:
         """collect content and their relative comments as tree.
 
         Args:
@@ -119,6 +117,8 @@ class RedditCollector(Collector):
                 found. A + separated list of subreddits (no space). For more
                 info on the accepted format see
                 https://praw.readthedocs.io/en/latest/code_overview/reddit_instance.html#praw.Reddit.subreddit
+            limit (int): maximum number of comments to unfold in the
+                highest level
 
         Returns:
             list[Tree]: a list of tree, each associated to a submission.
@@ -130,7 +130,7 @@ class RedditCollector(Collector):
         for i, content_id in enumerate(contents_id):
             submission = self.reddit.submission(content_id)
 
-            thread = self.__submission_to_thread__(submission, keyword)
+            thread = self.__submission_to_thread__(submission, keyword, limit)
 
             yield (thread)
 
