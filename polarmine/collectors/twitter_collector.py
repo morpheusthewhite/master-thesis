@@ -81,11 +81,14 @@ class TwitterCollector(Collector):
         thread = treelib.Tree()
 
         # create comment object, associated to root node of this tree
+        # the tag of the node is the author of the tweet
+        # (or retweet, eventually)
         comment_text = reply.full_text
         comment_author = hash(reply.id_str)
         comment_time = reply.created_at.timestamp()
         comment = Comment(comment_text, comment_author, comment_time)
-        thread.create_node(reply_id, reply_id, data=comment)
+        thread.create_node(tag=comment.author, identifier=reply_id,
+                           data=comment)
 
         # cursor over replies to tweet
         replies = tweepy.Cursor(self.twitter.search,
@@ -145,7 +148,8 @@ class TwitterCollector(Collector):
         content_author = hash(status.id_str)
         content = Content(content_url, content_text, content_time,
                           content_author, keyword)
-        thread.create_node(status_id, status_id, data=content)
+        thread.create_node(tag=content_author, identifier=status_id,
+                           data=content)
 
         # cursor over replies to tweet
         replies = tweepy.Cursor(self.twitter.search,
