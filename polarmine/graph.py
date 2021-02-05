@@ -9,6 +9,7 @@ LABEL_NEGATIVE="NEGATIVE"
 LABEL_POSITIVE="POSITIVE"
 KEY_SCORE="score"
 KEY_LABEL="label"
+SENTIMENT_MAX_TEXT_LENGTH=2048
 
 
 class PolarizationGraph():
@@ -82,7 +83,13 @@ class PolarizationGraph():
 
         # return a list of dictionary of this type
         # [{'label': 'NEGATIVE', 'score': 0.8729901313781738}]
-        sentiment_dictionary = self.cls_sentiment_analysis(comment.text)[0]
+        try:
+            sentiment_dictionary = self.cls_sentiment_analysis(comment.text)[0]
+        except IndexError:
+            # text too long
+            sentiment_dictionary = \
+                    self.cls_sentiment_analysis(
+                        comment.text[:SENTIMENT_MAX_TEXT_LENGTH])[0]
 
         # the score returned by the classifier is the highest between the 2
         # probabilities and so it is always >= 0.5
