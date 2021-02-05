@@ -1,5 +1,6 @@
 import praw
 import treelib
+import itertools
 from typing import Optional
 
 from polarmine.collectors.collector import Collector
@@ -60,7 +61,8 @@ class RedditCollector(Collector):
         return content
 
     def __submission_to_thread__(self, submission: praw.models.Submission,
-                                 keyword: str, limit: int) -> treelib.Tree:
+                                 keyword: str, limit: int, cross: bool) \
+            -> list[treelib.Tree]:
         """Use a submission to create the associated thread (of comments)
 
         Args:
@@ -68,46 +70,59 @@ class RedditCollector(Collector):
             keyword (str): keyword used for filtering submissions
             limit (int): maximum number of comments to unfold in the
                 highest level
+            cross (bool): if True looks for duplicate and return their threads
 
         Returns:
-            Tree: A Tree object associated to comments of the submission
-                (which is the root)
+            list(Tree): A list of Tree object associated to comments of the submission
+                (which is the root). May contain more than 1 element if cross is True
         """
         # retrieve content object
         content = self.__submission_to_content__(submission, keyword)
 
-        # modify the id to follow convention user for `parent_id` attribute
-        # of comment
-        submission_id = f"t3_{submission.id}"
+        submissions = [submission]
 
-        # retrieve comments
-        submission.comments.replace_more(limit)
-        comment_forest = submission.comments
+        # eventually add duplicates/crossposts
+        if cross:
+            submissions.extend(submission.duplicates())
 
-        thread = treelib.Tree()
+        threads = []
 
-        # the submission represents the root node in the tree collecting
-        # all the replies. The associated data is a content object
-        # in this case the tag (submitter user) is the author
-        # (no crossposting at the moment)
-        thread.create_node(tag=content.author, identifier=submission_id,
-                           data=content)
+        for s in submissions:
+            # modify the id to follow convention user for `parent_id` attribute
+            # of comment
+            s_id = f"t3_{s.id}"
 
-        # iterate over comments to the submission
-        for comment in comment_forest.list():
+            # retrieve comments
+            s.comments.replace_more(limit)
+            comment_forest = s.comments
 
-            # modify the id to follow convention user for `parent_id`
-            id_ = f"t1_{comment.id}"
-            parent = comment.parent_id
+            thread = treelib.Tree()
 
-            # polarmine comment object, store minimal set of information
-            comment_pm = Comment(comment.body, hash(comment.author),
-                                 comment.created_utc)
+            # the submission represents the root node in the tree collecting
+            # all the replies. The associated data is a content object
+            # in this case the tag (submitter user) is the author of this
+            # (possibly crossposted) submission and the id is the id of the new
+            # submission
+            thread.create_node(tag=hash(s.author), identifier=s_id,
+                               data=content)
 
-            thread.create_node(tag=comment.author, identifier=id_,
-                               parent=parent, data=comment_pm)
+            # iterate over comments to the submission
+            for comment in comment_forest.list():
 
-        return thread
+                # modify the id to follow convention user for `parent_id`
+                id_ = f"t1_{comment.id}"
+                parent = comment.parent_id
+
+                # polarmine comment object, store minimal set of information
+                comment_pm = Comment(comment.body, hash(comment.author),
+                                     comment.created_utc)
+
+                thread.create_node(tag=comment.author, identifier=id_,
+                                   parent=parent, data=comment_pm)
+
+            threads.append(thread)
+
+        return threads
 
     def collect(self, ncontents: int, keyword: str = None,
                 page: str = None, limit: int = 10000, cross: bool = True) \
@@ -132,14 +147,17 @@ class RedditCollector(Collector):
                 is a Content object, while for the other nodes it is a `Comment`
         """
         contents_id = self.__find_contents_id__(ncontents, keyword, page)
+        threads = iter([])
 
         for i, content_id in enumerate(contents_id):
             submission = self.reddit.submission(content_id)
 
-            thread = self.__submission_to_thread__(submission, keyword, limit)
-
-            yield (thread)
+            content_threads = self.__submission_to_thread__(submission, keyword, limit,
+                                                            cross)
+            threads = itertools.chain(threads, content_threads)
 
             if i + 1 >= ncontents:
                 break
+
+        return threads
 
