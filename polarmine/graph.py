@@ -5,14 +5,14 @@ from transformers import pipeline
 from polarmine.comment import Comment
 from polarmine.content import Content
 
-LABEL_NEGATIVE="NEGATIVE"
-LABEL_POSITIVE="POSITIVE"
-KEY_SCORE="score"
-KEY_LABEL="label"
-SENTIMENT_MAX_TEXT_LENGTH=2048
+LABEL_NEGATIVE = "NEGATIVE"
+LABEL_POSITIVE = "POSITIVE"
+KEY_SCORE = "score"
+KEY_LABEL = "label"
+SENTIMENT_MAX_TEXT_LENGTH = 2048
 
 
-class PolarizationGraph():
+class PolarizationGraph:
 
     """A graph class providing methods for polarization analysis """
 
@@ -71,14 +71,20 @@ class PolarizationGraph():
                     comment_vertex = self.get_user_vertex(comment_author)
 
                     # and add the edge
-                    self.add_edge(comment_vertex, node_vertex, comment,
-                                  content)
+                    self.add_edge(
+                        comment_vertex, node_vertex, comment, content
+                    )
 
                     # equeue this child
                     queue.append(child)
 
-    def add_edge(self, vertex_source: gt.Vertex, vertex_target: gt.Vertex,
-                 comment: Comment, content: Content):
+    def add_edge(
+        self,
+        vertex_source: gt.Vertex,
+        vertex_target: gt.Vertex,
+        comment: Comment,
+        content: Content,
+    ):
         edge = self.graph.add_edge(vertex_source, vertex_target)
 
         # return a list of dictionary of this type
@@ -87,9 +93,9 @@ class PolarizationGraph():
             sentiment_dictionary = self.cls_sentiment_analysis(comment.text)[0]
         except IndexError:
             # text too long
-            sentiment_dictionary = \
-                    self.cls_sentiment_analysis(
-                        comment.text[:SENTIMENT_MAX_TEXT_LENGTH])[0]
+            sentiment_dictionary = self.cls_sentiment_analysis(
+                comment.text[:SENTIMENT_MAX_TEXT_LENGTH]
+            )[0]
 
         # the score returned by the classifier is the highest between the 2
         # probabilities and so it is always >= 0.5
@@ -97,7 +103,7 @@ class PolarizationGraph():
         # to [0, 1] and using the label as sign
         sentiment_unsigned_score = (sentiment_dictionary[KEY_SCORE] - 0.5) * 2
         if sentiment_dictionary[KEY_LABEL] == LABEL_NEGATIVE:
-            sentiment_score = - sentiment_unsigned_score
+            sentiment_score = -sentiment_unsigned_score
         else:
             sentiment_score = sentiment_unsigned_score
 
@@ -122,5 +128,3 @@ class PolarizationGraph():
 
     def draw(self):
         gt.graph_draw(self.graph)
-
-

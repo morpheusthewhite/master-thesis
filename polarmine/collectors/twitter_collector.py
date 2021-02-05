@@ -21,25 +21,29 @@ class TwitterCollector(Collector):
         self.twitter = tweepy.API(auth, wait_on_rate_limit=True)
 
     def __get_keys__(self):
-        """Retrieve twitter keys from environment
-        """
+        """Retrieve twitter keys from environment"""
         consumer_key = os.getenv("TWITTER_CONSUMER_KEY")
         consumer_secret = os.getenv("TWITTER_CONSUMER_SECRET")
 
         auth_key = os.getenv("TWITTER_AUTH_KEY")
         auth_secret = os.getenv("TWITTER_AUTH_SECRET")
 
-        if consumer_secret is None or \
-           consumer_key is None or \
-           auth_key is None or \
-           auth_secret is None:
-            raise Exception("You didn't properly setup twitter \
-                            environment variable, follow the README")
+        if (
+            consumer_secret is None
+            or consumer_key is None
+            or auth_key is None
+            or auth_secret is None
+        ):
+            raise Exception(
+                "You didn't properly setup twitter \
+                            environment variable, follow the README"
+            )
 
         return consumer_key, consumer_secret, auth_key, auth_secret
 
-    def __find_statuses__(self, ncontents: int, keyword: Optional[str],
-                             page: Optional[str]) -> list[tweepy.Status]:
+    def __find_statuses__(
+        self, ncontents: int, keyword: Optional[str], page: Optional[str]
+    ) -> list[tweepy.Status]:
         """Find n statuses containing `keyword` or from a certain user `page`.
             Either `keyword` or `page` must not be None
 
@@ -52,18 +56,24 @@ class TwitterCollector(Collector):
             list[tweepy.Status]: a list of statuses
         """
         if keyword is not None:
-            cursor = tweepy.Cursor(self.twitter.search, q=keyword,
-                                   tweet_mode="extended")
+            cursor = tweepy.Cursor(
+                self.twitter.search, q=keyword, tweet_mode="extended"
+            )
         elif page is not None:
-            cursor = tweepy.Cursor(self.twitter.user_timeline, screen_name=page,
-                                   tweet_mode="extended", exclude_replies=True)
+            cursor = tweepy.Cursor(
+                self.twitter.user_timeline,
+                screen_name=page,
+                tweet_mode="extended",
+                exclude_replies=True,
+            )
         else:
             raise NotImplementedError
 
         return list(cursor.items(ncontents))
 
-    def __reply_to_thread__(self, reply: tweepy.Status, limit: int = 10000) \
-            -> treelib.Tree:
+    def __reply_to_thread__(
+        self, reply: tweepy.Status, limit: int = 10000
+    ) -> treelib.Tree:
         """Find thread of comments associated to a certain reply
 
         Args:
@@ -87,21 +97,24 @@ class TwitterCollector(Collector):
         comment_author = hash(reply.id_str)
         comment_time = reply.created_at.timestamp()
         comment = Comment(comment_text, comment_author, comment_time)
-        thread.create_node(tag=comment.author, identifier=reply_id,
-                           data=comment)
+        thread.create_node(tag=comment.author, identifier=reply_id, data=comment)
 
         # cursor over replies to tweet
-        replies = tweepy.Cursor(self.twitter.search,
-                                q=f'to:{reply_author_name}',
-                                since_id=reply_id,
-                                tweet_mode='extended').items()
+        replies = tweepy.Cursor(
+            self.twitter.search,
+            q=f"to:{reply_author_name}",
+            since_id=reply_id,
+            tweet_mode="extended",
+        ).items()
 
         for i in range(limit):
             try:
                 reply = replies.next()
 
-                if reply.in_reply_to_status_id is not None and \
-                   reply.in_reply_to_status_id == reply_id:
+                if (
+                    reply.in_reply_to_status_id is not None
+                    and reply.in_reply_to_status_id == reply_id
+                ):
 
                     # obtain thread originated from current reply
                     subthread = self.__reply_to_thread__(reply, limit)
@@ -119,8 +132,9 @@ class TwitterCollector(Collector):
 
         return thread
 
-    def __status_to_thread__(self, status: tweepy.Status,
-                             keyword: str, limit: int) -> treelib.Tree:
+    def __status_to_thread__(
+        self, status: tweepy.Status, keyword: str, limit: int
+    ) -> treelib.Tree:
         """Find thread of comments associated to a certain status
 
         Args:
@@ -146,23 +160,27 @@ class TwitterCollector(Collector):
         content_text = status.full_text
         content_time = status.created_at.timestamp()
         content_author = hash(status.id_str)
-        content = Content(content_url, content_text, content_time,
-                          content_author, keyword)
-        thread.create_node(tag=content_author, identifier=status_id,
-                           data=content)
+        content = Content(
+            content_url, content_text, content_time, content_author, keyword
+        )
+        thread.create_node(tag=content_author, identifier=status_id, data=content)
 
         # cursor over replies to tweet
-        replies = tweepy.Cursor(self.twitter.search,
-                                q=f'to:{status_author_name}',
-                                since_id=status_id,
-                                tweet_mode='extended').items()
+        replies = tweepy.Cursor(
+            self.twitter.search,
+            q=f"to:{status_author_name}",
+            since_id=status_id,
+            tweet_mode="extended",
+        ).items()
 
         for i in range(limit):
             try:
                 reply = replies.next()
 
-                if reply.in_reply_to_status_id is not None and \
-                   reply.in_reply_to_status_id == status_id:
+                if (
+                    reply.in_reply_to_status_id is not None
+                    and reply.in_reply_to_status_id == status_id
+                ):
 
                     # obtain thread originated from current reply
                     subthread = self.__reply_to_thread__(reply, limit)
@@ -180,9 +198,14 @@ class TwitterCollector(Collector):
 
         return thread
 
-    def collect(self, ncontents: int, keyword: str = None, page: str = None,
-                limit: int = 10000, cross: bool = True) \
-            -> list[Content]:
+    def collect(
+        self,
+        ncontents: int,
+        keyword: str = None,
+        page: str = None,
+        limit: int = 10000,
+        cross: bool = True,
+    ) -> list[Content]:
         """collect content and their relative comments as tree.
 
         Args:
@@ -208,4 +231,3 @@ class TwitterCollector(Collector):
             thread = self.__status_to_thread__(status, keyword, limit)
 
             yield (thread)
-

@@ -1,6 +1,13 @@
-class Content():
-    def __init__(self, url: str, text: str, time: float, author: int,
-                 keyword: str = None, **kwargs):
+class Content:
+    def __init__(
+        self,
+        url: str,
+        text: str,
+        time: float,
+        author: int,
+        keyword: str = None,
+        **kwargs
+    ):
         super(Content, self).__init__(**kwargs)
 
         self.url = url

@@ -3,12 +3,17 @@ from polarmine.content import Content
 
 
 class Collector(ABC):
-    """object able to collect content and the comment thread
-    """
+    """object able to collect content and the comment thread"""
 
     @abstractmethod
-    def collect(self, ncontents, keyword: str =None, page: str =None,
-                limit: int = 10000, cross: bool = True) -> list[Content]:
+    def collect(
+        self,
+        ncontents,
+        keyword: str = None,
+        page: str = None,
+        limit: int = 10000,
+        cross: bool = True,
+    ) -> list[Content]:
         """collect comment threads relative to content
 
         Args:

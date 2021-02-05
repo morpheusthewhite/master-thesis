@@ -9,16 +9,16 @@ from polarmine.comment import Comment
 
 
 class RedditCollector(Collector):
-    """collects content from reddit
-    """
+    """collects content from reddit"""
 
     def __init__(self, **kwargs):
         super(RedditCollector, self).__init__(**kwargs)
 
         self.reddit = praw.Reddit()
 
-    def __find_contents_id__(self, ncontents: int, keyword: Optional[str],
-                             page: Optional[str]) -> list[str]:
+    def __find_contents_id__(
+        self, ncontents: int, keyword: Optional[str], page: Optional[str]
+    ) -> list[str]:
         """Find contents
 
         Args:
@@ -42,8 +42,9 @@ class RedditCollector(Collector):
 
         return contents_id
 
-    def __submission_to_content__(self, submission: praw.models.Submission,
-                                  keyword: str) -> Content:
+    def __submission_to_content__(
+        self, submission: praw.models.Submission, keyword: str
+    ) -> Content:
         """Create a Content object from a submission
 
         Args:
@@ -54,15 +55,23 @@ class RedditCollector(Collector):
             Content: the content object relative to the submission
         """
         # TODO: just consider the title?
-        content = Content(submission.url, submission.title,
-                          submission.created_utc,
-                          hash(submission.author), keyword)
+        content = Content(
+            submission.url,
+            submission.title,
+            submission.created_utc,
+            hash(submission.author),
+            keyword,
+        )
 
         return content
 
-    def __submission_to_thread__(self, submission: praw.models.Submission,
-                                 keyword: str, limit: int, cross: bool) \
-            -> list[treelib.Tree]:
+    def __submission_to_thread__(
+        self,
+        submission: praw.models.Submission,
+        keyword: str,
+        limit: int,
+        cross: bool,
+    ) -> list[treelib.Tree]:
         """Use a submission to create the associated thread (of comments)
 
         Args:
@@ -103,8 +112,9 @@ class RedditCollector(Collector):
             # in this case the tag (submitter user) is the author of this
             # (possibly crossposted) submission and the id is the id of the new
             # submission
-            thread.create_node(tag=hash(s.author), identifier=s_id,
-                               data=content)
+            thread.create_node(
+                tag=hash(s.author), identifier=s_id, data=content
+            )
 
             # iterate over comments to the submission
             for comment in comment_forest.list():
@@ -114,19 +124,29 @@ class RedditCollector(Collector):
                 parent = comment.parent_id
 
                 # polarmine comment object, store minimal set of information
-                comment_pm = Comment(comment.body, hash(comment.author),
-                                     comment.created_utc)
+                comment_pm = Comment(
+                    comment.body, hash(comment.author), comment.created_utc
+                )
 
-                thread.create_node(tag=comment.author, identifier=id_,
-                                   parent=parent, data=comment_pm)
+                thread.create_node(
+                    tag=comment.author,
+                    identifier=id_,
+                    parent=parent,
+                    data=comment_pm,
+                )
 
             threads.append(thread)
 
         return threads
 
-    def collect(self, ncontents: int, keyword: str = None,
-                page: str = None, limit: int = 10000, cross: bool = True) \
-            -> list[treelib.Tree]:
+    def collect(
+        self,
+        ncontents: int,
+        keyword: str = None,
+        page: str = None,
+        limit: int = 10000,
+        cross: bool = True,
+    ) -> list[treelib.Tree]:
         """collect content and their relative comments as tree.
 
         Args:
@@ -152,12 +172,12 @@ class RedditCollector(Collector):
         for i, content_id in enumerate(contents_id):
             submission = self.reddit.submission(content_id)
 
-            content_threads = self.__submission_to_thread__(submission, keyword, limit,
-                                                            cross)
+            content_threads = self.__submission_to_thread__(
+                submission, keyword, limit, cross
+            )
             threads = itertools.chain(threads, content_threads)
 
             if i + 1 >= ncontents:
                 break
 
         return threads
-
