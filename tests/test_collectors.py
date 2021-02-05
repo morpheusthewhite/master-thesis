@@ -14,7 +14,7 @@ twitter_collector = TwitterCollector()
 
 def test_reddit_collect_simple():
     # simple check on single content
-    contents = list(reddit_collector.collect(1, limit=10))
+    contents = list(reddit_collector.collect(1, limit=10, cross=False))
     assert len(contents) == 1
 
     content = contents[0]
@@ -23,7 +23,7 @@ def test_reddit_collect_simple():
 
 def test_reddit_collect_more():
     # try to collect more than 1 content
-    threads = list(reddit_collector.collect(2, limit=10))
+    threads = list(reddit_collector.collect(2, limit=10, cross=False))
     assert len(threads) == 2
 
     for thread in threads:
@@ -42,15 +42,22 @@ def test_reddit_collect_more():
 def test_reddit_collect_page():
     # try to collect from page
     contents = list(reddit_collector.collect(2, page="programming",
-                                             limit=10))
+                                             limit=10, cross=False))
     assert len(contents) == 2
+
+
+def test_reddit_collect_page_cross():
+    # try to collect from page
+    contents = list(reddit_collector.collect(2, page="programming",
+                                             limit=10, cross=True))
+    assert len(contents) >= 2
 
 
 def test_reddit_collect_keyword():
     # try to collect from keyword
     contents = list(reddit_collector.collect(2, keyword="obama",
                                              limit=10))
-    assert len(contents) == 2
+    assert len(contents) >= 2
 
 
 def test_twitter_collect_simple():
