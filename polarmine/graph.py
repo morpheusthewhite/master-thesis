@@ -57,7 +57,7 @@ class PolarizationGraph():
                 node_identifier = node.identifier
 
                 # get/create the corresponding vertex
-                node_author = node.data.author
+                node_author = node.tag
                 node_vertex = self.get_user_vertex(node_author)
 
                 # children of the current node
@@ -65,14 +65,14 @@ class PolarizationGraph():
 
                 for child in children:
                     comment = child.data
-                    comment_author = comment.author
+                    comment_author = node.tag
 
                     # find the node if it is in the graph
                     comment_vertex = self.get_user_vertex(comment_author)
 
                     # and add the edge
                     self.add_edge(comment_vertex, node_vertex, comment,
-                                        content)
+                                  content)
 
                     # equeue this child
                     queue.append(child)
