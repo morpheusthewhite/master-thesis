@@ -7,7 +7,8 @@ class Collector(ABC):
     """
 
     @abstractmethod
-    def collect(self, ncontents, keyword=None, page=None) -> list[Content]:
+    def collect(self, ncontents, keyword: str =None, page: str =None,
+                limit: int = 10000, cross: bool = True) -> list[Content]:
         """collect comment threads relative to content
 
         Args:
@@ -16,6 +17,8 @@ class Collector(ABC):
             use any filter
             page: a starting page to retrieve the content. Note: must be
             compatible with the Collector itself
+            limit: integer to limit band usage
+            cross: include also repost of a certain content
 
         Returns:
             list[Content]: the list of retrieved contents with comments thread

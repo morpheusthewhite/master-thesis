@@ -110,7 +110,8 @@ class RedditCollector(Collector):
         return thread
 
     def collect(self, ncontents: int, keyword: str = None,
-                page: str = None, limit: int = 10000) -> list[treelib.Tree]:
+                page: str = None, limit: int = 10000, cross: bool = True) \
+            -> list[treelib.Tree]:
         """collect content and their relative comments as tree.
 
         Args:
@@ -123,6 +124,7 @@ class RedditCollector(Collector):
                 https://praw.readthedocs.io/en/latest/code_overview/reddit_instance.html#praw.Reddit.subreddit
             limit (int): maximum number of comments to unfold in the
                 highest level
+            cross (bool): if True includes also crossposts of the found submissions
 
         Returns:
             list[Tree]: a list of tree, each associated to a submission.

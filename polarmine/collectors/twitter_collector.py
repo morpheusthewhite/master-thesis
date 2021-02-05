@@ -177,7 +177,7 @@ class TwitterCollector(Collector):
         return thread
 
     def collect(self, ncontents: int, keyword: str = None, page: str = None,
-                limit: int = 10000) \
+                limit: int = 10000, cross: bool = True) \
             -> list[Content]:
         """collect content and their relative comments as tree.
 
@@ -187,6 +187,10 @@ class TwitterCollector(Collector):
                 If page is not None then it is ignored
             page (Optional[str]): the starting page from which content is
                 found.
+            limit (int): maximum number of tweets to check when looking
+                for replies
+            cross (bool): if True includes also the retweets of the found statuses
+                in the result
 
         Returns:
             list[Tree]: a list of tree, each associated to a post.
