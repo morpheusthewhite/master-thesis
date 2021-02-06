@@ -2,11 +2,15 @@ import os
 import time
 import treelib
 import tweepy
+import itertools
 from typing import Optional
 
 from polarmine.collectors.collector import Collector
 from polarmine.content import Content
 from polarmine.comment import Comment
+
+
+QUOTE_MIN_REPLIES = 1
 
 
 class TwitterCollector(Collector):
@@ -36,16 +40,19 @@ class TwitterCollector(Collector):
         ):
             raise Exception(
                 "You didn't properly setup twitter \
-                            environment variable, follow the README"
+                environment variable, follow the README"
             )
 
         return consumer_key, consumer_secret, auth_key, auth_secret
 
     def __find_statuses__(
-        self, ncontents: int, keyword: Optional[str], page: Optional[str]
+        self,
+        ncontents: int,
+        keyword: Optional[str],
+        page: Optional[str],
     ) -> list[tweepy.Status]:
         """Find n statuses containing `keyword` or from a certain user `page`.
-            Either `keyword` or `page` must not be None
+        Either `keyword` or `page` must not be None
 
         Args:
             ncontents (int): the number of statuses to find
@@ -79,7 +86,7 @@ class TwitterCollector(Collector):
         Args:
             reply (tweepy.Status): the status for which reply are looked for
             limit (int): maximum number of tweets to check when looking
-                for replies
+            for replies
 
         Returns:
             treelib.Tree: the Tree of comment replies
@@ -97,7 +104,9 @@ class TwitterCollector(Collector):
         comment_author = hash(reply.author.screen_name)
         comment_time = reply.created_at.timestamp()
         comment = Comment(comment_text, comment_author, comment_time)
-        thread.create_node(tag=comment.author, identifier=reply_id, data=comment)
+        thread.create_node(
+            tag=comment.author, identifier=reply_id, data=comment
+        )
 
         # cursor over replies to tweet
         replies = tweepy.Cursor(
@@ -133,7 +142,7 @@ class TwitterCollector(Collector):
         return thread
 
     def __status_to_thread__(
-        self, status: tweepy.Status, keyword: str, limit: int
+        self, status: tweepy.Status, keyword: str, limit: int, cross: bool
     ) -> treelib.Tree:
         """Find thread of comments associated to a certain status
 
@@ -141,62 +150,88 @@ class TwitterCollector(Collector):
             status (tweepy.Status): the status for which reply are looked for
             keyword (str): the keyword used to filter status
             limit (int): maximum number of tweets to check when looking
-                for replies
+            for replies
 
         Returns:
             treelib.Tree: the Tree of comment replies. The root node,
-                corresponding to the status itself, is associated with a
-                `Content` object in the node `data` while the other node have
-                a `Comment` object
+            corresponding to the status itself, is associated with a
+            `Content` object in the node `data` while the other node have
+            a `Comment` object
         """
         status_author_name = status.author.screen_name
         status_id = status.id
-
-        # tree object storing comment thread
-        thread = treelib.Tree()
 
         # create content object, associated to root node
         content_url = f"https://twitter.com/user/status/{status_id}"
         content_text = status.full_text
         content_time = status.created_at.timestamp()
-        content_author = hash(status.author.screen_name)
+        content_author = hash(status_author_name)
         content = Content(
             content_url, content_text, content_time, content_author, keyword
         )
-        thread.create_node(tag=content_author, identifier=status_id, data=content)
 
-        # cursor over replies to tweet
-        replies = tweepy.Cursor(
-            self.twitter.search,
-            q=f"to:{status_author_name}",
-            since_id=status_id,
-            tweet_mode="extended",
-        ).items()
+        # list of statuses to be processes. Eventually includes quoting statuses
+        statuses = [status]
 
-        for i in range(limit):
-            try:
-                reply = replies.next()
+        if cross:
+            # add quote tweets of the obtained tweets
+            # for each tweet search the twitter url, requiring at least
+            # QUOTE_MIN_REPLIES reply
+            query = "https://twitter.com/{screen_name}/status/{status_id} min_replies:" + \
+                str(QUOTE_MIN_REPLIES)
 
-                if (
-                    reply.in_reply_to_status_id is not None
-                    and reply.in_reply_to_status_id == status_id
-                ):
+            # cursor over quotes of the status
+            cursor_quote = tweepy.Cursor(
+                self.twitter.search, q=query.format(screen_name=content_author,
+                                                    status_id=status.id),
+                tweet_mode="extended"
+            )
 
-                    # obtain thread originated from current reply
-                    subthread = self.__reply_to_thread__(reply, limit)
+            for status_quoting in cursor_quote.items():
+                statuses.append(status_quoting)
 
-                    # add subthread as children of the current node
-                    thread.paste(status_id, subthread)
+        for s in statuses:
+            s_author_name = s.author.screen_name
+            s_id = s.id
 
-            except tweepy.RateLimitError:
-                print("Twitter api rate limit reached")
-                time.sleep(60)
-                continue
+            # tree object storing comment thread
+            thread = treelib.Tree()
+            thread.create_node(
+                tag=hash(s_author_name), identifier=s_id, data=content
+            )
 
-            except StopIteration:
-                break
+            # cursor over replies to tweet
+            replies = tweepy.Cursor(
+                self.twitter.search,
+                q=f"to:{s_author_name}",
+                since_id=s_id,
+                tweet_mode="extended",
+            ).items()
 
-        return thread
+            for i in range(limit):
+                try:
+                    reply = replies.next()
+
+                    if (
+                        reply.in_reply_to_status_id is not None
+                        and reply.in_reply_to_status_id == s_id
+                    ):
+
+                        # obtain thread originated from current reply
+                        subthread = self.__reply_to_thread__(reply, limit)
+
+                        # add subthread as children of the current node
+                        thread.paste(s_id, subthread)
+
+                except tweepy.RateLimitError:
+                    print("Twitter api rate limit reached")
+                    time.sleep(60)
+                    continue
+
+                except StopIteration:
+                    break
+
+            yield thread
 
     def collect(
         self,
@@ -211,23 +246,26 @@ class TwitterCollector(Collector):
         Args:
             ncontents: number of posts to find
             keyword (Optional[str]): keyword used for filtering content.
-                If page is not None then it is ignored
+            If page is not None then it is ignored
             page (Optional[str]): the starting page from which content is
-                found.
+            found.
             limit (int): maximum number of tweets to check when looking
-                for replies
+            for replies
             cross (bool): if True includes also the retweets of the found statuses
-                in the result
+            in the result
 
         Returns:
             list[Tree]: a list of tree, each associated to a post.
-                The root node is associated to the content itself and its `data`
-                is a Content object, while for the other nodes it is a `Comment`
+            The root node is associated to the content itself and its `data`
+            is a Content object, while for the other nodes it is a `Comment`
         """
         statuses = self.__find_statuses__(ncontents, keyword, page)
+        threads = iter([])
 
-        for i, status in enumerate(statuses):
+        for status in statuses:
 
-            thread = self.__status_to_thread__(status, keyword, limit)
+            content_threads = self.__status_to_thread__(
+                status, keyword, limit, cross)
+            threads = itertools.chain(threads, content_threads)
 
-            yield (thread)
+        return threads
