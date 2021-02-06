@@ -94,7 +94,7 @@ class TwitterCollector(Collector):
         # the tag of the node is the author of the tweet
         # (or retweet, eventually)
         comment_text = reply.full_text
-        comment_author = hash(reply.id_str)
+        comment_author = hash(reply.author_screen_name)
         comment_time = reply.created_at.timestamp()
         comment = Comment(comment_text, comment_author, comment_time)
         thread.create_node(tag=comment.author, identifier=reply_id, data=comment)
@@ -159,7 +159,7 @@ class TwitterCollector(Collector):
         content_url = f"https://twitter.com/user/status/{status_id}"
         content_text = status.full_text
         content_time = status.created_at.timestamp()
-        content_author = hash(status.id_str)
+        content_author = hash(status.author.screen_name)
         content = Content(
             content_url, content_text, content_time, content_author, keyword
         )
