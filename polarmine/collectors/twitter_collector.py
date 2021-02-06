@@ -94,7 +94,7 @@ class TwitterCollector(Collector):
         # the tag of the node is the author of the tweet
         # (or retweet, eventually)
         comment_text = reply.full_text
-        comment_author = hash(reply.author_screen_name)
+        comment_author = hash(reply.author.screen_name)
         comment_time = reply.created_at.timestamp()
         comment = Comment(comment_text, comment_author, comment_time)
         thread.create_node(tag=comment.author, identifier=reply_id, data=comment)
