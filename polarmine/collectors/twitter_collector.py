@@ -177,16 +177,16 @@ class TwitterCollector(Collector):
             # add quote tweets of the obtained tweets
             # for each tweet search the twitter url, requiring at least
             # QUOTE_MIN_REPLIES reply
-            query = "https://twitter.com/{screen_name}/status/{status_id} min_replies:" + \
-                str(QUOTE_MIN_REPLIES)
+            query = f"https://twitter.com/{status_author_name}/status/{status_id} min_replies:{QUOTE_MIN_REPLIES}"
 
             # cursor over quotes of the status
             cursor_quote = tweepy.Cursor(
-                self.twitter.search, q=query.format(screen_name=content_author,
-                                                    status_id=status.id),
+                self.twitter.search, q=query,
                 tweet_mode="extended"
             )
 
+            import pdb
+            pdb.set_trace()
             for status_quoting in cursor_quote.items():
                 statuses.append(status_quoting)
 
