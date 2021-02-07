@@ -1,4 +1,5 @@
 import argparse
+import itertools
 
 from polarmine.graph import PolarizationGraph
 from polarmine.collectors.reddit_collector import RedditCollector
@@ -8,39 +9,36 @@ from polarmine.collectors.twitter_collector import TwitterCollector
 parser = argparse.ArgumentParser(description='Polarmine')
 
 save_load_group = parser.add_mutually_exclusive_group()
-save_load_group.add_argument('--dump', '-d', type=str, default=None, metavar='dump',
+save_load_group.add_argument('--dump', '-d', type=str, default=None, metavar='filename',
                              help='dump the mined data at the given path')
-save_load_group.add_argument('--load', '-l', type=str, default=None, metavar='load',
+save_load_group.add_argument('--load', '-l', type=str, default=None, metavar='filename',
                              help='load the mined data at the given path')
-# Model params
-#  parser.add_argument('--model-name', '-mn', type=str, default='vae', metavar='model_name',
-#                      help='model name: vae, vamp', choices=['vae', 'vamp', 'hvae'])
-#  parser.add_argument('-C', '--pseudo-inputs', type=int, default=500, metavar='C', dest='C',
-#                      help='number of pseudo-inputs with vamp prior')
-#  parser.add_argument('-D', type=int, default=40, metavar='D',
-#                      help='number of stochastic hidden units, i.e. z size (same for z1 and z2 with HVAE)')
-#  parser.add_argument('--dataset', '-ds', type=str, default='mnist', metavar='dataset',
-#                      help='used dataset: mnist, frey', choices=['mnist', 'frey', 'fashion'])
-#  # Training params
-#  parser.add_argument('--epochs', '-e', type=int, default=1, metavar='epochs',
-#                      help='number of epochs')
-#  parser.add_argument('-bs', '--batch-size', type=int, default=100, metavar='batch_size',
-#                      help='size of training mini-batch')
-#  parser.add_argument('-L', type=int, default=1, metavar='L',
-#                      help='number of MC samples')
-#  parser.add_argument('-lr', '--learning-rate', type=float, default=1e-3, metavar='lr', dest='lr',
-#                      help='learning rate')
-#  parser.add_argument('-wu', '--warm-up', type=int, default=0, metavar='warmup', dest='warmup',
-#                      help='number of warmup epochs')
-#  parser.add_argument('--max-beta', type=float, default=1., metavar='max_beta',
-#                      help='maximum value of the regularization loss coefficient')
-#  # Debugging params
-#  parser.add_argument('-tb', '--tensorboard', action='store_true', dest='tb',
-#                      help='save training log in ./ for tensorboard inspection')
-#  parser.set_defaults(tb=False)
-#  parser.add_argument('-d', '--debug', action='store_true', dest='debug',
-#                      help='show images')
-#  parser.set_defaults(debug=False)
+# reddit
+reddit_group = parser.add_mutually_exclusive_group()
+reddit_group.add_argument('-r', '--reddit', default=None, action='store_true', dest='r',
+                          help='mine data from reddit without filters')
+reddit_group.add_argument('-rkw', '--reddit-kw', type=str, default=None, metavar='reddit_keywords', dest='r_kw',
+                          help='keyword used for filtering reddit posts')
+reddit_group.add_argument('-rp', '--reddit-page', type=str, default=None, metavar='reddit_page', dest='r_pg',
+                          help='subreddit(s) from which posts are mined')
+parser.add_argument('-rl', '--reddit-limit', type=int, default=10, metavar='reddit_limit', dest='rl',
+                    help='max number of mined comments when looking for replies')
+parser.add_argument('-rn', '--reddit-n', type=int, default=1, metavar='reddit_n', dest='rn',
+                    help='number of mined posts')
+parser.add_argument('-rc', '--reddit-cross', action='store_true', default=False, dest='rc',
+                    help='if provided graph will also include crossposts')
+# twitter
+twitter_group = parser.add_mutually_exclusive_group()
+twitter_group.add_argument('-tkw', '--twitter-kw', type=str, default=None, metavar='twitter_keywords', dest='t_kw',
+                           help='keyword used for filtering tweets')
+twitter_group.add_argument('-tp', '--twitter-page', type=str, default=None, metavar='twitter_page', dest='t_pg',
+                           help='Twitter username from which posts are mined')
+parser.add_argument('-tl', '--twitter-limit', type=int, default=10, metavar='twitter_limit', dest='tl',
+                    help='max number of mined tweets when looking for replies')
+parser.add_argument('-tn', '--twitter-n', type=int, default=1, metavar='twitter_n', dest='tn',
+                    help='number of mined tweets')
+parser.add_argument('-tc', '--twitter-cross', action='store_true', default=False, dest='tc',
+                    help='if provided graph will also include reply quotes')
 
 args = parser.parse_args()
 
@@ -51,14 +49,28 @@ def main():
         graph = PolarizationGraph.from_file(args.load)
     else:
         # mine data and store it
-        reddit_collector = RedditCollector()
-        contents = list(reddit_collector.collect(1, limit=10, cross=False))
+        contents = iter([])
+
+        if args.r or args.r_kw is not None or args.r_pg is not None:
+            reddit_collector = RedditCollector()
+            reddit_iter = reddit_collector.collect(args.rn, args.r_kw, args.r_pg,
+                                                   limit=args.rl, cross=args.rc)
+
+            contents = itertools.chain(contents, reddit_iter)
+
+        if args.t_kw is not None or args.t_pg is not None:
+            twitter_collector = TwitterCollector()
+            twitter_iter = twitter_collector.collect(args.tn, args.t_kw, args.t_pg,
+                                                     limit=args.tl, cross=args.tc)
+
+            contents = itertools.chain(contents, twitter_iter)
 
         graph = PolarizationGraph(contents)
 
         if args.dump is not None:
             graph.dump(args.dump)
 
+    graph.summarize()
     graph.draw()
 
 
