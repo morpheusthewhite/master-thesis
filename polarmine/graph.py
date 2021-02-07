@@ -65,7 +65,7 @@ class PolarizationGraph:
 
                 for child in children:
                     comment = child.data
-                    comment_author = node.tag
+                    comment_author = child.tag
 
                     # find the node if it is in the graph
                     comment_vertex = self.get_user_vertex(comment_author)
