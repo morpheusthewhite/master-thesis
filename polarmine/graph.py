@@ -1,5 +1,6 @@
 import graph_tool.all as gt
 import treelib
+import numpy as np
 from transformers import pipeline
 
 from polarmine.comment import Comment
@@ -171,7 +172,7 @@ class PolarizationGraph:
             f"The graph has {self.graph.num_vertices()} \
 vertices and {self.graph.num_edges()} edges")
 
-    @classmethod
+    @ classmethod
     def from_file(cls, filename: str):
         """Creates a PolarizationGraph object from the graph stored in a file
 
