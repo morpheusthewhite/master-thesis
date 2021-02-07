@@ -11,6 +11,7 @@ from polarmine.comment import Comment
 
 
 QUOTE_MIN_REPLIES = 1
+TWEET_MIN_REPLIES = 5
 
 
 class TwitterCollector(Collector):
@@ -64,7 +65,8 @@ class TwitterCollector(Collector):
         """
         if keyword is not None:
             cursor = tweepy.Cursor(
-                self.twitter.search, q=keyword, tweet_mode="extended"
+                self.twitter.search, q=f"{keyword} min_replies:{TWEET_MIN_REPLIES}",
+                tweet_mode="extended"
             )
         elif page is not None:
             cursor = tweepy.Cursor(
@@ -185,8 +187,6 @@ class TwitterCollector(Collector):
                 tweet_mode="extended"
             )
 
-            import pdb
-            pdb.set_trace()
             for status_quoting in cursor_quote.items():
                 statuses.append(status_quoting)
 
