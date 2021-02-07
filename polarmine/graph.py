@@ -126,5 +126,45 @@ class PolarizationGraph:
 
         return vertex
 
+    def load(self, filename: str) -> None:
+        """load the graph from a file
+
+        Args:
+            filename (str): filename of the file where the graph is stored
+        """
+        if not filename.endswith(".gt"):
+            filename = filename + ".gt"
+
+        self.graph = gt.load_graph(filename)
+
+        # load class attributes. Note: self.users is not initialized as it
+        # not considered important
+        self.weights = self.graph.edge_properties["weights"]
+        self.times = self.graph.edge_properties["times"]
+        self.contents = self.graph.edge_properties["contents"]
+
+    def dump(self, filename: str) -> None:
+        """dump the current graph
+
+        Args:
+            filename (str): filename of the file where the graph will be stored
+        """
+        if not filename.endswith(".gt"):
+            filename = filename + ".gt"
+
+        self.graph.save(filename)
+
     def draw(self):
         gt.graph_draw(self.graph)
+
+    @classmethod
+    def from_file(cls, filename: str):
+        """Creates a PolarizationGraph object from the graph stored in a file
+
+        Args:
+            filename (str): filename of the file where the graph is stored
+        """
+        graph = cls([])
+        graph.load(filename)
+
+        return graph
