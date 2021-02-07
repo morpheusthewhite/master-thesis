@@ -154,8 +154,17 @@ class PolarizationGraph:
 
         self.graph.save(filename)
 
-    def draw(self):
-        gt.graph_draw(self.graph)
+    def draw(self, edge_color: bool = True, edge_width: bool = True):
+        color_property_map = self.graph.new_edge_property("string")
+        width_property_map = self.graph.new_edge_property("double")
+
+        for edge in self.graph.edges():
+            color_property_map[edge] = "red" if self.weights[edge] < 0 else "green"
+
+        width_property_map.a = np.abs(self.weights.a)
+
+        gt.graph_draw(self.graph, edge_color=color_property_map,
+                      edge_pen_width=width_property_map)
 
     def summarize(self):
         print(
