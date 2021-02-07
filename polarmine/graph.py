@@ -157,6 +157,11 @@ class PolarizationGraph:
     def draw(self):
         gt.graph_draw(self.graph)
 
+    def summarize(self):
+        print(
+            f"The graph has {self.graph.num_vertices()} \
+vertices and {self.graph.num_edges()} edges")
+
     @classmethod
     def from_file(cls, filename: str):
         """Creates a PolarizationGraph object from the graph stored in a file
