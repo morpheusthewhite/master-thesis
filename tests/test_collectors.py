@@ -94,3 +94,11 @@ def test_twitter_collect_page():
     contents = list(twitter_collector.collect(
         2, page="Cristiano", limit=10, cross=True))
     assert len(contents) >= 2
+
+
+def test_twitter_shares():
+    # try to collect status which have url shared by other
+    # statuses
+    contents = list(twitter_collector.collect(
+        2, page="nytimes", limit=10, cross=True))
+    assert len(contents) >= 2

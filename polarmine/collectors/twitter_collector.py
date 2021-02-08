@@ -3,7 +3,9 @@ import time
 import treelib
 import tweepy
 import itertools
-from typing import Optional
+import urllib
+import validators
+from typing import Optional, Iterator
 
 from polarmine.collectors.collector import Collector
 from polarmine.content import Content
@@ -79,6 +81,43 @@ class TwitterCollector(Collector):
             raise NotImplementedError
 
         return list(cursor.items(ncontents))
+
+    def __status_to_shares__(self, status: tweepy.Status) -> Iterator:
+        """Find statuses which sharing the same external url of the given status
+
+        Args:
+            status (tweepy.Status): status from which external url is extracted, if
+            present
+
+        Returns:
+            Iterator: an iterator over statuses sharing the same url
+        """
+        # check if url is present in the provided status (it is supposed to be at the end)
+        url = status.full_text.split()[-1]
+
+        # check if it is a valid url
+        if validators.url(url):
+            try:
+                url_redirected = urllib.request.urlopen(url).url
+
+            except urllib.error.HTTPError:
+                # generic error, happens when tweet has some images?
+                return iter([])
+
+            url_parsed = urllib.parse.urlparse(url_redirected)
+
+            # remove query parameters from the url
+            url_cleaned = urllib.parse.urljoin(url_redirected, url_parsed.path)
+
+            query = f"{url_cleaned} min_replies:{TWEET_MIN_REPLIES}"
+            cursor = tweepy.Cursor(
+                self.twitter.search, q=query,
+                tweet_mode="extended"
+            )
+
+            return cursor.items()
+        else:
+            return iter([])
 
     def __status_to_thread_aux__(
         self, status: tweepy.Status, root_data: dict = None, limit: int = 10000
@@ -196,13 +235,21 @@ class TwitterCollector(Collector):
             )
 
             for quote_reply in cursor_quote.items():
-                # quote replies can be handles as normal status since their
+                # quote replies can be handled as normal status since their
                 # text is the reply (without including the quote)
                 subthread = self.__status_to_thread_aux__(
                     quote_reply, limit=limit)
 
                 # add subthread as children of the root
                 thread.paste(status_id, subthread)
+
+            for status in self.__status_to_shares__(status):
+                subthread = self.__status_to_thread_aux__(
+                    status, limit=limit)
+
+                # TODO: add subthread as children of the root?
+                #  thread.paste(status_id, subthread)
+                yield subthread
 
         yield thread
 
