@@ -80,41 +80,48 @@ class TwitterCollector(Collector):
 
         return list(cursor.items(ncontents))
 
-    def __reply_to_thread__(
-        self, reply: tweepy.Status, limit: int = 10000
+    def __status_to_thread_aux__(
+        self, status: tweepy.Status, root_data: dict = None, limit: int = 10000
     ) -> treelib.Tree:
-        """Find thread of comments associated to a certain reply
+        """Find thread of comments associated to a certain status
 
         Args:
-            reply (tweepy.Status): the status for which reply are looked for
+            status (tweepy.Status): the status for which replies are looked for
+            root_data (dict): if not None, it is used as `data` for the root
+            node of the resulting thread, otherwise a Comment object is
+            attached
             limit (int): maximum number of tweets to check when looking
             for replies
 
         Returns:
             treelib.Tree: the Tree of comment replies
         """
-        reply_author_name = reply.author.screen_name
-        reply_id = reply.id
+        status_author_name = status.author.screen_name
+        status_id = status.id
 
         # tree object storing comment thread
         thread = treelib.Tree()
 
-        # create comment object, associated to root node of this tree
-        # the tag of the node is the author of the tweet
-        # (or retweet, eventually)
-        comment_text = reply.full_text
-        comment_author = hash(reply.author.screen_name)
-        comment_time = reply.created_at.timestamp()
-        comment = Comment(comment_text, comment_author, comment_time)
-        thread.create_node(
-            tag=comment.author, identifier=reply_id, data=comment
-        )
+        if root_data is not None:
+            # use provided data
+            thread.create_node(
+                tag=hash(status_author_name), identifier=status_id, data=root_data)
+        else:
+            # create comment object, associated to root node of this tree
+            # the tag of the node is the author of the tweet
+            comment_text = status.full_text
+            comment_author = hash(status.author.screen_name)
+            comment_time = status.created_at.timestamp()
+            comment = Comment(comment_text, comment_author, comment_time)
+            thread.create_node(
+                tag=comment.author, identifier=status_id, data=comment
+            )
 
         # cursor over replies to tweet
         replies = tweepy.Cursor(
             self.twitter.search,
-            q=f"to:{reply_author_name}",
-            since_id=reply_id,
+            q=f"to:{status_author_name}",
+            since_id=status_id,
             tweet_mode="extended",
         ).items()
 
@@ -124,14 +131,15 @@ class TwitterCollector(Collector):
 
                 if (
                     reply.in_reply_to_status_id is not None
-                    and reply.in_reply_to_status_id == reply_id
+                    and reply.in_reply_to_status_id == status_id
                 ):
 
                     # obtain thread originated from current reply
-                    subthread = self.__reply_to_thread__(reply, limit)
+                    subthread = self.__status_to_thread_aux__(
+                        reply, limit=limit)
 
                     # add subthread as children of the current node
-                    thread.paste(reply_id, subthread)
+                    thread.paste(status_id, subthread)
 
             except tweepy.RateLimitError:
                 print("Twitter api rate limit reached")
@@ -172,8 +180,8 @@ class TwitterCollector(Collector):
             content_url, content_text, content_time, content_author, keyword
         )
 
-        # list of statuses to be processes. Eventually includes quoting statuses
-        statuses = [status]
+        # thread/tree including only replies to original status
+        thread = self.__status_to_thread_aux__(status, content, limit)
 
         if cross:
             # add quote tweets of the obtained tweets
@@ -187,51 +195,16 @@ class TwitterCollector(Collector):
                 tweet_mode="extended"
             )
 
-            for status_quoting in cursor_quote.items():
-                statuses.append(status_quoting)
+            for quote_reply in cursor_quote.items():
+                # quote replies can be handles as normal status since their
+                # text is the reply (without including the quote)
+                subthread = self.__status_to_thread_aux__(
+                    quote_reply, limit=limit)
 
-        for s in statuses:
-            s_author_name = s.author.screen_name
-            s_id = s.id
+                # add subthread as children of the root
+                thread.paste(status_id, subthread)
 
-            # tree object storing comment thread
-            thread = treelib.Tree()
-            thread.create_node(
-                tag=hash(s_author_name), identifier=s_id, data=content
-            )
-
-            # cursor over replies to tweet
-            replies = tweepy.Cursor(
-                self.twitter.search,
-                q=f"to:{s_author_name}",
-                since_id=s_id,
-                tweet_mode="extended",
-            ).items()
-
-            for i in range(limit):
-                try:
-                    reply = replies.next()
-
-                    if (
-                        reply.in_reply_to_status_id is not None
-                        and reply.in_reply_to_status_id == s_id
-                    ):
-
-                        # obtain thread originated from current reply
-                        subthread = self.__reply_to_thread__(reply, limit)
-
-                        # add subthread as children of the current node
-                        thread.paste(s_id, subthread)
-
-                except tweepy.RateLimitError:
-                    print("Twitter api rate limit reached")
-                    time.sleep(60)
-                    continue
-
-                except StopIteration:
-                    break
-
-            yield thread
+        yield thread
 
     def collect(
         self,
