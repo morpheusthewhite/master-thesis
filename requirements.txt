@@ -3,3 +3,4 @@ python-twitter
 treelib
 pytorch
 transformers
+validators
