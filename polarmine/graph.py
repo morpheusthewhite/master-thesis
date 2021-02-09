@@ -1,16 +1,16 @@
 import graph_tool.all as gt
 import treelib
 import numpy as np
-from transformers import pipeline
+from transformers import AutoModelForSequenceClassification
+from transformers import AutoTokenizer
+from scipy.special import softmax
 
 from polarmine.comment import Comment
 from polarmine.content import Content
 
-LABEL_NEGATIVE = "NEGATIVE"
-LABEL_POSITIVE = "POSITIVE"
 KEY_SCORE = "score"
-KEY_LABEL = "label"
-SENTIMENT_MAX_TEXT_LENGTH = 2048
+SENTIMENT_MAX_TEXT_LENGTH = 512
+MODEL = "cardiffnlp/twitter-roberta-base-sentiment"
 
 
 class PolarizationGraph:
@@ -32,9 +32,10 @@ class PolarizationGraph:
         self.graph.edge_properties["contents"] = self.contents
 
         # initialization of sentiment analysis classifier
-        # the default one is used, but if better alternatives are found
-        # they could be used instead
-        self.cls_sentiment_analysis = pipeline("sentiment-analysis")
+        self.sentiment_tokenizer = AutoTokenizer.from_pretrained(
+            MODEL, normalization=True)
+        self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(
+            MODEL)
 
         # dictionary storing user:vertex_index
         self.users = {}
@@ -87,30 +88,34 @@ class PolarizationGraph:
         content: Content,
     ):
         edge = self.graph.add_edge(vertex_source, vertex_target)
-
-        # return a list of dictionary of this type
-        # [{'label': 'NEGATIVE', 'score': 0.8729901313781738}]
-        try:
-            sentiment_dictionary = self.cls_sentiment_analysis(comment.text)[0]
-        except IndexError:
-            # text too long
-            sentiment_dictionary = self.cls_sentiment_analysis(
-                comment.text[:SENTIMENT_MAX_TEXT_LENGTH]
-            )[0]
-
-        # the score returned by the classifier is the highest between the 2
-        # probabilities and so it is always >= 0.5
-        # it is mapped "continously" in [-1, 1] by expanding [0.5, 1]
-        # to [0, 1] and using the label as sign
-        sentiment_unsigned_score = (sentiment_dictionary[KEY_SCORE] - 0.5) * 2
-        if sentiment_dictionary[KEY_LABEL] == LABEL_NEGATIVE:
-            sentiment_score = -sentiment_unsigned_score
-        else:
-            sentiment_score = sentiment_unsigned_score
+        sentiment_score = self.sentiment_weight(comment.text)
 
         self.weights[edge] = sentiment_score
         self.times[edge] = comment.time
         self.contents[edge] = content
+
+    def sentiment_weight(self, text):
+
+        # return a list of dictionary of this type
+        # array([-0.8606459 ,  0.6321694 ,  0.24943551], dtype=float32)
+        # scores[0] is the 'NEGATIVE' label, scores[2] is the 'POSITIVE'
+        try:
+            tokens = self.sentiment_tokenizer(text, return_tensors='pt')
+            scores = self.sentiment_model(**tokens)[0][0].detach().numpy()
+        except IndexError:
+            # text too long
+            tokens = self.sentiment_tokenizer(text[:SENTIMENT_MAX_TEXT_LENGTH],
+                                              return_tensors='pt')
+            scores = self.sentiment_model(**tokens)[0][0].detach().numpy()
+
+        # the score returned by the classifier is the highest between the 2
+        # probabilities
+        # to [0, 1] and using the label as sign
+        probabilities = softmax(scores)
+        if np.argmax(probabilities) != 0:
+            return probabilities[2]
+        else:
+            return -probabilities[0]
 
     def get_user_vertex(self, user: str) -> gt.Vertex:
         vertex_index = self.users.get(user)
