@@ -47,6 +47,17 @@ def test_twitter_collect_page():
 def test_twitter_shares():
     # try to collect status which have url shared by other
     # statuses
-    contents = list(twitter_collector.collect(
-        2, page="nytimes", limit=10, cross=True))
-    assert len(contents) >= 2
+    threads = list(twitter_collector.collect(
+        1, page="nytimes", limit=10, cross=True))
+    assert len(threads) >= 1
+
+    for thread in threads:
+        assert isinstance(thread, treelib.Tree)
+
+        root_id = thread.root
+        root = thread[root_id]
+        assert isinstance(root.data, Content)
+
+        children = thread.children(root_id)
+        if len(children) > 0:
+            assert isinstance(children[0].data, Comment)
