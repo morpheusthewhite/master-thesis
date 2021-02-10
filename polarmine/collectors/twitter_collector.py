@@ -13,7 +13,7 @@ from polarmine.comment import Comment
 
 
 QUOTE_MIN_REPLIES = 1
-TWEET_MIN_REPLIES = 5
+TWEET_MIN_REPLIES = 1
 
 
 class TwitterCollector(Collector):
