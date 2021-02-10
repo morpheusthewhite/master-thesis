@@ -8,11 +8,14 @@ from polarmine.collectors.twitter_collector import TwitterCollector
 
 parser = argparse.ArgumentParser(description='Polarmine')
 
+# graph
 save_load_group = parser.add_mutually_exclusive_group()
 save_load_group.add_argument('--dump', '-d', type=str, default=None, metavar='filename',
-                             help='dump the mined data at the given path')
+                             help='dump the mined graph at the given path')
 save_load_group.add_argument('--load', '-l', type=str, default=None, metavar='filename',
-                             help='load the mined data at the given path')
+                             help='load the mined graph at the given path')
+parser.add_argument('-k', '--k-core', type=int, default=0, metavar='k', dest='k',
+                    help='k used to select k-core component for analysis and results')
 # reddit
 reddit_group = parser.add_mutually_exclusive_group()
 reddit_group.add_argument('-r', '--reddit', default=None, action='store_true', dest='r',
@@ -69,6 +72,9 @@ def main():
 
         if args.dump is not None:
             graph.dump(args.dump)
+
+    if args.k > 0:
+        graph.select_kcore(args.k)
 
     graph.summarize()
     graph.draw()
