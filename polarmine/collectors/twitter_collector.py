@@ -20,11 +20,11 @@ class TwitterCollector(Collector):
     def __init__(self, **kwargs):
         super(TwitterCollector, self).__init__(**kwargs)
 
-        consumer_key, consumer_secret, auth_key, auth_secret = self.__get_keys__()
+        consumer_key, consumer_secret, access_key, access_secret = self.__get_keys__()
 
         # authorize twitter, initialize tweepy
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-        auth.set_access_token(auth_key, auth_secret)
+        auth.set_access_token(access_key, access_secret)
         self.twitter = tweepy.API(auth, wait_on_rate_limit=True)
 
     def __get_keys__(self):
@@ -32,21 +32,21 @@ class TwitterCollector(Collector):
         consumer_key = os.getenv("TWITTER_CONSUMER_KEY")
         consumer_secret = os.getenv("TWITTER_CONSUMER_SECRET")
 
-        auth_key = os.getenv("TWITTER_AUTH_KEY")
-        auth_secret = os.getenv("TWITTER_AUTH_SECRET")
+        access_key = os.getenv("TWITTER_ACCESS_KEY")
+        access_secret = os.getenv("TWITTER_ACCESS_SECRET")
 
         if (
             consumer_secret is None
             or consumer_key is None
-            or auth_key is None
-            or auth_secret is None
+            or access_key is None
+            or access_secret is None
         ):
             raise Exception(
                 "You didn't properly setup twitter \
                 environment variable, follow the README"
             )
 
-        return consumer_key, consumer_secret, auth_key, auth_secret
+        return consumer_key, consumer_secret, access_key, access_secret
 
     def __find_statuses__(
         self,
