@@ -67,7 +67,7 @@ class TwitterCollector(Collector):
         """
         if keyword is not None:
             cursor = tweepy.Cursor(
-                self.twitter.search, q=f"{keyword} min_replies:{TWEET_MIN_REPLIES}",
+                self.twitter.search, q=f"{keyword} min_replies:{TWEET_MIN_REPLIES} -filter:replies",
                 tweet_mode="extended"
             )
         elif page is not None:
