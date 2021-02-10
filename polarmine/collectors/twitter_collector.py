@@ -162,12 +162,10 @@ class TwitterCollector(Collector):
             q=f"to:{status_author_name}",
             since_id=status_id,
             tweet_mode="extended",
-        ).items()
+        ).items(limit)
 
-        for i in range(limit):
+        for reply in replies:
             try:
-                reply = replies.next()
-
                 if (
                     reply.in_reply_to_status_id is not None
                     and reply.in_reply_to_status_id == status_id
