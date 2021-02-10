@@ -80,6 +80,34 @@ class PolarizationGraph:
                     # equeue this child
                     queue.append(child)
 
+        # precompute kcore-decomposition
+        self.kcore = gt.kcore_decomposition(self.graph)
+
+    def __kcore_mask__(self, k: int) -> gt.EdgePropertyMap:
+        """mask nodes which are not in k-core
+
+        Args:
+            k (int): k
+
+        Returns:
+            gt.EdgePropertyMap: a boolean property in which nodes out
+            of the k-core are masked out
+        """
+        mask = self.graph.new_vertex_property("bool")
+        mask.a = self.kcore.a >= k
+
+        return mask
+
+    def select_kcore(self, k) -> None:
+        """select kcore of the graph. Function called after a call to this
+        function will operate only on its kcore
+
+        Args:
+            k
+        """
+        kmask = self.__kcore_mask__(k)
+        self.graph.set_node_filter(kmask)
+
     def add_edge(
         self,
         vertex_source: gt.Vertex,
@@ -148,6 +176,9 @@ class PolarizationGraph:
         self.weights = self.graph.edge_properties["weights"]
         self.times = self.graph.edge_properties["times"]
         self.contents = self.graph.edge_properties["contents"]
+
+        # precompute kcore-decomposition
+        self.kcore = gt.kcore_decomposition(self.graph)
 
     def dump(self, filename: str) -> None:
         """dump the current graph
