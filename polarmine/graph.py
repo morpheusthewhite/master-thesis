@@ -9,7 +9,7 @@ from polarmine.comment import Comment
 from polarmine.content import Content
 
 KEY_SCORE = "score"
-SENTIMENT_MAX_TEXT_LENGTH = 512
+SENTIMENT_MAX_TEXT_LENGTH = 128
 MODEL = "cardiffnlp/twitter-roberta-base-sentiment"
 
 
@@ -106,7 +106,7 @@ class PolarizationGraph:
             k
         """
         kmask = self.__kcore_mask__(k)
-        self.graph.set_node_filter(kmask)
+        self.graph.set_vertex_filter(kmask)
 
     def add_edge(
         self,
