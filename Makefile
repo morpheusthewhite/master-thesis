@@ -3,7 +3,7 @@ PIP = pip3.9
 
 # .PHONY defines parts of the makefile that are not dependant on any specific file
 # This is most often used to store functions
-.PHONY = help requirements dev-requirements test run # clean
+.PHONY = help requirements dev-requirements test test-twitter test-reddit test-graph run # clean
 
 # Defines the default target that `make` will to try to make, or in the case of a phony target, execute the specified commands
 # This target is executed whenever we just type `make`
@@ -27,6 +27,15 @@ dev-requirements:
 
 test:
 	${PYTHON} -m pytest
+
+test-twitter:
+	${PYTHON} -m pytest tests/test_twitter_collector.py
+
+test-reddit:
+	${PYTHON} -m pytest tests/test_reddit_collector.py
+
+test-graph:
+	${PYTHON} -m pytest test/test_graph.py
 
 run:
 	${PYTHON} main.py
