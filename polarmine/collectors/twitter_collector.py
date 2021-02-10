@@ -241,9 +241,19 @@ class TwitterCollector(Collector):
                 # add subthread as children of the root
                 thread.paste(status_id, subthread)
 
-            for status in self.__status_to_shares__(status):
+            for status_share in self.__status_to_shares__(status):
+                # create content object, associated to root node
+                content_share_url = f"https://twitter.com/user/status/{status_share.id}"
+                content_share_text = status_share.full_text
+                content_share_time = status_share.created_at.timestamp()
+                content_share_author = hash(status_share.author.screen_name)
+                content_share = Content(
+                    content_share_url, content_share_text, content_share_time,
+                    content_share_author, keyword
+                )
+
                 subthread = self.__status_to_thread_aux__(
-                    status, limit=limit)
+                    status_share, limit=limit, data=content_share)
 
                 # TODO: add subthread as children of the root?
                 #  thread.paste(status_id, subthread)
