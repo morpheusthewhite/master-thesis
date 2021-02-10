@@ -159,7 +159,7 @@ class TwitterCollector(Collector):
         # cursor over replies to tweet
         replies = tweepy.Cursor(
             self.twitter.search,
-            q=f"to:{status_author_name}",
+            q=f"to:{status_author_name} filter:replies",
             since_id=status_id,
             tweet_mode="extended",
         ).items(limit)
