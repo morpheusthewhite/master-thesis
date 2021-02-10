@@ -35,7 +35,7 @@ test-reddit:
 	${PYTHON} -m pytest tests/test_reddit_collector.py
 
 test-graph:
-	${PYTHON} -m pytest test/test_graph.py
+	${PYTHON} -m pytest tests/test_graph.py
 
 run:
 	${PYTHON} main.py
