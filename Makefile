@@ -1,5 +1,6 @@
 PYTHON = python3.9
 PIP = pip3.9
+GIT = git
 
 # .PHONY defines parts of the makefile that are not dependant on any specific file
 # This is most often used to store functions
@@ -20,9 +21,14 @@ help:
 
 requirements:
 	${PIP} install -r requirements
+	
+	# install custom tweepy version
+	${GIT} clone https://github.com/tweepy/tweepy
+	cd tweepy
+	${GIT} checkout 1a5ba7475f919e6dd113f684ca64c0c6de0b16f1
+	${PIP} install .
 
-dev-requirements:
-	${PIP} install -r requirements
+dev-requirements: requirements
 	${PIP} install pytest
 
 test:
