@@ -196,7 +196,11 @@ class PolarizationGraph:
 
         self.graph.save(filename)
 
-    def draw(self, edge_color: bool = True, edge_width: bool = True) -> None:
+    def draw(
+        self,
+        edge_color: bool = True,
+        edge_width: bool = True,
+    ) -> None:
         """draw the graph
 
         Args:
@@ -223,6 +227,7 @@ class PolarizationGraph:
             self.graph,
             edge_color=color_property_map,
             edge_pen_width=width_property_map,
+            vertex_size=4,
         )
 
     def summarize(self):
