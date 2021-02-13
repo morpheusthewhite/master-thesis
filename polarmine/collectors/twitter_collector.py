@@ -10,6 +10,7 @@ from typing import Optional, Iterator
 from polarmine.collectors.collector import Collector
 from polarmine.content import Content
 from polarmine.comment import Comment
+from polarmine.tweepy import APIv2
 
 
 QUOTE_MIN_REPLIES = 1
@@ -17,6 +18,8 @@ TWEET_MIN_REPLIES = 1
 
 
 class TwitterCollector(Collector):
+    """TwitterCollector."""
+
     def __init__(self, **kwargs):
         super(TwitterCollector, self).__init__(**kwargs)
 
@@ -30,7 +33,7 @@ class TwitterCollector(Collector):
         # authorize twitter, initialize tweepy
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_key, access_secret)
-        self.twitter = tweepy.API(auth, wait_on_rate_limit=True)
+        self.twitter = APIv2(auth, wait_on_rate_limit=True)
 
     def __get_keys__(self):
         """Retrieve twitter keys from environment"""
@@ -92,8 +95,7 @@ class TwitterCollector(Collector):
         """Find statuses which sharing the same external url of the given status
 
         Args:
-            status (tweepy.Status): status from which external url is extracted, if
-            present
+            status (tweepy.Status): status from which external url is extracted, if present
 
         Returns:
             Iterator: an iterator over statuses sharing the same url
