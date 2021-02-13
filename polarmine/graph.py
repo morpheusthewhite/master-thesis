@@ -33,9 +33,11 @@ class PolarizationGraph:
 
         # initialization of sentiment analysis classifier
         self.sentiment_tokenizer = AutoTokenizer.from_pretrained(
-            MODEL, normalization=True)
-        self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(
-            MODEL)
+            MODEL, normalization=True
+        )
+        self.sentiment_model = (
+            AutoModelForSequenceClassification.from_pretrained(MODEL)
+        )
 
         # dictionary storing user:vertex_index
         self.users = {}
@@ -128,12 +130,13 @@ class PolarizationGraph:
         # array([-0.8606459 ,  0.6321694 ,  0.24943551], dtype=float32)
         # scores[0] is the 'NEGATIVE' label, scores[2] is the 'POSITIVE'
         try:
-            tokens = self.sentiment_tokenizer(text, return_tensors='pt')
+            tokens = self.sentiment_tokenizer(text, return_tensors="pt")
             scores = self.sentiment_model(**tokens)[0][0].detach().numpy()
         except IndexError:
             # text too long
-            tokens = self.sentiment_tokenizer(text[:SENTIMENT_MAX_TEXT_LENGTH],
-                                              return_tensors='pt')
+            tokens = self.sentiment_tokenizer(
+                text[:SENTIMENT_MAX_TEXT_LENGTH], return_tensors="pt"
+            )
             scores = self.sentiment_model(**tokens)[0][0].detach().numpy()
 
         # the score returned by the classifier is the highest between the 2
@@ -205,7 +208,9 @@ class PolarizationGraph:
             color_property_map = self.graph.new_edge_property("string")
 
             for edge in self.graph.edges():
-                color_property_map[edge] = "red" if self.weights[edge] < 0 else "green"
+                color_property_map[edge] = (
+                    "red" if self.weights[edge] < 0 else "green"
+                )
         else:
             color_property_map = None
 
@@ -215,15 +220,18 @@ class PolarizationGraph:
         else:
             width_property_map = None
 
-        gt.graph_draw(self.graph, edge_color=color_property_map,
-                      edge_pen_width=width_property_map)
+        gt.graph_draw(
+            self.graph,
+            edge_color=color_property_map,
+            edge_pen_width=width_property_map,
+        )
 
     def summarize(self):
         print(
-            f"The graph has {self.graph.num_vertices()} \
-vertices and {self.graph.num_edges()} edges")
+            f"The graph has {self.graph.num_vertices()} vertices and {self.graph.num_edges()} edges"
+        )
 
-    @ classmethod
+    @classmethod
     def from_file(cls, filename: str):
         """Creates a PolarizationGraph object from the graph stored in a file
 

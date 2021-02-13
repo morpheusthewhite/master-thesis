@@ -20,7 +20,12 @@ class TwitterCollector(Collector):
     def __init__(self, **kwargs):
         super(TwitterCollector, self).__init__(**kwargs)
 
-        consumer_key, consumer_secret, access_key, access_secret = self.__get_keys__()
+        (
+            consumer_key,
+            consumer_secret,
+            access_key,
+            access_secret,
+        ) = self.__get_keys__()
 
         # authorize twitter, initialize tweepy
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -67,8 +72,9 @@ class TwitterCollector(Collector):
         """
         if keyword is not None:
             cursor = tweepy.Cursor(
-                self.twitter.search, q=f"{keyword} min_replies:{TWEET_MIN_REPLIES} -filter:replies",
-                tweet_mode="extended"
+                self.twitter.search,
+                q=f"{keyword} min_replies:{TWEET_MIN_REPLIES} -filter:replies",
+                tweet_mode="extended",
             )
         elif page is not None:
             cursor = tweepy.Cursor(
@@ -111,8 +117,7 @@ class TwitterCollector(Collector):
 
             query = f"{url_cleaned} min_replies:{TWEET_MIN_REPLIES}"
             cursor = tweepy.Cursor(
-                self.twitter.search, q=query,
-                tweet_mode="extended"
+                self.twitter.search, q=query, tweet_mode="extended"
             )
 
             return cursor.items()
@@ -144,7 +149,10 @@ class TwitterCollector(Collector):
         if root_data is not None:
             # use provided data
             thread.create_node(
-                tag=hash(status_author_name), identifier=status_id, data=root_data)
+                tag=hash(status_author_name),
+                identifier=status_id,
+                data=root_data,
+            )
         else:
             # create comment object, associated to root node of this tree
             # the tag of the node is the author of the tweet
@@ -173,7 +181,8 @@ class TwitterCollector(Collector):
 
                     # obtain thread originated from current reply
                     subthread = self.__status_to_thread_aux__(
-                        reply, limit=limit)
+                        reply, limit=limit
+                    )
 
                     # add subthread as children of the current node
                     thread.paste(status_id, subthread)
@@ -228,32 +237,38 @@ class TwitterCollector(Collector):
 
             # cursor over quotes of the status
             cursor_quote = tweepy.Cursor(
-                self.twitter.search, q=query,
-                tweet_mode="extended"
+                self.twitter.search, q=query, tweet_mode="extended"
             )
 
             for quote_reply in cursor_quote.items():
                 # quote replies can be handled as normal status since their
                 # text is the reply (without including the quote)
                 subthread = self.__status_to_thread_aux__(
-                    quote_reply, limit=limit)
+                    quote_reply, limit=limit
+                )
 
                 # add subthread as children of the root
                 thread.paste(status_id, subthread)
 
             for status_share in self.__status_to_shares__(status):
                 # create content object, associated to root node
-                content_share_url = f"https://twitter.com/user/status/{status_share.id}"
+                content_share_url = (
+                    f"https://twitter.com/user/status/{status_share.id}"
+                )
                 content_share_text = status_share.full_text
                 content_share_time = status_share.created_at.timestamp()
                 content_share_author = hash(status_share.author.screen_name)
                 content_share = Content(
-                    content_share_url, content_share_text, content_share_time,
-                    content_share_author, keyword
+                    content_share_url,
+                    content_share_text,
+                    content_share_time,
+                    content_share_author,
+                    keyword,
                 )
 
                 subthread = self.__status_to_thread_aux__(
-                    status_share, limit=limit, data=content_share)
+                    status_share, limit=limit, data=content_share
+                )
 
                 # TODO: add subthread as children of the root?
                 #  thread.paste(status_id, subthread)
@@ -293,7 +308,8 @@ class TwitterCollector(Collector):
         for status in statuses:
 
             content_threads = self.__status_to_thread__(
-                status, keyword, limit, cross)
+                status, keyword, limit, cross
+            )
             threads = itertools.chain(threads, content_threads)
 
         return threads
