@@ -141,6 +141,7 @@ args = parser.parse_args()
 
 def main():
 
+    # either load the graph or mine it
     if args.load is not None:
         graph = PolarizationGraph.from_file(args.load)
     else:

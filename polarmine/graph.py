@@ -148,7 +148,6 @@ class PolarizationGraph:
         if probabilities[0] < probability_positive:
             return probability_positive
         else:
-            print(text)
             return -probabilities[0]
 
     def get_user_vertex(self, user: str) -> gt.Vertex:
