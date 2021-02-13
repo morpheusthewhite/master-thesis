@@ -140,9 +140,12 @@ class PolarizationGraph:
         # probabilities
         # to [0, 1] and using the label as sign
         probabilities = softmax(scores)
-        if np.argmax(probabilities) != 0:
-            return probabilities[2]
+        probability_positive = probabilities[1] + probabilities[2]
+
+        if probabilities[0] < probability_positive:
+            return probability_positive
         else:
+            print(text)
             return -probabilities[0]
 
     def get_user_vertex(self, user: str) -> gt.Vertex:
