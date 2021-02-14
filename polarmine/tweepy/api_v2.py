@@ -77,17 +77,9 @@ class APIv2(API):
                 log.warning(f"Unexpected parameter: {k}")
             params[k] = str(arg)
 
-        #  if next_page:
-        #      params["next_token"] = self.next_token
-
         if params.get("tweet.fields") is None:
-            #  tweet_fields = "id,author_id,created_at,in_reply_to_user_id,text"
-            tweet_fields = "id"
+            tweet_fields = "id,referenced_tweets"
             params["tweet.fields"] = tweet_fields
-
-        #  if params.get("user.fields") is None:
-        #      user_fields = "id,username"
-        #      params["user.fields"] = user_fields
 
         log.info("PARAMS: %r", params)
 
@@ -251,3 +243,38 @@ class APIv2(API):
             ),
             **kwargs,
         )
+
+    def get_replies_ids(self, conversation_id, status_author):
+        # select only replies to author of the tweet
+        query = f"conversation_id:{conversation_id} to:{status_author}"
+
+        search_results, next_token = self.searchv2(
+            query=query, max_results=100
+        )
+
+        # dictionary of replies, with key being the id of the parent and value
+        # the id of the many replies
+        replies = {}
+
+        # iterate until a None next_token is received
+        while next_token is not None:
+
+            for reply in search_results:
+
+                assert len(reply.referenced_tweets) == 1
+                assert reply.referenced_tweets[0]["type"] == "replied_to"
+
+                parent_status_id = reply.referenced_tweets[0]["id"]
+
+                # if the key does not exist create a list with just this element
+                # otherwise append it to the existing list
+                if replies.get(parent_status_id) is None:
+                    replies[parent_status_id] = [reply.id]
+                else:
+                    replies[parent_status_id].append(reply.id)
+
+            search_results, next_token = self.searchv2(
+                query=query, max_results=100, next_token=next_token
+            )
+
+        return replies
