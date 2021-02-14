@@ -174,7 +174,10 @@ class TwitterCollector(Collector):
         )
 
         # initially the queue will contain only the children of the root node
-        queue = replies_dict[status_id]
+        queue = [status_id]
+        #  import pdb
+        #
+        #  pdb.set_trace()
 
         while len(queue) > 0:
             reply = queue.pop(0)
@@ -183,30 +186,33 @@ class TwitterCollector(Collector):
             reply_replies = replies_dict.get(reply, [])
 
             # require 100 tweets at a time
-            for i in range(math.ceil((len(reply_replies)) // 100)):
+            for i in range(math.ceil(len(reply_replies) / 100)):
 
                 # probably needs int instead of string
                 statuses_batch = self.twitter.statuses_lookup(
-                    id_=reply_replies[i * 100 : (i + 1) * 100]
+                    reply_replies[i * 100 : (i + 1) * 100],
+                    tweet_mode="extended",
                 )
 
                 for s in statuses_batch:
                     # create comment object, associated to root node of this tree
                     # the tag of the node is the author of the tweet
-                    comment_text = status.full_text
-                    comment_author = hash(status.author.screen_name)
-                    comment_time = status.created_at.timestamp()
+                    comment_id = s.id
+                    comment_text = s.full_text
+                    comment_author = hash(s.author.screen_name)
+                    comment_time = s.created_at.timestamp()
                     comment = Comment(
                         comment_text, comment_author, comment_time
                     )
+
                     thread.create_node(
-                        tag=comment.author,
-                        identifier=status_id,
+                        tag=comment_author,
+                        identifier=comment_id,
                         data=comment,
                         parent=reply,
                     )
 
-                    queue.extend(replies_dict[s.id_str])
+            queue.extend(reply_replies)
 
         return thread
 
