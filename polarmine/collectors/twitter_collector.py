@@ -1,5 +1,5 @@
 import os
-import time
+import math
 import treelib
 import tweepy
 import itertools
@@ -166,36 +166,47 @@ class TwitterCollector(Collector):
                 tag=comment.author, identifier=status_id, data=comment
             )
 
-        # cursor over replies to tweet
-        replies = tweepy.Cursor(
-            self.twitter.search,
-            q=f"to:{status_author_name} filter:replies",
-            since_id=status_id,
-            tweet_mode="extended",
-        ).items(limit)
+        # get dictionary of replies
+        # where each key is the str(id) of a tweet and the value is the
+        # list of id of the replies to it
+        replies_dict = self.twitter.get_replies_id(
+            status_id, status_author_name
+        )
 
-        for reply in replies:
-            try:
-                if (
-                    reply.in_reply_to_status_id is not None
-                    and reply.in_reply_to_status_id == status_id
-                ):
+        # initially the queue will contain only the children of the root node
+        queue = replies_dict[status_id]
 
-                    # obtain thread originated from current reply
-                    subthread = self.__status_to_thread_aux__(
-                        reply, limit=limit
+        while len(queue) > 0:
+            reply = queue.pop(0)
+
+            # replies to the current reply
+            reply_replies = replies_dict.get(reply, [])
+
+            # require 100 tweets at a time
+            for i in range(math.ceil((len(reply_replies)) // 100)):
+
+                # probably needs int instead of string
+                statuses_batch = self.twitter.statuses_lookup(
+                    id_=reply_replies[i * 100 : (i + 1) * 100]
+                )
+
+                for s in statuses_batch:
+                    # create comment object, associated to root node of this tree
+                    # the tag of the node is the author of the tweet
+                    comment_text = status.full_text
+                    comment_author = hash(status.author.screen_name)
+                    comment_time = status.created_at.timestamp()
+                    comment = Comment(
+                        comment_text, comment_author, comment_time
+                    )
+                    thread.create_node(
+                        tag=comment.author,
+                        identifier=status_id,
+                        data=comment,
+                        parent=reply,
                     )
 
-                    # add subthread as children of the current node
-                    thread.paste(status_id, subthread)
-
-            except tweepy.RateLimitError:
-                print("Twitter api rate limit reached")
-                time.sleep(60)
-                continue
-
-            except StopIteration:
-                break
+                    queue.extend(replies_dict[s.id_str])
 
         return thread
 
@@ -269,7 +280,7 @@ class TwitterCollector(Collector):
                 )
 
                 subthread = self.__status_to_thread_aux__(
-                    status_share, limit=limit, data=content_share
+                    status_share, limit=limit, root_data=content_share
                 )
 
                 # TODO: add subthread as children of the root?
