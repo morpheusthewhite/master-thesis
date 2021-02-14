@@ -258,7 +258,7 @@ class APIv2(API):
         replies[conversation_id] = []
 
         # iterate until a None next_token is received
-        while next_token is not None:
+        while True:
 
             for reply in search_results:
 
@@ -275,8 +275,11 @@ class APIv2(API):
                         else:
                             replies[parent_status_id].append(reply.id)
 
-            search_results, next_token = self.searchv2(
-                query=query, max_results=100, next_token=next_token
-            )
+            if next_token is not None:
+                search_results, next_token = self.searchv2(
+                    query=query, max_results=100, next_token=next_token
+                )
+            else:
+                break
 
         return replies
