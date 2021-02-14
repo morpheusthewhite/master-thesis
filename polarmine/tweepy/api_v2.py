@@ -246,7 +246,7 @@ class APIv2(API):
 
     def get_replies_id(self, conversation_id, status_author):
         # select only replies to author of the tweet
-        query = f"conversation_id:{conversation_id} to:{status_author}"
+        query = f"conversation_id:{conversation_id}"
 
         search_results, next_token = self.searchv2(
             query=query, max_results=100
