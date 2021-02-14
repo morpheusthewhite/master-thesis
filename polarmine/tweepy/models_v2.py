@@ -8,8 +8,9 @@ class SearchResultsv2(ResultSet):
         results = SearchResultsv2()
         results.count = metadata.get("result_count")
 
-        for status in json["data"]:
-            results.append(Statusv2.parse(api, status))
+        if json.get("data") is not None:
+            for status in json["data"]:
+                results.append(Statusv2.parse(api, status))
         return results
 
 
