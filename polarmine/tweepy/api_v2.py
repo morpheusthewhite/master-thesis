@@ -244,7 +244,7 @@ class APIv2(API):
             **kwargs,
         )
 
-    def get_replies_ids(self, conversation_id, status_author):
+    def get_replies_id(self, conversation_id, status_author):
         # select only replies to author of the tweet
         query = f"conversation_id:{conversation_id} to:{status_author}"
 
@@ -255,23 +255,26 @@ class APIv2(API):
         # dictionary of replies, with key being the id of the parent and value
         # the id of the many replies
         replies = {}
+        replies[conversation_id] = []
 
         # iterate until a None next_token is received
         while next_token is not None:
 
             for reply in search_results:
+                reply_id = int(reply.id)
 
-                assert len(reply.referenced_tweets) == 1
-                assert reply.referenced_tweets[0]["type"] == "replied_to"
+                for referenced_tweet in reply.referenced_tweets:
 
-                parent_status_id = reply.referenced_tweets[0]["id"]
+                    # check that it actually is a reply
+                    if referenced_tweet["type"] == "replied_to":
+                        parent_status_id = int(referenced_tweet["id"])
 
-                # if the key does not exist create a list with just this element
-                # otherwise append it to the existing list
-                if replies.get(parent_status_id) is None:
-                    replies[parent_status_id] = [reply.id]
-                else:
-                    replies[parent_status_id].append(reply.id)
+                        # if the key does not exist create a list with just this element
+                        # otherwise append it to the existing list
+                        if replies.get(parent_status_id) is None:
+                            replies[parent_status_id] = [reply_id]
+                        else:
+                            replies[parent_status_id].append(reply_id)
 
             search_results, next_token = self.searchv2(
                 query=query, max_results=100, next_token=next_token

@@ -20,5 +20,19 @@ class Statusv2(Status):
         status = cls(api)
         setattr(status, "_json", json)
         for k, v in json.items():
-            setattr(status, k, v)
+            if k == "id":
+
+                # map id of tweet to int
+                setattr(status, k, int(v))
+
+            elif k == "referenced_tweets":
+
+                # map id of referenced tweets to int
+                for referenced_tweet in v:
+                    referenced_tweet["id"] = int(referenced_tweet["id"])
+                setattr(status, k, v)
+
+            else:
+                setattr(status, k, v)
+
         return status
