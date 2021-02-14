@@ -14,6 +14,7 @@ from tweepy.models import Model
 from polarmine.tweepy.parsers_v2 import Parserv2
 
 log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.ERROR)
 
 
 class APIv2(API):

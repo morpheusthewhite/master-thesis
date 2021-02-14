@@ -1,6 +1,6 @@
 praw
-python-twitter
 treelib
 pytorch
 transformers
 validators
+graph-tool
