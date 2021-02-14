@@ -1,4 +1,4 @@
-from polarmine.tweepy.models_v2 import SearchResultsv2
+from polarmine.tweepy.models_v2 import SearchResultsv2, Statusv2
 from polarmine.collectors.twitter_collector import TwitterCollector
 
 
@@ -53,3 +53,20 @@ def test_complete_search():
         status_0 = search_result[0]
         assert isinstance(status_0.id, str)
         assert status_0.referenced_tweets is not None
+
+
+def test_get_ids():
+    # retrieve a status and the full conversation related to it
+    author = "vonderleyen"
+    thread = list(
+        twitter_collector.collect(1, page=author, limit=1, cross=False)
+    )[0]
+    root_status = thread.nodes[thread.root]
+
+    replies_dict = twitter_collector.twitter.get_replies_ids(
+        root_status.identifier, author)
+
+    for k, v in replies_dict.items():
+        assert isinstance(k, str)
+        assert isinstance(v, list)
+        assert isinstance(v[0], str)
