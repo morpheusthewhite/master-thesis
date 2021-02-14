@@ -261,20 +261,19 @@ class APIv2(API):
         while next_token is not None:
 
             for reply in search_results:
-                reply_id = int(reply.id)
 
                 for referenced_tweet in reply.referenced_tweets:
 
                     # check that it actually is a reply
                     if referenced_tweet["type"] == "replied_to":
-                        parent_status_id = int(referenced_tweet["id"])
+                        parent_status_id = referenced_tweet["id"]
 
                         # if the key does not exist create a list with just this element
                         # otherwise append it to the existing list
                         if replies.get(parent_status_id) is None:
-                            replies[parent_status_id] = [reply_id]
+                            replies[parent_status_id] = [reply.id]
                         else:
-                            replies[parent_status_id].append(reply_id)
+                            replies[parent_status_id].append(reply.id)
 
             search_results, next_token = self.searchv2(
                 query=query, max_results=100, next_token=next_token
