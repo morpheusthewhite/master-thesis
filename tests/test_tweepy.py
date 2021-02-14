@@ -28,28 +28,28 @@ def test_long_search():
     assert isinstance(search_result, SearchResultsv2)
     assert len(search_result) > 0
     assert isinstance(search_result[0].id, str)
+    # assert search_result[0].text is None
 
 
 def test_complete_search():
     # retrieve a status and the full conversation related to it
+    author = "vonderleyen"
     thread = list(
-        twitter_collector.collect(
-            1, page="EU_Commission", limit=1, cross=False
-        )
+        twitter_collector.collect(1, page=author, limit=1, cross=False)
     )[0]
     root_status = thread.nodes[thread.root]
 
-    query = f"conversation_id:{root_status.identifier}"
+    query = f"conversation_id:{root_status.identifier} to:{author}"
     search_result, next_token = twitter_collector.twitter.searchv2(query=query)
 
     while next_token is not None:
         search_result, next_token = twitter_collector.twitter.searchv2(
             query=query, next_token=next_token
         )
-        assert next_token is not None
         assert isinstance(search_result, SearchResultsv2)
         assert len(search_result) > 0
 
         # first status in the current page of results
         status_0 = search_result[0]
         assert isinstance(status_0.id, str)
+        assert status_0.referenced_tweets is not None
