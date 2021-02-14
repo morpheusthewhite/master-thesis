@@ -3,7 +3,7 @@ PIP = pip3.9
 GIT = git 
 # .PHONY defines parts of the makefile that are not dependant on any specific file
 # This is most often used to store functions
-.PHONY = help requirements dev-requirements test test-twitter test-reddit test-graph run # clean
+.PHONY = help requirements dev-requirements requirements-conda dev-requirements-conda test test-twitter test-reddit test-graph run # clean
 
 # Defines the default target that `make` will to try to make, or in the case of a phony target, execute the specified commands
 # This target is executed whenever we just type `make`
@@ -28,6 +28,18 @@ requirements:
 	${PIP} install .
 
 dev-requirements: requirements
+	${PIP} install pytest
+
+requirements-conda:
+	${PIP} install -r requirements.txt
+	
+	# install custom tweepy version
+	${GIT} clone https://github.com/tweepy/tweepy
+	cd tweepy
+	${GIT} checkout 1a5ba74
+	${PIP} install .
+
+dev-requirements-conda: requirements-conda
 	${PIP} install pytest
 
 test:
