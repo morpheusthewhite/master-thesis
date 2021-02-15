@@ -26,6 +26,25 @@ save_load_group.add_argument(
     metavar="filename",
     help="load the mined graph at the given path",
 )
+
+draw_save_show_group = parser.add_mutually_exclusive_group()
+draw_save_show_group.add_argument(
+    "--draw-save",
+    "-dv",
+    type=str,
+    default=None,
+    dest="graph_draw_save",
+    metavar="filename",
+    help="save the graph drawing at a given path instead of showing it (extension must be .ps, .pdf, .svg, or .png)",
+)
+draw_save_show_group.add_argument(
+    "--draw-no",
+    "-dn",
+    default=None,
+    action="store_true",
+    dest="graph_draw_no",
+    help="if provided does not show the graph",
+)
 parser.add_argument(
     "-s",
     "--stats",
@@ -190,7 +209,7 @@ def main():
 
         global_clustering, global_clustering_stddev = graph.global_clustering()
         print(
-            f"Clustering coefficient: {global_clustering} with deviation {global_clustering_stddev}"
+            f"Clustering coefficient: {global_clustering} with standard deviation {global_clustering_stddev}"
         )
 
         # show degree histogram
@@ -200,7 +219,10 @@ def main():
         #  plt.bar(bins, counts)
         #  plt.show()
 
-    graph.draw()
+    if args.graph_draw_save is not None:
+        graph.draw(output=args.graph_draw_save)
+    elif not args.graph_draw_no:
+        graph.draw()
 
 
 if __name__ == "__main__":

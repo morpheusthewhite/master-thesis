@@ -1,6 +1,7 @@
 import graph_tool.all as gt
 import treelib
 import numpy as np
+from typing import Optional
 from transformers import AutoModelForSequenceClassification
 from transformers import AutoTokenizer
 from scipy.special import softmax
@@ -203,6 +204,7 @@ class PolarizationGraph:
         self,
         edge_color: bool = True,
         edge_width: bool = True,
+        output: Optional[str] = None,
     ) -> None:
         """draw the graph
 
@@ -232,6 +234,7 @@ class PolarizationGraph:
             edge_pen_width=width_property_map,
             vertex_size=0,
             vertex_fill_color="black",
+            output=output,
         )
 
     def summarize(self):
@@ -251,7 +254,8 @@ class PolarizationGraph:
         else:
             num_negative_edges = np.sum(self.weights.a < 0)
 
-        return num_negative_edges / num_edges
+        # TODO: compute for entire graph
+        return num_negative_edges / edge_filter_property_map.a.shape[0]
 
     def global_clustering(self):
         return gt.global_clustering(self.graph)
