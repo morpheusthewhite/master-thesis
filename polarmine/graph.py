@@ -249,6 +249,9 @@ class PolarizationGraph:
 
         return num_negative_edges / num_edges
 
+    def global_clustering(self):
+        return gt.global_clustering(self.graph)
+
     def kcore_size(self):
         num_vertices = self.graph.num_vertices(True)
         num_vertices_kcore = self.graph.num_vertices()

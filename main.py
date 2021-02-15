@@ -186,6 +186,11 @@ def main():
         print(f"Fraction of nodes in k-core: {graph.kcore_size()}")
         print(f"Fraction of negative edges: {graph.negative_edges_fraction()}")
 
+        global_clustering, global_clustering_stddev = graph.global_clustering()
+        print(
+            f"Clustering coefficient: {global_clustering} with deviation {global_clustering_stddev}"
+        )
+
     graph.draw()
 
 
