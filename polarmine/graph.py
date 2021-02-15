@@ -235,6 +235,11 @@ class PolarizationGraph:
             f"The graph has {self.graph.num_vertices()} vertices and {self.graph.num_edges()} edges"
         )
 
+    def kcore_size(self, k):
+        num_vertices = self.graph.num_vertices(True)
+        num_vertices_kcore = self.graph.num_vertices()
+        return num_vertices_kcore / num_vertices
+
     @classmethod
     def from_file(cls, filename: str):
         """Creates a PolarizationGraph object from the graph stored in a file
