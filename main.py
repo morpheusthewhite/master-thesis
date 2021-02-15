@@ -27,6 +27,14 @@ save_load_group.add_argument(
     help="load the mined graph at the given path",
 )
 parser.add_argument(
+    "-s",
+    "--stats",
+    default=None,
+    action="store_true",
+    dest="stats",
+    help="compute common graph statistics",
+)
+parser.add_argument(
     "-k",
     "--k-core",
     type=int,
@@ -173,6 +181,10 @@ def main():
         graph.select_kcore(args.k)
 
     graph.summarize()
+
+    if args.stats:
+        print(f"Fraction of nodes in k-core: {graph.kcore_size()}")
+
     graph.draw()
 
 
