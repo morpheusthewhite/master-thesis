@@ -227,7 +227,7 @@ class PolarizationGraph:
             self.graph,
             edge_color=color_property_map,
             edge_pen_width=width_property_map,
-            vertex_size=4,
+            vertex_size=2,
         )
 
     def summarize(self):
@@ -235,7 +235,21 @@ class PolarizationGraph:
             f"The graph has {self.graph.num_vertices()} vertices and {self.graph.num_edges()} edges"
         )
 
-    def kcore_size(self, k):
+    def negative_edges_fraction(self):
+        num_edges = self.graph.num_edges()
+        edge_filter_property_map, _ = self.graph.get_edge_filter()
+
+        # verify that a filter exists before using the property
+        if edge_filter_property_map is not None:
+            num_negative_edges = np.sum(
+                (edge_filter_property_map.a * self.weights.a) < 0
+            )
+        else:
+            num_negative_edges = np.sum(self.weights.a < 0)
+
+        return num_negative_edges / num_edges
+
+    def kcore_size(self):
         num_vertices = self.graph.num_vertices(True)
         num_vertices_kcore = self.graph.num_vertices()
         return num_vertices_kcore / num_vertices
