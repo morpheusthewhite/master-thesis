@@ -183,6 +183,8 @@ def main():
     graph.summarize()
 
     if args.stats:
+        graph.remove_self_loops()
+
         print(f"Fraction of nodes in k-core: {graph.kcore_size()}")
         print(f"Fraction of negative edges: {graph.negative_edges_fraction()}")
 

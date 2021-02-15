@@ -196,6 +196,9 @@ class PolarizationGraph:
 
         self.graph.save(filename)
 
+    def remove_self_loops(self):
+        gt.remove_self_loops(self.graph)
+
     def draw(
         self,
         edge_color: bool = True,
