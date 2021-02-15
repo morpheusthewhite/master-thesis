@@ -227,7 +227,8 @@ class PolarizationGraph:
             self.graph,
             edge_color=color_property_map,
             edge_pen_width=width_property_map,
-            vertex_size=2,
+            vertex_size=0,
+            vertex_fill_color="black",
         )
 
     def summarize(self):
