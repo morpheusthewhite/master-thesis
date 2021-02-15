@@ -191,6 +191,13 @@ def main():
             f"Clustering coefficient: {global_clustering} with deviation {global_clustering_stddev}"
         )
 
+        # show degree histogram
+        #  counts, bins = graph.degree_histogram_total()
+        #  bins = bins[: counts.shape[0]]
+        #  plt.figure()
+        #  plt.bar(bins, counts)
+        #  plt.show()
+
     graph.draw()
 
 

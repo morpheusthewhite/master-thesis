@@ -252,6 +252,11 @@ class PolarizationGraph:
     def global_clustering(self):
         return gt.global_clustering(self.graph)
 
+    def degree_histogram_total(self):
+        return gt.vertex_hist(
+            self.graph, self.graph.degree_property_map("total")
+        )
+
     def kcore_size(self):
         num_vertices = self.graph.num_vertices(True)
         num_vertices_kcore = self.graph.num_vertices()
