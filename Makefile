@@ -31,7 +31,7 @@ dev-requirements: requirements
 	${PIP} install pytest
 
 requirements-conda:
-	conda install -c conda-forge --file requirements.txt
+	conda install -y -c conda-forge --file requirements.txt
 	
 	# install custom tweepy version
 	${GIT} clone https://github.com/tweepy/tweepy
@@ -40,7 +40,7 @@ requirements-conda:
 	${PIP} install .
 
 dev-requirements-conda: requirements-conda
-	conda install -c conda-forge pytest
+	conda install -y -c conda-forge pytest
 
 test:
 	${PYTHON} -m pytest
