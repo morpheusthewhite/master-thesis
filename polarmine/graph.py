@@ -270,6 +270,33 @@ class PolarizationGraph:
         num_vertices_kcore = self.graph.num_vertices()
         return num_vertices_kcore / num_vertices
 
+    def average_shortest_path_length(self):
+        distances_property_map = gt.shortest_distance(self.graph)
+
+        # get max integer that can be represented with an int32
+        ii32 = np.iinfo(np.int32)
+        maxint32 = ii32.max
+
+        # accumulator over sum of all distances which are not infinite
+        distance_accumulator = 0
+        # accumulator over number of distances which are not infinite
+        n_accumulator = 0
+
+        for vertex in self.graph.vertices():
+
+            # distance of a single vertex from all other nodes
+            # vertex_distances in a numpy array containing distances
+            # from all nodes
+            vertex_distances = np.array(distances_property_map[vertex])
+
+            # consider only reachable node
+            reachable = 1 - (vertex_distances == maxint32)
+
+            distance_accumulator += np.sum(reachable * vertex_distances)
+            n_accumulator += np.sum(reachable)
+
+        return distance_accumulator / n_accumulator
+
     @classmethod
     def from_file(cls, filename: str):
         """Creates a PolarizationGraph object from the graph stored in a file

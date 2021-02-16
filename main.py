@@ -212,6 +212,10 @@ def main():
             f"Clustering coefficient: {global_clustering} with standard deviation {global_clustering_stddev}"
         )
 
+        print(
+            f"Average shortest path length: {graph.average_shortest_path_length()}"
+        )
+
         # show degree histogram
         #  counts, bins = graph.degree_histogram_total()
         #  bins = bins[: counts.shape[0]]
