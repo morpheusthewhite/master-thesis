@@ -175,11 +175,9 @@ class TwitterCollector(Collector):
 
         # initially the queue will contain only the children of the root node
         queue = [status_id]
-        #  import pdb
-        #
-        #  pdb.set_trace()
+        i = 0
 
-        while len(queue) > 0:
+        while len(queue) > 0 and i < limit:
             reply = queue.pop(0)
 
             # replies to the current reply
@@ -213,6 +211,7 @@ class TwitterCollector(Collector):
                     )
 
             queue.extend(reply_replies)
+            i += 1
 
         return thread
 
