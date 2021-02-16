@@ -24,7 +24,7 @@ requirements:
 	${PIP} install -r requirements.txt
 	
 	# install custom tweepy version
-	${GIT} clone https://github.com/tweepy/tweepy
+	${GIT} clone https://github.com/tweepy/tweepy || true
 	cd tweepy && ${GIT} checkout 1a5ba74 && ${PIP} install .
 
 dev-requirements: requirements
