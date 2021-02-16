@@ -1,6 +1,8 @@
 PYTHON = python3.9
 PIP = pip3.9
 GIT = git 
+
+TWEEPY_HASH = 1a5ba74
 # .PHONY defines parts of the makefile that are not dependant on any specific file
 # This is most often used to store functions
 .PHONY = help requirements dev-requirements requirements-conda dev-requirements-conda test test-twitter test-reddit test-graph run # clean
@@ -23,9 +25,7 @@ requirements:
 	
 	# install custom tweepy version
 	${GIT} clone https://github.com/tweepy/tweepy
-	cd tweepy
-	${GIT} checkout 1a5ba74
-	${PIP} install .
+	cd tweepy && ${GIT} checkout 1a5ba74 && ${PIP} install .
 
 dev-requirements: requirements
 	${PIP} install pytest
@@ -34,10 +34,8 @@ requirements-conda:
 	conda install -y -c conda-forge --file requirements.txt
 	
 	# install custom tweepy version
-	${GIT} clone https://github.com/tweepy/tweepy
-	cd tweepy
-	${GIT} checkout 1a5ba74
-	${PIP} install .
+	${GIT} clone https://github.com/tweepy/tweepy || true
+	cd tweepy && ${GIT} checkout 1a5ba74 && ${PIP} install .
 
 dev-requirements-conda: requirements-conda
 	conda install -y -c conda-forge pytest
