@@ -260,10 +260,49 @@ class PolarizationGraph:
     def global_clustering(self):
         return gt.global_clustering(self.graph)
 
-    def degree_histogram_total(self):
-        return gt.vertex_hist(
-            self.graph, self.graph.degree_property_map("total")
-        )
+    def degree_distribution(self, degree="total") -> (list[int], list[int]):
+        """compute cumulative degree distribution
+
+        Args:
+            degree: which degree to consider. Either "total", "in" or "out"
+
+        Returns:
+            (list[int], list[int]): the cumulative probability of the degree for
+            each value and the list of values
+        """
+        counts, bins = gt.vertex_hist(self.graph, degree)
+
+        # since bins represent the edge of the bins,
+        # the last one is removed (in order to make them equal in number to
+        # the counts). In this way each bin will be represented by its start
+        bins = bins[: bins.shape[0] - 1]
+
+        cum_counts = np.cumsum(counts[::-1])[::-1]
+        cum_probabilities = cum_counts / np.sum(counts)
+        import pdb
+
+        pdb.set_trace()
+
+        return cum_probabilities, bins
+
+    def degree_histogram(self, degree="total") -> (list[int], list[int]):
+        """compute histogram of the degree
+
+        Args:
+            degree: which degree to consider. Either "total", "in" or "out"
+
+        Returns:
+            (list[int], list[int]): the list of number of elements in each bin
+            and the start of each bin
+        """
+        counts, bins = gt.vertex_hist(self.graph, degree)
+
+        # since bins represent the edge of the bins,
+        # the last one is removed (in order to make them equal in number to
+        # the counts). In this way each bin will be represented by its start
+        bins = bins[: bins.shape[0] - 1]
+
+        return counts, bins
 
     def kcore_size(self):
         num_vertices = self.graph.num_vertices(True)

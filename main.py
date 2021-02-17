@@ -1,5 +1,6 @@
 import argparse
 import itertools
+import matplotlib.pyplot as plt
 
 from polarmine.graph import PolarizationGraph
 from polarmine.collectors.reddit_collector import RedditCollector
@@ -217,11 +218,23 @@ def main():
         )
 
         # show degree histogram
+        # matplotlib is apparently segfaulting without a good reason
         #  counts, bins = graph.degree_histogram_total()
-        #  bins = bins[: counts.shape[0]]
         #  plt.figure()
-        #  plt.bar(bins, counts)
+        #  plt.plot(bins, counts)
+        #
         #  plt.show()
+        #  plt.close()
+
+        # show degree distribution
+        # matplotlib is apparently segfaulting without a good reason
+        #  cum_probabilities, bins = graph.degree_distribution()
+        #  plt.figure()
+        #  plt.plot(bins, cum_probabilities)
+        #  plt.xscale("log")
+        #
+        #  plt.show()
+        #  plt.close()
 
     if args.graph_draw_save is not None:
         graph.draw(output=args.graph_draw_save)
