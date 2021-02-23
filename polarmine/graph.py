@@ -254,8 +254,9 @@ class PolarizationGraph:
         else:
             num_negative_edges = np.sum(self.weights.a < 0)
 
-        # TODO: compute for entire graph
-        return num_negative_edges / edge_filter_property_map.a.shape[0]
+        # TODO: compute for subgraph. This cannot be easily done since
+        # edge_filter_property map has everywhere 1s
+        return num_negative_edges / self.graph.num_edges(True)
 
     def global_clustering(self):
         return gt.global_clustering(self.graph)
