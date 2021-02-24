@@ -64,3 +64,34 @@ def test_graph_clustering_kcore():
 
     graph.select_kcore(2)
     graph.global_clustering()
+
+
+def test_graph_average_degree():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.average_degree()
+
+
+def test_graph_average_degree_unique():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.average_degree(unique=True)
+
+
+def test_graph_average_degree_kcore():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    kcore = 2
+    graph.select_kcore(kcore)
+    graph.average_degree() >= kcore
+
+
+def test_graph_average_degree_kcore_unique():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.select_kcore(2)
+    graph.average_degree(unique=True)
