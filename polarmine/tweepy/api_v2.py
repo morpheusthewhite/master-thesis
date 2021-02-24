@@ -79,6 +79,7 @@ class APIv2(API):
             params[k] = str(arg)
 
         if params.get("tweet.fields") is None:
+            # default tweet parameters
             tweet_fields = "id,referenced_tweets"
             params["tweet.fields"] = tweet_fields
 
@@ -249,9 +250,18 @@ class APIv2(API):
         # select only replies to author of the tweet
         query = f"conversation_id:{conversation_id}"
 
-        search_results, next_token = self.searchv2(
-            query=query, max_results=100
-        )
+        # cycle just for the sake of handling exceptions due to
+        # connection problems
+        fetched = False
+        while not fetched:
+
+            try:
+                search_results, next_token = self.searchv2(
+                    query=query, max_results=100
+                )
+                fetched = True
+            except TweepError:
+                print("Connection error on initial search request")
 
         # dictionary of replies, with key being the id of the parent and value
         # the id of the many replies
@@ -276,10 +286,19 @@ class APIv2(API):
                         else:
                             replies[parent_status_id].append(reply.id)
 
+            # list is emptied such that, in case there are some connection problems,
+            # due to cycle it will end up retrying the same request
+            search_results = []
+
+            # check if there are other replies belonging to this conversation
+            # which yet need to be fetched, which is the case if next_token is not None
             if next_token is not None:
-                search_results, next_token = self.searchv2(
-                    query=query, max_results=100, next_token=next_token
-                )
+                try:
+                    search_results, next_token = self.searchv2(
+                        query=query, max_results=100, next_token=next_token
+                    )
+                except TweepError:
+                    print(f"Connection error on token {next_token}")
             else:
                 break
 
