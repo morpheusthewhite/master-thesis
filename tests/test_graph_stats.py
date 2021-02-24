@@ -140,3 +140,22 @@ def test_graph_degree_hist_kcore():
 
     assert np.sum(counts) == graph.graph.num_vertices()
     assert np.sum(counts < 0) == 0
+
+
+def test_graph_kcore_size():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.select_kcore(2)
+    kcore_size = graph.kcore_size()
+    assert kcore_size < 1
+    assert kcore_size >= 0
+
+
+def test_graph_average_shortest_path_length():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.select_kcore(2)
+    average_shortest_path_length = graph.average_shortest_path_length()
+    assert average_shortest_path_length >= 0
