@@ -1,6 +1,7 @@
 import argparse
 import itertools
 import matplotlib.pyplot as plt
+import sys
 
 from polarmine.graph import PolarizationGraph
 from polarmine.collectors.reddit_collector import RedditCollector
@@ -176,70 +177,50 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-def save_stats(graph, file_prefix):
+def compute_stats(graph, file_prefix):
     graph.remove_self_loops()
 
-    stats_txt = file_prefix + "-stats.txt"
-    hist_pdf = file_prefix + "-hist.pdf"
-    dist_pdf = file_prefix + "-dist.pdf"
+    if file_prefix is None:
+        stats_txt_file = sys.stdout
+    else:
+        stats_txt = file_prefix + "-stats.txt"
+        stats_txt_file = open(stats_txt, "w")
 
-    with open(stats_txt, "w") as stats_txt_file:
-        stats_txt_file.write(
-            f"Fraction of nodes in k-core: {graph.kcore_size()}\n"
-        )
-        stats_txt_file.write(
-            f"Fraction of negative edges: {graph.negative_edges_fraction()}\n"
-        )
-
-        global_clustering, global_clustering_stddev = graph.global_clustering()
-        stats_txt_file.write(
-            f"Clustering coefficient: {global_clustering} with standard deviation {global_clustering_stddev}\n"
-        )
-
-        stats_txt_file.write(
-            f"Average shortest path length: {graph.average_shortest_path_length()}\n"
-        )
-        stats_txt_file.write(
-            f"Median shortest path length: {graph.median_shortest_path_length()}\n"
-        )
-        stats_txt_file.write(f"Average degree: {graph.average_degree()}\n")
-        stats_txt_file.write(
-            f"Unique average degree: {graph.average_degree(unique=True)}\n"
-        )
-
-    # show degree histogram
-    # matplotlib is apparently segfaulting without a good reason
-    counts, bins = graph.degree_histogram()
-    plt.figure()
-    plt.bar(bins, counts)
-    plt.savefig(hist_pdf)
-
-    # show degree distribution
-    # matplotlib is apparently segfaulting without a good reason
-    cum_probabilities, bins = graph.degree_distribution()
-    plt.figure()
-    plt.plot(bins, cum_probabilities)
-    plt.xscale("log")
-    plt.savefig(dist_pdf)
-
-
-def show_stats(graph):
-    graph.remove_self_loops()
-
-    print(f"Fraction of nodes in k-core: {graph.kcore_size()}")
-    print(f"Fraction of negative edges: {graph.negative_edges_fraction()}")
+    print(
+        f"The graph has {graph.num_vertices()} vertices and {graph.num_edges()} edges",
+        file=stats_txt_file,
+    )
+    print(
+        f"Fraction of nodes in k-core: {graph.kcore_size()}",
+        file=stats_txt_file,
+    )
+    print(
+        f"Fraction of negative edges: {graph.negative_edges_fraction()}",
+        file=stats_txt_file,
+    )
 
     global_clustering, global_clustering_stddev = graph.global_clustering()
     print(
-        f"Clustering coefficient: {global_clustering} with standard deviation {global_clustering_stddev}"
+        f"Clustering coefficient: {global_clustering} with standard deviation {global_clustering_stddev}",
+        file=stats_txt_file,
     )
 
     print(
-        f"Average shortest path length: {graph.average_shortest_path_length()}"
+        f"Average shortest path length: {graph.average_shortest_path_length()}",
+        file=stats_txt_file,
     )
     print(
-        f"Median shortest path length: {graph.median_shortest_path_length()}"
+        f"Median shortest path length: {graph.median_shortest_path_length()}",
+        file=stats_txt_file,
     )
+    print(f"Average degree: {graph.average_degree()}", file=stats_txt_file)
+    print(
+        f"Unique average degree: {graph.average_degree(unique=True)}",
+        file=stats_txt_file,
+    )
+
+    if file_prefix is not None:
+        stats_txt_file.close()
 
     # show degree histogram
     # matplotlib is apparently segfaulting without a good reason
@@ -247,8 +228,12 @@ def show_stats(graph):
     plt.figure()
     plt.bar(bins, counts)
 
-    plt.show()
-    plt.close()
+    if file_prefix is not None:
+        hist_pdf = file_prefix + "-hist.pdf"
+        plt.savefig(hist_pdf)
+    else:
+        plt.show()
+        plt.close()
 
     # show degree distribution
     # matplotlib is apparently segfaulting without a good reason
@@ -257,11 +242,12 @@ def show_stats(graph):
     plt.plot(bins, cum_probabilities)
     plt.xscale("log")
 
-    plt.show()
-    plt.close()
-
-    print(f"Average degree: {graph.average_degree()}")
-    print(f"Unique average degree: {graph.average_degree(unique=True)}")
+    if file_prefix is not None:
+        dist_pdf = file_prefix + "-dist.pdf"
+        plt.savefig(dist_pdf)
+    else:
+        plt.show()
+        plt.close()
 
 
 def main():
@@ -297,12 +283,8 @@ def main():
     if args.k > 0:
         graph.select_kcore(args.k)
 
-    graph.summarize()
-
-    if args.stats_show:
-        show_stats(graph)
-    elif args.stats_save:
-        save_stats(graph, args.stats_save)
+    if args.stats_show or args.stats_save:
+        compute_stats(graph, args.stats_save)
 
     if args.graph_draw_save is not None:
         graph.draw(output=args.graph_draw_save)

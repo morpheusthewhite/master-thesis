@@ -257,10 +257,11 @@ class PolarizationGraph:
             output=output,
         )
 
-    def summarize(self):
-        print(
-            f"The graph has {self.graph.num_vertices()} vertices and {self.graph.num_edges()} edges"
-        )
+    def num_vertices(self):
+        return self.graph.num_vertices()
+
+    def num_edges(self):
+        return self.graph.num_edges()
 
     def negative_edges_fraction(self):
         num_edges = self.graph.num_edges()
