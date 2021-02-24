@@ -313,7 +313,7 @@ class PolarizationGraph:
             return degree_accumulator / self.graph.num_vertices()
 
     def degree_distribution(self, degree="total") -> (list[int], list[int]):
-        """compute cumulative degree distribution
+        """compute cumulative degree distribution (takes into account multiedges)
 
         Args:
             degree: which degree to consider. Either "total", "in" or "out"
@@ -331,9 +331,6 @@ class PolarizationGraph:
 
         cum_counts = np.cumsum(counts[::-1])[::-1]
         cum_probabilities = cum_counts / np.sum(counts)
-        import pdb
-
-        pdb.set_trace()
 
         return cum_probabilities, bins
 

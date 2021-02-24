@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 from polarmine.collectors.reddit_collector import RedditCollector
 from polarmine.graph import PolarizationGraph
@@ -95,3 +96,26 @@ def test_graph_average_degree_kcore_unique():
 
     graph.select_kcore(2)
     graph.average_degree(unique=True)
+
+
+def test_graph_degree_dist():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    cumulative_probabilities, _ = graph.degree_distribution()
+
+    assert cumulative_probabilities[0] == 1
+    assert np.sum(cumulative_probabilities < 0) == 0
+    assert np.sum(cumulative_probabilities > 1) == 0
+
+
+def test_graph_degree_dist_kcore():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.select_kcore(2)
+    cumulative_probabilities, _ = graph.degree_distribution()
+
+    assert cumulative_probabilities[0] == 1
+    assert np.sum(cumulative_probabilities < 0) == 0
+    assert np.sum(cumulative_probabilities > 1) == 0
