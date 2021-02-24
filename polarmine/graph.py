@@ -377,8 +377,10 @@ class PolarizationGraph:
             # from all nodes
             vertex_distances = np.array(distances_property_map[vertex])
 
-            # consider only reachable node
-            reachable = 1 - (vertex_distances == maxint32)
+            # consider only reachable node and exclude distance from node itself
+            reachable = (
+                1 - (vertex_distances == maxint32) - (vertex_distances == 0)
+            )
 
             distance_accumulator += np.sum(reachable * vertex_distances)
             n_accumulator += np.sum(reachable)
@@ -403,7 +405,9 @@ class PolarizationGraph:
             vertex_distances = np.array(distances_property_map[vertex])
 
             # consider only reachable node
-            reachable = 1 - (vertex_distances == maxint32)
+            reachable = (
+                1 - (vertex_distances == maxint32) - (vertex_distances == 0)
+            )
 
             # indeces of reachable vertixes from the current one
             reachable_vertices = np.where(reachable)[0]
@@ -411,6 +415,9 @@ class PolarizationGraph:
             valid_distances = vertex_distances[reachable_vertices]
             distances = np.concatenate((distances, valid_distances))
 
+        import pdb
+
+        pdb.set_trace()
         return np.median(distances)
 
     @classmethod
