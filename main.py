@@ -216,29 +216,35 @@ def main():
         print(
             f"Average shortest path length: {graph.average_shortest_path_length()}"
         )
+        print(
+            f"Median shortest path length: {graph.median_shortest_path_length()}"
+        )
 
         # show degree histogram
         # matplotlib is apparently segfaulting without a good reason
-        #  counts, bins = graph.degree_histogram_total()
-        #  plt.figure()
-        #  plt.plot(bins, counts)
-        #
-        #  plt.show()
-        #  plt.close()
+        counts, bins = graph.degree_histogram()
+        plt.figure()
+        plt.plot(bins, counts)
+
+        plt.show()
+        plt.close()
 
         # show degree distribution
         # matplotlib is apparently segfaulting without a good reason
-        #  cum_probabilities, bins = graph.degree_distribution()
-        #  plt.figure()
-        #  plt.plot(bins, cum_probabilities)
-        #  plt.xscale("log")
-        #
-        #  plt.show()
-        #  plt.close()
+        cum_probabilities, bins = graph.degree_distribution()
+        plt.figure()
+        plt.plot(bins, cum_probabilities)
+        plt.xscale("log")
+
+        plt.show()
+        plt.close()
+
+        print(f"Average degree: {graph.average_degree()}")
+        print(f"Unique average degree: {graph.average_degree(unique=True)}")
 
     if args.graph_draw_save is not None:
         graph.draw(output=args.graph_draw_save)
-    elif not args.graph_draw_no:
+    elif not args.graph_draw_no and not args.stats:
         graph.draw()
 
 

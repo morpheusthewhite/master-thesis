@@ -415,9 +415,6 @@ class PolarizationGraph:
             valid_distances = vertex_distances[reachable_vertices]
             distances = np.concatenate((distances, valid_distances))
 
-        import pdb
-
-        pdb.set_trace()
         return np.median(distances)
 
     @classmethod
