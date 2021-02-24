@@ -159,3 +159,11 @@ def test_graph_average_shortest_path_length():
     graph.select_kcore(2)
     average_shortest_path_length = graph.average_shortest_path_length()
     assert average_shortest_path_length >= 0
+
+
+def test_graph_median_shortest_path_length():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    median_shortest_path_length = graph.median_shortest_path_length()
+    assert median_shortest_path_length >= 0
