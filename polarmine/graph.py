@@ -261,6 +261,37 @@ class PolarizationGraph:
     def global_clustering(self):
         return gt.global_clustering(self.graph)
 
+    def average_degree(self, degree="total", unique=False) -> int:
+        """compute average degree. Consider only filtered nodes
+
+        Args:
+            degree: which degree to consider. Either "total", "in" or "out"
+            unique: if True does not consider multiedges
+
+        Returns:
+            int: the average degree
+        """
+        if not unique:
+            return gt.vertex_average(self.graph, degree)[0]
+        else:
+            degree_accumulator = 0
+
+            # iterate over filtered vertices
+            for vertex in self.graph.vertices():
+
+                if degree == "total":
+                    neighbors = self.graph.get_all_neighbors(vertex)
+                elif degree == "in":
+                    neighbors = self.graph.get_in_neighbors(vertex)
+                elif degree == "out":
+                    neighbors = self.graph.get_out_neighbors(vertex)
+                else:
+                    raise Exception("Invalid degree parameter value")
+
+                degree_accumulator += np.unique(neighbors).shape[0]
+
+            return degree_accumulator / self.graph.num_vertices()
+
     def degree_distribution(self, degree="total") -> (list[int], list[int]):
         """compute cumulative degree distribution
 
