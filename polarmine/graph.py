@@ -83,8 +83,22 @@ class PolarizationGraph:
                     # equeue this child
                     queue.append(child)
 
+        self.self_loop_mask = self.graph.new_edge_property("bool")
+        self.self_loop_mask.a = (
+            1 - gt.label_self_loops(self.graph, mark_only=True).a
+        )
+
         # precompute kcore-decomposition
-        self.kcore = gt.kcore_decomposition(self.graph)
+        self.kcore = self.kcore_decomposition()
+
+    def kcore_decomposition(self):
+        """Wrapper for grapt_tool kcore_decomposition excluding self edges"""
+
+        self.graph.set_edge_filter(self.self_loop_mask)
+        kcore = gt.kcore_decomposition(self.graph)
+        self.graph.set_edge_filter(None)
+
+        return kcore
 
     def __kcore_mask__(self, k: int) -> gt.EdgePropertyMap:
         """mask nodes which are not in k-core
@@ -183,8 +197,14 @@ class PolarizationGraph:
         self.times = self.graph.edge_properties["times"]
         self.contents = self.graph.edge_properties["contents"]
 
+        # compute self-loop mask
+        self.self_loop_mask = self.graph.new_edge_property("bool")
+        self.self_loop_mask.a = (
+            1 - gt.label_self_loops(self.graph, mark_only=True).a
+        )
+
         # precompute kcore-decomposition
-        self.kcore = gt.kcore_decomposition(self.graph)
+        self.kcore = self.kcore_decomposition()
 
     def dump(self, filename: str) -> None:
         """dump the current graph
