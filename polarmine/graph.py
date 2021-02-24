@@ -89,9 +89,9 @@ class PolarizationGraph:
         )
 
         # precompute kcore-decomposition
-        self.kcore = self.kcore_decomposition()
+        self.__kcore__ = self.__kcore_decomposition__()
 
-    def kcore_decomposition(self):
+    def __kcore_decomposition__(self):
         """Wrapper for grapt_tool kcore_decomposition excluding self edges"""
 
         self.graph.set_edge_filter(self.self_loop_mask)
@@ -111,7 +111,7 @@ class PolarizationGraph:
             of the k-core are masked out
         """
         mask = self.graph.new_vertex_property("bool")
-        mask.a = self.kcore.a >= k
+        mask.a = self.__kcore__.a >= k
 
         return mask
 
@@ -204,7 +204,7 @@ class PolarizationGraph:
         )
 
         # precompute kcore-decomposition
-        self.kcore = self.kcore_decomposition()
+        self.__kcore__ = self.__kcore_decomposition__()
 
     def dump(self, filename: str) -> None:
         """dump the current graph
