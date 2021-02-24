@@ -47,12 +47,21 @@ draw_save_show_group.add_argument(
     help="if provided does not show the graph",
 )
 parser.add_argument(
-    "-s",
-    "--stats",
+    "-sh",
+    "--stats-show",
     default=None,
     action="store_true",
-    dest="stats",
-    help="compute common graph statistics",
+    dest="stats_show",
+    help="compute and show common graph statistics",
+)
+parser.add_argument(
+    "-sv",
+    "--stats-save",
+    type=str,
+    default=None,
+    dest="stats_save",
+    metavar="file-prefix",
+    help="compute and save common graph statistics using the given prefix",
 )
 parser.add_argument(
     "-k",
@@ -167,6 +176,94 @@ parser.add_argument(
 args = parser.parse_args()
 
 
+def save_stats(graph, file_prefix):
+    graph.remove_self_loops()
+
+    stats_txt = file_prefix + "-stats.txt"
+    hist_pdf = file_prefix + "-hist.pdf"
+    dist_pdf = file_prefix + "-dist.pdf"
+
+    with open(stats_txt, "w") as stats_txt_file:
+        stats_txt_file.write(
+            f"Fraction of nodes in k-core: {graph.kcore_size()}\n"
+        )
+        stats_txt_file.write(
+            f"Fraction of negative edges: {graph.negative_edges_fraction()}\n"
+        )
+
+        global_clustering, global_clustering_stddev = graph.global_clustering()
+        stats_txt_file.write(
+            f"Clustering coefficient: {global_clustering} with standard deviation {global_clustering_stddev}\n"
+        )
+
+        stats_txt_file.write(
+            f"Average shortest path length: {graph.average_shortest_path_length()}\n"
+        )
+        stats_txt_file.write(
+            f"Median shortest path length: {graph.median_shortest_path_length()}\n"
+        )
+        stats_txt_file.write(f"Average degree: {graph.average_degree()}\n")
+        stats_txt_file.write(
+            f"Unique average degree: {graph.average_degree(unique=True)}\n"
+        )
+
+    # show degree histogram
+    # matplotlib is apparently segfaulting without a good reason
+    counts, bins = graph.degree_histogram()
+    plt.figure()
+    plt.bar(bins, counts)
+    plt.savefig(hist_pdf)
+
+    # show degree distribution
+    # matplotlib is apparently segfaulting without a good reason
+    cum_probabilities, bins = graph.degree_distribution()
+    plt.figure()
+    plt.plot(bins, cum_probabilities)
+    plt.xscale("log")
+    plt.savefig(dist_pdf)
+
+
+def show_stats(graph):
+    graph.remove_self_loops()
+
+    print(f"Fraction of nodes in k-core: {graph.kcore_size()}")
+    print(f"Fraction of negative edges: {graph.negative_edges_fraction()}")
+
+    global_clustering, global_clustering_stddev = graph.global_clustering()
+    print(
+        f"Clustering coefficient: {global_clustering} with standard deviation {global_clustering_stddev}"
+    )
+
+    print(
+        f"Average shortest path length: {graph.average_shortest_path_length()}"
+    )
+    print(
+        f"Median shortest path length: {graph.median_shortest_path_length()}"
+    )
+
+    # show degree histogram
+    # matplotlib is apparently segfaulting without a good reason
+    counts, bins = graph.degree_histogram()
+    plt.figure()
+    plt.bar(bins, counts)
+
+    plt.show()
+    plt.close()
+
+    # show degree distribution
+    # matplotlib is apparently segfaulting without a good reason
+    cum_probabilities, bins = graph.degree_distribution()
+    plt.figure()
+    plt.plot(bins, cum_probabilities)
+    plt.xscale("log")
+
+    plt.show()
+    plt.close()
+
+    print(f"Average degree: {graph.average_degree()}")
+    print(f"Unique average degree: {graph.average_degree(unique=True)}")
+
+
 def main():
 
     # either load the graph or mine it
@@ -202,49 +299,16 @@ def main():
 
     graph.summarize()
 
-    if args.stats:
-        graph.remove_self_loops()
-
-        print(f"Fraction of nodes in k-core: {graph.kcore_size()}")
-        print(f"Fraction of negative edges: {graph.negative_edges_fraction()}")
-
-        global_clustering, global_clustering_stddev = graph.global_clustering()
-        print(
-            f"Clustering coefficient: {global_clustering} with standard deviation {global_clustering_stddev}"
-        )
-
-        print(
-            f"Average shortest path length: {graph.average_shortest_path_length()}"
-        )
-        print(
-            f"Median shortest path length: {graph.median_shortest_path_length()}"
-        )
-
-        # show degree histogram
-        # matplotlib is apparently segfaulting without a good reason
-        counts, bins = graph.degree_histogram()
-        plt.figure()
-        plt.plot(bins, counts)
-
-        plt.show()
-        plt.close()
-
-        # show degree distribution
-        # matplotlib is apparently segfaulting without a good reason
-        cum_probabilities, bins = graph.degree_distribution()
-        plt.figure()
-        plt.plot(bins, cum_probabilities)
-        plt.xscale("log")
-
-        plt.show()
-        plt.close()
-
-        print(f"Average degree: {graph.average_degree()}")
-        print(f"Unique average degree: {graph.average_degree(unique=True)}")
+    if args.stats_show:
+        show_stats(graph)
+    elif args.stats_save:
+        save_stats(graph, args.stats_save)
 
     if args.graph_draw_save is not None:
         graph.draw(output=args.graph_draw_save)
-    elif not args.graph_draw_no and not args.stats:
+    elif (
+        not args.graph_draw_no and not args.stats_show and not args.stats_save
+    ):
         graph.draw()
 
 
