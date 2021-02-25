@@ -360,10 +360,20 @@ class PolarizationGraph:
         else:
             width_property_map = None
 
+        # use weight to influence layout
+        # shift weights to [0, 2] to improve visualization
+        # (negative nodes otherwise end up too far apart
+        #  weights_positive = self.graph.new_edge_property("int")
+        #  weights_positive.a = self.weights.a + 1
+        #  pos = gt.sfdp_layout(
+        #      self.graph, eweight=weights_positive, p=1.5, C=0.1
+        #  )
+
         gt.graph_draw(
             self.graph,
             edge_color=edge_color_property_map,
             vertex_fill_color=node_color_property_map,
+            #  pos=pos,
             edge_pen_width=width_property_map,
             output=output,
         )
