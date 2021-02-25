@@ -11,11 +11,10 @@ reddit_collector = RedditCollector()
 
 def test_reddit_collect_simple():
     # simple check on single content
-    contents = list(
-        reddit_collector.collect(
-            1, page="AskTrumpSupporters", limit=10, cross=False
-        )
+    contents, users = reddit_collector.collect(
+        1, page="AskTrumpSupporters", limit=10, cross=False
     )
+    contents = list(contents)
     assert len(contents) == 1
 
     content = contents[0]
@@ -24,11 +23,10 @@ def test_reddit_collect_simple():
 
 def test_reddit_collect_more():
     # try to collect more than 1 content
-    threads = list(
-        reddit_collector.collect(
-            2, page="AskTrumpSupporters", limit=10, cross=False
-        )
+    threads, users = reddit_collector.collect(
+        2, page="AskTrumpSupporters", limit=10, cross=False
     )
+    threads = list(threads)
     assert len(threads) == 2
 
     for thread in threads:
@@ -46,11 +44,10 @@ def test_reddit_collect_more():
 
 def test_reddit_collect_page():
     # try to collect from page
-    contents = list(
-        reddit_collector.collect(
-            2, page="AskTrumpSupporters", limit=10, cross=False
-        )
+    contents, users = reddit_collector.collect(
+        2, page="AskTrumpSupporters", limit=10, cross=False
     )
+    contents = list(contents)
     assert len(contents) == 2
 
 
