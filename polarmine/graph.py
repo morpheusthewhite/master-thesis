@@ -18,7 +18,7 @@ class PolarizationGraph:
 
     """A graph class providing methods for polarization analysis """
 
-    def __init__(self, threads: list[treelib.Tree]):
+    def __init__(self, threads: list[treelib.Tree], users_flair: dict):
         self.graph = gt.Graph()
 
         # definition of graph property maps
@@ -26,6 +26,7 @@ class PolarizationGraph:
         self.weights = self.graph.new_edge_property("double")
         self.times = self.graph.new_edge_property("double")
         self.contents = self.graph.new_edge_property("object")
+        self.flairs = self.graph.new_vertex_property("string")
 
         # make properties internal
         self.graph.edge_properties["weights"] = self.weights
@@ -63,7 +64,7 @@ class PolarizationGraph:
 
                 # get/create the corresponding vertex
                 node_author = node.tag
-                node_vertex = self.get_user_vertex(node_author)
+                node_vertex = self.get_user_vertex(node_author, users_flair)
 
                 # children of the current node
                 children = thread.children(node_identifier)
@@ -73,7 +74,9 @@ class PolarizationGraph:
                     comment_author = child.tag
 
                     # find the node if it is in the graph
-                    comment_vertex = self.get_user_vertex(comment_author)
+                    comment_vertex = self.get_user_vertex(
+                        comment_author, users_flair
+                    )
 
                     # and add the edge
                     self.add_edge(
@@ -165,11 +168,12 @@ class PolarizationGraph:
         else:
             return -probabilities[0]
 
-    def get_user_vertex(self, user: str) -> gt.Vertex:
+    def get_user_vertex(self, user: int, users_flair: dict) -> gt.Vertex:
         vertex_index = self.users.get(user)
 
         if vertex_index is None:
             vertex = self.graph.add_vertex()
+            self.flairs[vertex] = users_flair[user]
 
             # get the index and add it to the dictionary
             vertex_index = self.graph.vertex_index[vertex]
