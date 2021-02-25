@@ -8,16 +8,20 @@ twitter_collector = TwitterCollector()
 
 
 def test_graph_construction_reddit_simple():
-    contents = list(reddit_collector.collect(1, limit=10, cross=False))
+    contents, users_flair = reddit_collector.collect(
+        1, page="AskTrumpSupporters", limit=10, cross=False
+    )
 
-    graph = PolarizationGraph(contents)
+    graph = PolarizationGraph(contents, users_flair)
     assert graph is not None
 
 
 def test_graph_construction_reddit_more():
-    contents = list(reddit_collector.collect(4, limit=10))
+    contents, users_flair = reddit_collector.collect(
+        4, page="AskTrumpSupporters", limit=10
+    )
 
-    graph = PolarizationGraph(contents)
+    graph = PolarizationGraph(contents, users_flair)
     assert graph is not None
 
 
