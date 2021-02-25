@@ -188,7 +188,7 @@ class TwitterCollector(Collector):
 
                 # probably needs int instead of string
                 statuses_batch = self.twitter.statuses_lookup(
-                    reply_replies[i * 100 : (i + 1) * 100],
+                    reply_replies[i * 100: (i + 1) * 100],
                     tweet_mode="extended",
                 )
 
@@ -259,15 +259,25 @@ class TwitterCollector(Collector):
             )
 
             for quote_reply in cursor_quote.items():
-                # quote replies can be handled as normal status since their
-                # text is the reply (without including the quote)
-                subthread = self.__status_to_thread_aux__(
-                    quote_reply, limit=limit
-                )
+                # exclude quote replies which also reply to some tweet to
+                # prevent having duplicates (which would be detected among the
+                # normal replies of the root tweet). This is a rare case, yet
+                # some fancy guy likes doing it.  This is an extreme solution,
+                # in fact it would suffice to check that the current tweet
+                # replies to another tweet which has not beed already fetched
+                # nor it will be
+                if quote_reply.in_reply_to_status_id is None:
+                    # quote replies can be handled as normal status since their
+                    # text is the reply (without including the quote)
+                    subthread = self.__status_to_thread_aux__(
+                        quote_reply, limit=limit
+                    )
 
-                # add subthread as children of the root
-                thread.paste(status_id, subthread)
+                    # add subthread as children of the root
+                    thread.paste(status_id, subthread)
 
+            # tweets which share the same url (usually pointing to an
+            # external site)
             for status_share in self.__status_to_shares__(status):
                 # create content object, associated to root node
                 content_share_url = (
