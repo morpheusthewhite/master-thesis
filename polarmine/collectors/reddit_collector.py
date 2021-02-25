@@ -188,4 +188,4 @@ class RedditCollector(Collector):
             for user, flair in users.items():
                 users_aggregated[user] = flair
 
-        return threads
+        return threads, users
