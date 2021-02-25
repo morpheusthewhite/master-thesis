@@ -1,4 +1,5 @@
 import praw
+import random
 import treelib
 import itertools
 from typing import Optional
@@ -123,7 +124,12 @@ class RedditCollector(Collector):
                 parent = comment.parent_id
 
                 # polarmine comment object, store minimal set of information
-                author_hash = hash(comment.author.name)
+                if comment.author is None:
+                    # comment has been removed, assing it to a user with
+                    # random hash
+                    author_hash = hash(random.uniform(0, 1))
+                else:
+                    author_hash = hash(comment.author.name)
                 comment_pm = Comment(
                     comment.body, author_hash, comment.created_utc
                 )
