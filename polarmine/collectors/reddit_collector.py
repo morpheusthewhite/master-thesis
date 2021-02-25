@@ -182,10 +182,10 @@ class RedditCollector(Collector):
             )
             threads = itertools.chain(threads, content_threads)
 
-            if i + 1 >= ncontents:
-                break
-
             for user, flair in users_flair.items():
                 users_flair_aggregated[user] = flair
+
+            if i + 1 >= ncontents:
+                break
 
         return threads, users_flair_aggregated
