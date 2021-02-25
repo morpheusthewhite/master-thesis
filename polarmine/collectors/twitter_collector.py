@@ -33,7 +33,7 @@ class TwitterCollector(Collector):
         # authorize twitter, initialize tweepy
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_key, access_secret)
-        self.twitter = APIv2(auth, wait_on_rate_limit=True)
+        self.twitter = APIv2(auth, wait_on_rate_limit=True, retry_delay=10)
 
     def __get_keys__(self):
         """Retrieve twitter keys from environment"""
