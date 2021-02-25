@@ -95,6 +95,8 @@ class RedditCollector(Collector):
             submissions.extend(submission.duplicates())
 
         threads = []
+        # dictionary with key being the hash of the user id and value the flair
+        users = {}
 
         for s in submissions:
             # modify the id to follow convention user for `parent_id` attribute
@@ -112,9 +114,9 @@ class RedditCollector(Collector):
             # in this case the tag (submitter user) is the author of this
             # (possibly crossposted) submission and the id is the id of the new
             # submission
-            thread.create_node(
-                tag=hash(s.author), identifier=s_id, data=content
-            )
+            author_hash = hash(s.author)
+            thread.create_node(tag=author_hash, identifier=s_id, data=content)
+            users[author_hash] = s.author_flair_text
 
             # iterate over comments to the submission
             for comment in comment_forest.list():
@@ -124,9 +126,11 @@ class RedditCollector(Collector):
                 parent = comment.parent_id
 
                 # polarmine comment object, store minimal set of information
+                author_hash = hash(comment.author)
                 comment_pm = Comment(
-                    comment.body, hash(comment.author), comment.created_utc
+                    comment.body, author_hash, comment.created_utc
                 )
+                users[author_hash] = comment.author_flair_text
 
                 thread.create_node(
                     tag=comment.author,
@@ -137,7 +141,7 @@ class RedditCollector(Collector):
 
             threads.append(thread)
 
-        return threads
+        return threads, users
 
     def collect(
         self,
@@ -168,16 +172,20 @@ class RedditCollector(Collector):
         """
         contents_id = self.__find_contents_id__(ncontents, keyword, page)
         threads = iter([])
+        users_aggregated = {}
 
         for i, content_id in enumerate(contents_id):
             submission = self.reddit.submission(content_id)
 
-            content_threads = self.__submission_to_thread__(
+            content_threads, users = self.__submission_to_thread__(
                 submission, keyword, limit, cross
             )
             threads = itertools.chain(threads, content_threads)
 
             if i + 1 >= ncontents:
                 break
+
+            for user, flair in users.items():
+                users_aggregated[user] = flair
 
         return threads
