@@ -165,7 +165,7 @@ class PolarizationGraph:
         else:
             return -probabilities[0]
 
-    def get_user_vertex(self, user: str) -> gt.Vertex:
+    def get_user_vertex(self, user: int) -> gt.Vertex:
         vertex_index = self.users.get(user)
 
         if vertex_index is None:
