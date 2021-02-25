@@ -59,7 +59,7 @@ class RedditCollector(Collector):
             submission.url,
             submission.title,
             submission.created_utc,
-            hash(submission.author),
+            hash(submission.author.name),
             keyword,
         )
 
@@ -112,9 +112,8 @@ class RedditCollector(Collector):
             # in this case the tag (submitter user) is the author of this
             # (possibly crossposted) submission and the id is the id of the new
             # submission
-            thread.create_node(
-                tag=hash(s.author), identifier=s_id, data=content
-            )
+            author_hash = hash(s.author.name)
+            thread.create_node(tag=author_hash, identifier=s_id, data=content)
 
             # iterate over comments to the submission
             for comment in comment_forest.list():
@@ -124,12 +123,13 @@ class RedditCollector(Collector):
                 parent = comment.parent_id
 
                 # polarmine comment object, store minimal set of information
+                author_hash = hash(comment.author.name)
                 comment_pm = Comment(
-                    comment.body, hash(comment.author), comment.created_utc
+                    comment.body, author_hash, comment.created_utc
                 )
 
                 thread.create_node(
-                    tag=comment.author,
+                    tag=author_hash,
                     identifier=id_,
                     parent=parent,
                     data=comment_pm,
