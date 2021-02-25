@@ -188,7 +188,7 @@ class TwitterCollector(Collector):
 
                 # probably needs int instead of string
                 statuses_batch = self.twitter.statuses_lookup(
-                    reply_replies[i * 100: (i + 1) * 100],
+                    reply_replies[i * 100 : (i + 1) * 100],
                     tweet_mode="extended",
                 )
 
