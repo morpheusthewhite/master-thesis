@@ -59,7 +59,7 @@ class RedditCollector(Collector):
             submission.url,
             submission.title,
             submission.created_utc,
-            hash(submission.author),
+            hash(submission.author.name),
             keyword,
         )
 
@@ -114,7 +114,7 @@ class RedditCollector(Collector):
             # in this case the tag (submitter user) is the author of this
             # (possibly crossposted) submission and the id is the id of the new
             # submission
-            author_hash = hash(s.author)
+            author_hash = hash(s.author.name)
             thread.create_node(tag=author_hash, identifier=s_id, data=content)
             users_flair[author_hash] = s.author_flair_text
 
@@ -133,7 +133,7 @@ class RedditCollector(Collector):
                 users_flair[author_hash] = comment.author_flair_text
 
                 thread.create_node(
-                    tag=comment.author,
+                    tag=author_hash,
                     identifier=id_,
                     parent=parent,
                     data=comment_pm,
