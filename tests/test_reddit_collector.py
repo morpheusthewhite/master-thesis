@@ -11,7 +11,7 @@ reddit_collector = RedditCollector()
 
 def test_reddit_collect_simple():
     # simple check on single content
-    contents, users = reddit_collector.collect(
+    contents, users_flair = reddit_collector.collect(
         1, page="AskTrumpSupporters", limit=10, cross=False
     )
     contents = list(contents)
@@ -23,7 +23,7 @@ def test_reddit_collect_simple():
 
 def test_reddit_collect_more():
     # try to collect more than 1 content
-    threads, users = reddit_collector.collect(
+    threads, users_flair = reddit_collector.collect(
         2, page="AskTrumpSupporters", limit=10, cross=False
     )
     threads = list(threads)
@@ -44,7 +44,7 @@ def test_reddit_collect_more():
 
 def test_reddit_collect_page():
     # try to collect from page
-    contents, users = reddit_collector.collect(
+    contents, users_flair = reddit_collector.collect(
         2, page="AskTrumpSupporters", limit=10, cross=False
     )
     contents = list(contents)

@@ -261,7 +261,7 @@ def main():
 
         if args.r or args.r_kw is not None or args.r_pg is not None:
             reddit_collector = RedditCollector()
-            reddit_iter, users = reddit_collector.collect(
+            reddit_iter, users_flair = reddit_collector.collect(
                 args.rn, args.r_kw, args.r_pg, limit=args.rl, cross=args.rc
             )
 
@@ -275,7 +275,7 @@ def main():
         #
         #      contents = itertools.chain(contents, twitter_iter)
 
-        graph = PolarizationGraph(contents, users)
+        graph = PolarizationGraph(contents, users_flair)
 
         if args.dump is not None:
             graph.dump(args.dump)
