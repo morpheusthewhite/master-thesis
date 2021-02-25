@@ -126,7 +126,7 @@ class RedditCollector(Collector):
                 parent = comment.parent_id
 
                 # polarmine comment object, store minimal set of information
-                author_hash = hash(comment.author)
+                author_hash = hash(comment.author.name)
                 comment_pm = Comment(
                     comment.body, author_hash, comment.created_utc
                 )
