@@ -112,10 +112,17 @@ class PolarizationGraph:
                             # the parent score and the edge (interaction)
                             # this is updating the information implicitly
                             # as a tree
-                            # TODO: handle float?
-                            nodes_sentiment[comment_vertex] = (
-                                nodes_sentiment[node] * edge_sentiment_score
+                            node_sentiment_float = (
+                                nodes_sentiment[node_vertex]
+                                * edge_sentiment_score
                             )
+                            node_sentiment_int = (
+                                -1 if node_sentiment_float < 0 else 1
+                            )
+                            nodes_sentiment[
+                                comment_vertex
+                            ] = node_sentiment_int
+
                             # prevent next updates and consider
                             # only shortest path
                             sentiment_update[comment_vertex] = i
@@ -124,9 +131,9 @@ class PolarizationGraph:
                             user_content_edge = self.graph.add_edge(
                                 comment_vertex, content_node
                             )
-                            self.weights[user_content_edge] = nodes_sentiment[
-                                comment_vertex
-                            ]
+                            self.weights[
+                                user_content_edge
+                            ] = node_sentiment_int
 
                         # equeue this child
                         queue.append(child)
