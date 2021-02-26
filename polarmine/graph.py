@@ -429,7 +429,7 @@ class PolarizationGraph:
         Args:
             filename (str): filename of the file where the graph is stored
         """
-        graph = cls([])
+        graph = cls([], {})
         graph.load(filename)
 
         return graph
