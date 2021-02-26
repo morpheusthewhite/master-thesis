@@ -322,12 +322,12 @@ class PolarizationGraph:
             for vertex in self.graph.vertices():
                 assert self.flairs[vertex] != UNDECIDED_FLAIR
 
-                if self.flairs[vertex] == "":
-                    color = "black"
-                elif self.flairs[vertex] == SUPPORTER_FLAIR:
+                if self.flairs[vertex] == SUPPORTER_FLAIR:
                     color = "yellow"
-                else:
+                elif self.flairs[vertex] == NON_SUPPORTER_FLAIR:
                     color = "blue"
+                else:
+                    color = "black"
                 node_color_property_map[vertex] = color
         else:
             node_color_property_map = None
