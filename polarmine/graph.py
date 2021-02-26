@@ -30,13 +30,21 @@ class PolarizationGraph:
         # edge weights (calculated with sentiment analysis classifier)
         self.weights = self.graph.new_edge_property("double")
         self.times = self.graph.new_edge_property("double")
-        self.contents = self.graph.new_edge_property("object")
+        self.edges_content = self.graph.new_edge_property("object")
         self.flairs = self.graph.new_vertex_property("string")
+        self.nodes_content = self.graph.new_vertex_property("object")
+
+        # (not internal) property which stores nodes sentiment score
+        # used only during graph construction
+        nodes_sentiment = self.graph.new_vertex_property("int")
+        # index to store at which iteration the score has been updated
+        sentiment_update = self.graph.new_vertex_property("int", -1)
 
         # make properties internal
         self.graph.edge_properties["weights"] = self.weights
         self.graph.edge_properties["times"] = self.times
-        self.graph.edge_properties["contents"] = self.contents
+        self.graph.edge_properties["edges_content"] = self.edges_content
+        self.graph.vertex_properties["nodes_content"] = self.nodes_content
         self.graph.vertex_properties["flairs"] = self.flairs
 
         # initialization of sentiment analysis classifier
@@ -50,12 +58,14 @@ class PolarizationGraph:
         # dictionary storing user:vertex_index
         self.users = {}
 
-        for thread in threads:
+        for i, thread in enumerate(threads):
             root_id = thread.root
             root = thread.nodes[root_id]
 
             # get the content, associated to the root node
             content = root.data
+            # content node
+            content_node = self.add_content_vertex(content)
 
             # TODO: do you want to add the root to the graph? Seems so
 
@@ -71,6 +81,11 @@ class PolarizationGraph:
                 # get/create the corresponding vertex
                 node_author = node.tag
                 node_vertex = self.get_user_vertex(node_author, users_flair)
+
+                # if the current node is the root add a neutral 1 as multiplier
+                if node_identifier == root_id:
+                    nodes_sentiment[node_vertex] = 1
+                    sentiment_update[node_vertex] = i
 
                 # children of the current node
                 children = thread.children(node_identifier)
@@ -88,9 +103,30 @@ class PolarizationGraph:
                         )
 
                         # and add the edge
-                        self.add_edge(
+                        edge_sentiment_score = self.add_edge(
                             comment_vertex, node_vertex, comment, content
                         )
+
+                        if sentiment_update[comment_vertex] < i:
+                            # assign to a node a score which is the product of
+                            # the parent score and the edge (interaction)
+                            # this is updating the information implicitly
+                            # as a tree
+                            # TODO: handle float?
+                            nodes_sentiment[comment_vertex] = (
+                                nodes_sentiment[node] * edge_sentiment_score
+                            )
+                            # prevent next updates and consider
+                            # only shortest path
+                            sentiment_update[comment_vertex] = i
+
+                            # add the content-user edge to the graph
+                            user_content_edge = self.graph.add_edge(
+                                comment_vertex, content_node
+                            )
+                            self.weights[user_content_edge] = nodes_sentiment[
+                                comment_vertex
+                            ]
 
                         # equeue this child
                         queue.append(child)
@@ -149,7 +185,9 @@ class PolarizationGraph:
 
         self.weights[edge] = sentiment_score
         self.times[edge] = comment.time
-        self.contents[edge] = content
+        self.edges_content[edge] = content
+
+        return sentiment_score
 
     def sentiment_weight(self, text):
 
@@ -177,12 +215,21 @@ class PolarizationGraph:
         else:
             return -probabilities[0]
 
+    def add_content_vertex(self, content: Content) -> gt.Vertex:
+        vertex = self.graph.add_vertex()
+        self.nodes_content[vertex] = content
+        self.flairs[vertex] = None
+
+        return vertex
+
     def get_user_vertex(self, user: int, users_flair: dict) -> gt.Vertex:
         vertex_index = self.users.get(user)
 
         if vertex_index is None:
+            # vertex does not exist, add it
             vertex = self.graph.add_vertex()
             self.flairs[vertex] = users_flair[user]
+            self.nodes_content[vertex] = None
 
             # get the index and add it to the dictionary
             vertex_index = self.graph.vertex_index[vertex]
@@ -208,7 +255,8 @@ class PolarizationGraph:
         # not considered important
         self.weights = self.graph.edge_properties["weights"]
         self.times = self.graph.edge_properties["times"]
-        self.contents = self.graph.edge_properties["contents"]
+        self.edges_content = self.graph.edge_properties["edges_content"]
+        self.nodes_content = self.graph.vertex_properties["nodes_content"]
         self.flairs = self.graph.vertex_properties["flairs"]
 
         # compute self-loop mask
