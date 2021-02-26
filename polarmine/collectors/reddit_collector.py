@@ -9,6 +9,11 @@ from polarmine.content import Content
 from polarmine.comment import Comment
 
 
+SUPPORTER_FLAIR = "Trump Supporter"
+NON_SUPPORTER_FLAIR = "Nonsupporter"
+UNDECIDED_FLAIR = "Undecided"
+
+
 class RedditCollector(Collector):
     """collects content from reddit"""
 

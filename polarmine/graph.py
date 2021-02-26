@@ -8,6 +8,11 @@ from scipy.special import softmax
 
 from polarmine.comment import Comment
 from polarmine.content import Content
+from polarmine.collectors.reddit_collector import (
+    SUPPORTER_FLAIR,
+    UNDECIDED_FLAIR,
+    NON_SUPPORTER_FLAIR,
+)
 
 KEY_SCORE = "score"
 SENTIMENT_MAX_TEXT_LENGTH = 128
@@ -229,6 +234,7 @@ class PolarizationGraph:
     def draw(
         self,
         edge_color: bool = True,
+        node_color: bool = True,
         edge_width: bool = True,
         output: Optional[str] = None,
     ) -> None:
@@ -236,17 +242,30 @@ class PolarizationGraph:
 
         Args:
             edge_color (bool): if True color edges according to weight sign
+            node_color (bool): if True color vertices according to their flair
             edge_width (bool): if True draw edges according to weight abs value
         """
         if edge_color:
-            color_property_map = self.graph.new_edge_property("string")
+            edge_color_property_map = self.graph.new_edge_property("string")
 
             for edge in self.graph.edges():
-                color_property_map[edge] = (
+                edge_color_property_map[edge] = (
                     "red" if self.weights[edge] < 0 else "green"
                 )
         else:
-            color_property_map = None
+            edge_color_property_map = None
+
+        if node_color:
+            node_color_property_map = self.graph.new_vertex_property("string")
+
+            for vertex in self.graph.vertices():
+                node_color_property_map[vertex] = (
+                    "yellow"
+                    if self.flairs[vertex] == SUPPORTER_FLAIR
+                    else "blue"
+                )
+        else:
+            node_color_property_map = None
 
         if edge_width:
             width_property_map = self.graph.new_edge_property("double")
@@ -256,10 +275,9 @@ class PolarizationGraph:
 
         gt.graph_draw(
             self.graph,
-            edge_color=color_property_map,
+            edge_color=edge_color_property_map,
+            vertex_fill_color=node_color_property_map,
             edge_pen_width=width_property_map,
-            vertex_size=0,
-            vertex_fill_color="black",
             output=output,
         )
 
