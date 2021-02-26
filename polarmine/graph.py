@@ -31,7 +31,7 @@ class PolarizationGraph:
         self.weights = self.graph.new_edge_property("double")
         self.times = self.graph.new_edge_property("double")
         self.edges_content = self.graph.new_edge_property("object")
-        self.flairs = self.graph.new_vertex_property("string")
+        self.flairs = self.graph.new_vertex_property("string", "")
         self.nodes_content = self.graph.new_vertex_property("object")
 
         # (not internal) property which stores nodes sentiment score
@@ -312,11 +312,13 @@ class PolarizationGraph:
             for vertex in self.graph.vertices():
                 assert self.flairs[vertex] != UNDECIDED_FLAIR
 
-                node_color_property_map[vertex] = (
-                    "yellow"
-                    if self.flairs[vertex] == SUPPORTER_FLAIR
-                    else "blue"
-                )
+                if self.flairs[vertex] == "":
+                    color = "black"
+                elif self.flairs[vertex] == SUPPORTER_FLAIR:
+                    color = "yellow"
+                else:
+                    color = "blue"
+                node_color_property_map[vertex] = color
         else:
             node_color_property_map = None
 
