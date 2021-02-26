@@ -92,15 +92,6 @@ reddit_group.add_argument(
     dest="r_kw",
     help="keyword used for filtering reddit posts",
 )
-reddit_group.add_argument(
-    "-rp",
-    "--reddit-page",
-    type=str,
-    default=None,
-    metavar="reddit_page",
-    dest="r_pg",
-    help="subreddit(s) from which posts are mined",
-)
 parser.add_argument(
     "-rl",
     "--reddit-limit",
@@ -259,21 +250,16 @@ def main():
         # mine data and store it
         contents = iter([])
 
-        if args.r or args.r_kw is not None or args.r_pg is not None:
-            reddit_collector = RedditCollector()
-            reddit_iter, users_flair = reddit_collector.collect(
-                args.rn, args.r_kw, args.r_pg, limit=args.rl, cross=args.rc
-            )
+        reddit_collector = RedditCollector()
+        reddit_iter, users_flair = reddit_collector.collect(
+            args.rn,
+            args.r_kw,
+            "AskTrumpSupporters",
+            limit=args.rl,
+            cross=args.rc,
+        )
 
-            contents = itertools.chain(contents, reddit_iter)
-
-        #  if args.t_kw is not None or args.t_pg is not None:
-        #      twitter_collector = TwitterCollector()
-        #      twitter_iter = twitter_collector.collect(
-        #          args.tn, args.t_kw, args.t_pg, limit=args.tl, cross=args.tc
-        #      )
-        #
-        #      contents = itertools.chain(contents, twitter_iter)
+        contents = itertools.chain(contents, reddit_iter)
 
         graph = PolarizationGraph(contents, users_flair)
 
