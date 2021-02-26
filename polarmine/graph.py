@@ -68,9 +68,13 @@ class PolarizationGraph:
         # used only during graph construction
         nodes_sentiment = self.graph.new_vertex_property("int")
         # index to store at which iteration the score has been updated
-        sentiment_update = self.graph.new_vertex_property("int", -1)
+        sentiment_update = self.graph.new_vertex_property("int")
 
         for i, thread in enumerate(threads):
+            # since intial values are 0 the iterating integer
+            # needs to be increased to be different
+            iteration = i + 1
+
             root_id = thread.root
             root = thread.nodes[root_id]
 
@@ -97,7 +101,7 @@ class PolarizationGraph:
                 # if the current node is the root add a neutral 1 as multiplier
                 if node_identifier == root_id:
                     nodes_sentiment[node_vertex] = 1
-                    sentiment_update[node_vertex] = i
+                    sentiment_update[node_vertex] = iteration
 
                 # children of the current node
                 children = thread.children(node_identifier)
@@ -120,7 +124,7 @@ class PolarizationGraph:
                             content,
                             comment,
                             comment_author,
-                            i,
+                            iteration,
                         )
 
                         # equeue this child
