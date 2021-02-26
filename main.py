@@ -5,7 +5,6 @@ import sys
 
 from polarmine.graph import PolarizationGraph
 from polarmine.collectors.reddit_collector import RedditCollector
-from polarmine.collectors.twitter_collector import TwitterCollector
 
 
 parser = argparse.ArgumentParser(description="Polarmine")
