@@ -34,12 +34,6 @@ class PolarizationGraph:
         self.flairs = self.graph.new_vertex_property("string")
         self.nodes_content = self.graph.new_vertex_property("object")
 
-        # (not internal) property which stores nodes sentiment score
-        # used only during graph construction
-        nodes_sentiment = self.graph.new_vertex_property("int")
-        # index to store at which iteration the score has been updated
-        sentiment_update = self.graph.new_vertex_property("int", -1)
-
         # make properties internal
         self.graph.edge_properties["weights"] = self.weights
         self.graph.edge_properties["times"] = self.times
@@ -57,6 +51,24 @@ class PolarizationGraph:
 
         # dictionary storing user:vertex_index
         self.users = {}
+
+        # store info from threads into graph
+        self.__add_to_graph__(threads, users_flair)
+
+        self.self_loop_mask = self.graph.new_edge_property("bool")
+        self.self_loop_mask.a = (
+            1 - gt.label_self_loops(self.graph, mark_only=True).a
+        )
+
+        # precompute kcore-decomposition
+        self.__kcore__ = self.__kcore_decomposition__()
+
+    def __add_to_graph__(self, threads: list[treelib.Tree], users_flair: dict):
+        # (not internal) property which stores nodes sentiment score
+        # used only during graph construction
+        nodes_sentiment = self.graph.new_vertex_property("int")
+        # index to store at which iteration the score has been updated
+        sentiment_update = self.graph.new_vertex_property("int", -1)
 
         for i, thread in enumerate(threads):
             root_id = thread.root
@@ -99,89 +111,61 @@ class PolarizationGraph:
                         users_flair[comment_author] == SUPPORTER_FLAIR
                         or users_flair[comment_author] == NON_SUPPORTER_FLAIR
                     ):
-
-                        # find the node if it is in the graph
-                        comment_vertex = self.get_user_vertex(
-                            comment_author, users_flair
+                        self.__process_child__(
+                            node_vertex,
+                            content_node,
+                            sentiment_update,
+                            nodes_sentiment,
+                            users_flair,
+                            content,
+                            comment,
+                            comment_author,
+                            i,
                         )
-
-                        # and add the edge
-                        edge_sentiment_score = self.add_edge(
-                            comment_vertex, node_vertex, comment, content
-                        )
-
-                        if sentiment_update[comment_vertex] < i:
-                            # assign to a node a score which is the product of
-                            # the parent score and the edge (interaction)
-                            # this is updating the information implicitly
-                            # as a tree
-                            node_sentiment_float = (
-                                nodes_sentiment[node_vertex]
-                                * edge_sentiment_score
-                            )
-                            node_sentiment_int = (
-                                -1 if node_sentiment_float < 0 else 1
-                            )
-                            nodes_sentiment[
-                                comment_vertex
-                            ] = node_sentiment_int
-
-                            # prevent next updates and consider
-                            # only shortest path
-                            sentiment_update[comment_vertex] = i
-
-                            # add the content-user edge to the graph
-                            user_content_edge = self.graph.add_edge(
-                                comment_vertex, content_node
-                            )
-                            self.weights[
-                                user_content_edge
-                            ] = node_sentiment_int
 
                         # equeue this child
                         queue.append(child)
 
-        self.self_loop_mask = self.graph.new_edge_property("bool")
-        self.self_loop_mask.a = (
-            1 - gt.label_self_loops(self.graph, mark_only=True).a
+    def __process_child__(
+        self,
+        parent_vertex: gt.Vertex,
+        content_node: gt.Vertex,
+        sentiment_update: gt.VertexPropertyMap,
+        nodes_sentiment: gt.VertexPropertyMap,
+        users_flair: dict,
+        content: Content,
+        comment: Comment,
+        comment_author: int,
+        iteration: int,
+    ):
+        # find the node if it is in the graph
+        comment_vertex = self.get_user_vertex(comment_author, users_flair)
+
+        # and add the edge
+        edge_sentiment_score = self.add_edge(
+            comment_vertex, parent_vertex, comment, content
         )
 
-        # precompute kcore-decomposition
-        self.__kcore__ = self.__kcore_decomposition__()
+        if sentiment_update[comment_vertex] < iteration:
+            # assign to a node a score which is the product of
+            # the parent score and the edge (interaction)
+            # this is updating the information implicitly
+            # as a tree
+            node_sentiment_float = (
+                nodes_sentiment[parent_vertex] * edge_sentiment_score
+            )
+            node_sentiment_int = -1 if node_sentiment_float < 0 else 1
+            nodes_sentiment[comment_vertex] = node_sentiment_int
 
-    def __kcore_decomposition__(self):
-        """Wrapper for grapt_tool kcore_decomposition excluding self edges"""
+            # prevent next updates and consider
+            # only shortest path
+            sentiment_update[comment_vertex] = iteration
 
-        self.graph.set_edge_filter(self.self_loop_mask)
-        kcore = gt.kcore_decomposition(self.graph)
-        self.graph.set_edge_filter(None)
-
-        return kcore
-
-    def __kcore_mask__(self, k: int) -> gt.EdgePropertyMap:
-        """mask nodes which are not in k-core
-
-        Args:
-            k (int): k
-
-        Returns:
-            gt.EdgePropertyMap: a boolean property in which nodes out
-            of the k-core are masked out
-        """
-        mask = self.graph.new_vertex_property("bool")
-        mask.a = self.__kcore__.a >= k
-
-        return mask
-
-    def select_kcore(self, k) -> None:
-        """select kcore of the graph. Function called after a call to this
-        function will operate only on its kcore
-
-        Args:
-            k
-        """
-        kmask = self.__kcore_mask__(k)
-        self.graph.set_vertex_filter(kmask)
+            # add the content-user edge to the graph
+            user_content_edge = self.graph.add_edge(
+                comment_vertex, content_node
+            )
+            self.weights[user_content_edge] = node_sentiment_int
 
     def add_edge(
         self,
@@ -249,6 +233,40 @@ class PolarizationGraph:
             vertex = self.graph.vertex(vertex_index)
 
         return vertex
+
+    def __kcore_decomposition__(self):
+        """Wrapper for grapt_tool kcore_decomposition excluding self edges"""
+
+        self.graph.set_edge_filter(self.self_loop_mask)
+        kcore = gt.kcore_decomposition(self.graph)
+        self.graph.set_edge_filter(None)
+
+        return kcore
+
+    def __kcore_mask__(self, k: int) -> gt.EdgePropertyMap:
+        """mask nodes which are not in k-core
+
+        Args:
+            k (int): k
+
+        Returns:
+            gt.EdgePropertyMap: a boolean property in which nodes out
+            of the k-core are masked out
+        """
+        mask = self.graph.new_vertex_property("bool")
+        mask.a = self.__kcore__.a >= k
+
+        return mask
+
+    def select_kcore(self, k) -> None:
+        """select kcore of the graph. Function called after a call to this
+        function will operate only on its kcore
+
+        Args:
+            k
+        """
+        kmask = self.__kcore_mask__(k)
+        self.graph.set_vertex_filter(kmask)
 
     def load(self, filename: str) -> None:
         """load the graph from a file
@@ -353,7 +371,7 @@ class PolarizationGraph:
         return self.graph.num_edges()
 
     def negative_edges_fraction(self):
-        num_edges = self.graph.num_edges()
+        #  num_edges = self.graph.num_edges()
         edge_filter_property_map, _ = self.graph.get_edge_filter()
 
         # verify that a filter exists before using the property
