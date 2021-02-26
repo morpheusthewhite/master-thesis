@@ -79,18 +79,21 @@ class PolarizationGraph:
                     comment = child.data
                     comment_author = child.tag
 
-                    # find the node if it is in the graph
-                    comment_vertex = self.get_user_vertex(
-                        comment_author, users_flair
-                    )
+                    # exclude undecided users
+                    if users_flair[comment_author] != UNDECIDED_FLAIR:
 
-                    # and add the edge
-                    self.add_edge(
-                        comment_vertex, node_vertex, comment, content
-                    )
+                        # find the node if it is in the graph
+                        comment_vertex = self.get_user_vertex(
+                            comment_author, users_flair
+                        )
 
-                    # equeue this child
-                    queue.append(child)
+                        # and add the edge
+                        self.add_edge(
+                            comment_vertex, node_vertex, comment, content
+                        )
+
+                        # equeue this child
+                        queue.append(child)
 
         self.self_loop_mask = self.graph.new_edge_property("bool")
         self.self_loop_mask.a = (
@@ -259,6 +262,8 @@ class PolarizationGraph:
             node_color_property_map = self.graph.new_vertex_property("string")
 
             for vertex in self.graph.vertices():
+                assert self.flairs[vertex] != UNDECIDED_FLAIR
+
                 node_color_property_map[vertex] = (
                     "yellow"
                     if self.flairs[vertex] == SUPPORTER_FLAIR
