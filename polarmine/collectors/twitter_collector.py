@@ -186,11 +186,18 @@ class TwitterCollector(Collector):
             # require 100 tweets at a time
             for i in range(math.ceil(len(reply_replies) / 100)):
 
-                # probably needs int instead of string
-                statuses_batch = self.twitter.statuses_lookup(
-                    reply_replies[i * 100 : (i + 1) * 100],
-                    tweet_mode="extended",
-                )
+                # cycle to handle "Connection reset by peer"
+                fetched = False
+                while not fetched:
+                    try:
+                        # probably needs int instead of string
+                        statuses_batch = self.twitter.statuses_lookup(
+                            reply_replies[i * 100 : (i + 1) * 100],
+                            tweet_mode="extended",
+                        )
+                        fetched = True
+                    except tweepy.error.TweepError:
+                        print("Connection problems")
 
                 for s in statuses_batch:
                     # create comment object, associated to root node of this tree
