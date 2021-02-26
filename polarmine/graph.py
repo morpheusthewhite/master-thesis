@@ -31,7 +31,7 @@ class PolarizationGraph:
         self.weights = self.graph.new_edge_property("double")
         self.times = self.graph.new_edge_property("double")
         self.edges_content = self.graph.new_edge_property("object")
-        self.flairs = self.graph.new_vertex_property("string", "")
+        self.flairs = self.graph.new_vertex_property("string")
         self.nodes_content = self.graph.new_vertex_property("object")
 
         # (not internal) property which stores nodes sentiment score
@@ -95,7 +95,10 @@ class PolarizationGraph:
                     comment_author = child.tag
 
                     # exclude undecided users
-                    if users_flair[comment_author] != UNDECIDED_FLAIR:
+                    if (
+                        users_flair[comment_author] == SUPPORTER_FLAIR
+                        or users_flair[comment_author] == NON_SUPPORTER_FLAIR
+                    ):
 
                         # find the node if it is in the graph
                         comment_vertex = self.get_user_vertex(
