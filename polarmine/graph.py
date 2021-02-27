@@ -29,7 +29,7 @@ class PolarizationGraph:
         # definition of graph property maps
         # edge weights (calculated with sentiment analysis classifier)
         self.weights = self.graph.new_edge_property("double")
-        self.times = self.graph.new_edge_property("double")
+        self.times = self.graph.new_edge_property("double", val=0)
         self.edges_content = self.graph.new_edge_property("object")
         self.flairs = self.graph.new_vertex_property("string")
         self.nodes_content = self.graph.new_vertex_property("object")
@@ -271,6 +271,43 @@ class PolarizationGraph:
         """
         kmask = self.__kcore_mask__(k)
         self.graph.set_vertex_filter(kmask)
+
+    def select_content_user(self) -> None:
+        """select content-user subgraph"""
+        content_user_edges = self.graph.new_edge_property("bool")
+        content_user_edges.a = self.times.a == 0
+
+        self.graph.set_edge_filter(content_user_edges)
+
+        # exclude nodes which have no edges in the subgraph
+        # this happens for users who posted the content
+        # this is done to prevent further assumption
+        content_user_vertices = self.graph.new_vertex_property("bool")
+        content_user_vertices.a = (
+            self.graph.degree_property_map("total").a != 0
+        )
+
+        self.graph.set_vertex_filter(content_user_vertices)
+
+    def select_user_user(self) -> None:
+        """select user-user subgraph"""
+        user_user_edges = self.graph.new_edge_property("bool")
+        user_user_edges.a = self.times.a != 0
+
+        self.graph.set_edge_filter(user_user_edges)
+
+        # exclude nodes which have no edges in the subgraph
+        # this happens for users who posted the content
+        # this is done to prevent further assumption
+        user_user_vertices = self.graph.new_vertex_property("bool")
+        user_user_vertices.a = self.graph.degree_property_map("total").a != 0
+
+        self.graph.set_vertex_filter(user_user_vertices)
+
+    def unselect(self) -> None:
+        """unselect current subgraph"""
+        self.graph.set_vertex_filter(None)
+        self.graph.set_edge_filter(None)
 
     def load(self, filename: str) -> None:
         """load the graph from a file
