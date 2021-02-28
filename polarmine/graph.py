@@ -419,7 +419,7 @@ class PolarizationGraph:
             self.graph,
             groups=node_group_property_map,
             mu=1000,
-            eweights=self.weights,
+            #  eweight=self.weights,
         )
 
         gt.graph_draw(
