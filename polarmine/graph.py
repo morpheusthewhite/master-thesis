@@ -413,13 +413,13 @@ class PolarizationGraph:
         # use weight to influence layout
         # shift weights to [0, 2] to improve visualization
         # (negative nodes otherwise end up too far apart
-        #  weights_positive = self.graph.new_edge_property("int")
-        #  weights_positive.a = self.weights.a + 1
+        weights_positive = self.graph.new_edge_property("int")
+        weights_positive.a = self.weights.a + 1
         pos = gt.sfdp_layout(
             self.graph,
             groups=node_group_property_map,
             mu=1000,
-            #  eweight=self.weights,
+            eweight=weights_positive,
         )
 
         gt.graph_draw(
