@@ -453,6 +453,80 @@ class PolarizationGraph:
         # edge_filter_property map has everywhere 1s
         return num_negative_edges / self.graph.num_edges(True)
 
+    def __content_support_matrix(self, content_node: gt.Vertex) -> tuple:
+        """calculate content support matrix
+
+        Args:
+            content_node (gt.Vertex): the vertex associated to the content
+            of which content-user edges are considered
+
+        Returns:
+            tuple(int): a tuple containing a, b, c, d respectively being:
+                - a: number of positive edges by SUPPORTER_FLAIR users
+                - b: number of positive edges by NON_SUPPORTER_FLAIR users
+                - c: number of negative edges by SUPPORTER_FLAIR users
+                - d: number of negative edges by NON_SUPPORTER_FLAIR users
+        """
+        a = b = c = d = 0
+
+        for edge in content_node.all_edges():
+            user_node = edge.source()
+            user_flair = self.flairs[user_node]
+
+            if self.weights[edge] == 1:
+                if user_flair == SUPPORTER_FLAIR:
+                    a += 1
+                else:
+                    # user_flair == NON_SUPPORTER_FLAIR:
+                    b += 1
+            else:
+                # self.weights[edge] == -1:
+                if user_flair == SUPPORTER_FLAIR:
+                    c += 1
+                else:
+                    # user_flair == NON_SUPPORTER_FLAIR:
+                    d += 1
+
+        return a, b, c, d
+
+    def __content_support_index__(self, content_node: gt.Vertex):
+        """calculate content index, which is between 0 and 1, 0
+        indicating a content close to NON_SUPPORTER_FLAIR users,
+        1 indicating a content close to SUPPORTER_FLAIR users
+
+        Args:
+            content_node (gt.Vertex): the vertex associated to the content
+            of which content-user edges are considered
+        """
+        a, b, c, d = self.__content_support_matrix(content_node)
+
+        return (a + d) / (a + b + c + d)
+
+    def support_index_histogram(self):
+        """compute histogram of support index
+
+        Returns:
+            (list[int], list[int]): the list of number of elements in each bin
+            and the start of each bin
+        """
+        # get vertex with "None" flairs, i. e. content nodes
+        content_nodes = gt.find_vertex(self.graph, self.flairs, "None")
+        support_indexes = []
+
+        for content_node in content_nodes:
+            support_index = self.__content_support_index__(content_node)
+
+            support_indexes.append(support_index)
+
+        support_indexes_np = np.array(support_indexes)
+
+        hist, bins = np.histogram(
+            support_indexes_np, bins=[i / 10 for i in range(11)]
+        )
+        bins = bins[: bins.shape[0] - 1]
+
+        return hist, bins
+
     def global_clustering(self):
         return gt.global_clustering(self.graph)
 
