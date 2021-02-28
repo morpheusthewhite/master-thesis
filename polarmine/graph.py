@@ -297,8 +297,7 @@ class PolarizationGraph:
         self.graph.set_edge_filter(user_user_edges)
 
         # exclude nodes which have no edges in the subgraph
-        # this happens for users who posted the content
-        # this is done to prevent further assumption
+        # this happens for content nodes
         user_user_vertices = self.graph.new_vertex_property("bool")
         user_user_vertices.a = self.graph.degree_property_map("total").a != 0
 
@@ -391,6 +390,20 @@ class PolarizationGraph:
         else:
             node_color_property_map = None
 
+        node_group_property_map = self.graph.new_vertex_property("int")
+
+        for vertex in self.graph.vertices():
+            assert self.flairs[vertex] != UNDECIDED_FLAIR
+
+            if self.flairs[vertex] == SUPPORTER_FLAIR:
+                group = 0
+            elif self.flairs[vertex] == NON_SUPPORTER_FLAIR:
+                group = 1
+            else:
+                group = 2
+
+            node_group_property_map[vertex] = group
+
         if edge_width:
             width_property_map = self.graph.new_edge_property("double")
             width_property_map.a = np.abs(self.weights.a)
@@ -402,15 +415,18 @@ class PolarizationGraph:
         # (negative nodes otherwise end up too far apart
         #  weights_positive = self.graph.new_edge_property("int")
         #  weights_positive.a = self.weights.a + 1
-        #  pos = gt.sfdp_layout(
-        #      self.graph, eweight=weights_positive, p=1.5, C=0.1
-        #  )
+        pos = gt.sfdp_layout(
+            self.graph,
+            groups=node_group_property_map,
+            mu=1000,
+            eweights=self.weights,
+        )
 
         gt.graph_draw(
             self.graph,
             edge_color=edge_color_property_map,
             vertex_fill_color=node_color_property_map,
-            #  pos=pos,
+            pos=pos,
             edge_pen_width=width_property_map,
             output=output,
         )
