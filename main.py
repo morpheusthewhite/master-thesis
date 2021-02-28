@@ -185,72 +185,13 @@ args = parser.parse_args()
 
 
 def compute_stats(graph, file_prefix):
-    graph.remove_self_loops()
+    counts, bins = graph.support_index_histogram()
 
-    if file_prefix is None:
-        stats_txt_file = sys.stdout
-    else:
-        stats_txt = file_prefix + "-stats.txt"
-        stats_txt_file = open(stats_txt, "w")
-
-    print(
-        f"The graph has {graph.num_vertices()} vertices and {graph.num_edges()} edges",
-        file=stats_txt_file,
-    )
-    print(
-        f"Fraction of nodes in k-core: {graph.kcore_size()}",
-        file=stats_txt_file,
-    )
-    print(
-        f"Fraction of negative edges: {graph.negative_edges_fraction()}",
-        file=stats_txt_file,
-    )
-
-    global_clustering, global_clustering_stddev = graph.global_clustering()
-    print(
-        f"Clustering coefficient: {global_clustering} with standard deviation {global_clustering_stddev}",
-        file=stats_txt_file,
-    )
-
-    print(
-        f"Average shortest path length: {graph.average_shortest_path_length()}",
-        file=stats_txt_file,
-    )
-    print(
-        f"Median shortest path length: {graph.median_shortest_path_length()}",
-        file=stats_txt_file,
-    )
-    print(f"Average degree: {graph.average_degree()}", file=stats_txt_file)
-    print(
-        f"Unique average degree: {graph.average_degree(unique=True)}",
-        file=stats_txt_file,
-    )
-
-    if file_prefix is not None:
-        stats_txt_file.close()
-
-    # show degree histogram
-    # matplotlib is apparently segfaulting without a good reason
-    counts, bins = graph.degree_histogram()
     plt.figure()
-    plt.bar(bins, counts)
+    plt.plot(bins, counts)
 
     if file_prefix is not None:
-        hist_pdf = file_prefix + "-hist.pdf"
-        plt.savefig(hist_pdf)
-    else:
-        plt.show()
-        plt.close()
-
-    # show degree distribution
-    # matplotlib is apparently segfaulting without a good reason
-    cum_probabilities, bins = graph.degree_distribution()
-    plt.figure()
-    plt.plot(bins, cum_probabilities)
-    plt.xscale("log")
-
-    if file_prefix is not None:
-        dist_pdf = file_prefix + "-dist.pdf"
+        dist_pdf = file_prefix + "-support-hist.pdf"
         plt.savefig(dist_pdf)
     else:
         plt.show()
