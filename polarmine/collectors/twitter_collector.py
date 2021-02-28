@@ -111,7 +111,7 @@ class TwitterCollector(Collector):
             except urllib.error.HTTPError:
                 # generic error, happens when tweet has some images?
                 return iter([])
-            except UnicodeDecodeError:
+            except (UnicodeDecodeError, UnicodeEncodeError):
                 # unicode error, there are some invalid ASCII character in the request
                 return iter([])
 
