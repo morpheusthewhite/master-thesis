@@ -72,6 +72,23 @@ parser.add_argument(
     dest="k",
     help="k used to select k-core component for analysis and results",
 )
+select_group = parser.add_mutually_exclusive_group()
+select_group.add_argument(
+    "-cu",
+    "--select-content-user",
+    action="store_true",
+    default=False,
+    dest="select_content_user",
+    help="select and operate on the content-user subgraph",
+)
+select_group.add_argument(
+    "-uu",
+    "--select-user-user",
+    action="store_true",
+    default=False,
+    dest="select_user_user",
+    help="select and operate on the user-user subgraph",
+)
 # reddit
 reddit_group = parser.add_mutually_exclusive_group()
 reddit_group.add_argument(
@@ -267,6 +284,11 @@ def main():
 
     if args.k > 0:
         graph.select_kcore(args.k)
+
+    if args.select_content_user:
+        graph.select_content_user()
+    elif args.select_user_user:
+        graph.select_user_user()
 
     if args.stats_show or args.stats_save:
         compute_stats(graph, args.stats_save)
