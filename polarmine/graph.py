@@ -319,6 +319,28 @@ class PolarizationGraph:
 
         return fraction_dict
 
+    def fidelity_values(self):
+        fidelities = []
+
+        # iterate over index of vertices
+        for vertex_index in self.graph.get_vertices():
+
+            # get edges index of the current vertex
+            edges_index = self.graph.get_all_edges(vertex_index)
+
+            user_contents = set()
+            for edge_index in edges_index:
+                edge = self.graph.edge(edge_index[0], edge_index[1])
+
+                edge_content = self.contents[edge]
+                if edge_content not in user_contents:
+                    user_contents.add(edge_content)
+
+            fidelity = len(user_contents)
+            fidelities.append(fidelity)
+
+        return fidelities
+
     def global_clustering(self):
         return gt.global_clustering(self.graph)
 
