@@ -364,6 +364,17 @@ class PolarizationGraph:
 
         return counts, bins
 
+    def degree_values(self, degree: str = "total") -> np.array:
+        """returns degree of vertices
+
+        Args:
+            degree: which degree to consider. Either "total", "in" or "out"
+
+        Returns:
+            np.array: a numpy array containing the degree of the edges
+        """
+        return np.array(self.graph.degree_property_map(degree).a)
+
     def kcore_size(self):
         num_vertices = self.graph.num_vertices(True)
         num_vertices_kcore = self.graph.num_vertices()
