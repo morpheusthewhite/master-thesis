@@ -252,6 +252,7 @@ def print_stats(graph, file_prefix):
     # show degree histogram
     degrees = graph.degree_values()
     plt.figure()
+    plt.title("Degree histogram")
     plt.hist(degrees)
 
     if file_prefix is not None:
@@ -264,6 +265,7 @@ def print_stats(graph, file_prefix):
     # show negative edge fraction histogram
     fractions_dict = graph.negative_edges_fraction_dict()
     plt.figure()
+    plt.title("Edge negativeness histogram")
     plt.hist(fractions_dict.values())
 
     if file_prefix is not None:
@@ -279,6 +281,7 @@ def print_stats(graph, file_prefix):
     # show degree distribution
     cum_probabilities, bins = graph.degree_distribution()
     plt.figure()
+    plt.title("Degree cumulative distribution")
     plt.plot(bins, cum_probabilities)
     plt.xscale("log")
 
