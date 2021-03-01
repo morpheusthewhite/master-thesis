@@ -256,8 +256,8 @@ def print_stats(graph, file_prefix):
     plt.hist(degrees)
 
     if file_prefix is not None:
-        hist_pdf = file_prefix + "-hist.pdf"
-        plt.savefig(hist_pdf)
+        degree_hist_pdf = file_prefix + "-degree-hist.pdf"
+        plt.savefig(degree_hist_pdf)
     else:
         plt.show()
         plt.close()
@@ -269,8 +269,8 @@ def print_stats(graph, file_prefix):
     plt.hist(fractions_dict.values())
 
     if file_prefix is not None:
-        hist_pdf = file_prefix + "-neg-fraction-hist.pdf"
-        plt.savefig(hist_pdf)
+        neg_fraction_hist_pdf = file_prefix + "-neg-fraction-hist.pdf"
+        plt.savefig(neg_fraction_hist_pdf)
     else:
         plt.show()
         plt.close()
@@ -286,8 +286,21 @@ def print_stats(graph, file_prefix):
     plt.xscale("log")
 
     if file_prefix is not None:
-        dist_pdf = file_prefix + "-dist.pdf"
-        plt.savefig(dist_pdf)
+        degree_dist_pdf = file_prefix + "-degree-dist.pdf"
+        plt.savefig(degree_dist_pdf)
+    else:
+        plt.show()
+        plt.close()
+
+    # show user fidelity histogram
+    fidelities = graph.fidelity_values()
+    plt.figure()
+    plt.title("User fidelity histogram")
+    plt.hist(fidelities)
+
+    if file_prefix is not None:
+        fidelity_hist_pdf = file_prefix + "-fidelity-hist.pdf"
+        plt.savefig(fidelity_hist_pdf)
     else:
         plt.show()
         plt.close()
