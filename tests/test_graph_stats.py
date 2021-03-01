@@ -44,6 +44,21 @@ def test_graph_negative():
     graph.negative_edges_fraction()
 
 
+def test_graph_negative_dict():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.negative_edges_fraction_dict()
+
+
+def test_graph_negative_dict_kcore():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.select_kcore(2)
+    graph.negative_edges_fraction_dict()
+
+
 def test_graph_negative_kcore():
     graph = PolarizationGraph.from_file(GRAPH_PATH)
     assert graph is not None
