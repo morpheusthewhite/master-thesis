@@ -302,7 +302,7 @@ class PolarizationGraph:
         content_edges_dict = {}
 
         for edge in self.graph.edges():
-            content = self.contents[edge]
+            content = self.contents[edge].url
             weight = self.weights[edge]
 
             current_weights = content_edges_dict.get(content, [])
