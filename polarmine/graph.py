@@ -277,7 +277,7 @@ class PolarizationGraph:
 
         # verify that a filter exists before cycling
         edge_filter_property_map, _ = self.graph.get_edge_filter()
-        if edge_filter_property_map is not None:
+        if edge_filter_property_map is None:
             return np.sum(self.weights.a < 0) / self.weights.a.shape[0]
 
         # array containing filtered edges
@@ -286,13 +286,12 @@ class PolarizationGraph:
         # iterate over index of vertices
         for vertex_index in self.graph.get_vertices():
 
-            # get edge indexes of the current vertex
-            edges_index = gt.get_all_edges(vertex_index)
-
-            # append current weights
-            edges_weight = np.concatenate(
-                (edges_weight, self.weights.a[edges_index])
+            # get edges index of the current vertex
+            edges_index = self.graph.get_all_edges(
+                vertex_index, eprops=[self.weights]
             )
+
+            edges_weight = np.concatenate((edges_weight, edges_index[:, 2]))
 
         return np.sum(edges_weight < 0) / edges_weight.shape[0]
 
