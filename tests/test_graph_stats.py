@@ -121,6 +121,15 @@ def test_graph_degree_dist_kcore():
     assert np.sum(cumulative_probabilities > 1) == 0
 
 
+def test_graph_degree_values():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    values = graph.degree_values()
+
+    assert np.sum(values < 0) == 0
+
+
 def test_graph_degree_hist():
     graph = PolarizationGraph.from_file(GRAPH_PATH)
     assert graph is not None
