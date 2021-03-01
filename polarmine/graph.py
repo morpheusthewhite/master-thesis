@@ -296,6 +296,30 @@ class PolarizationGraph:
 
         return np.sum(edges_weight < 0) / edges_weight.shape[0]
 
+    def negative_edges_fraction_dict(self):
+        # quite inefficient as the cycle is executed in Python
+        # this should probably be optimized
+        content_edges_dict = {}
+
+        for edge in self.graph.edges():
+            content = self.contents[edge]
+            weight = self.weights[edge]
+
+            current_weights = content_edges_dict.get(content, [])
+            content_edges_dict[content] = current_weights + [weight]
+
+        # array containing the fraction of negative edges for each
+        # content
+        fraction_dict = {}
+
+        for content, weights in content_edges_dict.items():
+            weights_np = np.array(weights)
+
+            negative_fraction = np.sum(weights_np < 0) / weights_np.shape[0]
+            fraction_dict[content] = negative_fraction
+
+        return fraction_dict
+
     def global_clustering(self):
         return gt.global_clustering(self.graph)
 
