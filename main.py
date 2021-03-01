@@ -177,7 +177,37 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-def compute_stats(graph, file_prefix):
+def print_negative_fraction_top_k(negative_edges_fraction_dict, file_, k=3):
+    negative_edges_fraction_dict_sorted = {
+        k: v
+        for k, v in sorted(
+            negative_edges_fraction_dict.items(), key=lambda item: item[1]
+        )
+    }
+
+    contents = list(negative_edges_fraction_dict_sorted.keys())
+    k = min(k, len(contents))
+
+    print(f"Lowest negative edge fraction top {k}:")
+    for i in range(k):
+        content_ith = contents[i]
+
+        print(
+            f"\t{content_ith} with {negative_edges_fraction_dict_sorted[content_ith]}",
+            file=file_,
+        )
+
+    print(f"Highest negative edge fraction top {k}:")
+    for i in range(1, k + 1):
+        content_ith = contents[-i]
+
+        print(
+            f"\t{content_ith} with {negative_edges_fraction_dict_sorted[content_ith]}",
+            file=file_,
+        )
+
+
+def print_stats(graph, file_prefix):
     graph.remove_self_loops()
 
     if file_prefix is None:
@@ -219,9 +249,6 @@ def compute_stats(graph, file_prefix):
         file=stats_txt_file,
     )
 
-    if file_prefix is not None:
-        stats_txt_file.close()
-
     # show degree histogram
     degrees = graph.degree_values()
     plt.figure()
@@ -246,6 +273,9 @@ def compute_stats(graph, file_prefix):
         plt.show()
         plt.close()
 
+    # write the top-k (both ascending and descending) of the contents
+    print_negative_fraction_top_k(fractions_dict, stats_txt_file)
+
     # show degree distribution
     cum_probabilities, bins = graph.degree_distribution()
     plt.figure()
@@ -258,6 +288,9 @@ def compute_stats(graph, file_prefix):
     else:
         plt.show()
         plt.close()
+
+    if file_prefix is not None:
+        stats_txt_file.close()
 
 
 def main():
@@ -294,7 +327,7 @@ def main():
         graph.select_kcore(args.k)
 
     if args.stats_show or args.stats_save:
-        compute_stats(graph, args.stats_save)
+        print_stats(graph, args.stats_save)
 
     if args.graph_draw_save is not None:
         graph.draw(output=args.graph_draw_save)
