@@ -224,9 +224,9 @@ def compute_stats(graph, file_prefix):
 
     # show degree histogram
     # matplotlib is apparently segfaulting without a good reason
-    counts, bins = graph.degree_histogram()
+    degrees = graph.degree_values()
     plt.figure()
-    plt.bar(bins, counts)
+    plt.hist(degrees)
 
     if file_prefix is not None:
         hist_pdf = file_prefix + "-hist.pdf"
