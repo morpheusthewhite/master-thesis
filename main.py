@@ -223,7 +223,6 @@ def compute_stats(graph, file_prefix):
         stats_txt_file.close()
 
     # show degree histogram
-    # matplotlib is apparently segfaulting without a good reason
     degrees = graph.degree_values()
     plt.figure()
     plt.hist(degrees)
@@ -235,8 +234,19 @@ def compute_stats(graph, file_prefix):
         plt.show()
         plt.close()
 
+    # show negative edge fraction histogram
+    fractions_dict = graph.negative_edges_fraction_dict()
+    plt.figure()
+    plt.hist(fractions_dict.values())
+
+    if file_prefix is not None:
+        hist_pdf = file_prefix + "-neg-fraction-hist.pdf"
+        plt.savefig(hist_pdf)
+    else:
+        plt.show()
+        plt.close()
+
     # show degree distribution
-    # matplotlib is apparently segfaulting without a good reason
     cum_probabilities, bins = graph.degree_distribution()
     plt.figure()
     plt.plot(bins, cum_probabilities)
