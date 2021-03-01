@@ -114,6 +114,9 @@ class TwitterCollector(Collector):
             except (UnicodeDecodeError, UnicodeEncodeError):
                 # unicode error, there are some invalid ASCII character in the request
                 return iter([])
+            except urllib.error.URLError:
+                # certificate errors, may happen when the url is quite strange
+                return iter([])
 
             url_parsed = urllib.parse.urlparse(url_redirected)
 
