@@ -191,3 +191,11 @@ def test_graph_median_shortest_path_length():
 
     median_shortest_path_length = graph.median_shortest_path_length()
     assert median_shortest_path_length >= 0
+
+
+def test_graph_fidelity_histogram():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    fidelities = graph.fidelity_values()
+    assert len(fidelities) > 0
