@@ -332,7 +332,7 @@ class PolarizationGraph:
             for edge_index in edges_index:
                 edge = self.graph.edge(edge_index[0], edge_index[1])
 
-                edge_content = self.contents[edge]
+                edge_content = self.contents[edge].url
                 if edge_content not in user_contents:
                     user_contents.add(edge_content)
 
