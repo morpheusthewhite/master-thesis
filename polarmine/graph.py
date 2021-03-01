@@ -274,20 +274,27 @@ class PolarizationGraph:
         return self.graph.num_edges()
 
     def negative_edges_fraction(self):
-        num_edges = self.graph.num_edges()
+
+        # verify that a filter exists before cycling
         edge_filter_property_map, _ = self.graph.get_edge_filter()
-
-        # verify that a filter exists before using the property
         if edge_filter_property_map is not None:
-            num_negative_edges = np.sum(
-                (edge_filter_property_map.a * self.weights.a) < 0
-            )
-        else:
-            num_negative_edges = np.sum(self.weights.a < 0)
+            return np.sum(self.weights.a < 0) / self.weights.a.shape[0]
 
-        # TODO: compute for subgraph. This cannot be easily done since
-        # edge_filter_property map has everywhere 1s
-        return num_negative_edges / self.graph.num_edges(True)
+        # array containing filtered edges
+        edges_weight = np.empty((0,))
+
+        # iterate over index of vertices
+        for vertex_index in self.graph.get_vertices():
+
+            # get edge indexes of the current vertex
+            edges_index = gt.get_all_edges(vertex_index)
+
+            # append current weights
+            edges_weight = np.concatenate(
+                (edges_weight, self.weights.a[edges_index])
+            )
+
+        return np.sum(edges_weight < 0) / edges_weight.shape[0]
 
     def global_clustering(self):
         return gt.global_clustering(self.graph)
