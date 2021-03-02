@@ -297,6 +297,7 @@ def print_stats(graph, file_prefix):
     plt.figure()
     plt.title("User fidelity histogram")
     plt.hist(fidelities)
+    plt.yscale("log")
 
     if file_prefix is not None:
         fidelity_hist_pdf = file_prefix + "-fidelity-hist.pdf"
