@@ -188,7 +188,7 @@ def print_negative_fraction_top_k(negative_edges_fraction_dict, file_, k=3):
     contents = list(negative_edges_fraction_dict_sorted.keys())
     k = min(k, len(contents))
 
-    print(f"Lowest negative edge fraction top {k}:")
+    print(f"Lowest negative edge fraction top {k}:", file=file_)
     for i in range(k):
         content_ith = contents[i]
 
@@ -197,7 +197,7 @@ def print_negative_fraction_top_k(negative_edges_fraction_dict, file_, k=3):
             file=file_,
         )
 
-    print(f"Highest negative edge fraction top {k}:")
+    print(f"Highest negative edge fraction top {k}:", file=file_)
     for i in range(1, k + 1):
         content_ith = contents[-i]
 
