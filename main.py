@@ -184,7 +184,41 @@ parser.add_argument(
 args = parser.parse_args()
 
 
+def print_support_index_top_k(support_dict, file_, k=3):
+    support_dict_sorted = {
+        k: v for k, v in sorted(support_dict.items(), key=lambda item: item[1])
+    }
+
+    contents = list(support_dict_sorted.keys())
+    k = min(k, len(contents))
+
+    print(f"Lowest negative edge fraction top {k}:", file=file_)
+    for i in range(k):
+        content_ith = contents[i]
+
+        print(
+            f"\t{content_ith} with {support_dict_sorted[content_ith]}",
+            file=file_,
+        )
+
+    print(f"Highest negative edge fraction top {k}:", file=file_)
+    for i in range(1, k + 1):
+        content_ith = contents[-i]
+
+        print(
+            f"\t{content_ith} with {support_dict_sorted[content_ith]}",
+            file=file_,
+        )
+
+
 def compute_stats(graph, file_prefix):
+
+    if file_prefix is None:
+        stats_txt_file = sys.stdout
+    else:
+        stats_txt = file_prefix + "-stats.txt"
+        stats_txt_file = open(stats_txt, "w")
+
     counts, bins = graph.support_index_histogram()
 
     plt.figure()
@@ -196,6 +230,12 @@ def compute_stats(graph, file_prefix):
     else:
         plt.show()
         plt.close()
+
+    support_dict = graph.support_index_dict()
+    print_support_index_top_k(support_dict, stats_txt_file)
+
+    if file_prefix is not None:
+        stats_txt_file.close()
 
 
 def main():
