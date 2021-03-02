@@ -527,6 +527,25 @@ class PolarizationGraph:
 
         return hist, bins
 
+    def support_index_dict(self) -> dict:
+        """compute dictionary of support index
+
+        Returns:
+            dict: a dictionary having as key the url
+            of the content and as value the support index
+        """
+        # get vertex with "None" flairs, i. e. content nodes
+        content_nodes = gt.find_vertex(self.graph, self.flairs, "None")
+        support_dict = {}
+
+        for content_node in content_nodes:
+            support_index = self.__content_support_index__(content_node)
+
+            content = self.nodes_content[content_node]
+            support_dict[content.url] = support_index
+
+        return support_dict
+
     def global_clustering(self):
         return gt.global_clustering(self.graph)
 
