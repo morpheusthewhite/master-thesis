@@ -343,7 +343,8 @@ def main():
         print_stats(graph, args.save_path)
 
     if not args.graph_draw_no and args.save_path is not None:
-        graph.draw(output="graph.pdf")
+        graph_output_path = os.path.join(args.save_path, "graph.pdf")
+        graph.draw(output=graph_output_path)
     elif not args.graph_draw_no and not args.stats:
         # avoid plotting is stats is true and plots are not saved since
         # it raises a segmentation error
