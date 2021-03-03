@@ -276,6 +276,7 @@ def print_stats(graph, save_path):
     plt.title("Degree cumulative distribution")
     plt.plot(bins, cum_probabilities)
     plt.xscale("log")
+    plt.yscale("log")
 
     if save_path is not None:
         degree_dist_pdf = os.path.join(save_path, "degree-dist.pdf")
