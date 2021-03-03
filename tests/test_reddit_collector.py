@@ -44,12 +44,32 @@ def test_reddit_collect_page():
     assert len(discussion_trees) == 2
 
 
-def test_reddit_collect_page_cross():
+def test_reddit_collect_page_cross_deep():
     # try to collect from page
     discussion_trees = list(
-        reddit_collector.collect(2, page="programming", limit=10, cross=True)
+        reddit_collector.collect(1, page="politics", limit=10, cross=True)
     )
-    assert len(discussion_trees) >= 2
+    assert len(discussion_trees) >= 1
+
+    content = None
+    for discussion_tree in discussion_trees:
+        assert isinstance(discussion_tree, treelib.Tree)
+
+        root_id = discussion_tree.root
+        root = discussion_tree[root_id]
+        assert isinstance(root.data, Thread)
+
+        children = discussion_tree.children(root_id)
+        if len(children) > 0:
+            assert isinstance(children[0].data, Comment)
+
+        thread = root.data
+        thread_content = thread.content
+        if content is None:
+            content = thread_content
+
+        # all threads must have the same content
+        assert thread_content == content
 
 
 def test_reddit_collect_keyword():
