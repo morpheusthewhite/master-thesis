@@ -8,7 +8,7 @@ import validators
 from typing import Optional, Iterator
 
 from polarmine.collectors.collector import Collector
-from polarmine.content import Content
+from polarmine.thread import Thread
 from polarmine.comment import Comment
 from polarmine.tweepy import APIv2
 
@@ -132,10 +132,13 @@ class TwitterCollector(Collector):
         else:
             return iter([])
 
-    def __status_to_thread_aux__(
-        self, status: tweepy.Status, root_data: dict = None, limit: int = 10000
+    def __status_to_discussion_tree__(
+        self,
+        status: tweepy.Status,
+        root_data: object = None,
+        limit: int = 10000,
     ) -> treelib.Tree:
-        """Find thread of comments associated to a certain status
+        """Retrieve discussion tree associated to a certain status
 
         Args:
             status (tweepy.Status): the status for which replies are looked for
@@ -152,11 +155,11 @@ class TwitterCollector(Collector):
         status_id = status.id
 
         # tree object storing comment thread
-        thread = treelib.Tree()
+        discussion_tree = treelib.Tree()
 
         if root_data is not None:
             # use provided data
-            thread.create_node(
+            discussion_tree.create_node(
                 tag=hash(status_author_name),
                 identifier=status_id,
                 data=root_data,
@@ -164,11 +167,12 @@ class TwitterCollector(Collector):
         else:
             # create comment object, associated to root node of this tree
             # the tag of the node is the author of the tweet
+            # this branch is tipically taken by quote replies
             comment_text = status.full_text
             comment_author = hash(status.author.screen_name)
             comment_time = status.created_at.timestamp()
             comment = Comment(comment_text, comment_author, comment_time)
-            thread.create_node(
+            discussion_tree.create_node(
                 tag=comment.author, identifier=status_id, data=comment
             )
 
@@ -179,7 +183,7 @@ class TwitterCollector(Collector):
             status_id, status_author_name
         )
 
-        # initially the queue will contain only the children of the root node
+        # initially the queue will contain only the root node
         queue = [status_id]
         i = 0
 
@@ -206,7 +210,7 @@ class TwitterCollector(Collector):
                         print("Connection problems")
 
                 for s in statuses_batch:
-                    # create comment object, associated to root node of this tree
+                    # create comment object, associated to node
                     # the tag of the node is the author of the tweet
                     comment_id = s.id
                     comment_text = s.full_text
@@ -216,7 +220,7 @@ class TwitterCollector(Collector):
                         comment_text, comment_author, comment_time
                     )
 
-                    thread.create_node(
+                    discussion_tree.create_node(
                         tag=comment_author,
                         identifier=comment_id,
                         data=comment,
@@ -226,39 +230,88 @@ class TwitterCollector(Collector):
             queue.extend(reply_replies)
             i += 1
 
-        return thread
+        return discussion_tree
 
-    def __status_to_thread__(
-        self, status: tweepy.Status, keyword: str, limit: int, cross: bool
-    ) -> treelib.Tree:
-        """Find thread of comments associated to a certain status
+    def __status_to_content__(self, status: tweepy.Status) -> str:
+        """Find content associated with the status, which will correspond to
+        the url it shared if present, otherwise to the status url
 
         Args:
-            status (tweepy.Status): the status for which reply are looked for
+            status (tweepy.Status): status from which content is extracted
+
+        Returns:
+            str: the url of the content
+        """
+        # url of the status, eventually used as content url if no valid url
+        # is found at the end of the tweet itself
+        status_url = f"https://twitter.com/user/status/{status.id}"
+
+        # check if url is present in the provided status (it is supposed to be at the end)
+        status_text_url = status.full_text.split()[-1]
+
+        # check if it is a valid url
+        if validators.url(status_text_url):
+            try:
+                url_redirected = urllib.request.urlopen(status_text_url).url
+
+            except urllib.error.HTTPError:
+                # generic error, happens when tweet has some images?
+                return status_url
+            except (UnicodeDecodeError, UnicodeEncodeError):
+                # unicode error, there are some invalid ASCII character in the request
+                return status_url
+            except urllib.error.URLError:
+                # certificate errors, may happen when the url is quite strange
+                return status_url
+
+            url_parsed = urllib.parse.urlparse(url_redirected)
+
+            # remove query parameters from the url
+            url_cleaned = urllib.parse.urljoin(url_redirected, url_parsed.path)
+
+            return url_cleaned
+        else:
+            return status_url
+
+    def __status_to_discussion_trees__(
+        self, status: tweepy.Status, keyword: str, limit: int, cross: bool
+    ) -> list[treelib.Tree]:
+        """Find threads of comments associated to a certain status
+
+        Args:
+            status (tweepy.Status): the status for which threads are looked for
             keyword (str): the keyword used to filter status
             limit (int): maximum number of tweets to check when looking
             for replies
 
         Returns:
-            treelib.Tree: the Tree of comment replies. The root node,
-            corresponding to the status itself, is associated with a
-            `Content` object in the node `data` while the other node have
+            list[treelib.Tree]: the discussions trees associated with the
+            status. The root node,
+            corresponding to a root status, is associated with a
+            `Thread` object in the node `data` while the other nodes have
             a `Comment` object
         """
         status_author_name = status.author.screen_name
         status_id = status.id
 
-        # create content object, associated to root node
-        content_url = f"https://twitter.com/user/status/{status_id}"
-        content_text = status.full_text
-        content_time = status.created_at.timestamp()
-        content_author = hash(status_author_name)
-        content = Content(
-            content_url, content_text, content_time, content_author, keyword
+        # retrieve content url, associated to threads
+        content = self.__status_to_content__(status)
+
+        thread_url = f"https://twitter.com/user/status/{status_id}"
+        thread_text = status.full_text
+        thread_time = status.created_at.timestamp()
+        thread_author = hash(status_author_name)
+        thread = Thread(
+            thread_url,
+            thread_text,
+            thread_time,
+            thread_author,
+            content,
+            keyword,
         )
 
         # thread/tree including only replies to original status
-        thread = self.__status_to_thread_aux__(status, content, limit)
+        thread = self.__status_to_discussion_tree__(status, thread, limit)
 
         if cross:
             # add quote tweets of the obtained tweets
@@ -275,45 +328,44 @@ class TwitterCollector(Collector):
                 # exclude quote replies which also reply to some tweet to
                 # prevent having duplicates (which would be detected among the
                 # normal replies of the root tweet). This is a rare case, yet
-                # some fancy guy likes doing it.  This is an extreme solution,
+                # some fancy guys like doing it.  This is an extreme solution,
                 # in fact it would suffice to check that the current tweet
                 # replies to another tweet which has not beed already fetched
                 # nor it will be
                 if quote_reply.in_reply_to_status_id is None:
                     # quote replies can be handled as normal status since their
                     # text is the reply (without including the quote)
-                    subthread = self.__status_to_thread_aux__(
+                    discussion_subtree = self.__status_to_discussion_tree__(
                         quote_reply, limit=limit
                     )
 
                     # add subthread as children of the root
-                    thread.paste(status_id, subthread)
+                    thread.paste(status_id, discussion_subtree)
 
             # tweets which share the same url (usually pointing to an
             # external site)
             for status_share in self.__status_to_shares__(status):
                 # create content object, associated to root node
-                content_share_url = (
+                thread_share_url = (
                     f"https://twitter.com/user/status/{status_share.id}"
                 )
-                content_share_text = status_share.full_text
-                content_share_time = status_share.created_at.timestamp()
-                content_share_author = hash(status_share.author.screen_name)
-                content_share = Content(
-                    content_share_url,
-                    content_share_text,
-                    content_share_time,
-                    content_share_author,
+                thread_share_text = status_share.full_text
+                thread_share_time = status_share.created_at.timestamp()
+                thread_share_author = hash(status_share.author.screen_name)
+                thread_share = Thread(
+                    thread_share_url,
+                    thread_share_text,
+                    thread_share_time,
+                    thread_share_author,
+                    content,
                     keyword,
                 )
 
-                subthread = self.__status_to_thread_aux__(
-                    status_share, limit=limit, root_data=content_share
+                discussion_tree_share = self.__status_to_discussion_tree__(
+                    status_share, limit=limit, root_data=thread_share
                 )
 
-                # TODO: add subthread as children of the root?
-                #  thread.paste(status_id, subthread)
-                yield subthread
+                yield discussion_tree_share
 
         yield thread
 
@@ -324,11 +376,11 @@ class TwitterCollector(Collector):
         page: str = None,
         limit: int = 10000,
         cross: bool = True,
-    ) -> list[Content]:
-        """collect content and their relative comments as tree.
+    ) -> list[treelib.Tree]:
+        """collect content and their relative comment threads
 
         Args:
-            ncontents: number of posts to find
+            ncontents: number of contents to find
             keyword (Optional[str]): keyword used for filtering content.
             If page is not None then it is ignored
             page (Optional[str]): the starting page from which content is
@@ -339,18 +391,20 @@ class TwitterCollector(Collector):
             in the result
 
         Returns:
-            list[Tree]: a list of tree, each associated to a post.
-            The root node is associated to the content itself and its `data`
-            is a Content object, while for the other nodes it is a `Comment`
+            list[Tree]: a list of tree, each associated to a thread.
+            The root node is associated to the discussion root and its `data`
+            is a Thread object, while for the other nodes it is a `Comment`
         """
         statuses = self.__find_statuses__(ncontents, keyword, page)
-        threads = iter([])
+        discussion_trees = iter([])
 
         for status in statuses:
 
-            content_threads = self.__status_to_thread__(
+            content_discussion_trees = self.__status_to_discussion_trees__(
                 status, keyword, limit, cross
             )
-            threads = itertools.chain(threads, content_threads)
+            discussion_trees = itertools.chain(
+                discussion_trees, content_discussion_trees
+            )
 
-        return threads
+        return discussion_trees
