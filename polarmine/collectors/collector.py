@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from polarmine.content import Content
+from treelib import Tree
 
 
 class Collector(ABC):
@@ -13,7 +13,7 @@ class Collector(ABC):
         page: str = None,
         limit: int = 10000,
         cross: bool = True,
-    ) -> list[Content]:
+    ) -> list[Tree]:
         """collect comment threads relative to content
 
         Args:
@@ -26,6 +26,6 @@ class Collector(ABC):
             cross: include also repost of a certain content
 
         Returns:
-            list[Content]: the list of retrieved contents with comments thread
+            list[Tree]: the list of discussion trees of the retrieved contents
         """
         pass
