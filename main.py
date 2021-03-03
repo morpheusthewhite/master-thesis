@@ -2,6 +2,7 @@ import argparse
 import itertools
 import matplotlib.pyplot as plt
 import sys
+import os
 
 from polarmine.graph import PolarizationGraph
 from polarmine.collectors.reddit_collector import RedditCollector
@@ -28,41 +29,30 @@ save_load_group.add_argument(
     metavar="filename",
     help="load the mined graph at the given path",
 )
-
-draw_save_show_group = parser.add_mutually_exclusive_group()
-draw_save_show_group.add_argument(
-    "--draw-save",
-    "-dv",
-    type=str,
-    default=None,
-    dest="graph_draw_save",
-    metavar="filename",
-    help="save the graph drawing at a given path instead of showing it (extension must be .ps, .pdf, .svg, or .png)",
-)
-draw_save_show_group.add_argument(
+parser.add_argument(
     "--draw-no",
     "-dn",
     default=None,
     action="store_true",
     dest="graph_draw_no",
-    help="if provided does not show the graph",
+    help="if provided does not show or save the graph",
 )
 parser.add_argument(
-    "-sh",
-    "--stats-show",
+    "-s",
+    "--stats",
     default=None,
     action="store_true",
-    dest="stats_show",
-    help="compute and show common graph statistics",
+    dest="stats",
+    help="show or save common graph statistics",
 )
 parser.add_argument(
-    "-sv",
-    "--stats-save",
+    "-sp",
+    "--save-path",
     type=str,
     default=None,
-    dest="stats_save",
-    metavar="file-prefix",
-    help="compute and save common graph statistics using the given prefix",
+    dest="save_path",
+    metavar="path",
+    help="save statistics (if --stats is passed) and graph drawing at the given path",
 )
 parser.add_argument(
     "-k",
@@ -207,13 +197,13 @@ def print_negative_fraction_top_k(negative_edges_fraction_dict, file_, k=3):
         )
 
 
-def print_stats(graph, file_prefix):
+def print_stats(graph, save_path):
     graph.remove_self_loops()
 
-    if file_prefix is None:
+    if save_path is None:
         stats_txt_file = sys.stdout
     else:
-        stats_txt = file_prefix + "-stats.txt"
+        stats_txt = os.path.join(save_path, "stats.txt")
         stats_txt_file = open(stats_txt, "w")
 
     print(
@@ -255,8 +245,8 @@ def print_stats(graph, file_prefix):
     plt.title("Degree histogram")
     plt.hist(degrees)
 
-    if file_prefix is not None:
-        degree_hist_pdf = file_prefix + "-degree-hist.pdf"
+    if save_path is not None:
+        degree_hist_pdf = os.path.join(save_path, "degree-hist.pdf")
         plt.savefig(degree_hist_pdf)
     else:
         plt.show()
@@ -268,8 +258,10 @@ def print_stats(graph, file_prefix):
     plt.title("Edge negativeness histogram")
     plt.hist(fractions_dict.values())
 
-    if file_prefix is not None:
-        neg_fraction_hist_pdf = file_prefix + "-neg-fraction-hist.pdf"
+    if save_path is not None:
+        neg_fraction_hist_pdf = os.path.join(
+            save_path, "neg-fraction-hist.pdf"
+        )
         plt.savefig(neg_fraction_hist_pdf)
     else:
         plt.show()
@@ -285,8 +277,8 @@ def print_stats(graph, file_prefix):
     plt.plot(bins, cum_probabilities)
     plt.xscale("log")
 
-    if file_prefix is not None:
-        degree_dist_pdf = file_prefix + "-degree-dist.pdf"
+    if save_path is not None:
+        degree_dist_pdf = os.path.join(save_path, "degree-dist.pdf")
         plt.savefig(degree_dist_pdf)
     else:
         plt.show()
@@ -299,14 +291,14 @@ def print_stats(graph, file_prefix):
     plt.hist(fidelities)
     plt.yscale("log")
 
-    if file_prefix is not None:
-        fidelity_hist_pdf = file_prefix + "-fidelity-hist.pdf"
+    if save_path is not None:
+        fidelity_hist_pdf = os.path.join(save_path, "fidelity-hist.pdf")
         plt.savefig(fidelity_hist_pdf)
     else:
         plt.show()
         plt.close()
 
-    if file_prefix is not None:
+    if save_path is not None:
         stats_txt_file.close()
 
 
@@ -343,14 +335,17 @@ def main():
     if args.k > 0:
         graph.select_kcore(args.k)
 
-    if args.stats_show or args.stats_save:
-        print_stats(graph, args.stats_save)
+    if args.save_path is not None and not os.path.exists(args.save_path):
+        os.mkdir(args.save_path)
 
-    if args.graph_draw_save is not None:
-        graph.draw(output=args.graph_draw_save)
-    elif (
-        not args.graph_draw_no and not args.stats_show and not args.stats_save
-    ):
+    if args.stats:
+        print_stats(graph, args.save_path)
+
+    if not args.graph_draw_no and args.save_path is not None:
+        graph.draw(output="graph.pdf")
+    elif not args.graph_draw_no and not args.stats:
+        # avoid plotting is stats is true and plots are not saved since
+        # it raises a segmentation error
         graph.draw()
 
 
