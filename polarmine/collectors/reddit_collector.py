@@ -5,7 +5,7 @@ import itertools
 from typing import Optional
 
 from polarmine.collectors.collector import Collector
-from polarmine.content import Content
+from polarmine.thread import Thread
 from polarmine.comment import Comment
 
 
@@ -44,50 +44,64 @@ class RedditCollector(Collector):
         return contents_id
 
     def __submission_to_content__(
-        self, submission: praw.models.Submission, keyword: str
-    ) -> Content:
-        """Create a Content object from a submission
+        self, submission: praw.models.Submission
+    ) -> str:
+        """Retrieve content url from a submission
+
+        Args:
+            submission: a praw submission model
+
+        Returns:
+            str: the url of the content (submission)
+        """
+        return submission.url
+
+    def __submission_to_thread__(
+        self, submission: praw.models.Submission, keyword: str, content: str
+    ) -> Thread:
+        """Create a Thread object from a submission
 
         Args:
             submission: a praw submission model
             keyword (str): keyword used for filtering submissions
+            content (str): the url of the content
 
         Returns:
-            Content: the content object relative to the submission
+            Thread: the thread object relative to the submission
         """
-        # TODO: just consider the title?
-        content = Content(
+        thread = Thread(
             submission.url,
             submission.title,
             submission.created_utc,
             hash(submission.author.name),
+            content,
             keyword,
         )
 
-        return content
+        return thread
 
-    def __submission_to_thread__(
+    def __submission_to_discussion_trees__(
         self,
         submission: praw.models.Submission,
         keyword: str,
         limit: int,
         cross: bool,
     ) -> list[treelib.Tree]:
-        """Use a submission to create the associated thread (of comments)
+        """Use a submission to create the associated threads (of comments)
 
         Args:
-            submission: the praw submission from which comments are extracted
+            submission: the praw submission from which discussions are extracted
             keyword (str): keyword used for filtering submissions
             limit (int): maximum number of comments to unfold in the
                 highest level
-            cross (bool): if True looks for duplicate and return their threads
+            cross (bool): if True looks for duplicates and return them as thread
 
         Returns:
             list(Tree): A list of Tree object associated to comments of the submission
                 (which is the root). May contain more than 1 element if cross is True
         """
         # retrieve content object
-        content = self.__submission_to_content__(submission, keyword)
+        content = self.__submission_to_content__(submission)
 
         submissions = [submission]
 
@@ -95,26 +109,36 @@ class RedditCollector(Collector):
         if cross:
             submissions.extend(submission.duplicates())
 
-        threads = []
+        discussion_trees = []
 
+        # iterate over original submission and (eventually) crossposts
         for s in submissions:
+
             # modify the id to follow convention user for `parent_id` attribute
             # of comment
             s_id = f"t3_{s.id}"
 
             # retrieve comments
             s.comments.replace_more(limit)
+
+            # notice the distinction between comment forest, which is a praw
+            # model and discussion tree, which is an instance of treelib.Tree()
             comment_forest = s.comments
 
-            thread = treelib.Tree()
+            # thread object, containing informations regarding this specific
+            # submission
+            thread = self.__submission_to_thread__(s, keyword, content)
+            discussion_tree = treelib.Tree()
 
             # the submission represents the root node in the tree collecting
-            # all the replies. The associated data is a content object
-            # in this case the tag (submitter user) is the author of this
-            # (possibly crossposted) submission and the id is the id of the new
-            # submission
+            # all the replies. The associated data is a Thread object.
+            # In this case the tag (submitter user) is the author of this
+            # (possibly crossposted) submission and the id is the id
+            # of this submission
             author_hash = hash(s.author.name)
-            thread.create_node(tag=author_hash, identifier=s_id, data=content)
+            discussion_tree.create_node(
+                tag=author_hash, identifier=s_id, data=thread
+            )
 
             # iterate over comments to the submission
             for comment in comment_forest.list():
@@ -130,20 +154,20 @@ class RedditCollector(Collector):
                     author_hash = hash(random.uniform(0, 1))
                 else:
                     author_hash = hash(comment.author.name)
-                comment_pm = Comment(
+                comment_polarmine = Comment(
                     comment.body, author_hash, comment.created_utc
                 )
 
-                thread.create_node(
+                discussion_tree.create_node(
                     tag=author_hash,
                     identifier=id_,
                     parent=parent,
-                    data=comment_pm,
+                    data=comment_polarmine,
                 )
 
-            threads.append(thread)
+            discussion_trees.append(discussion_tree)
 
-        return threads
+        return discussion_trees
 
     def collect(
         self,
@@ -153,10 +177,10 @@ class RedditCollector(Collector):
         limit: int = 10000,
         cross: bool = True,
     ) -> list[treelib.Tree]:
-        """collect content and their relative comments as tree.
+        """collect content and their relative threads as tree.
 
         Args:
-            ncontents: number of submission to find
+            ncontents: number of contents to find
             keyword (Optional[str]): keyword used for filtering content.
                 If page is not None then it is ignored
             page (Optional[str]): the starting page from which content is
@@ -169,21 +193,24 @@ class RedditCollector(Collector):
 
         Returns:
             list[Tree]: a list of tree, each associated to a submission.
-                The root node is associated to the content itself and its `data`
+                The root node is associated to the start of the thread
+                itself and its `data`
                 is a Content object, while for the other nodes it is a `Comment`
         """
         contents_id = self.__find_contents_id__(ncontents, keyword, page)
-        threads = iter([])
+        discussion_trees = iter([])
 
         for i, content_id in enumerate(contents_id):
             submission = self.reddit.submission(content_id)
 
-            content_threads = self.__submission_to_thread__(
+            content_discussion_trees = self.__submission_to_discussion_trees__(
                 submission, keyword, limit, cross
             )
-            threads = itertools.chain(threads, content_threads)
+            discussion_trees = itertools.chain(
+                discussion_trees, content_discussion_trees
+            )
 
             if i + 1 >= ncontents:
                 break
 
-        return threads
+        return discussion_trees
