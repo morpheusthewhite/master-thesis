@@ -3,7 +3,7 @@ import treelib
 
 from polarmine.collectors.twitter_collector import TwitterCollector
 from polarmine.comment import Comment
-from polarmine.content import Content
+from polarmine.thread import Thread
 
 
 twitter_collector = TwitterCollector()
@@ -11,53 +11,66 @@ twitter_collector = TwitterCollector()
 
 def test_twitter_collect_simple():
     # simple check on single content
-    contents = list(twitter_collector.collect(
-        1, keyword="obama", limit=10, cross=False))
-    assert len(contents) == 1
+    discussion_trees = list(
+        twitter_collector.collect(1, keyword="obama", limit=10, cross=False)
+    )
+    assert len(discussion_trees) == 1
 
-    content = contents[0]
-    assert isinstance(content, treelib.Tree)
+    discussion_tree = discussion_trees[0]
+    assert isinstance(discussion_tree, treelib.Tree)
 
 
 def test_twitter_collect_more():
     # try to collect more than 1 content
-    threads = list(twitter_collector.collect(
-        2, keyword="obama", limit=10, cross=False))
-    assert len(threads) == 2
+    discussion_trees = list(
+        twitter_collector.collect(2, keyword="obama", limit=10, cross=False)
+    )
+    assert len(discussion_trees) == 2
 
-    for thread in threads:
-        assert isinstance(thread, treelib.Tree)
+    for discussion_tree in discussion_trees:
+        assert isinstance(discussion_tree, treelib.Tree)
 
-        root_id = thread.root
-        root = thread[root_id]
-        assert isinstance(root.data, Content)
+        root_id = discussion_tree.root
+        root = discussion_tree[root_id]
+        assert isinstance(root.data, Thread)
 
-        children = thread.children(root_id)
+        children = discussion_tree.children(root_id)
         if len(children) > 0:
             assert isinstance(children[0].data, Comment)
 
 
 def test_twitter_collect_page():
     # try to collect from page
-    contents = list(twitter_collector.collect(
-        2, page="Cristiano", limit=10, cross=True))
-    assert len(contents) >= 2
+    discussion_trees = list(
+        twitter_collector.collect(2, page="Cristiano", limit=10, cross=True)
+    )
+    assert len(discussion_trees) >= 2
 
 
 def test_twitter_shares():
     # try to collect status which have url shared by other
     # statuses
-    threads = list(twitter_collector.collect(
-        1, page="nytimes", limit=10, cross=True))
-    assert len(threads) >= 1
+    discussion_trees = list(
+        twitter_collector.collect(1, page="nytimes", limit=10, cross=True)
+    )
+    assert len(discussion_trees) >= 1
 
-    for thread in threads:
-        assert isinstance(thread, treelib.Tree)
+    content = None
+    for discussion_tree in discussion_trees:
+        assert isinstance(discussion_tree, treelib.Tree)
 
-        root_id = thread.root
-        root = thread[root_id]
-        assert isinstance(root.data, Content)
+        root_id = discussion_tree.root
+        root = discussion_tree[root_id]
+        assert isinstance(root.data, Thread)
 
-        children = thread.children(root_id)
+        children = discussion_tree.children(root_id)
         if len(children) > 0:
             assert isinstance(children[0].data, Comment)
+
+        thread = root.data
+        thread_content = thread.content
+        if content is None:
+            content = thread_content
+
+        # all threads must have the same content
+        assert thread_content == content
