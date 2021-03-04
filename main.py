@@ -167,7 +167,9 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-def print_negative_fraction_top_k(negative_edges_fraction_dict, file_, k=3):
+def print_negative_fraction_top_k(
+    negative_edges_fraction_dict, file_, key="thread", k=3
+):
     negative_edges_fraction_dict_sorted = {
         k: v
         for k, v in sorted(
@@ -175,24 +177,31 @@ def print_negative_fraction_top_k(negative_edges_fraction_dict, file_, k=3):
         )
     }
 
-    contents = list(negative_edges_fraction_dict_sorted.keys())
-    k = min(k, len(contents))
+    # keys are either contents or threads
+    keys = list(negative_edges_fraction_dict_sorted.keys())
+    k = min(k, len(keys))
 
-    print(f"Lowest negative edge fraction top {k}:", file=file_)
+    print(
+        f"{key.capitalize()} lowest negative edge fraction top {k}:",
+        file=file_,
+    )
     for i in range(k):
-        content_ith = contents[i]
+        key_ith = keys[i]
 
         print(
-            f"\t{content_ith} with {negative_edges_fraction_dict_sorted[content_ith]}",
+            f"\t{key_ith} with {negative_edges_fraction_dict_sorted[key_ith]}",
             file=file_,
         )
 
-    print(f"Highest negative edge fraction top {k}:", file=file_)
+    print(
+        f"{key.capitalize()} highest negative edge fraction top {k}:",
+        file=file_,
+    )
     for i in range(1, k + 1):
-        content_ith = contents[-i]
+        key_ith = keys[-i]
 
         print(
-            f"\t{content_ith} with {negative_edges_fraction_dict_sorted[content_ith]}",
+            f"\t{key_ith} with {negative_edges_fraction_dict_sorted[key_ith]}",
             file=file_,
         )
 
@@ -252,23 +261,45 @@ def print_stats(graph, save_path):
         plt.show()
         plt.close()
 
-    # show negative edge fraction histogram
-    fractions_dict = graph.negative_edges_fraction_dict()
+    # show negative edge fraction histogram for threads
+    thread_fractions_dict = graph.negative_edges_fraction_thread_dict()
     plt.figure()
-    plt.title("Edge negativeness histogram")
-    plt.hist(fractions_dict.values())
+    plt.title("Thread edge negativeness histogram")
+    plt.hist(thread_fractions_dict.values())
 
     if save_path is not None:
-        neg_fraction_hist_pdf = os.path.join(
-            save_path, "neg-fraction-hist.pdf"
+        neg_fraction_thread_hist_pdf = os.path.join(
+            save_path, "neg-fraction-thread-hist.pdf"
         )
-        plt.savefig(neg_fraction_hist_pdf)
+        plt.savefig(neg_fraction_thread_hist_pdf)
     else:
         plt.show()
         plt.close()
 
     # write the top-k (both ascending and descending) of the contents
-    print_negative_fraction_top_k(fractions_dict, stats_txt_file)
+    print_negative_fraction_top_k(
+        thread_fractions_dict, stats_txt_file, key="thread"
+    )
+
+    # show negative edge fraction histogram for threads
+    content_fractions_dict = graph.negative_edges_fraction_content_dict()
+    plt.figure()
+    plt.title("Content edge negativeness histogram")
+    plt.hist(content_fractions_dict.values())
+
+    if save_path is not None:
+        neg_fraction_content_hist_pdf = os.path.join(
+            save_path, "neg-fraction-content-hist.pdf"
+        )
+        plt.savefig(neg_fraction_content_hist_pdf)
+    else:
+        plt.show()
+        plt.close()
+
+    # write the top-k (both ascending and descending) of the contents
+    print_negative_fraction_top_k(
+        content_fractions_dict, stats_txt_file, key="content"
+    )
 
     # show degree distribution
     cum_probabilities, bins = graph.degree_distribution()
