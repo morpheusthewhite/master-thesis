@@ -7,7 +7,7 @@ from transformers import AutoTokenizer
 from scipy.special import softmax
 
 from polarmine.comment import Comment
-from polarmine.content import Content
+from polarmine.thread import Thread
 
 KEY_SCORE = "score"
 SENTIMENT_MAX_TEXT_LENGTH = 128
@@ -18,19 +18,19 @@ class PolarizationGraph:
 
     """A graph class providing methods for polarization analysis """
 
-    def __init__(self, threads: list[treelib.Tree]):
+    def __init__(self, discussion_trees: list[treelib.Tree]):
         self.graph = gt.Graph()
 
         # definition of graph property maps
         # edge weights (calculated with sentiment analysis classifier)
         self.weights = self.graph.new_edge_property("double")
         self.times = self.graph.new_edge_property("double")
-        self.contents = self.graph.new_edge_property("object")
+        self.threads = self.graph.new_edge_property("object")
 
         # make properties internal
         self.graph.edge_properties["weights"] = self.weights
         self.graph.edge_properties["times"] = self.times
-        self.graph.edge_properties["contents"] = self.contents
+        self.graph.edge_properties["threads"] = self.threads
 
         # initialization of sentiment analysis classifier
         self.sentiment_tokenizer = AutoTokenizer.from_pretrained(
@@ -43,12 +43,12 @@ class PolarizationGraph:
         # dictionary storing user:vertex_index
         self.users = {}
 
-        for thread in threads:
-            root_id = thread.root
-            root = thread.nodes[root_id]
+        for discussion_tree in discussion_trees:
+            root_id = discussion_tree.root
+            root = discussion_tree.nodes[root_id]
 
-            # get the content, associated to the root node
-            content = root.data
+            # get the thread, associated to the root node
+            thread = root.data
 
             # TODO: do you want to add the root to the graph? Seems so
 
@@ -66,7 +66,7 @@ class PolarizationGraph:
                 node_vertex = self.get_user_vertex(node_author)
 
                 # children of the current node
-                children = thread.children(node_identifier)
+                children = discussion_tree.children(node_identifier)
 
                 for child in children:
                     comment = child.data
@@ -76,9 +76,7 @@ class PolarizationGraph:
                     comment_vertex = self.get_user_vertex(comment_author)
 
                     # and add the edge
-                    self.add_edge(
-                        comment_vertex, node_vertex, comment, content
-                    )
+                    self.add_edge(comment_vertex, node_vertex, comment, thread)
 
                     # equeue this child
                     queue.append(child)
@@ -130,14 +128,14 @@ class PolarizationGraph:
         vertex_source: gt.Vertex,
         vertex_target: gt.Vertex,
         comment: Comment,
-        content: Content,
+        thread: Thread,
     ):
         edge = self.graph.add_edge(vertex_source, vertex_target)
         sentiment_score = self.sentiment_weight(comment.text)
 
         self.weights[edge] = sentiment_score
         self.times[edge] = comment.time
-        self.contents[edge] = content
+        self.threads[edge] = thread
 
     def sentiment_weight(self, text):
 
@@ -195,7 +193,7 @@ class PolarizationGraph:
         # not considered important
         self.weights = self.graph.edge_properties["weights"]
         self.times = self.graph.edge_properties["times"]
-        self.contents = self.graph.edge_properties["contents"]
+        self.threads = self.graph.edge_properties["threads"]
 
         # compute self-loop mask
         self.self_loop_mask = self.graph.new_edge_property("bool")
@@ -295,27 +293,55 @@ class PolarizationGraph:
 
         return np.sum(edges_weight < 0) / edges_weight.shape[0]
 
-    def negative_edges_fraction_dict(self):
+    def negative_edges_fraction_thread_dict(self):
+        # quite inefficient as the cycle is executed in Python
+        # this should probably be optimized
+        thread_edges_dict = {}
+
+        for edge in self.graph.edges():
+            # retrieve the thread and the weight associated with the edge
+            edge_thread = self.threads[edge].url
+            edge_weight = self.weights[edge]
+
+            current_weights = thread_edges_dict.get(edge_thread, [])
+            thread_edges_dict[edge_thread] = current_weights + [edge_weight]
+
+        # array containing the fraction of negative edges for each
+        # thread
+        fraction_dict = {}
+
+        for thread, weights in thread_edges_dict.items():
+            # transform the regular list to a numpy array
+            weights_np = np.array(weights)
+
+            negative_fraction = np.sum(weights_np < 0) / weights_np.shape[0]
+            fraction_dict[edge_thread] = negative_fraction
+
+        return fraction_dict
+
+    def negative_edges_fraction_content_dict(self):
         # quite inefficient as the cycle is executed in Python
         # this should probably be optimized
         content_edges_dict = {}
 
         for edge in self.graph.edges():
-            content = self.contents[edge].url
-            weight = self.weights[edge]
+            # retrieve the content and the weight associated with the edge
+            edge_content = self.threads[edge].content
+            edge_weight = self.weights[edge]
 
-            current_weights = content_edges_dict.get(content, [])
-            content_edges_dict[content] = current_weights + [weight]
+            current_weights = content_edges_dict.get(edge_content, [])
+            content_edges_dict[edge_content] = current_weights + [edge_weight]
 
         # array containing the fraction of negative edges for each
         # content
         fraction_dict = {}
 
         for content, weights in content_edges_dict.items():
+            # transform the regular list to a numpy array
             weights_np = np.array(weights)
 
             negative_fraction = np.sum(weights_np < 0) / weights_np.shape[0]
-            fraction_dict[content] = negative_fraction
+            fraction_dict[edge_content] = negative_fraction
 
         return fraction_dict
 
@@ -332,7 +358,7 @@ class PolarizationGraph:
             for edge_index in edges_index:
                 edge = self.graph.edge(edge_index[0], edge_index[1])
 
-                edge_content = self.contents[edge].url
+                edge_content = self.threads[edge].content
                 if edge_content not in user_contents:
                     user_contents.add(edge_content)
 
