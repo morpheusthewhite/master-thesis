@@ -414,6 +414,60 @@ class PolarizationGraph:
 
         return list(edge_sum_n_interactions_dict.values())
 
+    def content_thread_neg_fraction(self):
+        # dictionary of dictionaries
+        # the key being the content, the value being a dictionary whose key are
+        # the threads (associated to the content) and the values are the tuple
+        # (n negative edges, number of edges)
+        content_thread_edges = {}
+
+        for edge in self.graph.edges():
+            edge_thread = self.threads[edge].url
+            edge_content = self.threads[edge].content
+            edge_weight = self.weights[edge]
+
+            # get the dictionary of threads associated to the content
+            threads_dict = content_thread_edges.get(edge_content, {})
+            # get the edges tuple associated with the thread
+            n_negative_edges, n_edges = threads_dict.get(edge_thread, (0, 0))
+
+            n_edges += 1
+            if edge_weight < 0:
+                n_negative_edges += 1
+
+            threads_dict[edge_thread] = (n_negative_edges, n_edges)
+            content_thread_edges[edge_content] = threads_dict
+
+        content_thread_neg_fraction = {}
+
+        for content, threads_dict in content_thread_edges.items():
+            content_thread_neg_fraction[content] = {}
+
+            for thread, edges_tuple in threads_dict.items():
+                n_negative_edges, n_edges = edges_tuple
+                thread_neg_fraction = n_negative_edges / n_edges
+
+                # compute the fraction of negative nodes for a thread
+                content_thread_neg_fraction[content][
+                    thread
+                ] = thread_neg_fraction
+
+        return content_thread_neg_fraction
+
+    def content_std_dev_dict(self):
+        content_thread_neg_fraction = self.content_thread_neg_fraction()
+        contents_std_dev = {}
+
+        for content, threads_dict in content_thread_neg_fraction.items():
+            content_neg_fractions = list(threads_dict.values())
+
+            content_neg_fractions_np = np.array(content_neg_fractions)
+            content_std_dev = np.std(content_neg_fractions_np)
+
+            contents_std_dev[content] = content_std_dev
+
+        return contents_std_dev
+
     def global_clustering(self):
         return gt.global_clustering(self.graph)
 
