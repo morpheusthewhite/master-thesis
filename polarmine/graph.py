@@ -390,6 +390,30 @@ class PolarizationGraph:
 
         return list(n_interactions_dict.values())
 
+    def edge_sum_n_interactions_dict(self):
+        edge_sum_n_interactions_dict = {}
+        for edge in self.graph.edges():
+            edge_content = self.threads[edge].content
+            edge_weight = self.weights[edge]
+
+            n_interactions, weights_sum = edge_sum_n_interactions_dict.get(
+                edge_content, (0, 0)
+            )
+            n_interactions += 1
+            weights_sum += edge_weight
+
+            edge_sum_n_interactions_dict[edge_content] = (
+                n_interactions,
+                weights_sum,
+            )
+
+        return edge_sum_n_interactions_dict
+
+    def edge_sum_n_interactions_values(self):
+        edge_sum_n_interactions_dict = self.edge_sum_n_interactions_dict()
+
+        return np.array(list(edge_sum_n_interactions_dict.values()))
+
     def global_clustering(self):
         return gt.global_clustering(self.graph)
 
