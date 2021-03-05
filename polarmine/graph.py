@@ -374,6 +374,22 @@ class PolarizationGraph:
 
         return fidelities
 
+    def n_interactions_dict(self):
+        n_interactions_dict = {}
+        for edge in self.graph.edges():
+            edge_content = self.threads[edge].content
+
+            content_n_interactions = n_interactions_dict.get(edge_content, 0)
+            content_n_interactions += 1
+            n_interactions_dict[edge_content] = content_n_interactions
+
+        return n_interactions_dict
+
+    def n_interaction_values(self):
+        n_interactions_dict = self.n_interactions_dict()
+
+        return list(n_interactions_dict.values())
+
     def global_clustering(self):
         return gt.global_clustering(self.graph)
 
