@@ -315,7 +315,7 @@ class PolarizationGraph:
             weights_np = np.array(weights)
 
             negative_fraction = np.sum(weights_np < 0) / weights_np.shape[0]
-            fraction_dict[edge_thread] = negative_fraction
+            fraction_dict[thread] = negative_fraction
 
         return fraction_dict
 
@@ -341,7 +341,7 @@ class PolarizationGraph:
             weights_np = np.array(weights)
 
             negative_fraction = np.sum(weights_np < 0) / weights_np.shape[0]
-            fraction_dict[edge_content] = negative_fraction
+            fraction_dict[content] = negative_fraction
 
         return fraction_dict
 
