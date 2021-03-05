@@ -228,3 +228,24 @@ def test_graph_interactions_kcore():
 
     graph.n_interactions_dict()
     graph.n_interaction_values()
+
+
+def test_graph_edge_sum_interactions():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    interactions_dict = graph.edge_sum_n_interactions_dict()
+    assert len(interactions_dict.keys()) == N_CONTENTS
+
+    interactions_values = graph.edge_sum_n_interactions_values()
+    assert interactions_values.shape[0] >= N_CONTENTS
+
+
+def test_graph_edge_sum_interactions_kcore():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.select_kcore(2)
+
+    graph.edge_sum_n_interactions_dict()
+    graph.edge_sum_n_interactions_values()
