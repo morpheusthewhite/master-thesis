@@ -274,9 +274,11 @@ class PolarizationGraph:
     def negative_edges_fraction(self):
 
         # verify that a filter exists before cycling
-        edge_filter_property_map, _ = self.graph.get_edge_filter()
-        if edge_filter_property_map is None:
-            return np.sum(self.weights.a < 0) / self.weights.a.shape[0]
+        # since the computation in this case is trivial
+        # this apparently does not work
+        #  edge_filter_property_map, _ = self.graph.get_edge_filter()
+        #  if edge_filter_property_map is None:
+        #      return np.sum(self.weights.a < 0) / self.weights.a.shape[0]
 
         # array containing filtered edges
         edges_weight = np.empty((0,))
@@ -291,7 +293,12 @@ class PolarizationGraph:
 
             edges_weight = np.concatenate((edges_weight, edges_index[:, 2]))
 
-        return np.sum(edges_weight < 0) / edges_weight.shape[0]
+        # handle the case in which there are no edges (this may happen if there
+        # are only self loops which may be removed
+        if edges_weight.shape[0] == 0:
+            return 0
+        else:
+            return np.sum(edges_weight < 0) / edges_weight.shape[0]
 
     def negative_edges_fraction_thread_dict(self):
         # quite inefficient as the cycle is executed in Python
