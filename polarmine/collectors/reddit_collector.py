@@ -70,7 +70,7 @@ class RedditCollector(Collector):
             Thread: the thread object relative to the submission
         """
         thread = Thread(
-            submission.url,
+            submission.permalink,
             submission.title,
             submission.created_utc,
             hash(submission.author.name),
