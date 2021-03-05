@@ -330,6 +330,21 @@ def print_stats(graph, save_path):
         plt.show()
         plt.close()
 
+    # show number of interactions histogram
+    n_interactions = graph.n_interaction_values()
+    plt.figure()
+    plt.title("Number of interactions histogram")
+    plt.hist(n_interactions)
+
+    if save_path is not None:
+        n_interactions_hist_pdf = os.path.join(
+            save_path, "n-interactions-hist.pdf"
+        )
+        plt.savefig(n_interactions_hist_pdf)
+    else:
+        plt.show()
+        plt.close()
+
     if save_path is not None:
         stats_txt_file.close()
 
