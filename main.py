@@ -357,6 +357,36 @@ def print_stats(graph, save_path):
         plt.show()
         plt.close()
 
+    # show number of interactions histogram
+    edge_sum_n_interactions = graph.edge_sum_n_interactions_values()
+    x_n_interactions = [
+        n_interactions for n_interactions, edge_sum in edge_sum_n_interactions
+    ]
+    y_edge_sum = [
+        edge_sum for n_interactions, edge_sum in edge_sum_n_interactions
+    ]
+    plt.figure()
+    plt.title("Content edge sum")
+    plt.scatter(x_n_interactions, y_edge_sum)
+    plt.xlabel("Number of interactions")
+    plt.xlim(left=0)
+    plt.ylabel("Total edge sum")
+
+    # plot 2 lines, the bisectors of the 1st and 4th quadrants
+    left, right = plt.xlim()
+    plt.plot([0, right], [0, right], color="grey", linewidth=0.6)
+    plt.plot([0, right], [0, -right], color="grey", linewidth=0.6)
+    plt.plot([0, right], [0, 0], color="grey", linestyle=":", linewidth=0.5)
+
+    if save_path is not None:
+        edge_sum_n_interactions_pdf = os.path.join(
+            save_path, "edge-sum-n-interactions.pdf"
+        )
+        plt.savefig(edge_sum_n_interactions_pdf)
+    else:
+        plt.show()
+        plt.close()
+
     if save_path is not None:
         stats_txt_file.close()
 
