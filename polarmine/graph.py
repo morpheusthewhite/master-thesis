@@ -412,7 +412,7 @@ class PolarizationGraph:
     def edge_sum_n_interactions_values(self):
         edge_sum_n_interactions_dict = self.edge_sum_n_interactions_dict()
 
-        return np.array(list(edge_sum_n_interactions_dict.values()))
+        return list(edge_sum_n_interactions_dict.values())
 
     def global_clustering(self):
         return gt.global_clustering(self.graph)
