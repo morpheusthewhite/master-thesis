@@ -56,8 +56,11 @@ def test_graph_negative_dict():
     graph = PolarizationGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
-    graph.negative_edges_fraction_thread_dict()
-    graph.negative_edges_fraction_content_dict()
+    thread_dict = graph.negative_edges_fraction_thread_dict()
+    content_dict = graph.negative_edges_fraction_content_dict()
+
+    assert len(thread_dict.keys()) >= 4
+    assert len(content_dict.keys()) == 4
 
 
 def test_graph_negative_dict_kcore():
