@@ -387,6 +387,23 @@ def print_stats(graph, save_path):
         plt.show()
         plt.close()
 
+    # show content standard dev
+    content_std_dev_dict = graph.content_std_dev_dict()
+    plt.figure()
+    plt.title("Content standard deviation")
+    plt.hist(list(content_std_dev_dict.values()))
+    plt.xlabel("Standard deviation")
+    plt.ylabel("Number of contents")
+
+    if save_path is not None:
+        content_std_dev_hist_pdf = os.path.join(
+            save_path, "content-std-dev-hist.pdf"
+        )
+        plt.savefig(content_std_dev_hist_pdf)
+    else:
+        plt.show()
+        plt.close()
+
     if save_path is not None:
         stats_txt_file.close()
 
