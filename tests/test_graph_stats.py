@@ -11,13 +11,16 @@ GRAPH_FOLDER = os.path.join("tests", "data")
 GRAPH_FILENAME = "test.gt"
 # complete path to graph file
 GRAPH_PATH = os.path.join(GRAPH_FOLDER, GRAPH_FILENAME)
+N_CONTENTS = 4
 reddit_collector = RedditCollector()
 
 
 # save a graph data if it does not exist
 def test_graph_save():
     contents = list(
-        reddit_collector.collect(4, limit=10, page="programming", cross=False)
+        reddit_collector.collect(
+            NCONTENTS, limit=10, page="programming", cross=False
+        )
     )
 
     graph = PolarizationGraph(contents)
@@ -59,8 +62,8 @@ def test_graph_negative_dict():
     thread_dict = graph.negative_edges_fraction_thread_dict()
     content_dict = graph.negative_edges_fraction_content_dict()
 
-    assert len(thread_dict.keys()) >= 4
-    assert len(content_dict.keys()) == 4
+    assert len(thread_dict.keys()) >= N_CONTENTS
+    assert len(content_dict.keys()) == N_CONTENTS
 
 
 def test_graph_negative_dict_kcore():
@@ -204,3 +207,24 @@ def test_graph_fidelity_histogram():
 
     fidelities = graph.fidelity_values()
     assert len(fidelities) > 0
+
+
+def test_graph_interactions():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    interactions_dict = graph.n_interactions_dict()
+    assert len(interactions_dict.keys()) == N_CONTENTS
+
+    interactions_values = graph.n_interaction_values()
+    assert len(interactions_values) >= N_CONTENTS
+
+
+def test_graph_interactions_kcore():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.select_kcore(2)
+
+    graph.n_interactions_dict()
+    graph.n_interaction_values()
