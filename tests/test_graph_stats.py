@@ -238,7 +238,7 @@ def test_graph_edge_sum_interactions():
     assert len(interactions_dict.keys()) == N_CONTENTS
 
     interactions_values = graph.edge_sum_n_interactions_values()
-    assert interactions_values.shape[0] >= N_CONTENTS
+    assert len(interactions_values) >= N_CONTENTS
 
 
 def test_graph_edge_sum_interactions_kcore():
