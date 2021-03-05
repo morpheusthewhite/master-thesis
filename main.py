@@ -253,6 +253,8 @@ def print_stats(graph, save_path):
     plt.figure()
     plt.title("Degree histogram")
     plt.hist(degrees)
+    plt.xlabel("Degree")
+    plt.ylabel("Number of nodes")
 
     if save_path is not None:
         degree_hist_pdf = os.path.join(save_path, "degree-hist.pdf")
@@ -266,6 +268,8 @@ def print_stats(graph, save_path):
     plt.figure()
     plt.title("Thread edge negativeness histogram")
     plt.hist(thread_fractions_dict.values())
+    plt.xlabel("Negative edge fraction")
+    plt.ylabel("Number of threads")
 
     if save_path is not None:
         neg_fraction_thread_hist_pdf = os.path.join(
@@ -286,6 +290,8 @@ def print_stats(graph, save_path):
     plt.figure()
     plt.title("Content edge negativeness histogram")
     plt.hist(content_fractions_dict.values())
+    plt.xlabel("Negative edge fraction")
+    plt.ylabel("Number of contents")
 
     if save_path is not None:
         neg_fraction_content_hist_pdf = os.path.join(
@@ -308,6 +314,8 @@ def print_stats(graph, save_path):
     plt.plot(bins, cum_probabilities)
     plt.xscale("log")
     plt.yscale("log")
+    plt.xlabel("Degree")
+    plt.ylabel("Fraction of nodes with larger degree")
 
     if save_path is not None:
         degree_dist_pdf = os.path.join(save_path, "degree-dist.pdf")
@@ -322,6 +330,8 @@ def print_stats(graph, save_path):
     plt.title("User fidelity histogram")
     plt.hist(fidelities)
     plt.yscale("log")
+    plt.xlabel("Number of different contents in which a user was involved")
+    plt.ylabel("Number of users")
 
     if save_path is not None:
         fidelity_hist_pdf = os.path.join(save_path, "fidelity-hist.pdf")
@@ -335,6 +345,8 @@ def print_stats(graph, save_path):
     plt.figure()
     plt.title("Number of interactions histogram")
     plt.hist(n_interactions)
+    plt.xlabel("Number of interactions")
+    plt.ylabel("Number of contents")
 
     if save_path is not None:
         n_interactions_hist_pdf = os.path.join(
