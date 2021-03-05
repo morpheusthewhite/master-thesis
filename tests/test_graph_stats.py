@@ -249,3 +249,31 @@ def test_graph_edge_sum_interactions_kcore():
 
     graph.edge_sum_n_interactions_dict()
     graph.edge_sum_n_interactions_values()
+
+
+def test_graph_content_thread_neg_fraction():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    content_thread_neg_fraction = graph.content_thread_neg_fraction()
+    assert len(content_thread_neg_fraction.keys()) == N_CONTENTS
+
+    for content, threads_dict in content_thread_neg_fraction.items():
+        assert len(threads_dict.keys()) > 0
+
+        for neg_fraction in threads_dict.values():
+            assert neg_fraction >= 0 and neg_fraction <= 1
+
+
+def test_graph_content_thread_neg_fraction_kcore():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.select_kcore(2)
+    content_thread_neg_fraction = graph.content_thread_neg_fraction()
+
+    for content, threads_dict in content_thread_neg_fraction.items():
+        assert len(threads_dict.keys()) > 0
+
+        for neg_fraction in threads_dict.values():
+            assert neg_fraction >= 0 and neg_fraction <= 1
