@@ -277,3 +277,21 @@ def test_graph_content_thread_neg_fraction_kcore():
 
         for neg_fraction in threads_dict.values():
             assert neg_fraction >= 0 and neg_fraction <= 1
+
+
+def test_graph_social_balance():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    frustration = graph.social_balance()
+    assert frustration >= 0
+
+
+def test_graph_social_balance_kcore():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.select_kcore(2)
+
+    frustration = graph.social_balance()
+    assert frustration >= 0
