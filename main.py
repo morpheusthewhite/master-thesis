@@ -248,6 +248,11 @@ def print_stats(graph, save_path):
         file=stats_txt_file,
     )
 
+    print(
+        f"Frustration index: {graph.social_balance()}",
+        file=stats_txt_file,
+    )
+
     # show degree histogram
     degrees = graph.degree_values()
     plt.figure()
