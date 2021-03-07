@@ -249,7 +249,7 @@ def print_stats(graph, save_path):
     )
 
     print(
-        f"Frustration index: {graph.social_balance()}",
+        f"Fraction of frustrated edges: {graph.social_balance()/graph.num_vertices()}",
         file=stats_txt_file,
     )
 
