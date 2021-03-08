@@ -220,6 +220,25 @@ def print_support_index_top_k(support_dict, file_, k=3):
         )
 
 
+def print_accuracy_top_k(accuracy_dict, file_, k=3):
+    support_dict_sorted = {
+        k: v
+        for k, v in sorted(accuracy_dict.items(), key=lambda item: item[1])
+    }
+
+    contents = list(support_dict_sorted.keys())
+    k = min(k, len(contents))
+
+    print(f"Highest accuracy top {k}:", file=file_)
+    for i in range(k):
+        content_ith = contents[i]
+
+        print(
+            f"\t{content_ith} with {accuracy_dict[content_ith]}",
+            file=file_,
+        )
+
+
 def compute_stats(graph, file_prefix):
 
     if file_prefix is None:
@@ -242,6 +261,20 @@ def compute_stats(graph, file_prefix):
 
     support_dict = graph.support_index_dict()
     print_support_index_top_k(support_dict, stats_txt_file)
+
+    accuracy_dict = graph.content_classification_accuracy()
+
+    plt.figure()
+    plt.hist(list(accuracy_dict.values()))
+
+    if file_prefix is not None:
+        accuracy_hist_pdf = file_prefix + "-accuracy-hist.pdf"
+        plt.savefig(accuracy_hist_pdf)
+    else:
+        plt.show()
+        plt.close()
+
+    print_accuracy_top_k(accuracy_dict, stats_txt_file)
 
     if file_prefix is not None:
         stats_txt_file.close()
