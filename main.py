@@ -268,14 +268,6 @@ def print_stats(graph, save_path):
         file=stats_txt_file,
     )
 
-    results["fraction_frustrated_edges"] = (
-        graph.social_balance() / graph.num_vertices()
-    )
-    print(
-        f"Fraction of frustrated edges: {results['fraction_frustrated_edges']}",
-        file=stats_txt_file,
-    )
-
     # show degree histogram
     #  degrees = graph.degree_values()
     #  plt.figure()
