@@ -8,6 +8,7 @@ from scipy.special import softmax
 
 from polarmine.comment import Comment
 from polarmine.thread import Thread
+from polarmine.social_balance import frustration_model
 
 KEY_SCORE = "score"
 SENTIMENT_MAX_TEXT_LENGTH = 128
