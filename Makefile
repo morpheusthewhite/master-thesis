@@ -35,7 +35,7 @@ requirements-conda:
 	
 	# install custom tweepy version
 	${GIT} clone https://github.com/tweepy/tweepy || true
-	cd tweepy && ${GIT} checkout 1a5ba74 && ${PIP} install .
+	cd tweepy && ${GIT} checkout 1a5ba74 && ${PYTHON} setup.py install
 
 dev-requirements-conda: requirements-conda
 	conda install -y -c conda-forge pytest
