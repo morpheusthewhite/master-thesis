@@ -254,19 +254,19 @@ def print_stats(graph, save_path):
     )
 
     # show degree histogram
-    degrees = graph.degree_values()
-    plt.figure()
-    plt.title("Degree histogram")
-    plt.hist(degrees)
-    plt.xlabel("Degree")
-    plt.ylabel("Number of nodes")
-
-    if save_path is not None:
-        degree_hist_pdf = os.path.join(save_path, "degree-hist.pdf")
-        plt.savefig(degree_hist_pdf)
-    else:
-        plt.show()
-        plt.close()
+    #  degrees = graph.degree_values()
+    #  plt.figure()
+    #  plt.title("Degree histogram")
+    #  plt.hist(degrees)
+    #  plt.xlabel("Degree")
+    #  plt.ylabel("Number of nodes")
+    #
+    #  if save_path is not None:
+    #      degree_hist_pdf = os.path.join(save_path, "degree-hist.pdf")
+    #      plt.savefig(degree_hist_pdf)
+    #  else:
+    #      plt.show()
+    #      plt.close()
 
     # show negative edge fraction histogram for threads
     thread_fractions_dict = graph.negative_edges_fraction_thread_dict()
@@ -313,14 +313,14 @@ def print_stats(graph, save_path):
     )
 
     # show degree distribution
-    cum_probabilities, bins = graph.degree_distribution()
+    probabilities, bins = graph.degree_distribution()
     plt.figure()
-    plt.title("Degree cumulative distribution")
-    plt.plot(bins, cum_probabilities)
+    plt.title("Degree distribution")
+    plt.plot(bins, probabilities)
     plt.xscale("log")
     plt.yscale("log")
     plt.xlabel("Degree")
-    plt.ylabel("Fraction of nodes with larger degree")
+    plt.ylabel("Fraction of nodes")
 
     if save_path is not None:
         degree_dist_pdf = os.path.join(save_path, "degree-dist.pdf")
