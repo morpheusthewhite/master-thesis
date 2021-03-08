@@ -15,6 +15,9 @@ def test_graph_construction_reddit_simple():
     graph = PolarizationGraph(contents, users_flair)
     assert graph is not None
 
+    accuracy_dict = graph.content_classification_accuracy()
+    assert accuracy_dict is not None
+
 
 def test_graph_construction_reddit_more():
     contents, users_flair = reddit_collector.collect(
