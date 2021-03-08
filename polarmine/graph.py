@@ -8,7 +8,6 @@ from scipy.special import softmax
 
 from polarmine.comment import Comment
 from polarmine.thread import Thread
-from polarmine.social_balance import frustration_model
 
 KEY_SCORE = "score"
 SENTIMENT_MAX_TEXT_LENGTH = 128
@@ -618,21 +617,6 @@ class PolarizationGraph:
             distances = np.concatenate((distances, valid_distances))
 
         return np.median(distances)
-
-    def social_balance(self):
-        edges = self.graph.get_edges([self.weights]).astype(np.int32)
-        degrees = self.graph.degree_property_map("total").a
-
-        # calculate frustration index
-        # note that filters are ignored because the max index of the filtered
-        # vertices is most likely > num_vertices
-        frustration = frustration_model(
-            n_vertices=self.graph.num_vertices(True),
-            edges=edges,
-            degrees=degrees,
-        )
-
-        return frustration
 
     @classmethod
     def from_file(cls, filename: str):
