@@ -520,10 +520,7 @@ class PolarizationGraph:
         # the counts). In this way each bin will be represented by its start
         bins = bins[: bins.shape[0] - 1]
 
-        cum_counts = np.cumsum(counts[::-1])[::-1]
-        cum_probabilities = cum_counts / np.sum(counts)
-
-        return cum_probabilities, bins
+        return counts / np.sum(counts), bins
 
     def degree_histogram(self, degree="total") -> (list[int], list[int]):
         """compute histogram of the degree
