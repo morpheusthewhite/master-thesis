@@ -462,10 +462,13 @@ class PolarizationGraph:
         for content, threads_dict in content_thread_neg_fraction.items():
             content_neg_fractions = list(threads_dict.values())
 
-            content_neg_fractions_np = np.array(content_neg_fractions)
-            content_std_dev = np.std(content_neg_fractions_np)
+            # ignore contents without 2 threads at least
+            if len(content_neg_fractions) > 2:
 
-            contents_std_dev[content] = content_std_dev
+                content_neg_fractions_np = np.array(content_neg_fractions)
+                content_std_dev = np.std(content_neg_fractions_np)
+
+                contents_std_dev[content] = content_std_dev
 
         return contents_std_dev
 
