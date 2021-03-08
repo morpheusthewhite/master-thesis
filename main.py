@@ -72,6 +72,15 @@ parser.add_argument(
     dest="k",
     help="k used to select k-core component for analysis and results",
 )
+parser.add_argument(
+    "-md",
+    "--max-depth",
+    type=int,
+    default=4,
+    metavar="d",
+    dest="max_depth",
+    help="Maximum thread depth when inferring user-content edges",
+)
 select_group = parser.add_mutually_exclusive_group()
 select_group.add_argument(
     "-cu",
@@ -258,7 +267,7 @@ def main():
 
         contents = itertools.chain(contents, reddit_iter)
 
-        graph = PolarizationGraph(contents, users_flair)
+        graph = PolarizationGraph(contents, users_flair, args.max_depth)
 
         if args.dump is not None:
             graph.dump(args.dump)
