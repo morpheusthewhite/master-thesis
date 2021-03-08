@@ -295,3 +295,14 @@ def test_graph_social_balance_kcore():
 
     frustration = graph.social_balance()
     assert frustration >= 0
+
+
+def test_graph_std_dev_dict():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    content_std_dev_dict = graph.content_std_dev_dict()
+
+    # 0 keys expected since cross is disabled and so there will be just one
+    # thread
+    assert len(content_std_dev_dict.keys()) == 0
