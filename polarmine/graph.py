@@ -23,7 +23,12 @@ class PolarizationGraph:
 
     """A graph class providing methods for polarization analysis """
 
-    def __init__(self, threads: list[treelib.Tree], users_flair: dict):
+    def __init__(
+        self,
+        threads: list[treelib.Tree],
+        users_flair: dict,
+        max_thread_depth: int = 4,
+    ):
         self.graph = gt.Graph()
 
         # definition of graph property maps
@@ -53,7 +58,7 @@ class PolarizationGraph:
         self.users = {}
 
         # store info from threads into graph
-        self.__add_to_graph__(threads, users_flair)
+        self.__add_to_graph__(threads, users_flair, max_thread_depth)
 
         self.self_loop_mask = self.graph.new_edge_property("bool")
         self.self_loop_mask.a = (
@@ -63,7 +68,12 @@ class PolarizationGraph:
         # precompute kcore-decomposition
         self.__kcore__ = self.__kcore_decomposition__()
 
-    def __add_to_graph__(self, threads: list[treelib.Tree], users_flair: dict):
+    def __add_to_graph__(
+        self,
+        threads: list[treelib.Tree],
+        users_flair: dict,
+        max_thread_depth: int,
+    ):
         # (not internal) property which stores nodes sentiment score
         # used only during graph construction
         nodes_sentiment = self.graph.new_vertex_property("int")
@@ -71,6 +81,9 @@ class PolarizationGraph:
         sentiment_update = self.graph.new_vertex_property("int")
 
         for i, thread in enumerate(threads):
+            # `iteration` is used to number the current iteration
+            # this is needed when checking if a user node was already visited
+            # in the current thread or not
             # since intial values are 0 the iterating integer
             # needs to be increased to be different
             iteration = i + 1
@@ -87,11 +100,21 @@ class PolarizationGraph:
 
             # iterate over all other nodes
             # initially the queue will contain just the root node children
-            queue = [root]
+            # the None element is used as dummy to count thread depth
+            queue = [root, None]
+            current_depth = 0
 
-            while len(queue) > 0:
+            # exit when only the None element remains
+            while len(queue) > 1:
                 # remove one element from the queue
                 node = queue.pop(0)
+
+                if node is None:
+                    current_depth += 1
+
+                    queue.append(None)
+                    continue
+
                 node_identifier = node.identifier
 
                 # get/create the corresponding vertex
@@ -125,6 +148,8 @@ class PolarizationGraph:
                             comment,
                             comment_author,
                             iteration,
+                            current_depth,
+                            max_thread_depth,
                         )
 
                         # equeue this child
@@ -141,6 +166,8 @@ class PolarizationGraph:
         comment: Comment,
         comment_author: int,
         iteration: int,
+        current_depth: int,
+        max_thread_depth: int,
     ):
         # find the node if it is in the graph
         comment_vertex = self.get_user_vertex(comment_author, users_flair)
@@ -150,7 +177,10 @@ class PolarizationGraph:
             comment_vertex, parent_vertex, comment, content
         )
 
-        if sentiment_update[comment_vertex] < iteration:
+        if (
+            sentiment_update[comment_vertex] < iteration
+            and current_depth < max_thread_depth
+        ):
             # assign to a node a score which is the product of
             # the parent score and the edge (interaction)
             # this is updating the information implicitly
