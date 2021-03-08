@@ -3,6 +3,7 @@ import itertools
 import matplotlib.pyplot as plt
 import sys
 import os
+import pickle
 
 from polarmine.graph import PolarizationGraph
 from polarmine.collectors.reddit_collector import RedditCollector
@@ -209,47 +210,69 @@ def print_negative_fraction_top_k(
 def print_stats(graph, save_path):
     graph.remove_self_loops()
 
+    # dictionary to be pickled
+    results = {}
+
     if save_path is None:
         stats_txt_file = sys.stdout
     else:
         stats_txt = os.path.join(save_path, "stats.txt")
         stats_txt_file = open(stats_txt, "w")
 
+    results["num_vertices"] = graph.num_vertices()
+    results["num_edges"] = graph.num_edges()
+    results["kcore_size"] = graph.kcore_size()
+    results["negative_edges_fraction"] = graph.negative_edges_fraction()
+
     print(
-        f"The graph has {graph.num_vertices()} vertices and {graph.num_edges()} edges",
+        f"The graph has {results['num_vertices']} vertices and {results['num_edges']} edges",
         file=stats_txt_file,
     )
     print(
-        f"Fraction of nodes in k-core: {graph.kcore_size()}",
+        f"Fraction of nodes in k-core: {results['kcore_size']}",
         file=stats_txt_file,
     )
     print(
-        f"Fraction of negative edges: {graph.negative_edges_fraction()}",
+        f"Fraction of negative edges: {results['negative_edges_fraction']}",
         file=stats_txt_file,
     )
 
     global_clustering, global_clustering_stddev = graph.global_clustering()
+    results["global_clustering"] = global_clustering
+    results["global_clustering_stddev"] = global_clustering_stddev
     print(
         f"Clustering coefficient: {global_clustering} with standard deviation {global_clustering_stddev}",
         file=stats_txt_file,
     )
 
+    results[
+        "average_shortest_path_length"
+    ] = graph.average_shortest_path_length()
+    results[
+        "median_shortest_path_length"
+    ] = graph.median_shortest_path_length()
+    results["average_degree"] = graph.average_degree()
+    results["unique_average_degree"] = graph.average_degree(unique=True)
+
     print(
-        f"Average shortest path length: {graph.average_shortest_path_length()}",
+        f"Average shortest path length: {results['average_shortest_path_length']}",
         file=stats_txt_file,
     )
     print(
-        f"Median shortest path length: {graph.median_shortest_path_length()}",
+        f"Median shortest path length: {results['median_shortest_path_length']}",
         file=stats_txt_file,
     )
-    print(f"Average degree: {graph.average_degree()}", file=stats_txt_file)
+    print(f"Average degree: {results['average_degree']}", file=stats_txt_file)
     print(
-        f"Unique average degree: {graph.average_degree(unique=True)}",
+        f"Unique average degree: {results['unique_average_degree']}",
         file=stats_txt_file,
     )
 
+    results["fraction_frustrated_edges"] = (
+        graph.social_balance() / graph.num_vertices()
+    )
     print(
-        f"Fraction of frustrated edges: {graph.social_balance()/graph.num_vertices()}",
+        f"Fraction of frustrated edges: {results['fraction_frustrated_edges']}",
         file=stats_txt_file,
     )
 
@@ -270,6 +293,7 @@ def print_stats(graph, save_path):
 
     # show negative edge fraction histogram for threads
     thread_fractions_dict = graph.negative_edges_fraction_thread_dict()
+    results["thread_fractions_dict"] = thread_fractions_dict
     plt.figure()
     plt.title("Thread edge negativeness histogram")
     plt.hist(thread_fractions_dict.values())
@@ -292,6 +316,7 @@ def print_stats(graph, save_path):
 
     # show negative edge fraction histogram for threads
     content_fractions_dict = graph.negative_edges_fraction_content_dict()
+    results["content_fractions_dict"] = content_fractions_dict
     plt.figure()
     plt.title("Content edge negativeness histogram")
     plt.hist(content_fractions_dict.values())
@@ -314,6 +339,7 @@ def print_stats(graph, save_path):
 
     # show degree distribution
     probabilities, bins = graph.degree_distribution()
+    results["degree_distribution"] = (probabilities, bins)
     plt.figure()
     plt.title("Degree distribution")
     plt.plot(bins, probabilities)
@@ -331,6 +357,7 @@ def print_stats(graph, save_path):
 
     # show user fidelity histogram
     fidelities = graph.fidelity_values()
+    results["fidelities"] = fidelities
     plt.figure()
     plt.title("User fidelity histogram")
     plt.hist(fidelities)
@@ -347,6 +374,7 @@ def print_stats(graph, save_path):
 
     # show number of interactions histogram
     n_interactions = graph.n_interaction_values()
+    results["n_interactions"] = n_interactions
     plt.figure()
     plt.title("Number of interactions histogram")
     plt.hist(n_interactions)
@@ -362,7 +390,7 @@ def print_stats(graph, save_path):
         plt.show()
         plt.close()
 
-    # show number of interactions histogram
+    # show total edge sum over number of interactions
     edge_sum_n_interactions = graph.edge_sum_n_interactions_values()
     x_n_interactions = [
         n_interactions for n_interactions, edge_sum in edge_sum_n_interactions
@@ -370,6 +398,7 @@ def print_stats(graph, save_path):
     y_edge_sum = [
         edge_sum for n_interactions, edge_sum in edge_sum_n_interactions
     ]
+    results["n_interactions_edge_sum"] = (x_n_interactions, y_edge_sum)
     plt.figure()
     plt.title("Content edge sum")
     plt.scatter(x_n_interactions, y_edge_sum)
@@ -394,6 +423,7 @@ def print_stats(graph, save_path):
 
     # show content standard dev
     content_std_dev_dict = graph.content_std_dev_dict()
+    results["content_std_dev_dict"] = content_std_dev_dict
     plt.figure()
     plt.title("Content standard deviation")
     plt.hist(list(content_std_dev_dict.values()))
@@ -411,6 +441,10 @@ def print_stats(graph, save_path):
 
     if save_path is not None:
         stats_txt_file.close()
+
+        pickle_filename = os.path.join(save_path, "results.p")
+        with open(pickle_filename, "wb") as pickle_file:
+            pickle.dump(results, pickle_file)
 
 
 def main():
