@@ -715,6 +715,57 @@ class PolarizationGraph:
 
         return np.median(distances)
 
+    def content_classification_accuracy(self):
+        # store the current applied filter
+        current_vertex_filter, _ = self.graph.get_vertex_filter()
+        current_edge_filter, _ = self.graph.get_edge_filter()
+
+        # dictionary storing as key the content and as value a tuple
+        # (correct classification, number of edges)
+        classification_dict = {}
+
+        self.select_content_user()
+        for edge in self.graph.edges():
+            content = self.nodes_content[edge.target()].url
+            stance = self.weights[edge]
+
+            user_flair = self.flairs[edge.source()]
+
+            (
+                content_classification_correct,
+                content_classification_total,
+            ) = classification_dict.get(content, (0, 0))
+
+            # it is not important to assume that negative reaction means being
+            # Non Supporter as later it will be removed by normalizing the
+            # accuracy in [0.5, 1]
+            if (stance == -1 and user_flair == NON_SUPPORTER_FLAIR) or (
+                stance == 1 and user_flair == SUPPORTER_FLAIR
+            ):
+                content_classification_correct += 1
+
+            content_classification_total += 1
+
+            classification_dict[content] = (
+                content_classification_correct,
+                content_classification_total,
+            )
+
+        # actually calculate accuracy by aggregating in the dict
+        accuracy_dict = {
+            content: max(
+                classification_tuple[0] / classification_tuple[1],
+                1 - classification_tuple[0] / classification_tuple[1],
+            )
+            for content, classification_tuple in classification_dict.items()
+        }
+
+        # restore previous filter
+        self.graph.set_vertex_filter(current_vertex_filter)
+        self.graph.set_edge_filter(current_edge_filter)
+
+        return accuracy_dict
+
     @classmethod
     def from_file(cls, filename: str):
         """Creates a PolarizationGraph object from the graph stored in a file
