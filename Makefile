@@ -38,7 +38,7 @@ requirements-conda:
 	
 	# install custom tweepy version
 	${GIT} clone https://github.com/tweepy/tweepy || true
-	cd tweepy && ${GIT} checkout 1a5ba74 && ${PIP} install .
+	cd tweepy && ${GIT} checkout 1a5ba74 && ${PYTHON} setup.py install
 
 	# install gurobi 
 	${PYTHON} -m pip install -i https://pypi.gurobi.com gurobipy	
