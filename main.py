@@ -2,6 +2,7 @@ import argparse
 import itertools
 import matplotlib.pyplot as plt
 import sys
+import pickle
 
 from polarmine.graph import PolarizationGraph
 from polarmine.collectors.reddit_collector import RedditCollector
@@ -240,6 +241,8 @@ def print_accuracy_top_k(accuracy_dict, file_, k=6):
 
 
 def compute_stats(graph, file_prefix):
+    # pickle results dictionary
+    results = {}
 
     if file_prefix is None:
         stats_txt_file = sys.stdout
@@ -248,6 +251,7 @@ def compute_stats(graph, file_prefix):
         stats_txt_file = open(stats_txt, "w")
 
     counts, bins = graph.support_index_histogram()
+    results["support_histogram"] = (counts, bins)
 
     plt.figure()
     plt.plot(bins, counts)
@@ -260,9 +264,11 @@ def compute_stats(graph, file_prefix):
         plt.close()
 
     support_dict = graph.support_index_dict()
+    results["support_dict"] = support_dict
     print_support_index_top_k(support_dict, stats_txt_file)
 
     accuracy_dict = graph.content_classification_accuracy()
+    results["accuracy_dict"] = accuracy_dict
 
     plt.figure()
     plt.hist(list(accuracy_dict.values()))
@@ -278,6 +284,9 @@ def compute_stats(graph, file_prefix):
 
     if file_prefix is not None:
         stats_txt_file.close()
+
+        with open(file_prefix + "results.p", "wb") as pickle_file:
+            pickle.dump(results, pickle_file)
 
 
 def main():
