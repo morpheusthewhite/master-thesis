@@ -220,7 +220,7 @@ def print_support_index_top_k(support_dict, file_, k=3):
         )
 
 
-def print_accuracy_top_k(accuracy_dict, file_, k=3):
+def print_accuracy_top_k(accuracy_dict, file_, k=6):
     support_dict_sorted = {
         k: v
         for k, v in sorted(accuracy_dict.items(), key=lambda item: item[1])
@@ -230,8 +230,8 @@ def print_accuracy_top_k(accuracy_dict, file_, k=3):
     k = min(k, len(contents))
 
     print(f"Highest accuracy top {k}:", file=file_)
-    for i in range(k):
-        content_ith = contents[i]
+    for i in range(1, k + 1):
+        content_ith = contents[-i]
 
         print(
             f"\t{content_ith} with {accuracy_dict[content_ith]}",
