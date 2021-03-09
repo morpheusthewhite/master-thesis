@@ -285,7 +285,7 @@ def compute_stats(graph, file_prefix):
     if file_prefix is not None:
         stats_txt_file.close()
 
-        with open(file_prefix + "results.p", "wb") as pickle_file:
+        with open(file_prefix + "-results.p", "wb") as pickle_file:
             pickle.dump(results, pickle_file)
 
 
