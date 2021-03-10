@@ -69,11 +69,17 @@ class RedditCollector(Collector):
         Returns:
             Thread: the thread object relative to the submission
         """
+        # check if author exist (the account may have been deleted)
+        if submission.author is None:
+            author_hash = hash(random.uniform(0, 1))
+        else:
+            author_hash = hash(submission.author.name)
+
         thread = Thread(
             submission.permalink,
             submission.title,
             submission.created_utc,
-            hash(submission.author.name),
+            author_hash,
             content,
             keyword,
         )
@@ -130,12 +136,16 @@ class RedditCollector(Collector):
             thread = self.__submission_to_thread__(s, keyword, content)
             discussion_tree = treelib.Tree()
 
+            # check user existance
+            if s.author is None:
+                author_hash = hash(random.uniform(0, 1))
+            else:
+                author_hash = hash(s.author.name)
             # the submission represents the root node in the tree collecting
             # all the replies. The associated data is a Thread object.
             # In this case the tag (submitter user) is the author of this
             # (possibly crossposted) submission and the id is the id
             # of this submission
-            author_hash = hash(s.author.name)
             discussion_tree.create_node(
                 tag=author_hash, identifier=s_id, data=thread
             )
