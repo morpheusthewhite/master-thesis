@@ -61,11 +61,16 @@ class RedditCollector(Collector):
             Content: the content object relative to the submission
         """
         # TODO: just consider the title?
+        if submission.author is None:
+            author_hash = hash(random.uniform(0, 1))
+        else:
+            author_hash = hash(submission.author.name)
+
         content = Content(
             submission.url,
             submission.title,
             submission.created_utc,
-            hash(submission.author.name),
+            author_hash
             keyword,
         )
 
@@ -115,12 +120,17 @@ class RedditCollector(Collector):
 
             thread = treelib.Tree()
 
+            # check user existance
+            if s.author is None:
+                author_hash = hash(random.uniform(0, 1))
+            else:
+                author_hash = hash(s.author.name)
+
             # the submission represents the root node in the tree collecting
             # all the replies. The associated data is a content object
             # in this case the tag (submitter user) is the author of this
             # (possibly crossposted) submission and the id is the id of the new
             # submission
-            author_hash = hash(s.author.name)
             thread.create_node(tag=author_hash, identifier=s_id, data=content)
             users_flair[author_hash] = s.author_flair_text
 
