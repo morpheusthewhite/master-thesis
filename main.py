@@ -268,21 +268,6 @@ def print_stats(graph, save_path):
         file=stats_txt_file,
     )
 
-    # show degree histogram
-    #  degrees = graph.degree_values()
-    #  plt.figure()
-    #  plt.title("Degree histogram")
-    #  plt.hist(degrees)
-    #  plt.xlabel("Degree")
-    #  plt.ylabel("Number of nodes")
-    #
-    #  if save_path is not None:
-    #      degree_hist_pdf = os.path.join(save_path, "degree-hist.pdf")
-    #      plt.savefig(degree_hist_pdf)
-    #  else:
-    #      plt.show()
-    #      plt.close()
-
     # show negative edge fraction histogram for threads
     thread_fractions_dict = graph.negative_edges_fraction_thread_dict()
     results["thread_fractions_dict"] = thread_fractions_dict
@@ -329,19 +314,55 @@ def print_stats(graph, save_path):
         content_fractions_dict, stats_txt_file, key="content"
     )
 
-    # show degree distribution
+    # show total degree distribution
     probabilities, bins = graph.degree_distribution()
-    results["degree_distribution"] = (probabilities, bins)
+    results["total_degree_distribution"] = (probabilities, bins)
     plt.figure()
-    plt.title("Degree distribution")
+    plt.title("Total degree distribution")
     plt.plot(bins, probabilities)
     plt.xscale("log")
     plt.yscale("log")
-    plt.xlabel("Degree")
+    plt.xlabel("Total degree")
     plt.ylabel("Fraction of nodes")
 
     if save_path is not None:
-        degree_dist_pdf = os.path.join(save_path, "degree-dist.pdf")
+        degree_dist_pdf = os.path.join(save_path, "degree-total-dist.pdf")
+        plt.savefig(degree_dist_pdf)
+    else:
+        plt.show()
+        plt.close()
+
+    # show in degree distribution
+    probabilities, bins = graph.degree_distribution("in")
+    results["in_degree_distribution"] = (probabilities, bins)
+    plt.figure()
+    plt.title("In degree distribution")
+    plt.plot(bins, probabilities)
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.xlabel("In degree")
+    plt.ylabel("Fraction of nodes")
+
+    if save_path is not None:
+        degree_dist_pdf = os.path.join(save_path, "degree-in-dist.pdf")
+        plt.savefig(degree_dist_pdf)
+    else:
+        plt.show()
+        plt.close()
+
+    # show out degree distribution
+    probabilities, bins = graph.degree_distribution("out")
+    results["out_degree_distribution"] = (probabilities, bins)
+    plt.figure()
+    plt.title("Out degree distribution")
+    plt.plot(bins, probabilities)
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.xlabel("Out degree")
+    plt.ylabel("Fraction of nodes")
+
+    if save_path is not None:
+        degree_dist_pdf = os.path.join(save_path, "degree-out-dist.pdf")
         plt.savefig(degree_dist_pdf)
     else:
         plt.show()
