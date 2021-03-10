@@ -274,7 +274,12 @@ class TwitterCollector(Collector):
             return status_url
 
     def __status_to_discussion_trees__(
-        self, status: tweepy.Status, keyword: str, limit: int, cross: bool
+        self,
+        status: tweepy.Status,
+        keyword: str,
+        limit: int,
+        cross: bool,
+        exclude_share: set,
     ) -> list[treelib.Tree]:
         """Find threads of comments associated to a certain status
 
@@ -283,6 +288,9 @@ class TwitterCollector(Collector):
             keyword (str): the keyword used to filter status
             limit (int): maximum number of tweets to check when looking
             for replies
+            exclude_share (set(str)): a set of contents for which cross is
+            not performed even if `cross` is True. If None it is ignored, otherwise
+            it will be updated with the content if not present in the set
 
         Returns:
             list[treelib.Tree]: the discussions trees associated with the
@@ -342,30 +350,37 @@ class TwitterCollector(Collector):
                     # add subthread as children of the root
                     thread.paste(status_id, discussion_subtree)
 
-            # tweets which share the same url (usually pointing to an
-            # external site)
-            for status_share in self.__status_to_shares__(status):
-                # create content object, associated to root node
-                thread_share_url = (
-                    f"https://twitter.com/user/status/{status_share.id}"
-                )
-                thread_share_text = status_share.full_text
-                thread_share_time = status_share.created_at.timestamp()
-                thread_share_author = hash(status_share.author.screen_name)
-                thread_share = Thread(
-                    thread_share_url,
-                    thread_share_text,
-                    thread_share_time,
-                    thread_share_author,
-                    content,
-                    keyword,
-                )
+            import pdb
 
-                discussion_tree_share = self.__status_to_discussion_tree__(
-                    status_share, limit=limit, root_data=thread_share
-                )
+            pdb.set_trace()
+            if exclude_share is None or content not in exclude_share:
+                if exclude_share is not None:
+                    exclude_share.add(content)
 
-                yield discussion_tree_share
+                # tweets which share the same url (usually pointing to an
+                # external site)
+                for status_share in self.__status_to_shares__(status):
+                    # create content object, associated to root node
+                    thread_share_url = (
+                        f"https://twitter.com/user/status/{status_share.id}"
+                    )
+                    thread_share_text = status_share.full_text
+                    thread_share_time = status_share.created_at.timestamp()
+                    thread_share_author = hash(status_share.author.screen_name)
+                    thread_share = Thread(
+                        thread_share_url,
+                        thread_share_text,
+                        thread_share_time,
+                        thread_share_author,
+                        content,
+                        keyword,
+                    )
+
+                    discussion_tree_share = self.__status_to_discussion_tree__(
+                        status_share, limit=limit, root_data=thread_share
+                    )
+
+                    yield discussion_tree_share
 
         yield thread
 
@@ -398,10 +413,23 @@ class TwitterCollector(Collector):
         statuses = self.__find_statuses__(ncontents, keyword, page)
         discussion_trees = iter([])
 
+        # set used to track mined contents this is necessary because some
+        # twitter accounts like @nytimes tweet many times the same link so
+        # contents in this set will be prevented from mining again tweets
+        # sharing the same content/url. Also, since the @nytimes and other
+        # similar accounts (like @foxnews) add some query parameters to the
+        # link, their tweet will not be mined twice. Notice that if a user will
+        # tweet twice the same identical url without query parameters then it
+        # will be mined more than once
+        # because generators are used, this set will be populated only once
+        # discussion_trees are generated, so you probably don't want to use it
+        # elsewhere
+        contents = set()
+
         for status in statuses:
 
             content_discussion_trees = self.__status_to_discussion_trees__(
-                status, keyword, limit, cross
+                status, keyword, limit, cross, contents
             )
             discussion_trees = itertools.chain(
                 discussion_trees, content_discussion_trees
