@@ -27,7 +27,6 @@ class PolarizationGraph:
         self,
         threads: list[treelib.Tree],
         users_flair: dict,
-        max_thread_depth: int = 4,
     ):
         self.graph = gt.Graph()
 
@@ -36,6 +35,7 @@ class PolarizationGraph:
         self.weights = self.graph.new_edge_property("double")
         self.times = self.graph.new_edge_property("double", val=0)
         self.edges_content = self.graph.new_edge_property("object")
+        self.depth = self.graph.new_edge_property("int")
         self.flairs = self.graph.new_vertex_property("string")
         self.nodes_content = self.graph.new_vertex_property("object")
 
@@ -43,6 +43,7 @@ class PolarizationGraph:
         self.graph.edge_properties["weights"] = self.weights
         self.graph.edge_properties["times"] = self.times
         self.graph.edge_properties["edges_content"] = self.edges_content
+        self.graph.edge_properties["depth"] = self.depth
         self.graph.vertex_properties["nodes_content"] = self.nodes_content
         self.graph.vertex_properties["flairs"] = self.flairs
 
@@ -58,7 +59,7 @@ class PolarizationGraph:
         self.users = {}
 
         # store info from threads into graph
-        self.__add_to_graph__(threads, users_flair, max_thread_depth)
+        self.__add_to_graph__(threads, users_flair)
 
         self.self_loop_mask = self.graph.new_edge_property("bool")
         self.self_loop_mask.a = (
@@ -72,7 +73,6 @@ class PolarizationGraph:
         self,
         threads: list[treelib.Tree],
         users_flair: dict,
-        max_thread_depth: int,
     ):
         # (not internal) property which stores nodes sentiment score
         # used only during graph construction
@@ -109,6 +109,7 @@ class PolarizationGraph:
                 # remove one element from the queue
                 node = queue.pop(0)
 
+                # process dummy element
                 if node is None:
                     current_depth += 1
 
@@ -149,7 +150,6 @@ class PolarizationGraph:
                             comment_author,
                             iteration,
                             current_depth,
-                            max_thread_depth,
                         )
 
                         # equeue this child
@@ -167,20 +167,16 @@ class PolarizationGraph:
         comment_author: int,
         iteration: int,
         current_depth: int,
-        max_thread_depth: int,
     ):
         # find the node if it is in the graph
         comment_vertex = self.get_user_vertex(comment_author, users_flair)
 
         # and add the edge
         edge_sentiment_score = self.add_edge(
-            comment_vertex, parent_vertex, comment, content
+            comment_vertex, parent_vertex, comment, content, current_depth
         )
 
-        if (
-            sentiment_update[comment_vertex] < iteration
-            and current_depth < max_thread_depth
-        ):
+        if sentiment_update[comment_vertex] < iteration:
             # assign to a node a score which is the product of
             # the parent score and the edge (interaction)
             # this is updating the information implicitly
@@ -200,6 +196,7 @@ class PolarizationGraph:
                 comment_vertex, content_node
             )
             self.weights[user_content_edge] = node_sentiment_int
+            self.depth[user_content_edge] = current_depth
 
     def add_edge(
         self,
@@ -207,6 +204,7 @@ class PolarizationGraph:
         vertex_target: gt.Vertex,
         comment: Comment,
         content: Content,
+        current_depth: int,
     ):
         edge = self.graph.add_edge(vertex_source, vertex_target)
         sentiment_score = self.sentiment_weight(comment.text)
@@ -214,6 +212,7 @@ class PolarizationGraph:
         self.weights[edge] = sentiment_score
         self.times[edge] = comment.time
         self.edges_content[edge] = content
+        self.depth[edge] = current_depth
 
         return sentiment_score
 
@@ -267,6 +266,32 @@ class PolarizationGraph:
             vertex = self.graph.vertex(vertex_index)
 
         return vertex
+
+    def select_thread_depth(self, max_depth: int):
+        edge_mask = self.graph.new_edge_property("bool")
+        edge_mask.a = self.depth.a > max_depth
+
+        # combine this filter with the current existing one
+        current_edge_filter, _ = self.graph.get_edge_filter()
+        if current_edge_filter is not None:
+            edge_mask.a = np.logical_and(edge_mask.a, current_edge_filter.a)
+
+        self.graph.set_edge_filter(edge_mask)
+
+        # hide nodes which have degree 0
+        vertex_mask = self.graph.new_vertex_property("bool")
+        vertex_mask.a = self.graph.degree_property_map("total").a > 0
+
+        # combine this filter with the current existing one
+        current_vertex_filter, _ = self.graph.get_vertex_filter()
+        if current_vertex_filter is not None:
+            vertex_mask.a = np.logical_and(
+                vertex_mask.a, current_vertex_filter.a
+            )
+
+        self.graph.set_vertex_filter(vertex_mask)
+
+        return
 
     def __kcore_decomposition__(self):
         """Wrapper for grapt_tool kcore_decomposition excluding self edges"""
@@ -354,6 +379,7 @@ class PolarizationGraph:
         self.weights = self.graph.edge_properties["weights"]
         self.times = self.graph.edge_properties["times"]
         self.edges_content = self.graph.edge_properties["edges_content"]
+        self.depth = self.graph.edge_properties["depth"]
         self.nodes_content = self.graph.vertex_properties["nodes_content"]
         self.flairs = self.graph.vertex_properties["flairs"]
 
