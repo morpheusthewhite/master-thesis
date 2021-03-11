@@ -18,6 +18,12 @@ def test_graph_construction_reddit_simple():
     accuracy_dict = graph.content_classification_accuracy()
     assert accuracy_dict is not None
 
+    # top level comments
+    graph.select_thread_depth(0)
+
+    # more comments
+    graph.select_thread_depth(2)
+
 
 def test_graph_construction_reddit_more():
     contents, users_flair = reddit_collector.collect(
