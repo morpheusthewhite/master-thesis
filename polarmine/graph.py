@@ -269,7 +269,7 @@ class PolarizationGraph:
 
     def select_thread_depth(self, max_depth: int):
         edge_mask = self.graph.new_edge_property("bool")
-        edge_mask.a = self.depth.a > max_depth
+        edge_mask.a = self.depth.a <= max_depth
 
         # combine this filter with the current existing one
         current_edge_filter, _ = self.graph.get_edge_filter()
