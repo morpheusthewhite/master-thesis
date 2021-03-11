@@ -282,6 +282,12 @@ def compute_stats(graph, file_prefix):
 
     print_accuracy_top_k(accuracy_dict, stats_txt_file)
 
+    social_balance_accuracy = graph.social_balance_accuracy()
+    print(
+        f"Accuracy of social balance classification: {social_balance_accuracy}"
+        file=stats_txt_file
+    )
+
     if file_prefix is not None:
         stats_txt_file.close()
 
