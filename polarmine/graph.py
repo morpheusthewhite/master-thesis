@@ -8,6 +8,7 @@ from scipy.special import softmax
 
 from polarmine.comment import Comment
 from polarmine.content import Content
+from polarmine.social_balance import frustration_model
 from polarmine.collectors.reddit_collector import (
     SUPPORTER_FLAIR,
     UNDECIDED_FLAIR,
@@ -791,6 +792,43 @@ class PolarizationGraph:
         self.graph.set_edge_filter(current_edge_filter)
 
         return accuracy_dict
+
+    def social_balance_accuracy(self):
+        num_vertices = self.graph.num_vertices(True)
+        num_edges = self.num_edges()
+        degrees = self.graph.degree_property_map("total").a
+
+        edges = self.graph.get_edges([self.weights])
+        # get the sign of the weights (in case they are float if casted they
+        # may produce uncorrect values)
+        edges[:, 2] = np.sign(edges[:, 2])
+        # now cast to int
+        edges = edges.astype(np.int32)
+
+        n_frustrated, vertices_label = frustration_model(
+            num_vertices,
+            edges,
+            degrees=degrees,
+        )
+
+        correct_labels = 0
+        n_nodes = 0
+
+        vertex_mask, _ = self.graph.get_vertex_filter()
+
+        for index, label in enumerate(vertices_label):
+            # exclude filtered nodes
+            if vertex_mask.a[index] == 1:
+                vertex = self.graph.vertex(index)
+
+                if (label == 1 and self.flairs[vertex] == SUPPORTER_FLAIR) or (
+                    label == 0 and self.flairs[vertex] == NON_SUPPORTER_FLAIR
+                ):
+                    correct_labels += 1
+
+                n_nodes += 1
+
+        return max(correct_labels / n_nodes, 1 - (correct_labels / n_nodes))
 
     @classmethod
     def from_file(cls, filename: str):
