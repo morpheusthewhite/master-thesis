@@ -70,7 +70,7 @@ class RedditCollector(Collector):
             submission.url,
             submission.title,
             submission.created_utc,
-            author_hash
+            author_hash,
             keyword,
         )
 
