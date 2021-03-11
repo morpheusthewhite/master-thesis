@@ -309,13 +309,15 @@ def main():
 
         contents = itertools.chain(contents, reddit_iter)
 
-        graph = PolarizationGraph(contents, users_flair, args.max_depth)
+        graph = PolarizationGraph(contents, users_flair)
 
         if args.dump is not None:
             graph.dump(args.dump)
 
     if args.k > 0:
         graph.select_kcore(args.k)
+
+    graph.select_thread_depth(args.max_depth)
 
     if args.select_content_user:
         graph.select_content_user()
