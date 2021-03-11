@@ -284,8 +284,8 @@ def compute_stats(graph, file_prefix):
 
     social_balance_accuracy = graph.social_balance_accuracy()
     print(
-        f"Accuracy of social balance classification: {social_balance_accuracy}"
-        file=stats_txt_file
+        f"Accuracy of social balance classification: {social_balance_accuracy}",
+        file=stats_txt_file,
     )
 
     if file_prefix is not None:
