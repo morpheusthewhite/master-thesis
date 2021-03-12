@@ -596,9 +596,14 @@ class PolarizationGraph:
         support_dict = {}
 
         for content_node in content_nodes:
+            content = self.nodes_content[content_node]
+
+            # a user may have no flair (e.g. bot)
+            if content is None:
+                continue
+
             support_index = self.__content_support_index__(content_node)
 
-            content = self.nodes_content[content_node]
             support_dict[content.url] = support_index
 
         return support_dict
@@ -806,9 +811,7 @@ class PolarizationGraph:
         edges = edges.astype(np.int32)
 
         n_frustrated, vertices_label = frustration_model(
-            num_vertices,
-            edges,
-            degrees=degrees,
+            num_vertices, edges, degrees=degrees
         )
 
         correct_labels = 0
