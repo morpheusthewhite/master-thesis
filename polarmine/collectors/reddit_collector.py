@@ -40,11 +40,13 @@ class RedditCollector(Collector):
             list[str]: the list of found praw submissions
         """
         if page is not None:
-            contents_id = self.reddit.subreddit(page).hot()
+            contents_id = self.reddit.subreddit(page).hot(limit=ncontents)
         elif keyword is not None:
-            contents_id = self.reddit.subreddit("all").search(keyword)
+            contents_id = self.reddit.subreddit("all").search(
+                keyword, limit=ncontents
+            )
         else:
-            contents_id = self.reddit.subreddit("all").hot()
+            contents_id = self.reddit.subreddit("all").hot(limit=ncontents)
 
         return contents_id
 
