@@ -250,6 +250,14 @@ def compute_stats(graph, file_prefix):
         stats_txt = file_prefix + "-stats.txt"
         stats_txt_file = open(stats_txt, "w")
 
+    results["num_vertices"] = graph.num_vertices()
+    results["num_edges"] = graph.num_edges()
+
+    print(
+        f'Number of vertices: {results["num_vertices"]}', file=stats_txt_file
+    )
+    print(f'Number of edges: {results["num_edges"]}', file=stats_txt_file)
+
     counts, bins = graph.support_index_histogram()
     results["support_histogram"] = (counts, bins)
 
