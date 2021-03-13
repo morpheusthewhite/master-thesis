@@ -24,6 +24,29 @@ def frustration_model(
     """
     model = pulp.LpProblem("frustration_model", pulp.LpMinimize)
 
+    edges_unique = {}
+
+    for edge in edges:
+        source = edge[0]
+        target = edge[1]
+        weight = edge[2]
+
+        # swap variables in order to always have source < target
+        if source > target:
+            tmp = source
+            source = target
+            target = tmp
+
+        current_weight = edges_unique.get((source, target), 0)
+        edges_unique[(source, target)] = current_weight + weight
+
+    edges = []
+    for vertex_tuple, weight in edges_unique.items():
+        source = vertex_tuple[0]
+        target = vertex_tuple[1]
+
+        edges.append([source, target, weight])
+
     vertices_variables = [
         pulp.LpVariable(name=f"x_{i}", cat=pulp.LpBinary)
         for i in range(n_vertices)
