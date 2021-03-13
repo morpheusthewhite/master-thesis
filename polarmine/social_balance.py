@@ -1,12 +1,10 @@
-import gurobipy as gp
+import pulp
 import numpy as np
 
 
 def frustration_model(
     n_vertices: int,
     edges: list[list[int]],
-    optimize: bool = True,
-    degrees: list[int] = None,
     model_name: str = "and",
 ) -> int:
     """calculate frustration using either AND, XOR or ABS formulation
@@ -19,29 +17,19 @@ def frustration_model(
             - the index of one of the incident vertices
             - the index of the other incident vertex
             - the edge sign (+1 or -1)
-        optimize: if true use optimizations
-        degrees: the degrees of the nodes. if optimization is true and they are
-        not provided they will be computed
         model_name: which of the models to use (either "and", "xor" or "abs")
 
     Returns:
         int: the number of frustrated edges
     """
-    model = gp.Model(f"{model_name} frustration_model")
-    # suppress console output
-    model.Params.outputFlag = 0
+    model = pulp.LpProblem("frustration_model", pulp.LpMinimize)
 
     vertices_variables = [
-        model.addVar(vtype=gp.GRB.BINARY, name=f"x_{i}")
+        pulp.LpVariable(name=f"x_{i}", cat=pulp.LpBinary)
         for i in range(n_vertices)
     ]
-    model.update()
 
-    objective = 0
-    # if optimization is requested and degrees are not provided they are
-    # computed in the cycle
-    if degrees is None and optimize:
-        degrees_ = np.zeros((n_vertices), dtype=np.int32)
+    objective = []
 
     for i, edge in enumerate(edges):
         vertex1 = edge[0]
@@ -50,50 +38,43 @@ def frustration_model(
         vertex2 = edge[1]
         x_j = vertices_variables[vertex2]
 
-        # if not provided compute the degrees
-        if degrees is None and optimize:
-            degrees_[vertex1] += 1
-            degrees_[vertex2] += 1
-
         sign = edge[2]
 
         if model_name == "and":
             # create edge variable, x_ij
-            x_ij = model.addVar(
-                vtype=gp.GRB.BINARY, name=f"x_{vertex1}_{vertex2}_{i}"
+            x_ij = pulp.LpVariable(
+                name=f"x_{vertex1}{vertex2}{i}", cat=pulp.LpBinary
             )
         elif model_name == "abs":
-            e_ij = model.addVar(
-                vtype=gp.GRB.BINARY, name=f"e_{vertex1}_{vertex2}_{i}"
+            e_ij = pulp.LpVariable(
+                name=f"e_{vertex1}{vertex2}{i}", cat=pulp.LpBinary
             )
-            h_ij = model.addVar(
-                vtype=gp.GRB.BINARY, name=f"h_{vertex1}_{vertex2}_{i}"
+            h_ij = pulp.LpVariable(
+                name=f"h_{vertex1}{vertex2}{i}", cat=pulp.LpBinary
             )
         else:
-            f_ij = model.addVar(
-                vtype=gp.GRB.BINARY, name=f"f_{vertex1}_{vertex2}_{i}"
+            f_ij = pulp.LpVariable(
+                name=f"f_{vertex1}{vertex2}{i}", cat=pulp.LpBinary
             )
-
-        model.update()
 
         if sign >= 0:
             if model_name == "and":
-                model.addConstr(x_ij <= x_i)
-                model.addConstr(x_ij <= x_j)
+                model += x_ij <= x_i
+                model += x_ij <= x_j
             elif model_name == "abs":
-                model.addConstr(x_i - x_j == e_ij - h_ij)
+                model += x_i - x_j == e_ij - h_ij
             else:
-                model.addConstr(f_ij >= x_i - x_j)
-                model.addConstr(f_ij >= x_j - x_i)
+                model += f_ij >= x_i - x_j
+                model += f_ij >= x_j - x_i
 
         else:
             if model_name == "and":
-                model.addConstr(x_ij >= x_i + x_j - 1)
+                model += x_ij >= x_i + x_j - 1
             elif model_name == "abs":
-                model.addConstr(x_i + x_j - 1 == e_ij - h_ij)
+                model += x_i + x_j - 1 == e_ij - h_ij
             else:
-                model.addConstr(f_ij >= x_i + x_j - 1)
-                model.addConstr(f_ij >= 1 - x_j - x_i)
+                model += f_ij >= x_i + x_j - 1
+                model += f_ij >= 1 - x_j - x_i
 
         if model_name == "and":
             f_ij = (1 - sign) / 2 + sign * (x_i + x_j - 2 * x_ij)
@@ -102,17 +83,9 @@ def frustration_model(
         else:
             pass
 
-        objective += f_ij
+        objective.append(f_ij)
 
-    if optimize:
-        if degrees is None:
-            degrees = degrees_
+    model += pulp.lpSum(objective)
+    model.solve()
 
-        for i, degree in enumerate(degrees):
-            x_i = vertices_variables[i]
-            x_i.branchPriority = int(degree)
-
-    model.setObjective(objective, gp.GRB.MINIMIZE)
-    model.optimize()
-
-    return model.objVal, [v.x for v in vertices_variables]
+    return pulp.value(model.objective)
