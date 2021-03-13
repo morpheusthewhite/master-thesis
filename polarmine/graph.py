@@ -801,7 +801,6 @@ class PolarizationGraph:
     def social_balance_accuracy(self):
         num_vertices = self.graph.num_vertices(True)
         num_edges = self.num_edges()
-        degrees = self.graph.degree_property_map("total").a
 
         edges = self.graph.get_edges([self.weights])
         # get the sign of the weights (in case they are float if casted they
@@ -810,9 +809,7 @@ class PolarizationGraph:
         # now cast to int
         edges = edges.astype(np.int32)
 
-        n_frustrated, vertices_label = frustration_model(
-            num_vertices, edges, degrees=degrees
-        )
+        n_frustrated, vertices_label = frustration_model(num_vertices, edges)
 
         correct_labels = 0
         n_nodes = 0
