@@ -88,4 +88,6 @@ def frustration_model(
     model += pulp.lpSum(objective)
     model.solve()
 
-    return pulp.value(model.objective)
+    return pulp.value(model.objective), [
+        v.varValue for v in vertices_variables
+    ]
