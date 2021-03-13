@@ -66,18 +66,18 @@ def frustration_model(
         if model_name == "and":
             # create edge variable, x_ij
             x_ij = pulp.LpVariable(
-                name=f"x_{vertex1}{vertex2}{i}", cat=pulp.LpBinary
+                name=f"x_{vertex1}{vertex2}_{i}", cat=pulp.LpBinary
             )
         elif model_name == "abs":
             e_ij = pulp.LpVariable(
-                name=f"e_{vertex1}{vertex2}{i}", cat=pulp.LpBinary
+                name=f"e_{vertex1}{vertex2}_{i}", cat=pulp.LpBinary
             )
             h_ij = pulp.LpVariable(
-                name=f"h_{vertex1}{vertex2}{i}", cat=pulp.LpBinary
+                name=f"h_{vertex1}{vertex2}_{i}", cat=pulp.LpBinary
             )
         else:
             f_ij = pulp.LpVariable(
-                name=f"f_{vertex1}{vertex2}{i}", cat=pulp.LpBinary
+                name=f"f_{vertex1}{vertex2}_{i}", cat=pulp.LpBinary
             )
 
         if sign >= 0:
