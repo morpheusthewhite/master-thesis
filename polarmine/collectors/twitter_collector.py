@@ -151,7 +151,7 @@ class TwitterCollector(Collector):
         Returns:
             treelib.Tree: the Tree of comment replies
         """
-        status_author_name = status.author.screen_name
+        status_author_name = status.author.id_str
         status_id = status.id
 
         # tree object storing comment thread
@@ -169,7 +169,7 @@ class TwitterCollector(Collector):
             # the tag of the node is the author of the tweet
             # this branch is tipically taken by quote replies
             comment_text = status.full_text
-            comment_author = hash(status.author.screen_name)
+            comment_author = hash(status.author.id_str)
             comment_time = status.created_at.timestamp()
             comment = Comment(comment_text, comment_author, comment_time)
             discussion_tree.create_node(
@@ -214,7 +214,7 @@ class TwitterCollector(Collector):
                     # the tag of the node is the author of the tweet
                     comment_id = s.id
                     comment_text = s.full_text
-                    comment_author = hash(s.author.screen_name)
+                    comment_author = hash(s.author.id_str)
                     comment_time = s.created_at.timestamp()
                     comment = Comment(
                         comment_text, comment_author, comment_time
@@ -299,7 +299,7 @@ class TwitterCollector(Collector):
             `Thread` object in the node `data` while the other nodes have
             a `Comment` object
         """
-        status_author_name = status.author.screen_name
+        status_author_name = status.author.id_str
         status_id = status.id
 
         # retrieve content url, associated to threads
@@ -363,7 +363,7 @@ class TwitterCollector(Collector):
                     )
                     thread_share_text = status_share.full_text
                     thread_share_time = status_share.created_at.timestamp()
-                    thread_share_author = hash(status_share.author.screen_name)
+                    thread_share_author = hash(status_share.author.id_str)
                     thread_share = Thread(
                         thread_share_url,
                         thread_share_text,
