@@ -476,6 +476,7 @@ def main():
             )
 
             contents = itertools.chain(contents, reddit_iter)
+            follow_dict = None
 
         if args.t_kw is not None or args.t_pg is not None:
             twitter_collector = TwitterCollector()
@@ -483,9 +484,9 @@ def main():
                 args.tn, args.t_kw, args.t_pg, limit=args.tl, cross=args.tc
             )
 
-            contents = itertools.chain(contents, twitter_iter)
+            contents, follow_dict = itertools.chain(contents, twitter_iter)
 
-        graph = PolarizationGraph(contents)
+        graph = PolarizationGraph(contents, follow_dict)
 
         if args.dump is not None:
             graph.dump(args.dump)
