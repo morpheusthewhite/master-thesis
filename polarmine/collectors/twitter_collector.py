@@ -187,6 +187,12 @@ class TwitterCollector(Collector):
         queue = [status_id]
         i = 0
 
+        # set of users replying to this status
+        # initially add the root since in the following loop only the users
+        # replying are added
+        users = set()
+        users.add(status.author.id)
+
         while len(queue) > 0 and i < limit:
             reply = queue.pop(0)
 
@@ -227,10 +233,13 @@ class TwitterCollector(Collector):
                         parent=reply,
                     )
 
+                    # add id of the users who replied
+                    users.add(s.author.id)
+
             queue.extend(reply_replies)
             i += 1
 
-        return discussion_tree
+        return discussion_tree, users
 
     def __status_to_content__(self, status: tweepy.Status) -> str:
         """Find content associated with the status, which will correspond to
@@ -319,7 +328,14 @@ class TwitterCollector(Collector):
         )
 
         # thread/tree including only replies to original status
-        thread = self.__status_to_discussion_tree__(status, thread, limit)
+        thread, thread_users = self.__status_to_discussion_tree__(
+            status, thread, limit
+        )
+
+        threads_iterator = iter([thread])
+
+        # set of users id replying
+        users = thread_users
 
         if cross:
             # add quote tweets of the obtained tweets
@@ -343,12 +359,18 @@ class TwitterCollector(Collector):
                 if quote_reply.in_reply_to_status_id is None:
                     # quote replies can be handled as normal status since their
                     # text is the reply (without including the quote)
-                    discussion_subtree = self.__status_to_discussion_tree__(
+                    (
+                        discussion_subtree,
+                        discussion_users,
+                    ) = self.__status_to_discussion_tree__(
                         quote_reply, limit=limit
                     )
 
                     # add subthread as children of the root
                     thread.paste(status_id, discussion_subtree)
+
+                    # merge users id
+                    users = users.union(discussion_users)
 
             if exclude_share is None or content not in exclude_share:
                 if exclude_share is not None:
@@ -373,13 +395,20 @@ class TwitterCollector(Collector):
                         keyword,
                     )
 
-                    discussion_tree_share = self.__status_to_discussion_tree__(
+                    (
+                        discussion_tree_share,
+                        discussion_users_share,
+                    ) = self.__status_to_discussion_tree__(
                         status_share, limit=limit, root_data=thread_share
                     )
 
-                    yield discussion_tree_share
+                    users = users.union(discussion_users_share)
 
-        yield thread
+                    threads_iterator = itertools.chain(
+                        threads_iterator, discussion_tree_share
+                    )
+
+        return threads_iterator, users
 
     def collect(
         self,
@@ -410,7 +439,7 @@ class TwitterCollector(Collector):
         statuses = self.__find_statuses__(ncontents, keyword, page)
         discussion_trees = iter([])
 
-        # set used to track mined contents this is necessary because some
+        # set used to track mined contents. This is necessary because some
         # twitter accounts like @nytimes tweet many times the same link so
         # contents in this set will be prevented from mining again tweets
         # sharing the same content/url. Also, since the @nytimes and other
@@ -423,13 +452,28 @@ class TwitterCollector(Collector):
         # elsewhere
         contents = set()
 
+        # set of users id partecipating in one of the discussions
+        users = set()
+
         for status in statuses:
 
-            content_discussion_trees = self.__status_to_discussion_trees__(
+            (
+                content_discussion_trees,
+                content_users,
+            ) = self.__status_to_discussion_trees__(
                 status, keyword, limit, cross, contents
             )
+
+            # append to list of discussion trees (threads)
             discussion_trees = itertools.chain(
                 discussion_trees, content_discussion_trees
             )
 
-        return discussion_trees
+            # merge sets of users
+            users = users.union(content_users)
+
+        follow_dict = {
+            user: self.twitter.friends_ids(id=user) for user in users
+        }
+
+        return discussion_trees, follow_dict
