@@ -350,9 +350,6 @@ class TwitterCollector(Collector):
                     # add subthread as children of the root
                     thread.paste(status_id, discussion_subtree)
 
-            import pdb
-
-            pdb.set_trace()
             if exclude_share is None or content not in exclude_share:
                 if exclude_share is not None:
                     exclude_share.add(content)
