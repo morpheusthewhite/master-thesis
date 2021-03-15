@@ -8,6 +8,7 @@ from scipy.special import softmax
 
 from polarmine.comment import Comment
 from polarmine.thread import Thread
+from polarmine.follow_graph import FollowGraph
 
 KEY_SCORE = "score"
 SENTIMENT_MAX_TEXT_LENGTH = 128
@@ -18,7 +19,9 @@ class PolarizationGraph:
 
     """A graph class providing methods for polarization analysis """
 
-    def __init__(self, discussion_trees: list[treelib.Tree]):
+    def __init__(
+        self, discussion_trees: list[treelib.Tree], follow_dict: dict = None
+    ):
         self.graph = gt.Graph()
 
         # definition of graph property maps
@@ -26,11 +29,13 @@ class PolarizationGraph:
         self.weights = self.graph.new_edge_property("double")
         self.times = self.graph.new_edge_property("double")
         self.threads = self.graph.new_edge_property("object")
+        self.communities = self.graph.new_vertex_property("int")
 
         # make properties internal
         self.graph.edge_properties["weights"] = self.weights
         self.graph.edge_properties["times"] = self.times
         self.graph.edge_properties["threads"] = self.threads
+        self.graph.vertex_properties["communities"] = self.communities
 
         # initialization of sentiment analysis classifier
         self.sentiment_tokenizer = AutoTokenizer.from_pretrained(
@@ -88,6 +93,22 @@ class PolarizationGraph:
 
         # precompute kcore-decomposition
         self.__kcore__ = self.__kcore_decomposition__()
+
+        if follow_dict is not None:
+            # find community decomposition if the follow dict is provided
+            follow_graph = FollowGraph(follow_dict)
+
+            import pdb
+
+            pdb.set_trace()
+
+            communities = follow_graph.communities()
+
+            # store in the edge property map the community index
+            for user_id, community in communities:
+                user_hash = hash(str(user_id))
+                vertex_user = self.users[user_hash]
+                self.communities[vertex_user] = community
 
     def __kcore_decomposition__(self):
         """Wrapper for grapt_tool kcore_decomposition excluding self edges"""
@@ -194,6 +215,7 @@ class PolarizationGraph:
         self.weights = self.graph.edge_properties["weights"]
         self.times = self.graph.edge_properties["times"]
         self.threads = self.graph.edge_properties["threads"]
+        self.communities = self.graph.vertex_properties["communities"]
 
         # compute self-loop mask
         self.self_loop_mask = self.graph.new_edge_property("bool")
