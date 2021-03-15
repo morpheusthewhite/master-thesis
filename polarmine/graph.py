@@ -103,8 +103,11 @@ class PolarizationGraph:
             # store in the edge property map the community index
             for user_id, community in communities:
                 user_hash = hash(str(user_id))
+
+                # index of the vertex associated with the user
                 vertex_user = self.users[user_hash]
-                self.communities[vertex_user] = community
+
+                self.communities.a[vertex_user] = community
 
     def __kcore_decomposition__(self):
         """Wrapper for grapt_tool kcore_decomposition excluding self edges"""
