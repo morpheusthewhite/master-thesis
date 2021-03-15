@@ -410,6 +410,24 @@ class TwitterCollector(Collector):
 
         return threads_iterator, users
 
+    def follow_dict(self, users: list[int]) -> dict:
+        follow_dict = {}
+
+        for user in users:
+
+            fetched = False
+            while not fetched:
+                try:
+                    friends = self.twitter.friends_ids(id=user)
+                    fetched = True
+
+                except tweepy.error.TweepError:
+                    print("Connection problems")
+
+            follow_dict[user] = friends
+
+        return follow_dict
+
     def collect(
         self,
         ncontents: int,
@@ -472,8 +490,4 @@ class TwitterCollector(Collector):
             # merge sets of users
             users = users.union(content_users)
 
-        follow_dict = {
-            user: self.twitter.friends_ids(id=user) for user in users
-        }
-
-        return discussion_trees, follow_dict
+        return discussion_trees, self.follow_dict(users)
