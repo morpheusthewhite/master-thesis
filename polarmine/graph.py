@@ -98,10 +98,6 @@ class PolarizationGraph:
             # find community decomposition if the follow dict is provided
             follow_graph = FollowGraph(follow_dict)
 
-            import pdb
-
-            pdb.set_trace()
-
             communities = follow_graph.communities()
 
             # store in the edge property map the community index
