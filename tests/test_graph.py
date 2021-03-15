@@ -11,7 +11,7 @@ twitter_collector = TwitterCollector()
 def test_follow_graph():
     follow_dict = {1: [0, 2, 3], 2: [0, 3], 3: []}
 
-    follow_graph = FollowGraph(follow_dict)
+    follow_graph = FollowGraph(follow_dict, follow_dict)
     assert follow_graph is not None
 
     communities = list(follow_graph.communities())
@@ -30,7 +30,7 @@ def test_graph_construction_reddit_more():
     contents, follow_dict = reddit_collector.collect(4, limit=10)
     contents = list(contents)
 
-    graph = PolarizationGraph(contents)
+    graph = PolarizationGraph(contents, follow_dict)
     assert graph is not None
 
 
@@ -40,7 +40,7 @@ def test_graph_construction_twitter_simple():
     )
     contents = list(contents)
 
-    graph = PolarizationGraph(contents)
+    graph = PolarizationGraph(contents, follow_dict)
     assert graph is not None
 
 
@@ -50,7 +50,7 @@ def test_graph_construction_twitter_more():
     )
     contents = list(contents)
 
-    graph = PolarizationGraph(contents)
+    graph = PolarizationGraph(contents, follow_dict)
     assert graph is not None
 
 
@@ -58,7 +58,7 @@ def test_graph_kcore_selection():
     contents, follow_dict = reddit_collector.collect(4, limit=10, cross=False)
     contents = list(contents)
 
-    graph = PolarizationGraph(contents)
+    graph = PolarizationGraph(contents, follow_dict)
     num_vertices_unmasked = graph.graph.num_vertices()
 
     graph.select_kcore(2)
