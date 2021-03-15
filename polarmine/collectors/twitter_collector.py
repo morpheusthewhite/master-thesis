@@ -200,7 +200,7 @@ class TwitterCollector(Collector):
             reply_replies = replies_dict.get(reply, [])
 
             # require 100 tweets at a time
-            for i in range(math.ceil(len(reply_replies) / 100)):
+            for j in range(math.ceil(len(reply_replies) / 100)):
 
                 # cycle to handle "Connection reset by peer"
                 fetched = False
@@ -208,7 +208,7 @@ class TwitterCollector(Collector):
                     try:
                         # probably needs int instead of string
                         statuses_batch = self.twitter.statuses_lookup(
-                            reply_replies[i * 100 : (i + 1) * 100],
+                            reply_replies[j * 100 : (j + 1) * 100],
                             tweet_mode="extended",
                         )
                         fetched = True
