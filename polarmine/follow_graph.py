@@ -8,7 +8,7 @@ class FollowGraph(object):
         super(FollowGraph, self).__init__(*args, **kwargs)
         self.graph = gt.Graph()
 
-        self.users_id = self.graph.new_vertex_property("int")
+        self.users_id = self.graph.new_vertex_property("long")
 
         vertex_dict = {}
 
