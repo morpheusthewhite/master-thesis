@@ -403,8 +403,34 @@ def print_stats(graph, save_path):
         plt.show()
         plt.close()
 
+    # show content standard dev
+    content_std_dev_dict = graph.content_std_dev_dict()
+    results["content_std_dev_dict"] = content_std_dev_dict
+    plt.figure()
+    plt.title("Content standard deviation")
+    plt.hist(list(content_std_dev_dict.values()))
+    plt.xlabel("Standard deviation")
+    plt.ylabel("Number of contents")
+
+    if save_path is not None:
+        content_std_dev_hist_pdf = os.path.join(
+            save_path, "content-std-dev-hist.pdf"
+        )
+        plt.savefig(content_std_dev_hist_pdf)
+    else:
+        plt.show()
+        plt.close()
+
+    if save_path is not None:
+        stats_txt_file.close()
+
+        pickle_filename = os.path.join(save_path, "results.p")
+        with open(pickle_filename, "wb") as pickle_file:
+            pickle.dump(results, pickle_file)
+
     # show total edge sum over number of interactions
-    edge_sum_n_interactions = graph.edge_sum_n_interactions_values()
+    edge_sum_n_interactions_dict = graph.edge_sum_n_interactions_dict()
+    edge_sum_n_interactions = edge_sum_n_interactions_dict.values()
     x_n_interactions = [
         n_interactions for n_interactions, edge_sum in edge_sum_n_interactions
     ]
@@ -434,30 +460,57 @@ def print_stats(graph, save_path):
         plt.show()
         plt.close()
 
-    # show content standard dev
-    content_std_dev_dict = graph.content_std_dev_dict()
-    results["content_std_dev_dict"] = content_std_dev_dict
+    # merge dictionaries to plot std_dev over n_interactions and
+    # std_dev over edge_sum
+    edge_sum_n_interactions_std_dev_dict = {
+        content: (
+            edge_sum_n_interactions_dict[content][0],
+            edge_sum_n_interactions_dict[content][1],
+            std_dev,
+        )
+        for content, std_dev in content_std_dev_dict.items()
+    }
+    x_n_interactions = [
+        n_interactions
+        for n_interactions, edge_sum, std_dev in edge_sum_n_interactions_std_dev_dict.values()
+    ]
+    y_std_dev = [
+        std_dev
+        for n_interactions, edge_sum, std_dev in edge_sum_n_interactions_std_dev_dict.values()
+    ]
     plt.figure()
-    plt.title("Content standard deviation")
-    plt.hist(list(content_std_dev_dict.values()))
-    plt.xlabel("Standard deviation")
-    plt.ylabel("Number of contents")
+    plt.title("Standard deviation over number of interactions")
+    plt.scatter(x_n_interactions, y_std_dev)
+    plt.xlabel("Number of interactions")
+    plt.xlim(left=0)
+    plt.ylabel("Standard deviation")
 
     if save_path is not None:
-        content_std_dev_hist_pdf = os.path.join(
-            save_path, "content-std-dev-hist.pdf"
+        std_dev_n_interactions_pdf = os.path.join(
+            save_path, "std-dev-n-interactions.pdf"
         )
-        plt.savefig(content_std_dev_hist_pdf)
+        plt.savefig(std_dev_n_interactions_pdf)
     else:
         plt.show()
         plt.close()
 
-    if save_path is not None:
-        stats_txt_file.close()
+    x_edge_sum = [
+        edge_sum
+        for n_interactions, edge_sum, std_dev in edge_sum_n_interactions_std_dev_dict.values()
+    ]
+    plt.figure()
+    plt.title("Standard deviation over edge sum")
+    plt.scatter(x_edge_sum, y_std_dev)
+    plt.xlabel("Edge sum")
+    plt.xlim(left=0)
+    plt.ylabel("Standard deviation")
 
-        pickle_filename = os.path.join(save_path, "results.p")
-        with open(pickle_filename, "wb") as pickle_file:
-            pickle.dump(results, pickle_file)
+    if save_path is not None:
+        std_dev_edge_sum_pdf = os.path.join(save_path, "std-dev-edge-sum.pdf")
+        plt.savefig(std_dev_edge_sum_pdf)
+    else:
+        plt.show()
+        plt.close()
 
 
 def main():
