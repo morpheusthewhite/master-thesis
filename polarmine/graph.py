@@ -97,6 +97,7 @@ class PolarizationGraph:
         if follow_dict is not None:
             # find community decomposition if the follow dict is provided
             follow_graph = FollowGraph(follow_dict)
+            follow_graph.graph.save("follow.gt")
 
             communities = follow_graph.communities()
 

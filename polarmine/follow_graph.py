@@ -9,6 +9,7 @@ class FollowGraph(object):
         self.graph = gt.Graph()
 
         self.users_id = self.graph.new_vertex_property("long")
+        self.graph.vertex_properties["id"] = self.users_id
 
         vertex_dict = {}
 
