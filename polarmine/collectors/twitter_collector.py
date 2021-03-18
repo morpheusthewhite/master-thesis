@@ -357,6 +357,10 @@ class TwitterCollector(Collector):
                 # tweets which share the same url (usually pointing to an
                 # external site)
                 for status_share in self.__status_to_shares__(status):
+                    # skip the original author's tweet
+                    if status_share.id == status_id:
+                        continue
+
                     # create content object, associated to root node
                     thread_share_url = (
                         f"https://twitter.com/user/status/{status_share.id}"
