@@ -618,6 +618,80 @@ class PolarizationGraph:
 
         return np.median(distances)
 
+    def score_from_vertices_index(
+        self,
+        vertices_index: list[int],
+        alpha: int,
+        controversial_contents: set = None,
+    ) -> float:
+        # if not provided find controversial content
+        if controversial_contents is None:
+            controversial_contents = self.controversial_contents()
+
+        thread_edges_dict = {}
+        for vertex in vertices_index:
+
+            for edge in self.graph.vertex(vertex).all_edges():
+                edge_weight = self.weights[edge]
+                edge_thread = self.threads[edge]
+                edge_content = edge_thread.content
+                edge_thread_id = edge_thread.url
+
+                if edge_content in controversial_contents:
+                    n_negative_edges, n_edges = thread_edges_dict.get(
+                        edge_thread_id, (0, 0)
+                    )
+
+                    if edge_weight < 0:
+                        n_negative_edges += 1
+
+                    n_edges += 1
+                    thread_edges_dict[edge_thread_id] = (
+                        n_negative_edges,
+                        n_edges,
+                    )
+
+        score = 0
+
+        for thread, n_edges_tuple in thread_edges_dict.items():
+            n_negative_edges, n_edges = n_edges_tuple
+
+            if n_negative_edges / n_edges <= alpha:
+                # non controversial threads
+                score += n_edges
+
+        return score
+
+    def controversial_contents(self, alpha: float) -> set:
+        content_dict = self.negative_edges_fraction_content_dict()
+        controversial_contents = set()
+        for content, fraction in content_dict.items():
+            if fraction > alpha:
+                controversial_contents.add(content)
+
+        return controversial_contents
+
+    def score_components(self, alpha: int) -> (int, int):
+        comp, _ = gt.label_components(self.graph, directed=False)
+        controversial_contents = self.controversial_contents(alpha)
+
+        n_components = np.max(comp.a)
+        max_score = 0
+        max_n_vertices = 0
+
+        for i in range(n_components):
+            vertices_index = np.where(comp.a == i)[0]
+
+            score = self.score_from_vertices_index(
+                vertices_index, alpha, controversial_contents
+            )
+
+            if score > max_score:
+                max_score = score
+                max_n_vertices = vertices_index.shape[0]
+
+        return max_score, max_n_vertices
+
     @classmethod
     def from_file(cls, filename: str):
         """Creates a PolarizationGraph object from the graph stored in a file
