@@ -779,7 +779,7 @@ class PolarizationGraph:
                 # sample from a bernoulli to decide to add or not
                 add_node = np.random.binomial(1, beta)
 
-                if add_node:
+                if add_node or len(vertices) == 1:
                     (
                         neighbour_best,
                         score_neighbour_best,
