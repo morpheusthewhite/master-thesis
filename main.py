@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import sys
 import os
 import pickle
+from typing import Optional
 
 from polarmine.graph import PolarizationGraph
 from polarmine.collectors.reddit_collector import RedditCollector
@@ -45,6 +46,14 @@ parser.add_argument(
     action="store_true",
     dest="stats",
     help="show or save common graph statistics",
+)
+parser.add_argument(
+    "-sc",
+    "--score",
+    default=None,
+    action="store_true",
+    dest="score",
+    help="show or save echo chamber scores",
 )
 parser.add_argument(
     "-sp",
@@ -207,9 +216,33 @@ def print_negative_fraction_top_k(
         )
 
 
-def print_stats(graph, save_path):
-    graph.remove_self_loops()
+def print_scores(
+    graph: PolarizationGraph, save_path: Optional[str], alpha: float = 0.4
+):
+    if save_path is None:
+        scores_txt_file = sys.stdout
+    else:
+        scores_txt = os.path.join(save_path, "scores.txt")
+        scores_txt_file = open(scores_txt, "w")
 
+    score, num_vertices = graph.score_components(alpha)
+    print(
+        f"(Connected components) Echo chamber score: {score} on {num_vertices} vertices",
+        file=scores_txt_file,
+    )
+
+    for beta in [i / 10 for i in range(6, 11, 1)]:
+        score, num_vertices = graph.score_greedy(alpha, beta)
+        print(
+            f"(Greedy beta={beta}) Echo chamber score: {score} on {num_vertices} vertices",
+            file=scores_txt_file,
+        )
+
+    if save_path is not None:
+        scores_txt_file.close()
+
+
+def print_stats(graph: PolarizationGraph, save_path):
     # dictionary to be pickled
     results = {}
 
@@ -421,13 +454,6 @@ def print_stats(graph, save_path):
         plt.show()
         plt.close()
 
-    if save_path is not None:
-        stats_txt_file.close()
-
-        pickle_filename = os.path.join(save_path, "results.p")
-        with open(pickle_filename, "wb") as pickle_file:
-            pickle.dump(results, pickle_file)
-
     # show total edge sum over number of interactions
     edge_sum_n_interactions_dict = graph.edge_sum_n_interactions_dict()
     edge_sum_n_interactions = edge_sum_n_interactions_dict.values()
@@ -512,6 +538,13 @@ def print_stats(graph, save_path):
         plt.show()
         plt.close()
 
+    if save_path is not None:
+        stats_txt_file.close()
+
+        pickle_filename = os.path.join(save_path, "results.p")
+        with open(pickle_filename, "wb") as pickle_file:
+            pickle.dump(results, pickle_file)
+
 
 def main():
 
@@ -551,6 +584,9 @@ def main():
 
     if args.stats:
         print_stats(graph, args.save_path)
+
+    if args.score:
+        print_scores(graph, args.save_path)
 
     if not args.graph_draw_no and args.save_path is not None:
         graph_output_path = os.path.join(args.save_path, "graph.pdf")
