@@ -764,6 +764,9 @@ class PolarizationGraph:
         score = -1
         num_vertices = -1
 
+        # list containing nodes which are temporarily ignored
+        vertices_ignore = []
+
         for i in range(n_starts):
             # sample a node, uniformly
             initial_vertex = np.random.randint(0, vertices_index.shape[0])
@@ -814,6 +817,15 @@ class PolarizationGraph:
                     self.__neighbours_subtract__(
                         neighbours, vertex_worst, vertices
                     )
+
+                    if len(vertices_ignore) == 0:
+                        vertices_ignore.append(None)
+                    vertices_ignore.append(vertex_worst)
+
+                if not len(vertices_ignore) == 0:
+                    vertex_ignored = vertices_ignore.pop(0)
+                    if vertex_ignored is not None:
+                        neighbours.add(vertex_ignored)
 
             if score_current > score:
                 score = score_current
