@@ -590,6 +590,7 @@ def main():
     if args.save_path is not None and not os.path.exists(args.save_path):
         os.mkdir(args.save_path)
 
+    graph.remove_self_loops()
     if args.stats:
         print_stats(graph, args.save_path)
 
