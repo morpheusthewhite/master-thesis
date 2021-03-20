@@ -42,7 +42,7 @@ parser.add_argument(
 parser.add_argument(
     "-s",
     "--stats",
-    default=None,
+    default=False,
     action="store_true",
     dest="stats",
     help="show or save common graph statistics",
@@ -50,10 +50,18 @@ parser.add_argument(
 parser.add_argument(
     "-sc",
     "--score",
-    default=None,
+    default=False,
     action="store_true",
     dest="score",
     help="show or save echo chamber scores",
+)
+parser.add_argument(
+    "-a",
+    "--alpha",
+    default=0.4,
+    type=float,
+    dest="alpha",
+    help="maximum fraction of negative edges of non controversial content",
 )
 parser.add_argument(
     "-sp",
@@ -586,7 +594,7 @@ def main():
         print_stats(graph, args.save_path)
 
     if args.score:
-        print_scores(graph, args.save_path)
+        print_scores(graph, args.save_path, args.alpha)
 
     if not args.graph_draw_no and args.save_path is not None:
         graph_output_path = os.path.join(args.save_path, "graph.pdf")
