@@ -1,7 +1,7 @@
 import graph_tool.all as gt
 import treelib
 import numpy as np
-from typing import Optional
+from typing import Optional, Set
 from transformers import AutoModelForSequenceClassification
 from transformers import AutoTokenizer
 from scipy.special import softmax
@@ -691,6 +691,175 @@ class PolarizationGraph:
                 max_n_vertices = vertices_index.shape[0]
 
         return max_score, max_n_vertices
+
+    def __find_best_neighbour__(
+        self,
+        vertices: list[int],
+        neighbours: list[int],
+        alpha: float,
+        controversial_contents: set(),
+    ) -> (int, int):
+        # keep neighbour increasing more the score
+        neighbour_best = -1
+        score_neighbour_best = -1
+
+        for neighbour in neighbours:
+            score_neighbour = self.score_from_vertices_index(
+                vertices + [neighbour],
+                alpha,
+                controversial_contents,
+            )
+
+            if score_neighbour > score_neighbour_best:
+                score_neighbour_best = score_neighbour
+                neighbour_best = neighbour
+
+        return neighbour_best, score_neighbour_best
+
+    def __find_worst_vertex__(
+        self,
+        vertices: list[int],
+        alpha: float,
+        controversial_contents: set(),
+    ) -> (int, int):
+        # keep neighbour increasing more the score
+        vertex_worst = -1
+        score_vertex_worst = -1
+
+        for i, vertex in enumerate(vertices):
+            # vertices, excluding the current one
+            vertices_current = vertices[:i] + vertices[i + 1 :]
+
+            score_vertex = self.score_from_vertices_index(
+                vertices_current,
+                alpha,
+                controversial_contents,
+            )
+
+            if score_vertex > score_vertex_worst:
+                score_vertex_worst = score_vertex
+                vertex_worst = vertex
+
+        return vertex_worst, score_vertex_worst
+
+    def score_greedy(self, alpha: float, beta: float = 1, n_starts: int = -1):
+        """Calculate the echo chamber score using the greedy approach
+
+        Args:
+            alpha (float): maximum fraction of edges of non controversial content
+            beta (float): probability of adding a node along the iterations
+            n_starts (int): number of times the algorithm is executed. If -1
+            then it is sqrt(num_vertices)
+        """
+        vertices_index = self.graph.get_vertices()
+
+        if n_starts == -1:
+            n_starts = int(np.sqrt(vertices_index.shape[0]))
+
+        controversial_contents = self.controversial_contents(alpha)
+
+        # best score and num_vertices along iterations
+        score = -1
+        num_vertices = -1
+
+        for i in range(n_starts):
+            # sample a node, uniformly
+            initial_vertex = np.random.randint(0, vertices_index.shape[0])
+
+            # current set of selected users
+            vertices = [initial_vertex]
+            # current set of neighbours of the selected users
+            neighbours = set(self.graph.get_all_neighbors(initial_vertex))
+
+            while True:
+                score_current = self.score_from_vertices_index(
+                    vertices, alpha, controversial_contents
+                )
+
+                # sample from a bernoulli to decide to add or not
+                add_node = np.random.binomial(1, beta)
+
+                if add_node:
+                    (
+                        neighbour_best,
+                        score_neighbour_best,
+                    ) = self.__find_best_neighbour__(
+                        vertices, neighbours, alpha, controversial_contents
+                    )
+
+                    # if no neighbour increases the score then stop
+                    if score_neighbour_best <= score_current:
+                        break
+                    else:
+                        vertices.append(neighbour_best)
+                        neighbours.remove(neighbour_best)
+
+                        # add to the list of neighbours the ones of the new node `neighbour`
+                        self.__neighbours_merge__(
+                            neighbours, neighbour_best, vertices
+                        )
+                else:
+                    # remove the node contributing less to the score
+                    (
+                        vertex_worst,
+                        score_vertex_worst,
+                    ) = self.__find_worst_vertex__(
+                        vertices, alpha, controversial_contents
+                    )
+
+                    vertices.remove(vertex_worst)
+                    # remove neighbours of the excluded node
+                    self.__neighbours_subtract__(
+                        neighbours, vertex_worst, vertices
+                    )
+
+            if score_current > score:
+                score = score_current
+                num_vertices = len(vertices)
+
+        # TODO: add ignore list
+        return score, num_vertices
+
+    def __neighbours_merge__(
+        self, neighbours: set, vertex: int, vertices: set
+    ):
+        new_neighbours = self.graph.get_all_neighbours(vertex)
+        for new_neighbour in new_neighbours:
+            if (
+                not new_neighbour in neighbours
+                and not new_neighbour in vertices
+            ):
+                neighbours.add(new_neighbour)
+
+    def __neighbours_subtract__(
+        self, neighbours: list[int], vertex_removed: int, vertices: set
+    ):
+        """remove from neighbours vertices which are no more reachable from vertices
+
+        Args:
+            neighbours (set(int)): a list of nodes
+            vertex_removed (int): the vertex that has been removed
+            vertices (list[int]): vertices of which neighbours should be kept
+        """
+        neighbours_removed = self.graph.get_all_neighbours(vertex_removed)
+        for neighbour_removed in neighbours_removed:
+
+            # if this vertex is listed among `neighbours`, check if it is
+            # reachable from another node
+            if neighbour_removed in neighbours:
+
+                reachable = False
+                for vertex_i in self.graph.get_all_neighbours(
+                    neighbour_removed
+                ):
+                    if vertex_i in vertices:
+                        # it is reachable from another node
+                        reachable = True
+                        break
+
+                if not reachable:
+                    neighbours.remove(neighbour_removed)
+        return
 
     @classmethod
     def from_file(cls, filename: str):
