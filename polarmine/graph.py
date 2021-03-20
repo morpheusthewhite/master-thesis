@@ -675,7 +675,7 @@ class PolarizationGraph:
         comp, _ = gt.label_components(self.graph, directed=False)
         controversial_contents = self.controversial_contents(alpha)
 
-        n_components = np.max(comp.a)
+        n_components = np.max(comp.a) + 1
         max_score = 0
         max_n_vertices = 0
 
