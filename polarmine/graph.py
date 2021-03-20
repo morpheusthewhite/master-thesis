@@ -675,7 +675,7 @@ class PolarizationGraph:
         comp, _ = gt.label_components(self.graph, directed=False)
         controversial_contents = self.controversial_contents(alpha)
 
-        n_components = np.max(comp.a) + 1
+        n_components = int(np.max(comp.a) + 1)
         max_score = 0
         max_n_vertices = 0
 
@@ -831,7 +831,6 @@ class PolarizationGraph:
                 score = score_current
                 num_vertices = len(vertices)
 
-        # TODO: add ignore list
         return score, num_vertices
 
     def __neighbours_merge__(
