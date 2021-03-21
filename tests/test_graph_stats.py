@@ -19,7 +19,7 @@ reddit_collector = RedditCollector()
 def test_graph_save():
     contents = list(
         reddit_collector.collect(
-            NCONTENTS, limit=10, page="programming", cross=False
+            N_CONTENTS, limit=10, page="programming", cross=False
         )
     )
 
