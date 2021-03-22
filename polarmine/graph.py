@@ -838,10 +838,7 @@ class PolarizationGraph:
     ):
         new_neighbours = self.graph.get_all_neighbours(vertex)
         for new_neighbour in new_neighbours:
-            if (
-                not new_neighbour in neighbours
-                and not new_neighbour in vertices
-            ):
+            if new_neighbour not in vertices:
                 neighbours.add(new_neighbour)
 
     def __neighbours_subtract__(
