@@ -536,7 +536,6 @@ def print_stats(graph: PolarizationGraph, save_path):
     plt.title("Standard deviation over edge sum")
     plt.scatter(x_edge_sum, y_std_dev)
     plt.xlabel("Edge sum")
-    plt.xlim(left=0)
     plt.ylabel("Standard deviation")
 
     if save_path is not None:
