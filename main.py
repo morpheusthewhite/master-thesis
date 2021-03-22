@@ -464,6 +464,7 @@ def print_stats(graph: PolarizationGraph, save_path):
 
     # show total edge sum over number of interactions
     edge_sum_n_interactions_dict = graph.edge_sum_n_interactions_dict()
+    results["edge_sum_n_interactions_dict"] = edge_sum_n_interactions_dict
     edge_sum_n_interactions = edge_sum_n_interactions_dict.values()
     x_n_interactions = [
         n_interactions for n_interactions, edge_sum in edge_sum_n_interactions
@@ -471,7 +472,6 @@ def print_stats(graph: PolarizationGraph, save_path):
     y_edge_sum = [
         edge_sum for n_interactions, edge_sum in edge_sum_n_interactions
     ]
-    results["n_interactions_edge_sum"] = (x_n_interactions, y_edge_sum)
     plt.figure()
     plt.title("Content edge sum")
     plt.scatter(x_n_interactions, y_edge_sum)
