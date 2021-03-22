@@ -769,7 +769,10 @@ class PolarizationGraph:
 
         for i in range(n_starts):
             # sample a node, uniformly
-            initial_vertex = np.random.randint(0, vertices_index.shape[0])
+            initial_vertex_index = np.random.randint(
+                0, vertices_index.shape[0]
+            )
+            initial_vertex = vertices_index[initial_vertex_index]
 
             # current set of selected users
             vertices = [initial_vertex]
