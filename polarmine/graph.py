@@ -812,10 +812,10 @@ class PolarizationGraph:
         score = -1
         users_index = []
 
-        # list containing nodes which are temporarily ignored
-        vertices_ignore = []
-
         for i in range(n_starts):
+            # list containing nodes which are temporarily ignored
+            vertices_ignore = []
+
             # sample a node, uniformly
             initial_vertex_index = np.random.randint(
                 0, vertices_index.shape[0]
@@ -830,10 +830,6 @@ class PolarizationGraph:
             score_current = -1
             # terminate the algorithm if no neighbour can be added
             while len(neighbours) > 0:
-
-                score_current = self.score_from_vertices_index(
-                    vertices, alpha, controversial_contents
-                )
 
                 # sample from a bernoulli to decide to add or not
                 add_node = np.random.binomial(1, beta)
@@ -857,6 +853,8 @@ class PolarizationGraph:
                         self.__neighbours_merge__(
                             neighbours, neighbour_best, vertices
                         )
+
+                        score_current = score_neighbour_best
                 else:
                     # remove the node contributing less to the score
                     (
@@ -875,6 +873,8 @@ class PolarizationGraph:
                     if len(vertices_ignore) == 0:
                         vertices_ignore.append(None)
                     vertices_ignore.append(vertex_worst)
+
+                    score_current = score_vertex_worst
 
                 if not len(vertices_ignore) == 0:
                     vertex_ignored = vertices_ignore.pop(0)
