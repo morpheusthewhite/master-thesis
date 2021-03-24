@@ -262,7 +262,7 @@ def print_scores(
 
 def print_stats(graph: PolarizationGraph, save_path):
     # dictionary to be pickled
-    results = {}
+    results_stats = {}
 
     if save_path is None:
         stats_txt_file = sys.stdout
@@ -270,58 +270,61 @@ def print_stats(graph: PolarizationGraph, save_path):
         stats_txt = os.path.join(save_path, "stats.txt")
         stats_txt_file = open(stats_txt, "w")
 
-    results["num_vertices"] = graph.num_vertices()
-    results["num_edges"] = graph.num_edges()
-    results["kcore_size"] = graph.kcore_size()
-    results["negative_edges_fraction"] = graph.negative_edges_fraction()
+    results_stats["num_vertices"] = graph.num_vertices()
+    results_stats["num_edges"] = graph.num_edges()
+    results_stats["kcore_size"] = graph.kcore_size()
+    results_stats["negative_edges_fraction"] = graph.negative_edges_fraction()
 
     print(
-        f"The graph has {results['num_vertices']} vertices and {results['num_edges']} edges",
+        f"The graph has {results_stats['num_vertices']} vertices and {results_stats['num_edges']} edges",
         file=stats_txt_file,
     )
     print(
-        f"Fraction of nodes in k-core: {results['kcore_size']}",
+        f"Fraction of nodes in k-core: {results_stats['kcore_size']}",
         file=stats_txt_file,
     )
     print(
-        f"Fraction of negative edges: {results['negative_edges_fraction']}",
+        f"Fraction of negative edges: {results_stats['negative_edges_fraction']}",
         file=stats_txt_file,
     )
 
     global_clustering, global_clustering_stddev = graph.global_clustering()
-    results["global_clustering"] = global_clustering
-    results["global_clustering_stddev"] = global_clustering_stddev
+    results_stats["global_clustering"] = global_clustering
+    results_stats["global_clustering_stddev"] = global_clustering_stddev
     print(
         f"Clustering coefficient: {global_clustering} with standard deviation {global_clustering_stddev}",
         file=stats_txt_file,
     )
 
-    results[
+    results_stats[
         "average_shortest_path_length"
     ] = graph.average_shortest_path_length()
-    results[
+    results_stats[
         "median_shortest_path_length"
     ] = graph.median_shortest_path_length()
-    results["average_degree"] = graph.average_degree()
-    results["unique_average_degree"] = graph.average_degree(unique=True)
+    results_stats["average_degree"] = graph.average_degree()
+    results_stats["unique_average_degree"] = graph.average_degree(unique=True)
 
     print(
-        f"Average shortest path length: {results['average_shortest_path_length']}",
+        f"Average shortest path length: {results_stats['average_shortest_path_length']}",
         file=stats_txt_file,
     )
     print(
-        f"Median shortest path length: {results['median_shortest_path_length']}",
+        f"Median shortest path length: {results_stats['median_shortest_path_length']}",
         file=stats_txt_file,
     )
-    print(f"Average degree: {results['average_degree']}", file=stats_txt_file)
     print(
-        f"Unique average degree: {results['unique_average_degree']}",
+        f"Average degree: {results_stats['average_degree']}",
+        file=stats_txt_file,
+    )
+    print(
+        f"Unique average degree: {results_stats['unique_average_degree']}",
         file=stats_txt_file,
     )
 
     # show negative edge fraction histogram for threads
     thread_fractions_dict = graph.negative_edges_fraction_thread_dict()
-    results["thread_fractions_dict"] = thread_fractions_dict
+    results_stats["thread_fractions_dict"] = thread_fractions_dict
     plt.figure()
     plt.title("Thread edge negativeness histogram")
     plt.hist(thread_fractions_dict.values())
@@ -344,7 +347,7 @@ def print_stats(graph: PolarizationGraph, save_path):
 
     # show negative edge fraction histogram for threads
     content_fractions_dict = graph.negative_edges_fraction_content_dict()
-    results["content_fractions_dict"] = content_fractions_dict
+    results_stats["content_fractions_dict"] = content_fractions_dict
     plt.figure()
     plt.title("Content edge negativeness histogram")
     plt.hist(content_fractions_dict.values())
@@ -367,7 +370,7 @@ def print_stats(graph: PolarizationGraph, save_path):
 
     # show total degree distribution
     probabilities, bins = graph.degree_distribution()
-    results["total_degree_distribution"] = (probabilities, bins)
+    results_stats["total_degree_distribution"] = (probabilities, bins)
     plt.figure()
     plt.title("Total degree distribution")
     plt.plot(bins, probabilities)
@@ -385,7 +388,7 @@ def print_stats(graph: PolarizationGraph, save_path):
 
     # show in degree distribution
     probabilities, bins = graph.degree_distribution("in")
-    results["in_degree_distribution"] = (probabilities, bins)
+    results_stats["in_degree_distribution"] = (probabilities, bins)
     plt.figure()
     plt.title("In degree distribution")
     plt.plot(bins, probabilities)
@@ -403,7 +406,7 @@ def print_stats(graph: PolarizationGraph, save_path):
 
     # show out degree distribution
     probabilities, bins = graph.degree_distribution("out")
-    results["out_degree_distribution"] = (probabilities, bins)
+    results_stats["out_degree_distribution"] = (probabilities, bins)
     plt.figure()
     plt.title("Out degree distribution")
     plt.plot(bins, probabilities)
@@ -421,7 +424,7 @@ def print_stats(graph: PolarizationGraph, save_path):
 
     # show user fidelity histogram
     fidelities = graph.fidelity_values()
-    results["fidelities"] = fidelities
+    results_stats["fidelities"] = fidelities
     plt.figure()
     plt.title("User fidelity histogram")
     plt.hist(fidelities)
@@ -438,7 +441,7 @@ def print_stats(graph: PolarizationGraph, save_path):
 
     # show number of interactions histogram
     n_interactions = graph.n_interaction_values()
-    results["n_interactions"] = n_interactions
+    results_stats["n_interactions"] = n_interactions
     plt.figure()
     plt.title("Number of interactions histogram")
     plt.hist(n_interactions)
@@ -456,7 +459,7 @@ def print_stats(graph: PolarizationGraph, save_path):
 
     # show content standard dev
     content_std_dev_dict = graph.content_std_dev_dict()
-    results["content_std_dev_dict"] = content_std_dev_dict
+    results_stats["content_std_dev_dict"] = content_std_dev_dict
     plt.figure()
     plt.title("Content standard deviation")
     plt.hist(list(content_std_dev_dict.values()))
@@ -474,7 +477,9 @@ def print_stats(graph: PolarizationGraph, save_path):
 
     # show total edge sum over number of interactions
     edge_sum_n_interactions_dict = graph.edge_sum_n_interactions_dict()
-    results["edge_sum_n_interactions_dict"] = edge_sum_n_interactions_dict
+    results_stats[
+        "edge_sum_n_interactions_dict"
+    ] = edge_sum_n_interactions_dict
     edge_sum_n_interactions = edge_sum_n_interactions_dict.values()
     x_n_interactions = [
         n_interactions for n_interactions, edge_sum in edge_sum_n_interactions
@@ -558,9 +563,9 @@ def print_stats(graph: PolarizationGraph, save_path):
     if save_path is not None:
         stats_txt_file.close()
 
-        pickle_filename = os.path.join(save_path, "results.p")
+        pickle_filename = os.path.join(save_path, "stats.p")
         with open(pickle_filename, "wb") as pickle_file:
-            pickle.dump(results, pickle_file)
+            pickle.dump(results_stats, pickle_file)
 
 
 def main():
