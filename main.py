@@ -252,6 +252,13 @@ def print_scores(
 
     results_score["greedy_beta"] = results_greedy_beta
 
+    score, users_index = graph.score_greedy_peeling(alpha)
+    results_score["greedy_peeling"] = (score, users_index)
+    print(
+        f"(Greedy peeling) Echo chamber score: {score} on {len(users_index)} vertices",
+        file=scores_txt_file,
+    )
+
     if save_path is not None:
         scores_txt_file.close()
 
