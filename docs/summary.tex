@@ -1,0 +1,263 @@
+%% LyX 2.3.6 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage[a4paper]{geometry}
+\geometry{verbose}
+\usepackage{babel}
+\usepackage{amsmath}
+\usepackage{hyperref}
+% algorithms
+\usepackage[ruled,vlined]{algorithm2e}
+
+\begin{document}
+
+\section{Echo Chamber Problem}
+
+ (``Echo Chamber Problem'' might not be the best name, but I did
+ not come up with another one.)
+
+We propose to use our data to find echo chambers inside social networks.
+The general idea is that some content is controversially discussed
+inside a social network, but that inside echo chambers we do not see
+this controversy. Thus, the general idea is as follows: Look at contents
+in social networks that are controversially discussed \emph{globally}
+and then find subgraphs in which the same contents are discussed non-controversially.
+These subgraphs are the echo chambers.
+
+We will now make this notion more formal, but it requires a few definitions.
+\begin{itemize}
+	\item Suppose there is a signed, directed, multi-graph $G=(V,E^{+},E^{-})$.
+	      In the graph, the vertices correspond to users of a social network and
+	      the edges correspond to positive/negative interactions of the different
+	      users. We will call \emph{G} the \emph{interaction graph}.
+	\item Consider a set of contents $\mathcal{C}$, e.g., newspaper articles
+	      that are shared on a social network.
+	\item For each content $C\in\mathcal{{C}}$, there exists a set of threads
+	      $\mathcal{{T}}_{C}.$ Each thread is $T\in\mathcal{{T}}_{C}$ is a
+	      subgraph of $G$, i.e., $T\subseteq G,$ such that in the initial post of
+	      the thread a user shared the content $C$ and then other users replied
+	      to this post. The edges are directed outwards from the replying user;
+	      the edges have signs based on whether the interaction was
+	      positive/negative.  Furthermore, we assume that the whole graph is the
+	      union of the threads, i.e.,
+	      $G=\bigcup_{C\in\mathcal{{C}}}\bigcup_{T\in\mathcal{{T}}_{C}}T$.
+	\item Fix some $\alpha\in[0,1]$. We denote the fraction of negative edges
+	      of a content $C$ and thread $T$ as $\eta(C)$ and $\eta(T)$,
+	      respectively. We now define \emph{(non-)controversial}
+	      threads and contents:
+	      \begin{itemize}
+		      \item Intuitively, a thread is controversial if there are many
+		            negative interactions. Formally, we say that a thread $T$ is
+		            \emph{controversial} if $\eta(T) \in [\alpha,1]$.
+		            Otherwise, the thread is
+		            \emph{non-controversial} (in this case, the thread contains
+		            mostly positive edges).
+		      \item Intuitively, a content is controversial if it triggers a
+		            lot of negative interactions in the whole network. Formally,
+		            we say that a content $C$ is \emph{controversial} if the
+		            fraction of negative edges in
+		            $\bigcup_{T\in\mathcal{{T}_{C}}}T$ is in the interval
+		            $[\alpha,1]$, i.e. $\eta(C) \in [\alpha,1]$.  Otherwise,
+		            the content is \emph{non-controversial}. We write
+		            $\hat{\mathcal{C}} \subseteq \mathcal{C}$ to denote the set
+		            of controversial contents.
+	      \end{itemize}
+	\item Now our intuition is that inside \emph{echo chambers} there should be
+	      little controversy because users have similar opinions and there is
+	      little rebuttal. In particular, echo chambers should satisfy that
+	      content is which is \emph{globally} controversial is discussed in a
+	      non-controversial way \emph{inside} the echo chamber.
+	\item We will now formalize this notion. We will use the following
+	      notation, where $U\subseteq V$ is a set of vertices:
+	      \begin{itemize}
+		      \item For a thread $T$, we write $T[U]$ to denote the induced subgraph
+		            of $T$ only containing vertices in $U$. As above, we say
+		            that $T[U]$ is \emph{controversial} if the fraction of
+		            negative edges in $T[U]$ is in the interval $[\alpha,1]$.
+		      \item We write $|T(U)|$ to denote the number of edges in $T(U)$
+		            (irrespective of their sign).
+		      \item For a controversial
+		            content $C\in\hat\mathcal{{C}}$ and a set of users
+		            $U\subseteq V$, we write $\mathcal{{S}}_{C}(U)$ to denote
+		            all threads $T[U]$ such that $T\in\mathcal{{T}}_{C}$ and
+		            $T[U]$ is non-controversial. Note that, as desired,
+		            $\mathcal{{S}}_{C}(U)$ contains only threads are
+		            \emph{locally} non-controversial and that
+		            $\mathcal{{S}}_{C}(U)$ is only defined for contents which
+		            are \emph{globally} controversial.
+		      \item For a set of users $U\subseteq V$, we say that its
+		            \emph{echo chamber score} $\xi(U)$ is defined as \[
+			            \xi(U)=\sum_{C\in\hat\mathcal{{C}}}\sum_{T[U]\in\mathcal{{S}}_{C}(U)}|T[U]|.
+		            \] Note that in the first sum we only take into account contents
+		            that are globally controversial; this choice was made to ensure
+		            that ``wholesome'' content has no effect on the echo chamber
+		            score.
+	      \end{itemize}
+	\item We can now define the \textbf{Echo Chamber Problem}:
+	      \begin{itemize}
+		      \item \emph{Input:} An interaction graph $G=(V,E^{+},E^{-})$, a set of
+		            contents $\mathcal{{C}}$, a set of threads
+		            $\mathcal{{T}}_{C}$ for each $C\in\mathcal{{C}}$ and a
+		            parameter $\alpha\in[0,1]$.
+		      \item \emph{Goal:} Find a set of users $U\subseteq V$ that
+		            maximizes the echo chamber score $\xi(U)$.
+	      \end{itemize}
+\end{itemize}
+%
+
+\section{Comments}
+\begin{itemize}
+	\item I do not insist that this is the perfect problem formulation that we
+	      should study. I just think that it might be a starting point for a
+	      discussion.
+	\item In the echo chamber score, we could as well say that we only count
+	      the number of positive edges in $T[U]$.
+	\item The problem formulation has the benefit that we do not have to try to
+	      infer the leaning of users towards contents.
+	\item We could assume that we also have access to the \emph{follow graph},
+	      i.e., the graph that encodes which user follows which other user.  In
+	      that case, we could define communities based on the follow graph and
+	      then check which of the communities has the highest echo chamber score.
+	      We could find the communities inside the follow graph by simply using
+	      existing community detection algorithms. This would also allow us to
+	      check whether the echo chamber score is useful in practice without
+	      having to solve the optimization problem.
+	\item A problem with the above definition of the echo chamber problem that
+	      it does not take into account the follow graph at all. For example,
+	      suppose that in a graph all users interact with each other and half
+	      them is left-wing and the other one is right-wing. Then the above
+	      problem could simply pick one of the two communities (inside which
+	      should be mostly positive interactions) and claim that it is an echo
+	      chamber. But that is not really true because (by assumption) all users
+	      interact and debate with each other regularly.
+	\item We could also extend the definition of \emph{controversial} and
+	      \emph{non-controversial} to the interval $[\alpha,1-\alpha]$ instead of
+	      $[0,1-\alpha]$.  This would resemble the fact that there might be
+	      threads such that all users from an echo chamber reply negatively. In
+	      other words, there is still a clear ``majority'' reaction. This might,
+	      however, come at the risk of finding opposing groups which contain a
+	      lot of negative edges; this would not really go too well with the usual
+	      notion of an echo chamber.
+\end{itemize}
+
+\section{Approaches}%
+\label{sec:approaches}
+
+For a graph $G$ we denote with $\xi(G)$ the maximum echo chamber score, and
+$\hat U$ the corresponding set of users.
+
+\subsection{Greedy algorithm}%
+\label{sub:greedy_algorithm}
+
+The behaviour of the algorithm depends on the choice of $\beta$, regulating
+the density of the resulting set of users (for smaller values an higher density
+is to be expected, generally)
+
+\begin{algorithm}[H]
+	\SetAlgoLined
+	% \KwResult{Write here the result }
+	$U = \{$ random node $\}$\;
+	\While{$\xi(U)$ can be increased by adding a node}{
+		With probability $\beta $  {
+				add to $U$ the node increasing the score $\xi(U)$ the most\;
+			}
+		With probability $(1 - \beta )$ remove from $U$ the node contributing
+		less to the score $\xi(U)$. This node will be ignored in the next iteration\;
+	}
+	\caption{Greedy algorithm}
+\end{algorithm}
+
+The process is repeated with different starting nodes.
+
+A variant takes into a account the fraction of positive edges of a vertex in
+sampling the initial node (the higher the fraction, the more likely it is to be
+sampled).
+
+\subsection{Integer Linear Programming model}%
+\label{sub:integer_linear_programming_model}
+
+We define the following ILP model to compute exactly the maximing score for a
+graph $G$.
+
+We denote as $E(\hat{\mathcal{C}} )$ the set of edges associated to
+controversial contents.
+
+\begin{gather}
+	\begin{align}
+		\label{eq:ilp-model-obj}
+		maximize\; \sum^{}_{ij \in E(\hat{\mathcal{C}})} x _{ij}
+	\end{align} \\
+	\begin{align}
+		\label{eq:ilp-model-edge1}
+		x _{ij} \leq y_i \quad \forall ij \in E(\hat{\mathcal{C}})
+	\end{align} \\
+	\begin{align}
+		\label{eq:ilp-model-edge2}
+		x _{ij} \leq y_j \quad \forall ij \in E(\hat{\mathcal{C}})
+	\end{align} \\
+	\begin{align}
+		\label{eq:ilp-model-nct1}
+		\sum^{}_{ij \in E^{-} (T_k)} x_{ij} - \alpha \sum^{}_{ij \in E(T_k)} x_{ij}
+		\leq M_k(1 -z_{k} ) \quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+		\mathcal{C}
+	\end{align} \\
+	\begin{align}
+		\label{eq:ilp-model-nct2}
+		\sum^{}_{ij \in E(T_{k} )} x_{ij} \leq N_{k} z_{k}
+	\end{align} \\
+	\begin{align}
+		\label{eq:ilp-model-d1}
+		x _{ij} \in \{0, 1\} \quad \forall ij \in E(\hat{\mathcal{C}})
+	\end{align} \\
+	\label{eq:ilp-model-d2}
+	y _{i} \in  \{0, 1\} \quad \forall i \in V                     \\
+	\label{eq:ilp-model-d3}
+	z _{k} \in  \{0, 1\} \quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+	\mathcal{C}
+\end{gather}
+
+The model associates to each vertex a variable $y_i$, to each edge a
+variable $x _{ij} $ and to each thread associated to a controversial content a
+variable $z_k$.
+If the variable associated to a vertex is 1 then it belongs to the set of users
+U considered for the current solution; similarly, if the variable associated
+to an edge is 1 it is counted in the score (= objective function): This happens
+only for links induced by the chosen vertices (due to \ref{eq:ilp-model-edge1}
+and \ref{eq:ilp-model-edge2}).
+
+Constraints \ref{eq:ilp-model-nct1} and \ref{eq:ilp-model-nct2} exclude edges associated to controversial threads from
+contributing to the objective: for a non controversial thread $T_k$ by
+definition it will be $\eta(T) \leq \alpha $, i.e.
+
+\begin{equation}
+	\frac{\sum^{}_{ij \in E^{-} (T_{k} )} x_{ij} }
+	{\sum^{}_{ij \in E^ (T_{k} )} x_{ij} } \leq \alpha
+\end{equation}
+which can be written as
+\begin{equation}
+	\sum^{}_{ij \in E^{-} (T_{k} )} x_{ij} -
+	\alpha {\sum^{}_{ij \in E^ (T_{k} )} x_{ij} } \leq 0
+\end{equation}
+Instead, for a controversial thread
+\begin{equation}
+	\sum^{}_{ij \in e^{-} (t_{k} )} x_{ij} -
+	\alpha {\sum^{}_{ij \in e^ (t_{k} )} x_{ij} } \leq 0
+\end{equation}
+
+So, considering again \autoref{eq:ilp-model-nct1}, for a controversial thread
+it will necessarily be $z_{k} = 0$.
+But, because of constraint \autoref{eq:ilp-model-nct2}, all the edges
+associated to that thread $T_{k} $ needs to be 0, making that an invalid
+solution.
+This means that a solution in which edges associated to a controversial thread
+are set to $1$ is an invalid solution.
+
+The model finds a solution whose value of the objective function corresponds to $\xi(G)$ and the
+corresponding set of users is the set of vertices whose $y_i = 1$.
+
+The choice of $M_k$ and $N_k$ can simply be $m$ (the number of edges of the
+graph $G$) to produce a valid formulation.
+
+\end{document}
