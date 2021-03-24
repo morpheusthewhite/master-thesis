@@ -233,16 +233,16 @@ def print_scores(
         scores_txt = os.path.join(save_path, "scores.txt")
         scores_txt_file = open(scores_txt, "w")
 
-    score, num_vertices = graph.score_components(alpha)
+    score, users_index = graph.score_components(alpha)
     print(
-        f"(Connected components) Echo chamber score: {score} on {num_vertices} vertices",
+        f"(Connected components) Echo chamber score: {score} on {len(users_index)} vertices",
         file=scores_txt_file,
     )
 
     for beta in [i / 10 for i in range(6, 11, 1)]:
-        score, num_vertices = graph.score_greedy(alpha, beta)
+        score, users_index = graph.score_greedy(alpha, beta)
         print(
-            f"(Greedy beta={beta}) Echo chamber score: {score} on {num_vertices} vertices",
+            f"(Greedy beta={beta}) Echo chamber score: {score} on {len(users_index)} vertices",
             file=scores_txt_file,
         )
 
