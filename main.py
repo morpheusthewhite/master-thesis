@@ -232,22 +232,32 @@ def print_scores(
     else:
         scores_txt = os.path.join(save_path, "scores.txt")
         scores_txt_file = open(scores_txt, "w")
+    results_score = {}
 
     score, users_index = graph.score_components(alpha)
+    results_score["components"] = (score, users_index)
     print(
         f"(Connected components) Echo chamber score: {score} on {len(users_index)} vertices",
         file=scores_txt_file,
     )
 
+    results_greedy_beta = {}
     for beta in [i / 10 for i in range(6, 11, 1)]:
         score, users_index = graph.score_greedy(alpha, beta)
+        results_greedy_beta[beta] = (score, users_index)
         print(
             f"(Greedy beta={beta}) Echo chamber score: {score} on {len(users_index)} vertices",
             file=scores_txt_file,
         )
 
+    results_score["greedy_beta"] = results_greedy_beta
+
     if save_path is not None:
         scores_txt_file.close()
+
+        pickle_filename = os.path.join(save_path, "scores.p")
+        with open(pickle_filename, "wb") as pickle_file:
+            pickle.dump(results_score, pickle_file)
 
 
 def print_stats(graph: PolarizationGraph, save_path):
