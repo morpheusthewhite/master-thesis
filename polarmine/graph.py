@@ -752,7 +752,7 @@ class PolarizationGraph:
         controversial_contents: set(),
     ) -> (int, int):
         # keep neighbour increasing more the score
-        vertex_worst = -1
+        vertices_worst = []
         score_vertex_worst = -1
 
         for i, vertex in enumerate(vertices):
@@ -767,8 +767,13 @@ class PolarizationGraph:
 
             if score_vertex > score_vertex_worst:
                 score_vertex_worst = score_vertex
-                vertex_worst = vertex
+                vertices_worst = [vertex]
+            elif score_vertex == score_vertex_worst:
+                vertices_worst.append(vertex)
 
+        # sample one node among the many whose removal produce the highest score
+        vertex_worst_index = np.random.randint(0, len(vertices_worst))
+        vertex_worst = vertices_worst[vertex_worst_index]
         return vertex_worst, score_vertex_worst
 
     def score_greedy(self, alpha: float, beta: float = 1, n_starts: int = -1):
@@ -904,6 +909,45 @@ class PolarizationGraph:
                 if not reachable:
                     neighbours.remove(neighbour_removed)
         return
+
+    def score_greedy_peeling(self, alpha: float):
+        """Calculate the echo chamber score using the "peeling" greedy approach
+
+        Args:
+            alpha (float): maximum fraction of edges of non controversial content
+        """
+        vertices_index = list(self.graph.get_vertices())
+
+        # if there are no controversial contents avoid executing the algorithm
+        controversial_contents = self.controversial_contents(alpha)
+        if len(controversial_contents) == 0:
+            return 0, []
+
+        # best score and corresponding users along iterations
+        max_score = -1
+        max_users_index = []
+
+        while len(vertices_index) > 1:
+
+            score_current = self.score_from_vertices_index(
+                vertices_index, alpha, controversial_contents
+            )
+
+            if score_current > max_score:
+                max_score = score_current
+                max_users_index = vertices_index.copy()
+
+            # remove the node to obtain the highest score
+            vertex_worst, new_score = self.__find_worst_vertex__(
+                vertices_index, alpha, controversial_contents
+            )
+
+            # index of the worst node in the `vertices_index` array
+            vertex_worst_index = vertices_index.index(vertex_worst)
+            # remove the node from the array
+            vertices_index.pop(vertex_worst_index)
+
+        return max_score, max_users_index
 
     @classmethod
     def from_file(cls, filename: str):
