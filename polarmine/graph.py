@@ -728,8 +728,8 @@ class PolarizationGraph:
         alpha: float,
         controversial_contents: set(),
     ) -> (int, int):
-        # keep neighbour increasing more the score
-        neighbour_best = -1
+        # keep neighbours increasing more the score
+        neighbours_best = []
         score_neighbour_best = -1
 
         for neighbour in neighbours:
@@ -741,7 +741,18 @@ class PolarizationGraph:
 
             if score_neighbour > score_neighbour_best:
                 score_neighbour_best = score_neighbour
-                neighbour_best = neighbour
+                neighbours_best = [neighbour]
+            elif score_neighbour == score_neighbour_best:
+                neighbours_best.append(neighbour)
+
+        if len(neighbours_best) == 0:
+            import pdb
+
+            pdb.set_trace()
+
+        # sample one node among the many whose addition produce the highest score
+        neighbour_best_index = np.random.randint(0, len(neighbours_best))
+        neighbour_best = neighbours_best[neighbour_best_index]
 
         return neighbour_best, score_neighbour_best
 
@@ -816,7 +827,9 @@ class PolarizationGraph:
             # current set of neighbours of the selected users
             neighbours = set(self.graph.get_all_neighbors(initial_vertex))
 
-            while True:
+            score_current = -1
+            # terminate the algorithm if no neighbour can be added
+            while len(neighbours) > 0:
 
                 score_current = self.score_from_vertices_index(
                     vertices, alpha, controversial_contents
