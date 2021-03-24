@@ -706,7 +706,7 @@ class PolarizationGraph:
 
         n_components = int(np.max(comp.a) + 1)
         max_score = 0
-        max_n_vertices = 0
+        max_users_index = []
 
         for i in range(n_components):
             vertices_index = np.where(comp.a == i)[0]
@@ -717,9 +717,9 @@ class PolarizationGraph:
 
             if score > max_score:
                 max_score = score
-                max_n_vertices = vertices_index.shape[0]
+                max_users_index = vertices_index
 
-        return max_score, max_n_vertices
+        return max_score, max_users_index
 
     def __find_best_neighbour__(
         self,
@@ -789,9 +789,9 @@ class PolarizationGraph:
         if len(controversial_contents) == 0:
             return 0, 0
 
-        # best score and num_vertices along iterations
+        # best score and corresponding users along iterations
         score = -1
-        num_vertices = -1
+        users_index = []
 
         # list containing nodes which are temporarily ignored
         vertices_ignore = []
@@ -808,16 +808,7 @@ class PolarizationGraph:
             # current set of neighbours of the selected users
             neighbours = set(self.graph.get_all_neighbors(initial_vertex))
 
-            i = 0
-            score_current = 0
             while True:
-                i += 1
-                if i % 10 == 0:
-                    print(f"vertices: {vertices}")
-                    print(f"score: {score_current} on {len(vertices)}")
-
-                    if i == 40:
-                        break
 
                 score_current = self.score_from_vertices_index(
                     vertices, alpha, controversial_contents
@@ -871,9 +862,9 @@ class PolarizationGraph:
 
             if score_current > score:
                 score = score_current
-                num_vertices = len(vertices)
+                users_index = vertices
 
-        return score, num_vertices
+        return score, users_index
 
     def __neighbours_merge__(
         self, neighbours: set, vertex: int, vertices: set
