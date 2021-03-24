@@ -785,9 +785,10 @@ class PolarizationGraph:
         if n_starts == -1:
             n_starts = int(np.sqrt(vertices_index.shape[0]))
 
+        # if there are no controversial contents avoid executing the algorithm
         controversial_contents = self.controversial_contents(alpha)
         if len(controversial_contents) == 0:
-            return 0, 0
+            return 0, []
 
         # best score and corresponding users along iterations
         score = -1
