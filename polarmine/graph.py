@@ -776,8 +776,10 @@ class PolarizationGraph:
         vertex_worst = vertices_worst[vertex_worst_index]
         return vertex_worst, score_vertex_worst
 
-    def score_greedy(self, alpha: float, beta: float = 1, n_starts: int = -1):
-        """Calculate the echo chamber score using the greedy approach
+    def score_greedy_beta(
+        self, alpha: float, beta: float = 1, n_starts: int = -1
+    ):
+        """Calculate the echo chamber score using the beta greedy approach
 
         Args:
             alpha (float): maximum fraction of edges of non controversial content

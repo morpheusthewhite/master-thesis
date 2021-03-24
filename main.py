@@ -243,7 +243,7 @@ def print_scores(
 
     results_greedy_beta = {}
     for beta in [i / 10 for i in range(6, 11, 1)]:
-        score, users_index = graph.score_greedy(alpha, beta)
+        score, users_index = graph.score_greedy_beta(alpha, beta)
         results_greedy_beta[beta] = (score, users_index)
         print(
             f"(Greedy beta={beta}) Echo chamber score: {score} on {len(users_index)} vertices",
