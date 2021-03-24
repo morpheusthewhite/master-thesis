@@ -1,7 +1,7 @@
 import graph_tool.all as gt
 import treelib
 import numpy as np
-from typing import Optional, Set
+from typing import Optional
 from transformers import AutoModelForSequenceClassification
 from transformers import AutoTokenizer
 from scipy.special import softmax
@@ -300,7 +300,14 @@ class PolarizationGraph:
         else:
             return np.sum(edges_weight < 0) / edges_weight.shape[0]
 
-    def negative_edges_fraction_thread_dict(self):
+    def negative_edges_fraction_thread_dict(self) -> dict:
+        """compute the fraction of negative edges for threads which have at
+        least one edge
+
+        Returns:
+            dict: a dictionary whose key is the thread and value is the
+            fraction of negative edges associated to that thread
+        """
         # quite inefficient as the cycle is executed in Python
         # this should probably be optimized
         thread_edges_dict = {}
@@ -326,7 +333,14 @@ class PolarizationGraph:
 
         return fraction_dict
 
-    def negative_edges_fraction_content_dict(self):
+    def negative_edges_fraction_content_dict(self) -> dict:
+        """compute the fraction of negative edges for contents which have at
+        least one edge
+
+        Returns:
+            dict: a dictionary whose key is the content and value is the
+            fraction of negative edges associated to that content
+        """
         # quite inefficient as the cycle is executed in Python
         # this should probably be optimized
         content_edges_dict = {}
@@ -374,7 +388,14 @@ class PolarizationGraph:
 
         return fidelities
 
-    def n_interactions_dict(self):
+    def n_interactions_dict(self) -> dict:
+        """compute the number of interactions for contents which have at
+        least one edge
+
+        Returns:
+            dict: a dictionary whose key is the content and value is the
+            number of interactions associated to that content
+        """
         n_interactions_dict = {}
         for edge in self.graph.edges():
             edge_content = self.threads[edge].content
@@ -390,7 +411,15 @@ class PolarizationGraph:
 
         return list(n_interactions_dict.values())
 
-    def edge_sum_n_interactions_dict(self):
+    def edge_sum_n_interactions_dict(self) -> dict:
+        """compute the number of edge sum and number of interactions for
+        contents which have at least one edge
+
+        Returns:
+            dict: a dictionary whose key is the content and value is a the
+            tuple (total edge sum, number of interactions) associated to that
+            content
+        """
         edge_sum_n_interactions_dict = {}
         for edge in self.graph.edges():
             edge_content = self.threads[edge].content
@@ -779,7 +808,17 @@ class PolarizationGraph:
             # current set of neighbours of the selected users
             neighbours = set(self.graph.get_all_neighbors(initial_vertex))
 
+            i = 0
+            score_current = 0
             while True:
+                i += 1
+                if i % 10 == 0:
+                    print(f"vertices: {vertices}")
+                    print(f"score: {score_current} on {len(vertices)}")
+
+                    if i == 40:
+                        break
+
                 score_current = self.score_from_vertices_index(
                     vertices, alpha, controversial_contents
                 )
