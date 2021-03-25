@@ -241,16 +241,27 @@ def print_scores(
         file=scores_txt_file,
     )
 
-    results_greedy_beta = {}
+    results_greedy_beta_pos = {}
     for beta in [i / 10 for i in range(6, 11, 1)]:
         score, users_index = graph.score_greedy_beta(alpha, beta)
-        results_greedy_beta[beta] = (score, users_index)
+        results_greedy_beta_pos[beta] = (score, users_index)
         print(
-            f"(Greedy beta={beta}) Echo chamber score: {score} on {len(users_index)} vertices",
+            f"(Greedy beta={beta}, pos. sampling) Echo chamber score: {score} on {len(users_index)} vertices",
             file=scores_txt_file,
         )
 
-    results_score["greedy_beta"] = results_greedy_beta
+    results_score["greedy_beta_pos"] = results_greedy_beta_pos
+
+    results_greedy_beta_uni = {}
+    for beta in [i / 10 for i in range(6, 11, 1)]:
+        score, users_index = graph.score_greedy_beta(alpha, beta)
+        results_greedy_beta_uni[beta] = (score, users_index)
+        print(
+            f"(Greedy beta={beta}, unif. sampling) Echo chamber score: {score} on {len(users_index)} vertices",
+            file=scores_txt_file,
+        )
+
+    results_score["greedy_beta_uni"] = results_greedy_beta_uni
 
     score, users_index = graph.score_greedy_peeling(alpha)
     results_score["greedy_peeling"] = (score, users_index)
