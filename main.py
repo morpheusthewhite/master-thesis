@@ -56,6 +56,14 @@ parser.add_argument(
     help="show or save echo chamber scores",
 )
 parser.add_argument(
+    "-se",
+    "--score-exact",
+    default=False,
+    action="store_true",
+    dest="score_exact",
+    help="show or save exact echo chamber scores computed with mip (may take a long time) along with greedy approximations",
+)
+parser.add_argument(
     "-a",
     "--alpha",
     default=0.4,
@@ -225,7 +233,10 @@ def print_negative_fraction_top_k(
 
 
 def print_scores(
-    graph: PolarizationGraph, save_path: Optional[str], alpha: float = 0.4
+    graph: PolarizationGraph,
+    exact: bool,
+    save_path: Optional[str],
+    alpha: float = 0.4,
 ):
     if save_path is None:
         scores_txt_file = sys.stdout
@@ -272,19 +283,20 @@ def print_scores(
         file=scores_txt_file,
     )
 
-    score, users_index = graph.score_mip(alpha)
-    results_score["mip"] = (score, users_index)
-    print(
-        f"(MIP) Echo chamber score: {score} on {len(users_index)} vertices",
-        file=scores_txt_file,
-    )
+    if exact:
+        score, users_index = graph.score_mip(alpha)
+        results_score["mip"] = (score, users_index)
+        print(
+            f"(MIP) Echo chamber score: {score} on {len(users_index)} vertices",
+            file=scores_txt_file,
+        )
 
-    score, users_index = graph.score_mip(alpha, relaxation=True)
-    results_score["mip_relaxation"] = (score, users_index)
-    print(
-        f"(MIP relaxation) Echo chamber score: {score} on {len(users_index)} vertices",
-        file=scores_txt_file,
-    )
+        score, users_index = graph.score_mip(alpha, relaxation=True)
+        results_score["mip_relaxation"] = (score, users_index)
+        print(
+            f"(MIP relaxation) Echo chamber score: {score} on {len(users_index)} vertices",
+            file=scores_txt_file,
+        )
 
     if save_path is not None:
         scores_txt_file.close()
@@ -642,8 +654,8 @@ def main():
     if args.stats:
         print_stats(graph, args.save_path)
 
-    if args.score:
-        print_scores(graph, args.save_path, args.alpha)
+    if args.score or args.score_exact:
+        print_scores(graph, args.score_exact, args.save_path, args.alpha)
 
     if not args.graph_draw_no and args.save_path is not None:
         graph_output_path = os.path.join(args.save_path, "graph.pdf")
