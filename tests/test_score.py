@@ -40,8 +40,22 @@ def test_graph_score_components():
     graph.score_components(0.2)
 
 
-def test_graph_score_greedy():
+def test_graph_score_greedy_beta_positiveness():
     graph = PolarizationGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
-    graph.score_greedy(0.1)
+    graph.score_greedy_beta(0.1)
+
+
+def test_graph_score_greedy_beta_uniform():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.score_greedy_beta(0.1, positiveness_samples=False)
+
+
+def test_graph_score_greedy_peeling():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.score_greedy_peeling(0.1)
