@@ -59,3 +59,10 @@ def test_graph_score_greedy_peeling():
     assert graph is not None
 
     graph.score_greedy_peeling(0.1)
+
+
+def test_graph_score_mip():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.score_mip(0.1)
