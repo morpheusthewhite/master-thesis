@@ -788,7 +788,11 @@ class PolarizationGraph:
         return vertex_worst, score_vertex_worst
 
     def score_greedy_beta(
-        self, alpha: float, beta: float = 1, n_starts: int = -1
+        self,
+        alpha: float,
+        beta: float = 1,
+        n_starts: int = -1,
+        positiveness_samples: bool = True,
     ):
         """Calculate the echo chamber score using the beta greedy approach
 
@@ -812,14 +816,23 @@ class PolarizationGraph:
         score = -1
         users_index = []
 
-        for i in range(n_starts):
+        if positiveness_samples:
+            sample_probabilities = self.positiveness_probabilities()
+
+        for _ in range(n_starts):
             # list containing nodes which are temporarily ignored
             vertices_ignore = []
 
-            # sample a node, uniformly
-            initial_vertex_index = np.random.randint(
-                0, vertices_index.shape[0]
-            )
+            if positiveness_samples:
+                initial_vertex_index = np.where(
+                    np.random.multinomial(1, sample_probabilities)
+                )[0][0]
+            else:
+                # sample a node, uniformly
+                initial_vertex_index = np.random.randint(
+                    0, vertices_index.shape[0]
+                )
+
             initial_vertex = vertices_index[initial_vertex_index]
 
             # current set of selected users
@@ -963,6 +976,45 @@ class PolarizationGraph:
             vertices_index.pop(vertex_worst_index)
 
         return max_score, max_users_index
+
+    def vertices_positiveness(self) -> np.array:
+        """calculate fraction of positive edges for each vertex
+
+        Returns:
+            np.array: the fraction of positive edges for vertices
+        """
+        num_vertices = np.max(self.graph.get_vertices()) + 1
+
+        n_positive_edges = np.zeros((num_vertices))
+        n_edges = np.zeros((num_vertices))
+
+        for edge in self.graph.get_edges([self.weights]):
+            source = int(edge[0])
+            target = int(edge[1])
+            weight = edge[2]
+
+            n_edges[source] += 1
+            n_edges[target] += 1
+
+            if weight >= 0:
+                n_positive_edges[source] += 1
+                n_positive_edges[target] += 1
+
+        # set to 1 terms which are to 0 to avoid 0-division
+        n_edges = n_edges + (n_edges == 0)
+        return n_positive_edges / n_edges
+
+    def positiveness_probabilities(self) -> np.array:
+        """calculate the distribution of positive edges among vertices
+
+        Returns:
+            np.array: the parameters of a categorical distribution, based on the
+        fraction of negative edges of the vertex
+        """
+        vertices_positiveness = self.vertices_positiveness()
+        total_positiveness = np.sum(vertices_positiveness)
+
+        return vertices_positiveness / total_positiveness
 
     @classmethod
     def from_file(cls, filename: str):
