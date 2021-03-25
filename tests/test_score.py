@@ -66,3 +66,10 @@ def test_graph_score_mip():
     assert graph is not None
 
     graph.score_mip(0.1)
+
+
+def test_graph_score_mip_relaxation():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    graph.score_mip(0.1, relaxation=True)
