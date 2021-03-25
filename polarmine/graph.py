@@ -1012,12 +1012,23 @@ class PolarizationGraph:
 
         return vertices_positiveness / total_positiveness
 
-    def score_mip(self, alpha: float) -> (int, list[int]):
+    def score_mip(
+        self, alpha: float, relaxation: bool = False
+    ) -> (int, list[int]):
+        variables_cat = pulp.LpContinuous if relaxation else pulp.LpBinary
+        variables_lb = 0 if relaxation else None
+        variables_ub = 1 if relaxation else None
+
         controversial_contents = self.controversial_contents(alpha)
 
         model = pulp.LpProblem("echo-chamber-score", pulp.LpMaximize)
         vertices_variables = [
-            pulp.LpVariable(f"y_{index}", cat=pulp.LpBinary)
+            pulp.LpVariable(
+                f"y_{index}",
+                cat=variables_cat,
+                lowBound=variables_lb,
+                upBound=variables_ub,
+            )
             for index in self.graph.get_vertices()
         ]
 
@@ -1033,7 +1044,12 @@ class PolarizationGraph:
             # ignore non controversial contents
             if content in controversial_contents:
                 thread = thread_obj.url
-                edge_var = pulp.LpVariable(f"x_{i}", cat=pulp.LpBinary)
+                edge_var = pulp.LpVariable(
+                    f"x_{i}",
+                    cat=variables_cat,
+                    lowBound=variables_lb,
+                    upBound=variables_ub,
+                )
                 objective += edge_var
 
                 source, target = tuple(edge)
@@ -1072,7 +1088,12 @@ class PolarizationGraph:
             # sum of variables associated to edges of a single thread
             edges_sum = pulp.lpSum(edges_var)
 
-            z_k = pulp.LpVariable(f"z_{k}", cat=pulp.LpBinary)
+            z_k = pulp.LpVariable(
+                f"z_{k}",
+                cat=variables_cat,
+                lowBound=variables_lb,
+                upBound=variables_ub,
+            )
             M_k = alpha * (1 - len(edges_negative_var))
 
             model += neg_edges_sum - alpha * edges_sum <= M_k * (1 - z_k)
@@ -1094,7 +1115,11 @@ class PolarizationGraph:
 
         users = []
         for i, vertex_variable in enumerate(vertices_variables):
-            if pulp.value(vertex_variable) == 1:
+            if relaxation:
+                # if relaxation problem, return value of all the vertices
+                # instead of indices of non-zero nodes
+                users.append(pulp.value(vertex_variable))
+            elif pulp.value(vertex_variable) == 1:
                 users.append(i)
 
         return score, users
