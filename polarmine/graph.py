@@ -745,11 +745,6 @@ class PolarizationGraph:
             elif score_neighbour == score_neighbour_best:
                 neighbours_best.append(neighbour)
 
-        if len(neighbours_best) == 0:
-            import pdb
-
-            pdb.set_trace()
-
         # sample one node among the many whose addition produce the highest score
         neighbour_best_index = np.random.randint(0, len(neighbours_best))
         neighbour_best = neighbours_best[neighbour_best_index]
