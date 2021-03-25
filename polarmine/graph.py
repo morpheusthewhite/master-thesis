@@ -1,6 +1,7 @@
 import graph_tool.all as gt
 import treelib
 import numpy as np
+import pulp
 from typing import Optional
 from transformers import AutoModelForSequenceClassification
 from transformers import AutoTokenizer
@@ -700,7 +701,7 @@ class PolarizationGraph:
 
         return controversial_contents
 
-    def score_components(self, alpha: int) -> (int, int):
+    def score_components(self, alpha: int) -> (int, list[int]):
         comp, _ = gt.label_components(self.graph, directed=False)
         controversial_contents = self.controversial_contents(alpha)
 
@@ -788,7 +789,7 @@ class PolarizationGraph:
         beta: float = 1,
         n_starts: int = -1,
         positiveness_samples: bool = True,
-    ):
+    ) -> (int, list[int]):
         """Calculate the echo chamber score using the beta greedy approach
 
         Args:
@@ -933,7 +934,7 @@ class PolarizationGraph:
                     neighbours.remove(neighbour_removed)
         return
 
-    def score_greedy_peeling(self, alpha: float):
+    def score_greedy_peeling(self, alpha: float) -> (int, list[int]):
         """Calculate the echo chamber score using the "peeling" greedy approach
 
         Args:
@@ -1010,6 +1011,93 @@ class PolarizationGraph:
         total_positiveness = np.sum(vertices_positiveness)
 
         return vertices_positiveness / total_positiveness
+
+    def score_mip(self, alpha: float) -> (int, list[int]):
+        controversial_contents = self.controversial_contents(alpha)
+
+        model = pulp.LpProblem("echo-chamber-score", pulp.LpMaximize)
+        vertices_variables = [
+            pulp.LpVariable(f"y_{index}", cat=pulp.LpBinary)
+            for index in self.graph.get_vertices()
+        ]
+
+        thread_edges_dict = {}
+        # dictionary of edge variables incident to edges
+        vertices_edge_variables = {}
+        objective = 0
+
+        for i, edge in enumerate(self.graph.edges()):
+            thread_obj = self.threads[edge]
+            content = thread_obj.content
+
+            # ignore non controversial contents
+            if content in controversial_contents:
+                thread = thread_obj.url
+                edge_var = pulp.LpVariable(f"x_{i}", cat=pulp.LpBinary)
+                objective += edge_var
+
+                source, target = tuple(edge)
+                source = int(source)
+                target = int(target)
+
+                model += edge_var <= vertices_variables[source]
+                model += edge_var <= vertices_variables[target]
+
+                edges_negative_var, edges_var = thread_edges_dict.get(
+                    thread, ([], [])
+                )
+
+                if self.weights[edge] < 0:
+                    edges_negative_var.append(edge_var)
+                edges_var.append(edge_var)
+
+                thread_edges_dict[thread] = (edges_negative_var, edges_var)
+
+                # add edge among edge variables of source
+                source_edge_variables = vertices_edge_variables.get(source, [])
+                source_edge_variables.append(edge_var)
+                vertices_edge_variables[source] = source_edge_variables
+
+                # add edge among edge variables of target
+                target_edge_variables = vertices_edge_variables.get(target, [])
+                target_edge_variables.append(edge_var)
+                vertices_edge_variables[target] = target_edge_variables
+
+        # add thread controversy constraints
+        for k, edges_var_tuple in enumerate(thread_edges_dict.values()):
+            edges_negative_var, edges_var = edges_var_tuple
+
+            # sum of variables associated to negative edges of a single thread
+            neg_edges_sum = pulp.lpSum(edges_negative_var)
+            # sum of variables associated to edges of a single thread
+            edges_sum = pulp.lpSum(edges_var)
+
+            z_k = pulp.LpVariable(f"z_{k}", cat=pulp.LpBinary)
+            M_k = alpha * (1 - len(edges_negative_var))
+
+            model += neg_edges_sum - alpha * edges_sum <= M_k * (1 - z_k)
+            N_k = len(edges_var)
+
+            model += edges_sum <= N_k * z_k
+
+        # add constraint for setting to one only vertices where at least one
+        # edge is at 1
+        for vertex_index, edge_variables in vertices_edge_variables.items():
+            model += vertices_variables[vertex_index] <= pulp.lpSum(
+                edge_variables
+            )
+
+        model += objective
+        model.solve()
+
+        score = pulp.value(model.objective)
+
+        users = []
+        for i, vertex_variable in enumerate(vertices_variables):
+            if pulp.value(vertex_variable) == 1:
+                users.append(i)
+
+        return score, users
 
     @classmethod
     def from_file(cls, filename: str):
