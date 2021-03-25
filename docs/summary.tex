@@ -228,19 +228,14 @@ only for links induced by the chosen vertices (due to \ref{eq:ilp-model-edge1}
 and \ref{eq:ilp-model-edge2}).
 
 Constraints \ref{eq:ilp-model-nct1} and \ref{eq:ilp-model-nct2} exclude edges associated to controversial threads from
-contributing to the objective: for a non controversial thread $T_k$ by
-definition it will be $\eta(T) \leq \alpha $, i.e.
+contributing to the objective: for a controversial thread $T_k$ by
+definition it will be $\eta(T) > \alpha $, i.e.
 
 \begin{equation}
 	\frac{\sum^{}_{ij \in E^{-} (T_{k} )} x_{ij} }
-	{\sum^{}_{ij \in E^ (T_{k} )} x_{ij} } \leq \alpha
+	{\sum^{}_{ij \in E^ (T_{k} )} x_{ij} } > \alpha
 \end{equation}
 which can be written as
-\begin{equation}
-	\sum^{}_{ij \in E^{-} (T_{k} )} x_{ij} -
-	\alpha {\sum^{}_{ij \in E^ (T_{k} )} x_{ij} } \leq 0
-\end{equation}
-Instead, for a controversial thread
 \begin{equation}
 	\sum^{}_{ij \in E^{-} (T_{k} )} x_{ij} -
 	\alpha {\sum^{}_{ij \in E^ (T_{k} )} x_{ij} } > 0
