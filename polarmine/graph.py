@@ -1037,6 +1037,8 @@ class PolarizationGraph:
         vertices_edge_variables = {}
         objective = 0
 
+        thread_k_vars = {}
+
         for i, edge in enumerate(self.graph.edges()):
             thread_obj = self.threads[edge]
             content = thread_obj.content
@@ -1046,10 +1048,18 @@ class PolarizationGraph:
                 thread = thread_obj.url
                 edge_var = pulp.LpVariable(
                     f"x_{i}",
-                    cat=variables_cat,
-                    lowBound=variables_lb,
-                    upBound=variables_ub,
+                    lowBound=0,
+                    upBound=1,
                 )
+
+                # create the variable associated to this thread if it does not exist
+                z_k = thread_k_vars.get(thread)
+                if z_k is None:
+                    z_k = pulp.LpVariable(
+                        f"z_{hash(thread)}", lowBound=0, upBound=1
+                    )
+                    thread_k_vars[thread] = z_k
+
                 objective += edge_var
 
                 source, target = tuple(edge)
@@ -1058,6 +1068,14 @@ class PolarizationGraph:
 
                 model += edge_var <= vertices_variables[source]
                 model += edge_var <= vertices_variables[target]
+                model += edge_var <= z_k
+                model += (
+                    edge_var
+                    <= -2
+                    + vertices_variables[source]
+                    + vertices_variables[target]
+                    + z_k
+                )
 
                 edges_negative_var, edges_var = thread_edges_dict.get(
                     thread, ([], [])
@@ -1088,18 +1106,7 @@ class PolarizationGraph:
             # sum of variables associated to edges of a single thread
             edges_sum = pulp.lpSum(edges_var)
 
-            z_k = pulp.LpVariable(
-                f"z_{k}",
-                cat=variables_cat,
-                lowBound=variables_lb,
-                upBound=variables_ub,
-            )
-            M_k = alpha * (1 - len(edges_negative_var))
-
-            model += neg_edges_sum - alpha * edges_sum <= M_k * (1 - z_k)
-            N_k = len(edges_var)
-
-            model += edges_sum <= N_k * z_k
+            model += neg_edges_sum - alpha * edges_sum <= 0
 
         # add constraint for setting to one only vertices where at least one
         # edge is at 1
