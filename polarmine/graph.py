@@ -1071,7 +1071,7 @@ class PolarizationGraph:
                 model += edge_var <= z_k
                 model += (
                     edge_var
-                    <= -2
+                    >= -2
                     + vertices_variables[source]
                     + vertices_variables[target]
                     + z_k
