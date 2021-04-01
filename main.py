@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import sys
 import os
 import pickle
+import time
 from typing import Optional
 
 from polarmine.graph import PolarizationGraph
@@ -245,26 +246,35 @@ def print_scores(
         scores_txt_file = open(scores_txt, "w")
     results_score = {}
 
+    start = time.time()
     score, users_index = graph.score_components(alpha)
     results_score["components"] = (score, users_index)
     print(
         f"(Connected components) Echo chamber score: {score} on {len(users_index)} vertices",
         file=scores_txt_file,
     )
+    end = time.time()
+    print(f"(Connected components) Elapsed time: {end - start}")
 
     results_greedy_beta_pos = {}
     for beta in [i / 10 for i in range(6, 11, 1)]:
+        start = time.time()
         score, users_index = graph.score_greedy_beta(alpha, beta)
         results_greedy_beta_pos[beta] = (score, users_index)
         print(
             f"(Greedy beta={beta}, pos. sampling) Echo chamber score: {score} on {len(users_index)} vertices",
             file=scores_txt_file,
         )
+        end = time.time()
+        print(
+            f"(Greedy beta={beta}, pos. sampling) Elapsed time: {end - start}"
+        )
 
     results_score["greedy_beta_pos"] = results_greedy_beta_pos
 
     results_greedy_beta_uni = {}
     for beta in [i / 10 for i in range(6, 11, 1)]:
+        start = time.time()
         score, users_index = graph.score_greedy_beta(
             alpha, beta, positiveness_samples=False
         )
@@ -273,30 +283,43 @@ def print_scores(
             f"(Greedy beta={beta}, unif. sampling) Echo chamber score: {score} on {len(users_index)} vertices",
             file=scores_txt_file,
         )
+        end = time.time()
+        print(
+            f"(Greedy beta={beta}, unif. sampling) Elapsed time: {end - start}"
+        )
 
     results_score["greedy_beta_uni"] = results_greedy_beta_uni
 
+    start = time.time()
     score, users_index = graph.score_greedy_peeling(alpha)
     results_score["greedy_peeling"] = (score, users_index)
     print(
         f"(Greedy peeling) Echo chamber score: {score} on {len(users_index)} vertices",
         file=scores_txt_file,
     )
+    end = time.time()
+    print(f"(Greedy peeling) Elapsed time: {end - start}")
 
     if exact:
+        start = time.time()
         score, users_index, _ = graph.score_mip(alpha)
         results_score["mip"] = (score, users_index)
         print(
             f"(MIP) Echo chamber score: {score} on {len(users_index)} vertices",
             file=scores_txt_file,
         )
+        end = time.time()
+        print(f"(MIP) Elapsed time: {end - start}")
 
+        start = time.time()
         score, users_index, _ = graph.score_mip(alpha, relaxation=True)
         results_score["mip_relaxation"] = (score, users_index)
         print(
             f"(MIP relaxation) Echo chamber score: {score} on {len(users_index)} vertices",
             file=scores_txt_file,
         )
+        end = time.time()
+        print(f"(MIP relaxation) Elapsed time: {end - start}")
 
     if save_path is not None:
         scores_txt_file.close()
