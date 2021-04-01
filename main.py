@@ -284,14 +284,14 @@ def print_scores(
     )
 
     if exact:
-        score, users_index = graph.score_mip(alpha)
+        score, users_index, _ = graph.score_mip(alpha)
         results_score["mip"] = (score, users_index)
         print(
             f"(MIP) Echo chamber score: {score} on {len(users_index)} vertices",
             file=scores_txt_file,
         )
 
-        score, users_index = graph.score_mip(alpha, relaxation=True)
+        score, users_index, _ = graph.score_mip(alpha, relaxation=True)
         results_score["mip_relaxation"] = (score, users_index)
         print(
             f"(MIP relaxation) Echo chamber score: {score} on {len(users_index)} vertices",

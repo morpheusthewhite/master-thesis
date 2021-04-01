@@ -1038,6 +1038,7 @@ class PolarizationGraph:
         objective = 0
 
         thread_k_vars = {}
+        edge_variables = []
 
         for i, edge in enumerate(self.graph.edges()):
             thread_obj = self.threads[edge]
@@ -1045,13 +1046,17 @@ class PolarizationGraph:
 
             # ignore non controversial contents
             if content in controversial_contents:
+                source, target = tuple(edge)
+                source = int(source)
+                target = int(target)
+
                 thread = thread_obj.url
                 edge_var = pulp.LpVariable(
-                    f"x_{i}",
+                    f"x_{source}_{target}_{i}",
                     lowBound=0,
                     upBound=1,
                 )
-
+                edge_variables.append(edge_var)
                 # create the variable associated to this thread if it does not exist
                 z_k = thread_k_vars.get(thread)
                 if z_k is None:
@@ -1061,10 +1066,6 @@ class PolarizationGraph:
                     thread_k_vars[thread] = z_k
 
                 objective += edge_var
-
-                source, target = tuple(edge)
-                source = int(source)
-                target = int(target)
 
                 model += edge_var <= vertices_variables[source]
                 model += edge_var <= vertices_variables[target]
@@ -1110,9 +1111,12 @@ class PolarizationGraph:
 
         # add constraint for setting to one only vertices where at least one
         # edge is at 1
-        for vertex_index, edge_variables in vertices_edge_variables.items():
+        for (
+            vertex_index,
+            vertex_edge_variables,
+        ) in vertices_edge_variables.items():
             model += vertices_variables[vertex_index] <= pulp.lpSum(
-                edge_variables
+                vertex_edge_variables
             )
 
         model += objective
@@ -1129,7 +1133,23 @@ class PolarizationGraph:
             elif pulp.value(vertex_variable) == 1:
                 users.append(i)
 
-        return score, users
+        edges = []
+        for i, edge_variable in enumerate(edge_variables):
+            edge_name = edge_variable.name
+            edge_name_split = edge_name.split("_")
+            source = edge_name_split[1]
+            target = edge_name_split[2]
+
+            if relaxation:
+                edge = (source, target, pulp.value(edge_variable))
+                # if relaxation problem, return value of all the vertices
+                # instead of indices of non-zero nodes
+                edges.append(edge)
+            elif pulp.value(edge_variable) == 1:
+                edge = (source, target, pulp.value(edge_variable))
+                edges.append(edge)
+
+        return score, users, edges
 
     @classmethod
     def from_file(cls, filename: str):
