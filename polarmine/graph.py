@@ -656,7 +656,7 @@ class PolarizationGraph:
     ) -> float:
         # if not provided find controversial content
         if controversial_contents is None:
-            controversial_contents = self.controversial_contents()
+            controversial_contents = self.controversial_contents(alpha)
 
         thread_edges_dict = {}
         for vertex in vertices_index:
