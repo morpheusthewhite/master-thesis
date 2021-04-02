@@ -64,12 +64,17 @@ def test_graph_score_greedy_peeling():
 def test_graph_score_mip():
     graph = PolarizationGraph.from_file(GRAPH_PATH)
     assert graph is not None
+    graph.remove_self_loops()
 
-    graph.score_mip(0.1)
+    alpha = 0.3
+    score, users, _ = graph.score_mip(alpha)
+    score_vertices = graph.score_from_vertices_index(users, alpha)
+    assert score_vertices == score
 
 
 def test_graph_score_mip_relaxation():
     graph = PolarizationGraph.from_file(GRAPH_PATH)
     assert graph is not None
+    graph.remove_self_loops()
 
     graph.score_mip(0.1, relaxation=True)
