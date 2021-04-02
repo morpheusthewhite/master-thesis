@@ -659,15 +659,24 @@ class PolarizationGraph:
             controversial_contents = self.controversial_contents(alpha)
 
         thread_edges_dict = {}
+        vertices_index = set(vertices_index)
         for vertex in vertices_index:
 
-            for edge in self.graph.vertex(vertex).all_edges():
+            # consider only out edges. In this way edges will be counted only once
+            for edge in self.graph.vertex(vertex).out_edges():
                 edge_weight = self.weights[edge]
                 edge_thread = self.threads[edge]
                 edge_content = edge_thread.content
                 edge_thread_id = edge_thread.url
 
-                if edge_content in controversial_contents:
+                source, target = tuple(edge)
+                source = int(source)
+                target = int(target)
+
+                if (
+                    edge_content in controversial_contents
+                    and target in vertices_index
+                ):
                     n_negative_edges, n_edges = thread_edges_dict.get(
                         edge_thread_id, (0, 0)
                     )
