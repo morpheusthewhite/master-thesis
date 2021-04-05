@@ -290,27 +290,17 @@ def print_scores(
 
     results_score["greedy_beta_uni"] = results_greedy_beta_uni
 
-    start = time.time()
-    score, users_index = graph.score_greedy_peeling(alpha)
-    results_score["greedy_peeling"] = (score, users_index)
-    print(
-        f"(Greedy peeling) Echo chamber score: {score} on {len(users_index)} vertices",
-        file=scores_txt_file,
-    )
-    end = time.time()
-    print(f"(Greedy peeling) Elapsed time: {end - start}")
+    #  start = time.time()
+    #  score, users_index = graph.score_greedy_peeling(alpha)
+    #  results_score["greedy_peeling"] = (score, users_index)
+    #  print(
+    #      f"(Greedy peeling) Echo chamber score: {score} on {len(users_index)} vertices",
+    #      file=scores_txt_file,
+    #  )
+    #  end = time.time()
+    #  print(f"(Greedy peeling) Elapsed time: {end - start}")
 
     if exact:
-        start = time.time()
-        score, users_index, _ = graph.score_mip(alpha)
-        results_score["mip"] = (score, users_index)
-        print(
-            f"(MIP) Echo chamber score: {score} on {len(users_index)} vertices",
-            file=scores_txt_file,
-        )
-        end = time.time()
-        print(f"(MIP) Elapsed time: {end - start}")
-
         start = time.time()
         score, users_index, _ = graph.score_mip(alpha, relaxation=True)
         results_score["mip_relaxation"] = (score, users_index)
@@ -320,6 +310,26 @@ def print_scores(
         )
         end = time.time()
         print(f"(MIP relaxation) Elapsed time: {end - start}")
+
+        start = time.time()
+        score, users_index = graph.score_relaxation_algorithm(alpha)
+        results_score["mip_relaxation_algorithm"] = (score, users_index)
+        print(
+            f"(MIP relaxation algorithm) Echo chamber score: {score} on {len(users_index)} vertices",
+            file=scores_txt_file,
+        )
+        end = time.time()
+        print(f"(MIP relaxation algorithm) Elapsed time: {end - start}")
+
+        start = time.time()
+        score, users_index, _ = graph.score_mip(alpha)
+        results_score["mip"] = (score, users_index)
+        print(
+            f"(MIP) Echo chamber score: {score} on {len(users_index)} vertices",
+            file=scores_txt_file,
+        )
+        end = time.time()
+        print(f"(MIP) Elapsed time: {end - start}")
 
     if save_path is not None:
         scores_txt_file.close()
