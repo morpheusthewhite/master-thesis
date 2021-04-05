@@ -78,3 +78,11 @@ def test_graph_score_mip_relaxation():
     graph.remove_self_loops()
 
     graph.score_mip(0.1, relaxation=True)
+
+
+def test_graph_score_mip_relaxation_r():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+    graph.remove_self_loops()
+
+    graph.score_relaxation_algorithm(0.1)
