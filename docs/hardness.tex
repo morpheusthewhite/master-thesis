@@ -1,0 +1,197 @@
+\documentclass{article}
+
+% math stuff
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{xcolor}
+
+\usepackage{mathtools}
+
+\usepackage{float}
+\usepackage{subcaption}
+
+% to insert images
+\usepackage{graphicx}
+
+% to correctly insert stressed characters
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{multirow}
+
+% Bibliography
+% \usepackage[style=alphabetic]{biblatex}
+% \usepackage[nottoc]{tocbibind}
+% \usepackage{bibentry}
+% \setcounter{biburllcpenalty}{9000}
+% \usepackage{nameref}
+
+% to put links in table of contents
+\usepackage{hyperref}
+\hypersetup{colorlinks=false, %set true if you want colored links
+	linktoc=all,     %set to all if you
+}
+
+% Add symbols
+% \usepackage{textcomp}
+
+% Add command for Real and Z sets
+% \usepackage{dsfont}
+% \newcommand{\Rset}{$\mathds{R}$}
+% \newcommand{\Zset}{$\mathds{Z}$}
+
+% Code highlighting
+% \usepackage{minted}
+% \usemintedstyle{perldoc}
+% \setminted{
+%     frame=single,
+%     breaklines,
+% }
+
+% tikz figures
+\usepackage{tikz}
+\usepackage{tikzit}
+\input{style.tikzstyles}
+\usetikzlibrary{positioning}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{claim}[theorem]{Claim}
+
+\begin{document}
+
+\section*{Hardness of Echo Chamber Problem}%
+\label{sec:np_hardness_of_echo_chamber_problem}
+
+\begin{theorem}
+	\label{th:hardness}
+	Solving exactly the Echo Chamber Problem is $\mathcal{NP}$-hard.
+\end{theorem}
+
+\begin{proof}
+	We show this by presenting a direct reduction from Maximum Clique, which is
+	well-known to have the mentioned hardness factor.
+
+	\bigskip
+	Let $G_{1}  = (V_{1} ,E_{1} )$ be an undirected and unweighted graph and
+	$\lambda \geq \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N}$.
+	We construct the \emph{interaction} graph ${G}_{2}  = (V_{2} , E^{+}_{2} , E
+			^{-}_{2} ) $ as follows
+
+	\begin{itemize}
+		\item for each vertex $v_{i}  \in V_{1} $ we add a vertex in $G_{2} $
+		\item for each edge $e_{ij}  \in
+			      E_{1} $ add a positive edge between $v_{i} $ and $v_{j} $
+		\item for each edge $e_{ij} \in V_{1} \times V_{1}, e_{ij}  \not\in
+			      E_{1} $ add $\lambda n^{2}_{1}  $ negative edges between $v_{i} $ and $v_{j} $.
+		\item add a vertex $v_x$ and $\lambda n_{1} $ negative edges between $v_x$
+		      and each other vertex $v_i$ in $G_2$.
+	\end{itemize}
+
+	Furthermore, all the edges in $G_{2} $ are associated to the same content
+	$C$ and the same thread $T \in \mathcal{T}_{C}  $.
+	An illustration of the conversion can be found in \autoref{fig:construction}.
+
+	\begin{figure}[hbt]
+		\begin{center}
+			\begin{subfigure}[b]{0.4\textwidth}
+				\centering
+				\caption{$G_{1}$, undirected graph}
+				\tikzfig{tikz/hardness1}
+				\label{fig:g1_example}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.4\textwidth}
+				\centering
+				\tikzfig{tikz/hardness2}
+				\caption{$G_{2}$, directed signed graph, for $\lambda = 1$}
+				\label{fig:g2_example}
+			\end{subfigure}
+		\end{center}
+		\caption{Example construction of the interaction graph $G_{2} $ from
+			$G_{1} $, for $\alpha = \frac{1}{2} $}
+		\label{fig:construction}
+	\end{figure}
+
+	\begin{claim}
+		\label{th:claim-controversial}
+		Content $C$ is controversial.
+	\end{claim}
+	\begin{proof}
+		Let $m_{2}^{+} $ be the number of positive edges in $G_{2} $.
+
+		By construction $m_{2}^{+} = m _{1} $ and $m_{2}^{-} \geq
+			\lambda n_{1}^{2}  $ so
+		\begin{align}
+			\eta(C) = \frac{m_{2}^{-} }{m_{2}^{-} +
+				m_{2}^{+} } \geq \frac{\lambda n_{1}^{2}}{\lambda n_{1}^{2}
+				+ m_{1} } \geq \frac{\lambda n_{1}^{2}}{\lambda n_{1}^{2}
+				+ n_{1}(n _{1} -1 )  } \geq \frac{\lambda n_{1}^{2}}{\lambda n_{1}^{2}
+			+ n_{1}^{2} } = \\
+			= \frac{\lambda }{\lambda + 1} =
+			\frac{ \frac{\alpha }{1 - \alpha }  }{ \frac{\alpha }{1 - \alpha }
+				+ 1 } \geq \alpha
+		\end{align}
+	\end{proof}
+
+	This reduces the Echo Chamber Problem on $G_2$ to the maximization of
+
+	\begin{equation}
+		\xi(U) = \sum^{}_{T \in S_{C}(U) } | T[U] |
+	\end{equation}
+
+	\begin{claim}
+		\label{th:claim-complete}
+		The solution of the Echo Chamber Problem for $G_2$ is a set of vertices
+		$\{ v_{ia} \} _{i \in I}  \subseteq V_{2} $ which is a clique
+		in $G_{1} $.
+	\end{claim}
+
+	\begin{proof}
+		Let $U \coloneqq \{ v_{ia} \} _{i \in I}  \subseteq V_{2} $ be the
+		solution of the Echo Chamber Problem on $G_2$.
+
+		We can assume $\xi(U) > 0$ (otherwise the proof is
+		trivial)\footnote{In this case any subset of $V_{2} $ maximizes the echo
+			chamber score, and this would clearly
+			violate Claim~\ref{th:claim-complete}. For simplicity we can
+			assume that in this case the algorithm returns a
+			\emph{singleton}.}.
+		It is also easy to see that $U$ does not contain $v_x$\footnote{Similarly
+			to the proof of Claim~\ref{th:claim-controversial} it can be shown
+			that if $v_x \in U$ then $T$ becomes controversial}.
+
+		Now suppose that $U$ does not induce a complete subgraph on $G_1$. This
+		means that there is at least one missing edge $e_{ij} \in V_1 \times
+			V_1 $, $x_{ij} \not\in E_1$ and consequently at
+		least $\lambda n^{2}_{1}  $ negative edges in $T[U]$. Let $n_U
+			\coloneqq |U|$, then
+
+		\begin{equation}
+			\eta(T) \geq \frac{\lambda n_{1} ^{2} }{\lambda n_{1} ^{2} + n_U (n_U -1) }
+			\geq \frac{\lambda n_{1} ^{2} }{\lambda n_{1} ^{2} + n_{1} ^{2}  }
+			= \frac{\lambda }{\lambda + 1} \geq \alpha
+		\end{equation}
+
+		Therefore thread $T$ is controversial and does not
+		contribute to the score $\implies \xi(U) = 0 \implies$ \emph{contradiction}.
+	\end{proof}
+
+	\begin{claim}
+		\label{th:max-clique}
+		The solution of the Echo Chamber Score for $G_2$ is a set of vertices
+		$U$ associated to the \emph{maximum clique} of $G_1$.
+	\end{claim}
+
+	\begin{proof}
+		Suppose there is a set of vertices $\tilde{U} \neq U, |\tilde{U}| >
+			|U|$ which is a clique for $G_1$. Then by construction it will
+		contain only positive edge in $G_2$ and will be
+		non-controversial. Also, being $|T[\tilde{U}]| > |T[U]| \implies
+			\xi(\tilde{U}) > \xi(U) \implies $ \emph{contradiction}.
+	\end{proof}
+
+	This concludes the proof of \autoref{th:hardness}.
+\end{proof}
+
+\end{document}
