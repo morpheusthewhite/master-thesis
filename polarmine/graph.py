@@ -648,12 +648,24 @@ class PolarizationGraph:
 
         return np.median(distances)
 
-    def score_from_vertices_index(
+    def __vertices_subthreads_dict__(
         self,
         vertices_index: list[int],
         alpha: int,
         controversial_contents: set = None,
-    ) -> float:
+    ) -> dict:
+        """Find negativity for all the threads in the graph induced by the
+        vertices
+
+        Args:
+            vertices_index (list[int]): the list of vertices of the subgraphs
+            alpha (int): alpha for controversy definition
+            controversial_contents (set): the set of controversial_contents
+
+        Returns:
+            dict: dictionary with keys thread and value (num neg. edges, num
+            edges) for the subgraphs induced by the vertices
+        """
         # if not provided find controversial content
         if controversial_contents is None:
             controversial_contents = self.controversial_contents(alpha)
@@ -662,7 +674,8 @@ class PolarizationGraph:
         vertices_index = set(vertices_index)
         for vertex in vertices_index:
 
-            # consider only out edges. In this way edges will be counted only once
+            # consider only out edges. In this way edges will be counted only
+            # once
             for edge in self.graph.vertex(vertex).out_edges():
                 edge_weight = self.weights[edge]
                 edge_thread = self.threads[edge]
@@ -690,9 +703,20 @@ class PolarizationGraph:
                         n_edges,
                     )
 
+        return thread_edges_dict
+
+    def score_from_vertices_index(
+        self,
+        vertices_index: list[int],
+        alpha: int,
+        controversial_contents: set = None,
+    ) -> float:
+        thread_edges_dict = self.__vertices_subthreads_dict__(
+            vertices_index, alpha, controversial_contents
+        )
         score = 0
 
-        for thread, n_edges_tuple in thread_edges_dict.items():
+        for n_edges_tuple in thread_edges_dict.values():
             n_negative_edges, n_edges = n_edges_tuple
 
             if n_negative_edges / n_edges <= alpha:
@@ -1023,7 +1047,7 @@ class PolarizationGraph:
 
     def score_mip(
         self, alpha: float, relaxation: bool = False
-    ) -> (int, list[int]):
+    ) -> (int, list[int], list[tuple]):
         variables_cat = pulp.LpContinuous if relaxation else pulp.LpBinary
         variables_lb = 0 if relaxation else None
         variables_ub = 1 if relaxation else None
@@ -1041,12 +1065,16 @@ class PolarizationGraph:
             for index in self.graph.get_vertices()
         ]
 
+        # thread: ([negative edges vars],[edges variables]) dictionary
         thread_edges_dict = {}
         # dictionary of edge variables incident to edges
         vertices_edge_variables = {}
+        # objective function of the problem
         objective = 0
 
+        # thread: thread_variable (z_k)
         thread_k_vars = {}
+        # list of all the edge variables x_ij
         edge_variables = []
 
         for i, edge in enumerate(self.graph.edges()):
@@ -1146,8 +1174,8 @@ class PolarizationGraph:
         for i, edge_variable in enumerate(edge_variables):
             edge_name = edge_variable.name
             edge_name_split = edge_name.split("_")
-            source = edge_name_split[1]
-            target = edge_name_split[2]
+            source = int(edge_name_split[1])
+            target = int(edge_name_split[2])
 
             if relaxation:
                 edge = (source, target, pulp.value(edge_variable))
@@ -1159,6 +1187,43 @@ class PolarizationGraph:
                 edges.append(edge)
 
         return score, users, edges
+
+    def score_relaxation_algorithm(self, alpha: float) -> (int, list[int]):
+        controversial_contents = self.controversial_contents(alpha)
+
+        _, users, edges = self.score_mip(alpha, relaxation=True)
+        users = [user if user is not None else -1 for user in users]
+
+        edges_np = np.array(edges)
+        # exclude vertices set to 0
+        edges_np = edges_np[edges_np[:, 2] != 0]
+
+        # sort edges by weight in descending order
+        edges_sorted = edges_np[np.flip(np.argsort(edges_np[:, 2]))]
+
+        score_max = 0
+        score_max_vertices = None
+
+        vertices = set()
+        vertices_size = 0
+
+        for edge in edges_sorted:
+            source = edge[0]
+            target = edge[1]
+
+            vertices.add(source)
+            vertices.add(target)
+
+            if len(vertices) != vertices_size:
+                score = self.score_from_vertices_index(
+                    vertices, alpha, controversial_contents
+                )
+
+                if score > score_max:
+                    score_max = score
+                    score_max_vertices = vertices.copy()
+
+        return score_max, score_max_vertices
 
     @classmethod
     def from_file(cls, filename: str):
