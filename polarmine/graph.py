@@ -1202,7 +1202,7 @@ class PolarizationGraph:
         edges_sorted = edges_np[np.flip(np.argsort(edges_np[:, 2]))]
 
         score_max = 0
-        score_max_vertices = None
+        score_max_vertices = []
 
         vertices = set()
         vertices_size = 0
