@@ -137,6 +137,7 @@
 	This reduces the Echo Chamber Problem on $G_2$ to the maximization of
 
 	\begin{equation}
+		\label{eq:score}
 		\xi(U) = \sum^{}_{T \in S_{C}(U) } | T[U] |
 	\end{equation}
 
@@ -173,14 +174,14 @@
 			= \frac{\lambda }{\lambda + 1} \geq \alpha
 		\end{equation}
 
-		Therefore thread $T$ is controversial and does not
+		Therefore, thread $T$ is controversial and does not
 		contribute to the score $\implies \xi(U) = 0 \implies$ \emph{contradiction}.
 	\end{proof}
 
 	\begin{claim}
 		\label{th:max-clique}
-		The solution of the Echo Chamber Score for $G_2$ is a set of vertices
-		$U$ associated to the \emph{maximum clique} of $G_1$.
+		The solution of the Echo Chamber Problem for $G_2$ is a set of vertices
+		$U$ associated to a \emph{maximum clique} of $G_1$.
 	\end{claim}
 
 	\begin{proof}
@@ -188,7 +189,30 @@
 			|U|$ which is a clique for $G_1$. Then by construction it will
 		contain only positive edge in $G_2$ and will be
 		non-controversial. Also, being $|T[\tilde{U}]| > |T[U]| \implies
-			\xi(\tilde{U}) > \xi(U) \implies $ \emph{contradiction}.
+			\xi(\tilde{U}) > \xi(U) \implies contradiction$.
+	\end{proof}
+
+	\begin{claim}
+		The set of vertices defining a maximum clique on $G_1$
+		% corresponds to a  of the Echo Chamber Problem on $G_2$.
+		corresponds to a solution of the Echo Chamber Problem on $G_2$.
+	\end{claim}
+
+	\begin{proof}
+		Let $U \subseteq V_1$ be a set of nodes defining a maximum clique on
+		$G_1$ and $n_{U} = |U|$. By construction $T[U]$ will not be controversial and
+
+		\begin{equation}
+			\xi(U) = T[U] = n_{U} (n_{U} -1 )
+		\end{equation}
+
+		Now suppose $\exists \tilde{U} \subseteq V_2 \; s.t. \; \xi(\tilde{U})
+			> \xi(U)$. Due to Claim~\ref{th:claim-complete} $U_2$ induces a
+		clique on $G_1$; consequently $T[\tilde{U}]$ has only positive
+		edges and $\xi(\tilde{U}) = |T[\tilde{U}]| = n_{\tilde{U}} (n_{\tilde{U}} - 1)$.
+
+		And since $\xi(\tilde{U}) > \xi({U}) \implies n_{\tilde{U}} > n_{U}
+			\implies contradiction$.
 	\end{proof}
 
 	This concludes the proof of \autoref{th:hardness}.
