@@ -126,7 +126,7 @@
 			\eta(C) = \frac{m_{2}^{-} }{m_{2}^{-} +
 				m_{2}^{+} } \geq \frac{\lambda n_{1}^{2}}{\lambda n_{1}^{2}
 				+ m_{1} } \geq \frac{\lambda n_{1}^{2}}{\lambda n_{1}^{2}
-				+ n_{1}(n _{1} -1 )  } \geq \frac{\lambda n_{1}^{2}}{\lambda n_{1}^{2}
+				+ n_{1}(n _{1} -1 )/2  } \geq \frac{\lambda n_{1}^{2}}{\lambda n_{1}^{2}
 			+ n_{1}^{2} } = \\
 			= \frac{\lambda }{\lambda + 1} =
 			\frac{ \frac{\alpha }{1 - \alpha }  }{ \frac{\alpha }{1 - \alpha }
@@ -169,7 +169,8 @@
 			\coloneqq |U|$, then
 
 		\begin{equation}
-			\eta(T) \geq \frac{\lambda n_{1} ^{2} }{\lambda n_{1} ^{2} + n_U (n_U -1) }
+			\eta(T) \geq \frac{\lambda n_{1} ^{2} }{\lambda n_{1} ^{2} + n_U
+				(n_U -1)/2 }
 			\geq \frac{\lambda n_{1} ^{2} }{\lambda n_{1} ^{2} + n_{1} ^{2}  }
 			= \frac{\lambda }{\lambda + 1} \geq \alpha
 		\end{equation}
@@ -203,13 +204,14 @@
 		$G_1$ and $n_{U} = |U|$. By construction $T[U]$ will not be controversial and
 
 		\begin{equation}
-			\xi(U) = T[U] = n_{U} (n_{U} -1 )
+			\xi(U) = |T[U]| = n_{U} (n_{U} -1 )/2
 		\end{equation}
 
 		Now suppose $\exists \tilde{U} \subseteq V_2 \; s.t. \; \xi(\tilde{U})
 			> \xi(U)$. Due to Claim~\ref{th:claim-complete} $U_2$ induces a
 		clique on $G_1$; consequently $T[\tilde{U}]$ has only positive
-		edges and $\xi(\tilde{U}) = |T[\tilde{U}]| = n_{\tilde{U}} (n_{\tilde{U}} - 1)$.
+		edges and $\xi(\tilde{U}) = |T[\tilde{U}]| = n_{\tilde{U}}
+			(n_{\tilde{U}} - 1)/2$.
 
 		And since $\xi(\tilde{U}) > \xi({U}) \implies n_{\tilde{U}} > n_{U}
 			\implies contradiction$.
