@@ -67,8 +67,8 @@ def test_graph_score_mip():
     graph.remove_self_loops()
 
     alpha = 0.3
-    score, users, _ = graph.score_mip(alpha)
-    score_vertices = graph.score_from_vertices_index(users, alpha)
+    score, users, _, _ = graph.score_mip(alpha)
+    score_vertices, _ = graph.score_from_vertices_index(users, alpha)
     assert score_vertices == score
 
 
