@@ -247,10 +247,10 @@ def print_scores(
     results_score = {}
 
     start = time.time()
-    score, users_index = graph.score_components(alpha)
+    score, users_index, nc_threads = graph.score_components(alpha)
     results_score["components"] = (score, users_index)
     print(
-        f"(Connected components) Echo chamber score: {score} on {len(users_index)} vertices",
+        f"(Connected components) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
         file=scores_txt_file,
     )
     end = time.time()
@@ -259,10 +259,10 @@ def print_scores(
     results_greedy_beta_pos = {}
     for beta in [i / 10 for i in range(6, 11, 1)]:
         start = time.time()
-        score, users_index = graph.score_greedy_beta(alpha, beta)
+        score, users_index, nc_threads = graph.score_greedy_beta(alpha, beta)
         results_greedy_beta_pos[beta] = (score, users_index)
         print(
-            f"(Greedy beta={beta}, pos. sampling) Echo chamber score: {score} on {len(users_index)} vertices",
+            f"(Greedy beta={beta}, pos. sampling) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
             file=scores_txt_file,
         )
         end = time.time()
@@ -275,12 +275,12 @@ def print_scores(
     results_greedy_beta_uni = {}
     for beta in [i / 10 for i in range(6, 11, 1)]:
         start = time.time()
-        score, users_index = graph.score_greedy_beta(
+        score, users_index, nc_threads = graph.score_greedy_beta(
             alpha, beta, positiveness_samples=False
         )
         results_greedy_beta_uni[beta] = (score, users_index)
         print(
-            f"(Greedy beta={beta}, unif. sampling) Echo chamber score: {score} on {len(users_index)} vertices",
+            f"(Greedy beta={beta}, unif. sampling) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
             file=scores_txt_file,
         )
         end = time.time()
@@ -290,42 +290,46 @@ def print_scores(
 
     results_score["greedy_beta_uni"] = results_greedy_beta_uni
 
-    #  start = time.time()
-    #  score, users_index = graph.score_greedy_peeling(alpha)
-    #  results_score["greedy_peeling"] = (score, users_index)
-    #  print(
-    #      f"(Greedy peeling) Echo chamber score: {score} on {len(users_index)} vertices",
-    #      file=scores_txt_file,
-    #  )
-    #  end = time.time()
-    #  print(f"(Greedy peeling) Elapsed time: {end - start}")
+    start = time.time()
+    score, users_index, nc_threads = graph.score_greedy_peeling(alpha)
+    results_score["greedy_peeling"] = (score, users_index)
+    print(
+        f"(Greedy peeling) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+        file=scores_txt_file,
+    )
+    end = time.time()
+    print(f"(Greedy peeling) Elapsed time: {end - start}")
 
     if exact:
         start = time.time()
-        score, users_index, _ = graph.score_mip(alpha, relaxation=True)
+        score, users_index, _, nc_threads = graph.score_mip(
+            alpha, relaxation=True
+        )
         results_score["mip_relaxation"] = (score, users_index)
         print(
-            f"(MIP relaxation) Echo chamber score: {score} on {len(users_index)} vertices",
+            f"(MIP relaxation) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
             file=scores_txt_file,
         )
         end = time.time()
         print(f"(MIP relaxation) Elapsed time: {end - start}")
 
         start = time.time()
-        score, users_index = graph.score_relaxation_algorithm(alpha)
+        score, users_index, nc_threads = graph.score_relaxation_algorithm(
+            alpha
+        )
         results_score["mip_relaxation_algorithm"] = (score, users_index)
         print(
-            f"(MIP relaxation algorithm) Echo chamber score: {score} on {len(users_index)} vertices",
+            f"(MIP relaxation algorithm) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
             file=scores_txt_file,
         )
         end = time.time()
         print(f"(MIP relaxation algorithm) Elapsed time: {end - start}")
 
         start = time.time()
-        score, users_index, _ = graph.score_mip(alpha)
+        score, users_index, _, nc_threads = graph.score_mip(alpha)
         results_score["mip"] = (score, users_index)
         print(
-            f"(MIP) Echo chamber score: {score} on {len(users_index)} vertices",
+            f"(MIP) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
             file=scores_txt_file,
         )
         end = time.time()
