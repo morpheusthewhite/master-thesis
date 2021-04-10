@@ -715,6 +715,7 @@ class PolarizationGraph:
             vertices_index, alpha, controversial_contents
         )
         score = 0
+        nc_threads = 0
 
         for n_edges_tuple in thread_edges_dict.values():
             n_negative_edges, n_edges = n_edges_tuple
@@ -722,8 +723,9 @@ class PolarizationGraph:
             if n_negative_edges / n_edges <= alpha:
                 # non controversial threads
                 score += n_edges
+                nc_threads += 1
 
-        return score
+        return score, nc_threads
 
     def controversial_contents(self, alpha: float) -> set:
         content_dict = self.negative_edges_fraction_content_dict()
@@ -741,19 +743,21 @@ class PolarizationGraph:
         n_components = int(np.max(comp.a) + 1)
         max_score = 0
         max_users_index = []
+        max_nc_threads = []
 
         for i in range(n_components):
             vertices_index = np.where(comp.a == i)[0]
 
-            score = self.score_from_vertices_index(
+            score, nc_threads = self.score_from_vertices_index(
                 vertices_index, alpha, controversial_contents
             )
 
             if score > max_score:
                 max_score = score
                 max_users_index = vertices_index
+                max_nc_threads = nc_threads
 
-        return max_score, max_users_index
+        return max_score, max_users_index, max_nc_threads
 
     def __find_best_neighbour__(
         self,
@@ -767,7 +771,7 @@ class PolarizationGraph:
         score_neighbour_best = -1
 
         for neighbour in neighbours:
-            score_neighbour = self.score_from_vertices_index(
+            (score_neighbour, _,) = self.score_from_vertices_index(
                 vertices + [neighbour],
                 alpha,
                 controversial_contents,
@@ -799,7 +803,7 @@ class PolarizationGraph:
             # vertices, excluding the current one
             vertices_current = vertices[:i] + vertices[i + 1 :]
 
-            score_vertex = self.score_from_vertices_index(
+            score_vertex, _ = self.score_from_vertices_index(
                 vertices_current,
                 alpha,
                 controversial_contents,
@@ -839,11 +843,12 @@ class PolarizationGraph:
         # if there are no controversial contents avoid executing the algorithm
         controversial_contents = self.controversial_contents(alpha)
         if len(controversial_contents) == 0:
-            return 0, []
+            return 0, [], 0
 
         # best score and corresponding users along iterations
         score = -1
         users_index = []
+        nc_threads = 0
 
         if positiveness_samples:
             sample_probabilities = self.positiveness_probabilities()
@@ -927,7 +932,11 @@ class PolarizationGraph:
                 score = score_current
                 users_index = vertices
 
-        return score, users_index
+        # calculate number of controversial threads
+        score, nc_threads = self.score_from_vertices_index(
+            users_index, alpha, controversial_contents
+        )
+        return score, users_index, nc_threads
 
     def __neighbours_merge__(
         self, neighbours: set, vertex: int, vertices: set
@@ -978,21 +987,23 @@ class PolarizationGraph:
         # if there are no controversial contents avoid executing the algorithm
         controversial_contents = self.controversial_contents(alpha)
         if len(controversial_contents) == 0:
-            return 0, []
+            return 0, [], 0
 
         # best score and corresponding users along iterations
         max_score = -1
         max_users_index = []
+        max_nc_threads = 0
 
         while len(vertices_index) > 1:
 
-            score_current = self.score_from_vertices_index(
+            score_current, nc_threads = self.score_from_vertices_index(
                 vertices_index, alpha, controversial_contents
             )
 
             if score_current > max_score:
                 max_score = score_current
                 max_users_index = vertices_index.copy()
+                max_nc_threads = nc_threads
 
             # remove the node to obtain the highest score
             vertex_worst, new_score = self.__find_worst_vertex__(
@@ -1004,7 +1015,7 @@ class PolarizationGraph:
             # remove the node from the array
             vertices_index.pop(vertex_worst_index)
 
-        return max_score, max_users_index
+        return max_score, max_users_index, max_nc_threads
 
     def vertices_positiveness(self) -> np.array:
         """calculate fraction of positive edges for each vertex
@@ -1180,18 +1191,29 @@ class PolarizationGraph:
             if relaxation:
                 edge = (source, target, pulp.value(edge_variable))
                 # if relaxation problem, return value of all the vertices
-                # instead of indices of non-zero nodes
+                # instead of indices of non-zero edges
                 edges.append(edge)
             elif pulp.value(edge_variable) == 1:
                 edge = (source, target, pulp.value(edge_variable))
                 edges.append(edge)
 
-        return score, users, edges
+        nc_threads = []
+        for i, thread_variable in enumerate(thread_k_vars.values()):
+
+            thread_value = pulp.value(thread_variable)
+            if relaxation:
+                # if relaxation problem, return value of all the vertices
+                # instead of indices of non-zero threads
+                nc_threads.append(thread_value)
+            elif thread_value == 1:
+                edges.append(i)
+
+        return score, users, edges, nc_threads
 
     def score_relaxation_algorithm(self, alpha: float) -> (int, list[int]):
         controversial_contents = self.controversial_contents(alpha)
 
-        _, users, edges = self.score_mip(alpha, relaxation=True)
+        _, users, edges, _ = self.score_mip(alpha, relaxation=True)
         users = [user if user is not None else -1 for user in users]
 
         edges_np = np.array(edges)
@@ -1203,6 +1225,7 @@ class PolarizationGraph:
 
         score_max = 0
         score_max_vertices = []
+        score_max_nc_threads = 0
 
         vertices = set()
         vertices_size = 0
@@ -1215,15 +1238,16 @@ class PolarizationGraph:
             vertices.add(target)
 
             if len(vertices) != vertices_size:
-                score = self.score_from_vertices_index(
+                score, nc_threads = self.score_from_vertices_index(
                     vertices, alpha, controversial_contents
                 )
 
                 if score > score_max:
                     score_max = score
                     score_max_vertices = vertices.copy()
+                    score_max_nc_threads = nc_threads
 
-        return score_max, score_max_vertices
+        return score_max, score_max_vertices, score_max_nc_threads
 
     @classmethod
     def from_file(cls, filename: str):
