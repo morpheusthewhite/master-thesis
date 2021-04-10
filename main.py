@@ -241,9 +241,13 @@ def print_scores(
 ):
     if save_path is None:
         scores_txt_file = sys.stdout
+        times_txt_file = sys.stdout
     else:
         scores_txt = os.path.join(save_path, "scores.txt")
         scores_txt_file = open(scores_txt, "w")
+        times_txt = os.path.join(save_path, "times.txt")
+        times_txt_file = open(times_txt, "w")
+
     results_score = {}
 
     start = time.time()
@@ -254,7 +258,10 @@ def print_scores(
         file=scores_txt_file,
     )
     end = time.time()
-    print(f"(Connected components) Elapsed time: {end - start}")
+    print(
+        f"(Connected components) Elapsed time: {end - start}",
+        file=times_txt_file,
+    )
 
     results_greedy_beta_pos = {}
     for beta in [i / 10 for i in range(6, 11, 1)]:
@@ -267,7 +274,8 @@ def print_scores(
         )
         end = time.time()
         print(
-            f"(Greedy beta={beta}, pos. sampling) Elapsed time: {end - start}"
+            f"(Greedy beta={beta}, pos. sampling) Elapsed time: {end - start}",
+            file=times_txt_file,
         )
 
     results_score["greedy_beta_pos"] = results_greedy_beta_pos
@@ -285,7 +293,8 @@ def print_scores(
         )
         end = time.time()
         print(
-            f"(Greedy beta={beta}, unif. sampling) Elapsed time: {end - start}"
+            f"(Greedy beta={beta}, unif. sampling) Elapsed time: {end - start}",
+            file=times_txt_file,
         )
 
     results_score["greedy_beta_uni"] = results_greedy_beta_uni
@@ -298,7 +307,10 @@ def print_scores(
         file=scores_txt_file,
     )
     end = time.time()
-    print(f"(Greedy peeling) Elapsed time: {end - start}")
+    print(
+        f"(Greedy peeling) Elapsed time: {end - start}",
+        file=times_txt_file,
+    )
 
     if exact:
         start = time.time()
@@ -311,7 +323,10 @@ def print_scores(
             file=scores_txt_file,
         )
         end = time.time()
-        print(f"(MIP relaxation) Elapsed time: {end - start}")
+        print(
+            f"(MIP relaxation) Elapsed time: {end - start}",
+            file=times_txt_file,
+        )
 
         start = time.time()
         score, users_index, nc_threads = graph.score_relaxation_algorithm(
@@ -323,7 +338,10 @@ def print_scores(
             file=scores_txt_file,
         )
         end = time.time()
-        print(f"(MIP relaxation algorithm) Elapsed time: {end - start}")
+        print(
+            f"(MIP relaxation algorithm) Elapsed time: {end - start}",
+            file=times_txt_file,
+        )
 
         start = time.time()
         score, users_index, _, nc_threads = graph.score_mip(alpha)
@@ -333,7 +351,10 @@ def print_scores(
             file=scores_txt_file,
         )
         end = time.time()
-        print(f"(MIP) Elapsed time: {end - start}")
+        print(
+            f"(MIP) Elapsed time: {end - start}",
+            file=times_txt_file,
+        )
 
     if save_path is not None:
         scores_txt_file.close()
