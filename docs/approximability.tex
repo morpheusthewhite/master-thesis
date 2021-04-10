@@ -1,0 +1,197 @@
+\documentclass{article}
+
+% math stuff
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{xcolor}
+
+\usepackage{mathtools}
+
+\usepackage{float}
+\usepackage{subcaption}
+
+% to insert images
+\usepackage{graphicx}
+
+% to correctly insert stressed characters
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{multirow}
+
+% Bibliography
+% \usepackage[style=alphabetic]{biblatex}
+% \usepackage[nottoc]{tocbibind}
+% \usepackage{bibentry}
+% \setcounter{biburllcpenalty}{9000}
+% \usepackage{nameref}
+
+% to put links in table of contents
+\usepackage{hyperref}
+\hypersetup{colorlinks=false, %set true if you want colored links
+	linktoc=all,     %set to all if you
+}
+
+% Add symbols
+% \usepackage{textcomp}
+
+% Add command for Real and Z sets
+% \usepackage{dsfont}
+% \newcommand{\Rset}{$\mathds{R}$}
+% \newcommand{\Zset}{$\mathds{Z}$}
+
+% Code highlighting
+% \usepackage{minted}
+% \usemintedstyle{perldoc}
+% \setminted{
+%     frame=single,
+%     breaklines,
+% }
+
+% tikz figures
+\usepackage{tikz}
+\usepackage{tikzit}
+\input{style.tikzstyles}
+\usetikzlibrary{positioning}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{claim}[theorem]{Claim}
+
+\begin{document}
+
+\section*{Approximability of Echo Chamber Problem}%
+\label{sec:approximability_of_echo_chamber_problem}
+
+\begin{theorem}
+	\label{th:approximability}
+	Echo Chamber Problem (ECP) has no $n^{1-\epsilon} $-approximation algorithm for
+	any $\epsilon$ unless $\mathcal{P} = \mathcal{NP}  $
+\end{theorem}
+
+\begin{proof}
+	We show this by presenting a direct reduction from \textsc{Maximum
+		Indipendent Set} (MIS), which is known having the mentioned hardness factor.
+
+	\bigskip
+	Let $G_{1}  = (V_{1} ,E_{1} )$ be an undirected and unweighted graph and
+	$\lambda \geq \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N}$.
+	We construct the \emph{interaction} graph ${G}_{2}  = (V_{2} , E^{+}_{2} , E
+			^{-}_{2} ) $ as follows
+
+	\begin{itemize}
+		\item for each vertex $v_{i}  \in V_{1} $ we add a vertex in $G_{2} $
+		\item for each edge $e_{ij}  \in
+			      E_{1} $ we add $\lambda n$ negative edges between $v_{i} $ and $v_{j} $
+		\item add a vertex $v_r$ and a positive edge between it and any other
+		      vertex that we already inserted in $G_2$
+		\item add a vertex $v_x$ and $\lambda n_{1} $ negative edges between $v_x$
+		      and $v_{r} $
+	\end{itemize}
+
+	Furthermore, all the edges in $G_{2} $ are associated to the same content
+	$C$ and the same thread $T \in \mathcal{T}_{C}  $.
+	An illustration of the conversion can be found in \autoref{fig:construction}.
+
+	\begin{figure}[hbt]
+		\begin{center}
+			\begin{subfigure}[b]{0.4\textwidth}
+				\centering
+				\caption{$G_{1}$, undirected graph}
+				\tikzfig{tikz/approximability1}
+				\label{fig:g1_example}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.4\textwidth}
+				\centering
+				\tikzfig{tikz/approximability2}
+				\caption{$G_{2}$, directed signed graph, for $\lambda = 1$}
+				\label{fig:g2_example}
+			\end{subfigure}
+		\end{center}
+		\caption{Example construction of the interaction graph $G_{2} $ from
+			$G_{1} $, for $\alpha = \frac{1}{2} $}
+		\label{fig:construction}
+	\end{figure}
+
+	\begin{claim}
+		\label{th:claim-controversial}
+		Content $C$ is controversial.
+	\end{claim}
+	\begin{proof}
+		Let $m_{2}^{-} $ and $m_{2}^{+} $ be the number of negative and
+		positive edges in $G_2$, respectively.
+
+		By constuction $m_{2}^{+} = n_{1} $ and $m_{2}^{-} \geq \lambda n$.
+		Consequently
+
+		\begin{align}
+			\eta(C) = \frac{m_{2}^{-} }{m_{2}^{-} +
+				m_{2}^{+} } \geq \frac{\lambda n_{1}}{\lambda n_{1}
+				+ n_{1} } = \frac{\lambda }{\lambda + 1} =
+			\frac{ \frac{\alpha }{1 - \alpha }  }{ \frac{\alpha }{1 - \alpha }
+				+ 1 } \geq \alpha
+		\end{align}
+	\end{proof}
+
+	So content C is controversial. This reduces the Echo Chamber Problem on $G_2$ to the maximization of
+
+	\begin{equation}
+		\label{eq:score}
+		\xi(U) = \sum^{}_{T \in S_{C}(U) } | T[U] |
+	\end{equation}
+
+	\begin{claim}
+		\label{th:opt-equality}
+		\begin{equation}
+			OPT(ECP) = OPT(MIS)
+		\end{equation}
+	\end{claim}
+
+	\begin{proof}
+		Let $I \subseteq V_{1} $ be an indipendent set of $G_1$ of size $|I| >
+			1$. Consider the associated solution in $G_2$ in which $U = I
+			\cup \{x_{r} \}$. By construction it will contain $|I|$ positive
+		edges, so $T$ will not be controversial and also
+
+		\begin{equation}
+			OPT(ECP) \geq \xi(U) = |T[U]| = |I| \implies OPT(ECP) \geq OPT(MIS)
+		\end{equation}
+
+		Now let $S \subseteq V_2$ be a solution of the Echo Chamber problem on
+		$G_2$, and suppose $\xi(S) > 0$. It is easy to see that $v_{r} \in S$
+		and that $v_{x} \not\in S $. Let $J \coloneqq S \setminus \{x_r\}$.
+
+		Suppose that $2$ vertices $v_{i} $, $v_{j} \in J$ are linked in
+		$G_1$. By construction there are at least $\lambda n_1$ negative edges
+		in $T[S]$, thus
+
+		\begin{equation}
+			\eta(T[S]) \geq \frac{\lambda n_1}{\lambda n_1 + |S-1|} \geq \frac{\lambda n_1}{\lambda n_1 + n_1} = \frac{\lambda
+			}{\lambda + 1} \geq \alpha
+		\end{equation}
+
+		This means that $T[S]$ is controversial $\implies \xi(S) = 0
+			\implies contradiction$. Consequently $J$
+		contains vertices which are indipendent in $G_1$. Therefore $T[S]$ contains
+		only positive edges; more specifically
+
+		\begin{equation}
+			\xi(S) = |T[S]| = |S| - 1 = |S \setminus \{x_r\}| = |J|
+		\end{equation}
+
+		Thus
+
+		\begin{equation}
+			OPT(MIS) \geq |J| \implies OPT(MIS) \geq OPT(ECP)
+		\end{equation}
+
+		So the optimal value of the constructed instance of Echo Chamber Problem
+		exactly equals that of the \textsc{Maximum Indipendent Set} instance, so it
+		has an hardness factor at least as large as that of MIS.
+	\end{proof}
+
+	This concludes the proof of \autoref{th:approximability}.
+\end{proof}
+
+\end{document}
