@@ -61,7 +61,7 @@
 
 \begin{document}
 
-\section*{Approximability of Echo Chamber Problem}%
+\section{Approximability of Echo Chamber Problem}%
 \label{sec:approximability_of_echo_chamber_problem}
 
 \begin{theorem}
@@ -72,7 +72,7 @@
 
 \begin{proof}
 	We show this by presenting a direct reduction from \textsc{Maximum
-		Indipendent Set} (MIS), which is known having the mentioned hardness factor.
+		Independent Set} (MIS), which is known having the mentioned hardness factor.
 
 	\bigskip
 	Let $G_{1}  = (V_{1} ,E_{1} )$ be an undirected and unweighted graph and
@@ -83,7 +83,7 @@
 	\begin{itemize}
 		\item for each vertex $v_{i}  \in V_{1} $ we add a vertex in $G_{2} $
 		\item for each edge $e_{ij}  \in
-			      E_{1} $ we add $\lambda n$ negative edges between $v_{i} $ and $v_{j} $
+			      E_{1} $ we add $\lambda n_{1} $ negative edges between $v_{i} $ and $v_{j} $
 		\item add a vertex $v_r$ and a positive edge between it and any other
 		      vertex that we already inserted in $G_2$
 		\item add a vertex $v_x$ and $\lambda n_{1} $ negative edges between $v_x$
@@ -122,7 +122,7 @@
 		Let $m_{2}^{-} $ and $m_{2}^{+} $ be the number of negative and
 		positive edges in $G_2$, respectively.
 
-		By constuction $m_{2}^{+} = n_{1} $ and $m_{2}^{-} \geq \lambda n$.
+		By construction $m_{2}^{+} = n_{1} $ and $m_{2}^{-} \geq \lambda n$.
 		Consequently
 
 		\begin{align}
@@ -149,7 +149,7 @@
 	\end{claim}
 
 	\begin{proof}
-		Let $I \subseteq V_{1} $ be an indipendent set of $G_1$ of size $|I| >
+		Let $I \subseteq V_{1} $ be an independent set of $G_1$ of size $|I| >
 			1$. Consider the associated solution in $G_2$ in which $U = I
 			\cup \{x_{r} \}$. By construction it will contain $|I|$ positive
 		edges, so $T$ will not be controversial and also
@@ -173,7 +173,7 @@
 
 		This means that $T[S]$ is controversial $\implies \xi(S) = 0
 			\implies contradiction$. Consequently $J$
-		contains vertices which are indipendent in $G_1$. Therefore $T[S]$ contains
+		contains vertices which are independent in $G_1$. Therefore $T[S]$ contains
 		only positive edges; more specifically
 
 		\begin{equation}
@@ -187,11 +187,171 @@
 		\end{equation}
 
 		So the optimal value of the constructed instance of Echo Chamber Problem
-		exactly equals that of the \textsc{Maximum Indipendent Set} instance, so it
+		exactly equals that of the \textsc{Maximum Independent Set} instance, so it
 		has an hardness factor at least as large as that of MIS.
 	\end{proof}
 
 	This concludes the proof of \autoref{th:approximability}.
+\end{proof}
+
+\newpage
+
+\section{Approximability of Densest Echo Chamber Problem}%
+\label{sec:approximability_of_densest_echo_chamber_problem}
+
+\begin{theorem}
+	\label{th:approximability-densest}
+	Densest Echo Chamber Problem (DECP) has no $n^{1-\epsilon} $-approximation algorithm for
+	any $\epsilon$ unless $\mathcal{P} = \mathcal{NP}  $
+\end{theorem}
+
+\begin{proof}
+	We again show this by presenting a direct reduction from \textsc{Maximum
+		Independent Set}.
+
+	\bigskip
+	Let $G_{1}  = (V_{1} ,E_{1} )$ be an undirected and unweighted graph and
+	$\lambda \geq \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N}$.
+	We construct the \emph{interaction} graph ${G}_{2}  = (V_{2} , E^{+}_{2} , E
+			^{-}_{2} ) $ as follows
+
+	\begin{itemize}
+		\item for each vertex $v_{i}  \in V_{1} $ we add a vertex in $G_{2} $
+		\item for each edge $e_{ij}  \in
+			      E_{1} $ we add $\lambda (n_{1}+1)^{2}  $ negative edges between $v_{i} $ and $v_{j} $
+		\item for each edge $e_{ij} \in V_1 \times V_1, e_{ij} \not\in
+			      E_{1} $ we add $2$ positive edges between $v_{i} $ and $v_{j} $
+		\item add a vertex $v_r$ and $2$ positive edges between it and any other
+		      vertex that we already inserted in $G_2$
+		\item add a vertex $v_x$ and $\lambda n_{1}^{2}  $ negative edges between $v_x$
+		      and $v_{r} $
+	\end{itemize}
+
+	Furthermore, all the edges in $G_{2} $ are associated to the same content
+	$C$ and the same thread $T \in \mathcal{T}_{C}  $.
+	An illustration of the conversion can be found in
+	\autoref{fig:construction-densest}.
+
+	\begin{figure}[hbt]
+		\begin{center}
+			\begin{subfigure}[b]{0.4\textwidth}
+				\centering
+				\caption{$G_{1}$, undirected graph}
+				\tikzfig{tikz/approximability1-densest}
+				\label{fig:g1_example}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.4\textwidth}
+				\centering
+				\tikzfig{tikz/approximability2-densest}
+				\caption{$G_{2}$, directed signed graph}
+				\label{fig:g2_example}
+			\end{subfigure}
+		\end{center}
+		\caption{Example construction of the interaction graph $G_{2} $ from
+			$G_{1} $}
+		\label{fig:construction-densest}
+	\end{figure}
+
+	\begin{claim}
+		\label{th:claim-controversial-densest}
+		Content $C$ is controversial.
+	\end{claim}
+	\begin{proof}
+		% Let $m_{2}^{-} $ and $m_{2}^{+} $ be the number of negative and
+		% positive edges in $G_2$, respectively.
+		%
+		By construction $m_{2}^{+} \leq n_{1}^{2}  $ and $m_{2}^{-} \geq
+			\lambda n_{1}^{2} $.
+		Thus
+
+		\begin{align}
+			\eta(C) = \frac{m_{2}^{-} }{m_{2}^{-} +
+				m_{2}^{+} } \geq \frac{\lambda n_{1} ^{2} }{\lambda n_{1}^{2}
+				+ n_{1}^{2}  } = \frac{\lambda }{\lambda + 1} =
+			\frac{ \frac{\alpha }{1 - \alpha }  }{ \frac{\alpha }{1 - \alpha }
+				+ 1 } \geq \alpha
+		\end{align}
+	\end{proof}
+
+	So content C is controversial. This reduces the Densest Echo Chamber Problem on $G_2$ to the maximization of
+
+	\begin{equation}
+		\label{eq:score-densest}
+		\psi(U) = \sum^{}_{T \in S_{C}(U) } \frac{| T[U] |}{|U|}
+	\end{equation}
+
+	\begin{claim}
+		\label{th:opt-equality-densest}
+		\begin{equation}
+			OPT(DECP) = OPT(MIS)
+		\end{equation}
+	\end{claim}
+
+	\begin{proof}
+		Let $I \subseteq V_{1} $ be an independent set of $G_1$ of size $n_{I}
+			\coloneqq |I| > 1$. Consider the associated solution in $G_2$ in
+		which $U = I \cup \{x_{r} \}$.
+
+		By construction it will contain
+		\begin{itemize}
+			\item $2 \cdot n_{I} $ positive edges between $v_{r} $ and $v_{i} \in I$
+			\item $n_{I}(n_{I}  -1)$
+			      positive edges between vertices $v_{i} \in I$
+
+		\end{itemize}
+		$|I|$ positive
+		thus $T$ will not be controversial and also
+
+		\begin{equation}
+			\label{eq:score-densest-mip}
+			\psi(U) = \frac{|T[U]|}{|U|}  = \frac{2n_{I}  +
+				\cdot n_{I}(n_{I}  -1) }{n_{I} + 1} = \frac{n_{I}^{2} +
+				n_{I}}{n_{I} + 1} = n_{I}
+		\end{equation}
+
+		Consequently
+
+		\begin{equation}
+			OPT(ECP) \geq \psi(U) = |I| \implies OPT(DECP) \geq OPT(MIS)
+		\end{equation}
+
+		Now let $S \subseteq V_2$ be a solution of the Densest Echo Chamber
+		problem on $G_2$, and suppose $\psi(S) > 0$. It is easy to see that
+		$v_{r} \in S$ and that $v_{x} \not\in S $. Let $J \coloneqq S \setminus
+			\{x_r\}$.
+
+		Suppose that $2$ vertices $v_{i} $, $v_{j} \in J$ are linked in $G_1$.
+		By construction there are at least $\lambda (n_1 + 1)^{2} $ negative edges in
+		$T[S]$, thus
+
+		\begin{equation}
+			\eta(T[S]) \geq \frac{\lambda (n_1+1)^2}{\lambda (n_1+1)^2 + n(n+1)} \geq
+			\frac{\lambda (n_1+1)^{2} }{\lambda (n_1+1)^2 + (n_1+1)^2} = \frac{\lambda }{\lambda +
+				1} \geq \alpha
+		\end{equation}
+
+		This means that $T[S]$ is controversial $\implies \xi(S) = 0
+			\implies contradiction$. Consequently $J$
+		contains vertices which are independent in $G_1$. Therefore $T[S]$ contains
+		only positive edges. As shown previously in
+		\autoref{eq:score-densest-mip}
+
+		\begin{equation}
+			\psi(S) = \frac{|T[S]|}{|S|} = |J|
+		\end{equation}
+
+		Thus
+
+		\begin{equation}
+			OPT(MIS) \geq |J| \implies OPT(MIS) \geq OPT(ECP)
+		\end{equation}
+
+		So the optimal value of the constructed instance of Densest Echo Chamber Problem
+		exactly equals that of the \textsc{Maximum Independent Set} instance, so it
+		has an hardness factor at least as large as that of MIS.
+	\end{proof}
+
+	This concludes the proof of \autoref{th:approximability-densest}.
 \end{proof}
 
 \end{document}
