@@ -1,0 +1,73 @@
+%%----------------------------------------------------------------------------
+%%   pcap2tex stuff
+%%----------------------------------------------------------------------------
+\usepackage{tikz}
+\usetikzlibrary{arrows,decorations.pathmorphing,backgrounds,fit,positioning,calc,shapes}
+\usepackage{pgfmath}	% --math engine
+
+%% some additional useful packages
+\usepackage{rotating}		%% For text rotating
+\usepackage{array}		%% For table wrapping
+\usepackage{graphicx}	        %% Support for images
+\usepackage{float}		%% Suppor for more flexible floating box positioning
+\usepackage{mdwlist}            %% various list-related commands
+\usepackage{setspace}           %% For fine-grained control over line spacing
+\usepackage{listings}		%% For source code listing
+\usepackage{bytefield}          %% For packet drawings
+\usepackage{tabularx}		%% For simple table stretching
+\usepackage{multirow}	        %% Support for multirow colums in tables
+
+\usepackage{url}                %% Support for breaking URLs
+\usepackage{hyperref}
+\usepackage[all]{hypcap}	%% prevents an issue related to hyperref and caption linking
+%% setup hyperref to use the darkblue color on links
+\hypersetup{colorlinks,breaklinks,
+	linkcolor=darkblue,urlcolor=darkblue,
+	anchorcolor=darkblue,citecolor=darkblue,linktoc=all}
+% colorlinks=false, %set true if you want colored links
+
+%% Some definitions of used colors
+\definecolor{darkblue}{rgb}{0.0,0.0,0.3} %% define a color called darkblue
+\definecolor{darkred}{rgb}{0.4,0.0,0.0}
+\definecolor{red}{rgb}{0.7,0.0,0.0}
+\definecolor{lightgrey}{rgb}{0.8,0.8,0.8}
+\definecolor{grey}{rgb}{0.6,0.6,0.6}
+\definecolor{darkgrey}{rgb}{0.4,0.4,0.4}
+\definecolor{aqua}{rgb}{0.0, 1.0, 1.0}
+
+%% If you are going to include source code (or code snippets)
+\usepackage{listings}
+%%\usepackage[cache=false]{minted} %% For source code highlighting
+%%\usemintedstyle{borland}
+
+\usepackage{csquotes} % Recommended by biblatex
+
+% math stuff
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{xcolor}
+
+\usepackage{subcaption}
+
+% to correctly insert stressed characters
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+% Add symbols
+% \usepackage{textcomp}
+
+% Code highlighting
+% \usepackage{minted}
+% \usemintedstyle{perldoc}
+% \setminted{
+%     frame=single,
+%     breaklines,
+% }
+
+% Bibliography
+% \usepackage[style=alphabetic]{biblatex}
+% \usepackage[nottoc]{tocbibind}
+% \usepackage{bibentry}
+% \setcounter{biburllcpenalty}{9000}
+% \usepackage{nameref}

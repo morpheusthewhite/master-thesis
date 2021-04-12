@@ -1,0 +1,82 @@
+\chapter{What you did}\todo[inline]{Choose your own chapter title to describe this}
+\todo[inline, backgroundcolor=aqua]{[Vad gjorde du? Hur gick det till? – Välj lämplig rubrik (“Genomförande”, “Konstruktion”, ”Utveckling”  eller annat]}
+\label{ch:whatYouDid}
+
+\todo[inline]{What have you done? How did you do it? What design decisions did you make? How did what you did help you to meet your goals?}
+\begin{swedishnotes}
+	Vad du har gjort? Hur gjorde du det? Vad designen beslut gjorde du?
+	Hur kom det du hjälpte dig att uppnå dina mål?
+\end{swedishnotes}
+
+\section{Hardware/Software design …/Model/Simulation model \& parameters/…}
+\todo[inline, backgroundcolor=aqua]{Hårdvara / Mjukvarudesign ... / modell / Simuleringsmodell och parametrar / …}
+
+Figure~\ref{fig:homepageicon} shows a simple icon for a home page. The time
+to access this page when served will be quantified in a series of
+experiments. The configurations that have been tested in the test bed are
+listed in Table~\ref{tab:configstested}.
+
+\begin{swedishnotes}
+	Figur~\ref{fig:homepageicon}  visar en enkel ikon för en hemsida. Tiden för att få tillgång till den här sidan när serveras kommer att kvantifieras i en serie experiment. De konfigurationer som har testats i provbänk listas ini tabell~\ref{tab:configstested}.
+
+	Vad du har gjort? Hur gjorde du det? Vad designen beslut gjorde du?
+\end{swedishnotes}
+
+\begin{table}[!ht]
+	\begin{center}
+		\caption{Configurations tested}
+		\label{tab:configstested}
+		\begin{tabular}{l|c} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+			\textbf{Configuration} & \textbf{Description}        \\
+			\hline
+			1                      & Simple test with one server \\
+			2                      & Simple test with one server \\
+		\end{tabular}
+	\end{center}
+\end{table}
+\todo[inline, backgroundcolor=aqua]{Konfigurationer testade}
+
+\section{Implementation …/Modeling/Simulation/…}
+\todo[inline, backgroundcolor=aqua]{Implementering … / modellering / simulering / …}
+\label{sec:implementationDetails}
+
+\subsection{Some examples of coding}
+
+Listing~\ref{lst:helloWorldInC} shows an example of a simple program written
+in C code.
+
+\begin{lstlisting}[language={C}, caption={Hello world in C code}, label=lst:helloWorldInC]
+int main() {
+printf("hello, world");
+return 0;
+}
+\end{lstlisting}
+
+
+In contrast, Listing~\ref{lst:programmes} is an example of code in Python to
+get a list of all of the programs at KTH.
+
+\lstset{extendedchars=true}
+\begin{lstlisting}[language={Python}, caption={Using a python program to
+    access the KTH API to get all of the programs at KTH}, label=lst:programmes]
+KOPPSbaseUrl = 'https://www.kth.se'
+
+def v1_get_programmes():
+    global Verbose_Flag
+    #
+    # Use the KOPPS API to get the data
+    # note that this returns XML
+    url = "{0}/api/kopps/v1/programme".format(KOPPSbaseUrl)
+    if Verbose_Flag:
+        print("url: " + url)
+    #
+    r = requests.get(url)
+    if Verbose_Flag:
+        print("result of getting v1 programme: {}".format(r.text))
+    #
+    if r.status_code == requests.codes.ok:
+        return r.text           # simply return the XML
+    #
+    return None
+\end{lstlisting}
+

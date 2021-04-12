@@ -1,58 +1,203 @@
-\documentclass{article}
+%%
+%% forked from https://gits-15.sys.kth.se/giampi/kthlatex kthlatex-0.2rc4 on 2020-02-13
+%% expanded upon by Gerald Q. Maguire Jr.
+%% This template has been adapted by Anders Sjögren to the University
+%% Engineering Program in Computer Science at KTH ICT. Adaptation is the
+%% translation of English headings into Swedish as the addition of Swedish
+%% text. Original body text is deliberately left in English.
 
-% math stuff
-\usepackage{amsmath}
-\usepackage{amsthm}
-\usepackage{amssymb}
-\usepackage{xcolor}
 
-\usepackage{float}
-\usepackage{subcaption}
+%% set the default lanage to english or swedish by passing an option to the documentclass - this handles the inside tile page
+\documentclass[english]{tex/kththesis}
+%\documentclass[swedish]{kththesis}
 
-% to insert images
-\usepackage{graphicx}
+% \usepackage[style=numeric,sorting=none,backend=biber]{biblatex}
 
-% to correctly insert stressed characters
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
+\setlength {\marginparwidth }{2cm} %leave some extra space for todo notes
+\usepackage{todonotes}
 
-\usepackage{multirow}
+\usepackage[perpage,para,symbol]{footmisc} %% use symbols to ``number'' footnotes and reset which symbol is used first on each page
 
-% Bibliography
-% \usepackage[style=alphabetic]{biblatex}
-% \usepackage[nottoc]{tocbibind}
-% \usepackage{bibentry}
-% \setcounter{biburllcpenalty}{9000}
-% \usepackage{nameref}
+%% Reduce hyphenation as much as possible
+\hyphenpenalty=15000
+\tolerance=1000
+% include a variety of packages that are useful
+\include{tex/includes}
 
-% to put links in table of contents
-\usepackage{hyperref}
-\hypersetup{colorlinks=false, %set true if you want colored links
-    linktoc=all,     %set to all if you
+%% Acronyms
+% note that nonumberlist - removes the cross references to the pages where the acronym appears
+% note that nomain - does not produce a main gloassay, this only acronyms will be in the glossary
+% note that nopostdot - will present there being a period at the end of each entry
+\usepackage[acronym, section=section, nonumberlist, nomain, nopostdot]{glossaries}
+%\glsdisablehyper
+\makeglossaries
+\input{tex/acronyms}                %load the acronyms file
+
+%% definition of new command for bytefield package
+\newcommand{\colorbitbox}[3]{%
+	\rlap{\bitbox{#2}{\color{#1}\rule{\width}{\height}}}%
+	\bitbox{#2}{#3}}
+
+\newenvironment{swedishnotes}%
+{\begin{center}
+		\selectlanguage{swedish}
+		\color{blue}}%
+		{\end{center}\selectlanguage{english}
 }
 
-% Add symbols
-% \usepackage{textcomp}
+\begin{document}
+\ifinswedish
+	\selectlanguage{swedish}
+\else
+	\selectlanguage{english}
+\fi
 
-% Add command for Real and Z sets
-% \usepackage{dsfont}
-% \newcommand{\Rset}{$\mathds{R}$}
-% \newcommand{\Zset}{$\mathds{Z}$}
 
-% Code highlighting
-% \usepackage{minted}
-% \usemintedstyle{perldoc}
-% \setminted{
-%     frame=single,
-%     breaklines,
+%% Information for inside title page
+\title{This is the title in the language of the thesis}
+\subtitle{An subtitle in the language of the thesis}
+
+% give the alternative title - i.e., if the thesis is in English, then give a Swedish title
+\alttitle{Detta är den svenska översättningen av titeln}
+\altsubtitle{Detta är den svenska översättningen av undertiteln}
+% alternative, if the thesis is in Swedish, then give an English title
+%\alttitle{This is the English translation of the title}
+%\altsubtitle{This is the English translation of the subtitle}
+
+\authorsLastname{Student}
+\authorsFirstname{Fake A.}
+\email{a@kth.se}
+\kthid{u100001}
+% If the student has an ORCiD - add it here
+\orcid{0000-0002-00001-1234}
+\authorsSchool{\schoolAcronym{EECS}}
+
+% If there is a second author - add them here:
+% \secondAuthorsLastname{Student}
+% \secondAuthorsFirstname{Fake B.}
+% \secondemail{b@kth.se}
+% \secondkthid{u100002}
+% % If the student has an ORCiD - add it here
+% \secondorcid{0000-0002-00001-5678}
+% \secondAuthorsSchool{\schoolAcronym{ABE}}
+
+\supervisorAsLastname{Supervisor}
+\supervisorAsFirstname{A. Busy}
+\supervisorAsEmail{sa@kth.se}
+% If the supervisor is from within KTH add their KTHID, School and Department info
+\supervisorAsKTHID{u100003}
+\supervisorAsSchool{\schoolAcronym{EECS}}
+\supervisorAsDepartment{Computer Science}
+% other for a supervisor outside of KTH add their organization info
+%\supervisorAsOrganization{Timbuktu University, Department of Pseudoscience}
+
+%If there is a second supervisor add them here:
+\supervisorBsLastname{Supervisor}
+\supervisorBsFirstname{Another Busy}
+\supervisorBsEmail{sb@kth.se}
+% If the supervisor is from within KTH add their KTHID, School and Department info
+\supervisorBsKTHID{u100003}
+\supervisorBsSchool{\schoolAcronym{ABE}}
+\supervisorBsDepartment{Public Buildings}
+% other for a supervisor outside of KTH add their organization info
+%\supervisorBsOrganization{Timbuktu University, Department of Pseudoscience}
+
+\examinersLastname{Maguire Jr.}
+\examinersFirstname{Gerald Q.}
+\examinersEmail{maguire@kth.se}
+% If the examiner is from within KTH add their KTHID, School and Department info
+\examinersKTHID{u100004}
+\examinersSchool{\schoolAcronym{EECS}}
+\examinersDepartment{Computer Science}
+% other for a examiner outside of KTH add their organization info
+%\examinersOrganization{Timbuktu University, Department of Pseudoscience}
+
+
+\hostcompany{Företaget AB} % Remove this line if the project was not done at a host company
+%\hostorganization{CERN}   % if there was a host organization
+
+\date{\today}
+
+\programcode{TCOMK}
+%% Alternatively, you can say \programme{Civilingenjör Datateknik} to directly set the programme string
+
+\titlepage
+% document/book information page
+\bookinfopage
+
+% Frontmatter includes the abstracts and table-of-contents
+\frontmatter
+\setcounter{page}{1}
+
+% \input{tex/abstract.tex}
+\input{tex/acknowledgements.tex}
+
+\fancypagestyle{plain}{}
+\renewcommand{\chaptermark}[1]{ \markboth{#1}{}}
+\tableofcontents
+\markboth{\contentsname}{}
+
+\cleardoublepage
+\listoffigures
+
+\cleardoublepage
+
+\listoftables
+\cleardoublepage
+\lstlistoflistings\todo{If you have listings in your thesis.}
+\cleardoublepage
+\printglossary[type=\acronymtype, title={List of acronyms and abbreviations}]
+\todo[inline]{The list of acronyms and abbreviations should be in alphabetical order based on the spelling of the acronym or abbreviation.
+
+
+\label{pg:lastPageofPreface}
+% Mainmatter is where the actual contents of the thesis goes
+\mainmatter
+
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+
+\input{tex/introduction.tex}
+\cleardoublepage
+\input{tex/background.tex}
+\cleardoublepage
+\input{tex/methods.tex}
+\cleardoublepage
+\input{tex/whatyoudid.tex}
+\cleardoublepage
+
+\input{tex/results.tex}
+\cleardoublepage
+
+\input{tex/conclusions.tex}
+
+% \noindent\rule{\textwidth}{0.4mm}
+% \todo[inline]{In the references, let Zotero or other tool fill this
+%     in for you. I suggest an extended version of the IEEE  style, to include
+%     URLs, DOIs, ISBNs, etc., to make it easier for your reader to find
+%     them. This will make life easier for your opponents and examiner. \\
+%
+%     IEEE Editorial Style Manual: \url{https://www.ieee.org/content/dam/ieee-org/ieee/web/org/conferences/style_references_manual.pdf}
 % }
 
-% tikz figures
-% \usepackage{tikz}
-% \input{style.tikzstyle}
-% \usetikzlibrary{positioning}
+\cleardoublepage
 
-\begin{document}
+% Print the bibliography (and make it appear in the table of contents)
+%\printbibliography[heading=bibintoc]
+% The lines below are for BibTeX
+\bibliographystyle{tex/myIEEEtran}
+\renewcommand{\bibname}{References}
+\addcontentsline{toc}{chapter}{References}
+\bibliography{tex/references}
 
+% \cleardoublepage
+% \appendix
+% \renewcommand{\chaptermark}[1]{\markboth{Appendix \thechapter\relax:\thinspace\relax#1}{}}
+% \chapter{Something Extra}
+% \todo[inline, backgroundcolor=aqua]{svensk: Extra Material som Bilaga}
+
+\label{pg:lastPageofMainmatter}
+
+\clearpage
+\section*{For DIVA}
+\divainfo{pg:lastPageofPreface}{pg:lastPageofMainmatter}
 \end{document}
-
