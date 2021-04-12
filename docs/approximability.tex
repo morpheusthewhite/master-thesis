@@ -76,7 +76,8 @@
 
 	\bigskip
 	Let $G_{1}  = (V_{1} ,E_{1} )$ be an undirected and unweighted graph and
-	$\lambda \geq \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N}$.
+	$\lambda \geq \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N}$ and
+	$n_{1} \coloneqq |V_{1}| $.
 	We construct the \emph{interaction} graph ${G}_{2}  = (V_{2} , E^{+}_{2} , E
 			^{-}_{2} ) $ as follows
 
@@ -122,8 +123,9 @@
 		Let $m_{2}^{-} $ and $m_{2}^{+} $ be the number of negative and
 		positive edges in $G_2$, respectively.
 
-		By construction $m_{2}^{+} = n_{1} $ and $m_{2}^{-} \geq \lambda n$.
-		Consequently
+		By construction $m_{2}^{+} = n_{1} $ and $m_{2}^{-} \geq \lambda n_{1}
+		$. Also, for $a, b, c \in \mathbb{R}^{+}$ it holds that $\frac{a +
+				b}{a + b + c} \geq \frac{a}{a + c} $. Consequently
 
 		\begin{align}
 			\eta(C) = \frac{m_{2}^{-} }{m_{2}^{-} +
@@ -151,7 +153,7 @@
 	\begin{proof}
 		Let $I \subseteq V_{1} $ be an independent set of $G_1$ of size $|I| >
 			1$. Consider the associated solution in $G_2$ in which $U = I
-			\cup \{x_{r} \}$. By construction it will contain $|I|$ positive
+			\cup \{v_{r} \}$. By construction it will contain $|I|$ positive
 		edges, so $T$ will not be controversial and also
 
 		\begin{equation}
@@ -160,7 +162,7 @@
 
 		Now let $S \subseteq V_2$ be a solution of the Echo Chamber problem on
 		$G_2$, and suppose $\xi(S) > 0$. It is easy to see that $v_{r} \in S$
-		and that $v_{x} \not\in S $. Let $J \coloneqq S \setminus \{x_r\}$.
+		and that $v_{x} \not\in S $. Let $J \coloneqq S \setminus \{v_r\}$.
 
 		Suppose that $2$ vertices $v_{i} $, $v_{j} \in J$ are linked in
 		$G_1$. By construction there are at least $\lambda n_1$ negative edges
@@ -177,7 +179,7 @@
 		only positive edges; more specifically
 
 		\begin{equation}
-			\xi(S) = |T[S]| = |S| - 1 = |S \setminus \{x_r\}| = |J|
+			\xi(S) = |T[S]| = |S| - 1 = |S \setminus \{v_r\}| = |J|
 		\end{equation}
 
 		Thus
@@ -290,7 +292,7 @@
 	\begin{proof}
 		Let $I \subseteq V_{1} $ be an independent set of $G_1$ of size $n_{I}
 			\coloneqq |I| > 1$. Consider the associated solution in $G_2$ in
-		which $U = I \cup \{x_{r} \}$.
+		which $U = I \cup \{v_{r} \}$.
 
 		By construction it will contain
 		\begin{itemize}
@@ -318,7 +320,7 @@
 		Now let $S \subseteq V_2$ be a solution of the Densest Echo Chamber
 		problem on $G_2$, and suppose $\psi(S) > 0$. It is easy to see that
 		$v_{r} \in S$ and that $v_{x} \not\in S $. Let $J \coloneqq S \setminus
-			\{x_r\}$.
+			\{v_r\}$.
 
 		Suppose that $2$ vertices $v_{i} $, $v_{j} \in J$ are linked in $G_1$.
 		By construction there are at least $\lambda (n_1 + 1)^{2} $ negative edges in
