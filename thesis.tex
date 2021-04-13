@@ -8,7 +8,7 @@
 
 
 %% set the default lanage to english or swedish by passing an option to the documentclass - this handles the inside tile page
-\documentclass[english]{tex/kththesis}
+\documentclass[english, master]{tex/kththesis}
 %\documentclass[swedish]{kththesis}
 
 % \usepackage[style=numeric,sorting=none,backend=biber]{biblatex}
@@ -55,21 +55,21 @@
 
 %% Information for inside title page
 \title{This is the title in the language of the thesis}
-\subtitle{An subtitle in the language of the thesis}
+\subtitle{A subtitle in the language of the thesis}
 
 % give the alternative title - i.e., if the thesis is in English, then give a Swedish title
-\alttitle{Detta är den svenska översättningen av titeln}
-\altsubtitle{Detta är den svenska översättningen av undertiteln}
+% \alttitle{Detta är den svenska översättningen av titeln}
+% \altsubtitle{Detta är den svenska översättningen av undertiteln}
 % alternative, if the thesis is in Swedish, then give an English title
 %\alttitle{This is the English translation of the title}
 %\altsubtitle{This is the English translation of the subtitle}
 
-\authorsLastname{Student}
-\authorsFirstname{Fake A.}
-\email{a@kth.se}
-\kthid{u100001}
+\authorsLastname{Zappia}
+\authorsFirstname{Francesco}
+\email{zappia@kth.se}
+\kthid{u104906}
 % If the student has an ORCiD - add it here
-\orcid{0000-0002-00001-1234}
+% \orcid{0000-0002-00001-1234}
 \authorsSchool{\schoolAcronym{EECS}}
 
 % If there is a second author - add them here:
@@ -81,44 +81,44 @@
 % \secondorcid{0000-0002-00001-5678}
 % \secondAuthorsSchool{\schoolAcronym{ABE}}
 
-\supervisorAsLastname{Supervisor}
-\supervisorAsFirstname{A. Busy}
-\supervisorAsEmail{sa@kth.se}
+\supervisorAsLastname{Neumann}
+\supervisorAsFirstname{Stefan}
+\supervisorAsEmail{neum@kth.se}
 % If the supervisor is from within KTH add their KTHID, School and Department info
-\supervisorAsKTHID{u100003}
+\supervisorAsKTHID{u112750}
 \supervisorAsSchool{\schoolAcronym{EECS}}
 \supervisorAsDepartment{Computer Science}
 % other for a supervisor outside of KTH add their organization info
 %\supervisorAsOrganization{Timbuktu University, Department of Pseudoscience}
 
 %If there is a second supervisor add them here:
-\supervisorBsLastname{Supervisor}
-\supervisorBsFirstname{Another Busy}
-\supervisorBsEmail{sb@kth.se}
-% If the supervisor is from within KTH add their KTHID, School and Department info
-\supervisorBsKTHID{u100003}
-\supervisorBsSchool{\schoolAcronym{ABE}}
-\supervisorBsDepartment{Public Buildings}
+% \supervisorBsLastname{Supervisor}
+% \supervisorBsFirstname{Another Busy}
+% \supervisorBsEmail{sb@kth.se}
+% % If the supervisor is from within KTH add their KTHID, School and Department info
+% \supervisorBsKTHID{u100003}
+% \supervisorBsSchool{\schoolAcronym{ABE}}
+% \supervisorBsDepartment{Public Buildings}
 % other for a supervisor outside of KTH add their organization info
 %\supervisorBsOrganization{Timbuktu University, Department of Pseudoscience}
 
-\examinersLastname{Maguire Jr.}
-\examinersFirstname{Gerald Q.}
-\examinersEmail{maguire@kth.se}
+\examinersLastname{Gionis}
+\examinersFirstname{Aristides}
+\examinersEmail{argioni@kth.se}
 % If the examiner is from within KTH add their KTHID, School and Department info
-\examinersKTHID{u100004}
+\examinersKTHID{u93105}
 \examinersSchool{\schoolAcronym{EECS}}
 \examinersDepartment{Computer Science}
 % other for a examiner outside of KTH add their organization info
 %\examinersOrganization{Timbuktu University, Department of Pseudoscience}
 
 
-\hostcompany{Företaget AB} % Remove this line if the project was not done at a host company
+% \hostcompany{Företaget AB} % Remove this line if the project was not done at a host company
 %\hostorganization{CERN}   % if there was a host organization
 
 \date{\today}
 
-\programcode{TCOMK}
+\programcode{TCSCM}
 %% Alternatively, you can say \programme{Civilingenjör Datateknik} to directly set the programme string
 
 \titlepage
@@ -130,7 +130,7 @@
 \setcounter{page}{1}
 
 % \input{tex/abstract.tex}
-\input{tex/acknowledgements.tex}
+% \input{tex/acknowledgements.tex}
 
 \fancypagestyle{plain}{}
 \renewcommand{\chaptermark}[1]{ \markboth{#1}{}}
@@ -144,10 +144,11 @@
 
 \listoftables
 \cleardoublepage
-\lstlistoflistings\todo{If you have listings in your thesis.}
+\listoflistings
 \cleardoublepage
 \printglossary[type=\acronymtype, title={List of acronyms and abbreviations}]
-\todo[inline]{The list of acronyms and abbreviations should be in alphabetical order based on the spelling of the acronym or abbreviation.
+\todo[inline]{The list of acronyms and abbreviations should be in alphabetical
+	order based on the spelling of the acronym or abbreviation.}
 
 
 \label{pg:lastPageofPreface}
@@ -156,19 +157,19 @@
 
 \renewcommand{\chaptermark}[1]{\markboth{#1}{}}
 
-\input{tex/introduction.tex}
-\cleardoublepage
-\input{tex/background.tex}
-\cleardoublepage
-\input{tex/methods.tex}
-\cleardoublepage
-\input{tex/whatyoudid.tex}
-\cleardoublepage
-
-\input{tex/results.tex}
-\cleardoublepage
-
-\input{tex/conclusions.tex}
+% \input{tex/introduction.tex}
+% \cleardoublepage
+% \input{tex/background.tex}
+% \cleardoublepage
+% \input{tex/methods.tex}
+% \cleardoublepage
+% \input{tex/whatyoudid.tex}
+% \cleardoublepage
+%
+% \input{tex/results.tex}
+% \cleardoublepage
+%
+% \input{tex/conclusions.tex}
 
 % \noindent\rule{\textwidth}{0.4mm}
 % \todo[inline]{In the references, let Zotero or other tool fill this
