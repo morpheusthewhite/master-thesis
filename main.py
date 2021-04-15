@@ -360,6 +360,19 @@ def print_scores(
             file=times_txt_file,
         )
 
+        start = time.time()
+        score, users_index, _, nc_threads = graph.score_mip_densest(alpha)
+        results_score["mip-densest"] = (score, users_index)
+        print(
+            f"(MIP) Densest echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
+            file=scores_txt_file,
+        )
+        end = time.time()
+        print(
+            f"(MIP) Elapsed time: {end - start}",
+            file=times_txt_file,
+        )
+
     if save_path is not None:
         scores_txt_file.close()
 
