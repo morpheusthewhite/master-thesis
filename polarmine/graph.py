@@ -1206,7 +1206,7 @@ class PolarizationGraph:
                 # instead of indices of non-zero threads
                 nc_threads.append(thread_value)
             elif thread_value == 1:
-                edges.append(i)
+                nc_threads.append(i)
 
         return score, users, edges, nc_threads
 
