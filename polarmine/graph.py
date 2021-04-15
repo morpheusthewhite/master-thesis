@@ -1210,6 +1210,162 @@ class PolarizationGraph:
 
         return score, users, edges, nc_threads
 
+    def score_mip_densest(
+        self, alpha: float, relaxation: bool = False
+    ) -> (int, list[int], list[tuple]):
+        variables_cat = pulp.LpContinuous if relaxation else pulp.LpBinary
+        variables_lb = 0 if relaxation else None
+        variables_ub = 1 if relaxation else None
+
+        controversial_contents = self.controversial_contents(alpha)
+
+        model = pulp.LpProblem("densest-echo-chamber-score", pulp.LpMaximize)
+        vertices_binary_variables = [
+            pulp.LpVariable(
+                f"b_{index}",
+                cat=variables_cat,
+                lowBound=variables_lb,
+                upBound=variables_ub,
+            )
+            for index in self.graph.get_vertices()
+        ]
+        vertices_continous_variables = [
+            pulp.LpVariable(
+                f"y_{index}",
+                lowBound=0,
+            )
+            for index in self.graph.get_vertices()
+        ]
+
+        model += pulp.lpSum(vertices_continous_variables) <= 1
+        # each continous variable must activate the corresponding binary one
+        for vertex_continous_variable, vertex_binary_variable in zip(
+            vertices_continous_variables, vertices_binary_variables
+        ):
+            model += vertex_continous_variable <= vertex_binary_variable
+
+        # thread: ([negative edges vars],[edges variables]) dictionary
+        thread_edges_dict = {}
+        # objective function of the problem
+        objective = 0
+
+        # thread: thread_variable (z_k) dictionary
+        thread_k_vars = {}
+        # list of all the edge variables x_ij
+        edge_variables = []
+
+        for i, edge in enumerate(self.graph.edges()):
+            thread_obj = self.threads[edge]
+            content = thread_obj.content
+
+            # ignore non controversial contents
+            if content in controversial_contents:
+                source, target = tuple(edge)
+                source = int(source)
+                target = int(target)
+
+                thread = thread_obj.url
+                edge_binary_var = pulp.LpVariable(
+                    f"a_{source}_{target}_{i}",
+                    cat=variables_cat,
+                    lowBound=variables_lb,
+                    upBound=variables_ub,
+                )
+                edge_continous_var = pulp.LpVariable(
+                    f"x_{source}_{target}_{i}",
+                    lowBound=0,
+                )
+                edge_variables.append(edge_continous_var)
+                # create the variable associated to this thread if it does not exist
+                z_k = thread_k_vars.get(thread)
+                if z_k is None:
+                    z_k = pulp.LpVariable(
+                        f"z_{hash(thread)}", lowBound=0, upBound=1
+                    )
+                    thread_k_vars[thread] = z_k
+
+                objective += edge_continous_var
+
+                model += (
+                    edge_continous_var <= vertices_continous_variables[source]
+                )
+                model += (
+                    edge_continous_var <= vertices_continous_variables[target]
+                )
+                model += edge_continous_var <= edge_binary_var
+                model += edge_binary_var <= z_k
+                model += (
+                    edge_binary_var
+                    >= -2
+                    + vertices_binary_variables[source]
+                    + vertices_binary_variables[target]
+                    + z_k
+                )
+
+                edges_negative_var, edges_var = thread_edges_dict.get(
+                    thread, ([], [])
+                )
+
+                if self.weights[edge] < 0:
+                    edges_negative_var.append(edge_binary_var)
+                edges_var.append(edge_binary_var)
+
+                thread_edges_dict[thread] = (edges_negative_var, edges_var)
+
+        # add thread controversy constraints
+        for k, edges_var_tuple in enumerate(thread_edges_dict.values()):
+            edges_negative_var, edges_var = edges_var_tuple
+
+            # sum of variables associated to negative edges of a single thread
+            neg_edges_sum = pulp.lpSum(edges_negative_var)
+            # sum of variables associated to edges of a single thread
+            edges_sum = pulp.lpSum(edges_var)
+
+            model += neg_edges_sum - alpha * edges_sum <= 0
+
+        model += objective
+        model.solve()
+
+        score = pulp.value(model.objective)
+
+        users = []
+        for i, vertex_variable in enumerate(vertices_binary_variables):
+            if relaxation:
+                # if relaxation problem, return value of all the vertices
+                # instead of indices of non-zero nodes
+                users.append(pulp.value(vertex_variable))
+            elif pulp.value(vertex_variable) == 1:
+                users.append(i)
+
+        edges = []
+        for i, edge_variable in enumerate(edge_variables):
+            edge_name = edge_variable.name
+            edge_name_split = edge_name.split("_")
+            source = int(edge_name_split[1])
+            target = int(edge_name_split[2])
+
+            if relaxation:
+                edge = (source, target, pulp.value(edge_variable))
+                # if relaxation problem, return value of all the vertices
+                # instead of indices of non-zero edges
+                edges.append(edge)
+            elif pulp.value(edge_variable) > 0:
+                edge = (source, target, pulp.value(edge_variable))
+                edges.append(edge)
+
+        nc_threads = []
+        for i, thread_variable in enumerate(thread_k_vars.values()):
+
+            thread_value = pulp.value(thread_variable)
+            if relaxation:
+                # if relaxation problem, return value of all the vertices
+                # instead of indices of non-zero threads
+                nc_threads.append(thread_value)
+            elif thread_value == 1:
+                nc_threads.append(i)
+
+        return score, users, edges, nc_threads
+
     def score_relaxation_algorithm(self, alpha: float) -> (int, list[int]):
         controversial_contents = self.controversial_contents(alpha)
 
