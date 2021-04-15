@@ -203,7 +203,7 @@
 
 \begin{theorem}
 	\label{th:approximability-densest}
-	Densest Echo Chamber Problem (DECP) has no $n^{1-\epsilon} $-approximation algorithm for
+	Densest Echo Chamber Problem (D-ECP) has no $n^{1-\epsilon} $-approximation algorithm for
 	any $\epsilon$ unless $\mathcal{P} = \mathcal{NP}  $
 \end{theorem}
 
@@ -213,7 +213,8 @@
 
 	\bigskip
 	Let $G_{1}  = (V_{1} ,E_{1} )$ be an undirected and unweighted graph and
-	$\lambda \geq \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N}$.
+	$\lambda \geq \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N}$ and
+	$n_{1} \coloneqq |V_{1}| $.
 	We construct the \emph{interaction} graph ${G}_{2}  = (V_{2} , E^{+}_{2} , E
 			^{-}_{2} ) $ as follows
 
@@ -285,7 +286,7 @@
 	\begin{claim}
 		\label{th:opt-equality-densest}
 		\begin{equation}
-			OPT(DECP) = OPT(MIS)
+			OPT(D-ECP) = OPT(MIS)
 		\end{equation}
 	\end{claim}
 
@@ -314,7 +315,7 @@
 		Consequently
 
 		\begin{equation}
-			OPT(ECP) \geq \psi(U) = |I| \implies OPT(DECP) \geq OPT(MIS)
+			OPT(D-ECP) \geq \psi(U) = |I| \implies OPT(D-ECP) \geq OPT(MIS)
 		\end{equation}
 
 		Now let $S \subseteq V_2$ be a solution of the Densest Echo Chamber
@@ -345,7 +346,7 @@
 		Thus
 
 		\begin{equation}
-			OPT(MIS) \geq |J| \implies OPT(MIS) \geq OPT(ECP)
+			OPT(MIS) \geq |J| \implies OPT(MIS) \geq OPT(D-ECP)
 		\end{equation}
 
 		So the optimal value of the constructed instance of Densest Echo Chamber Problem
