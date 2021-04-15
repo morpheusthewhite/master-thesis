@@ -49,20 +49,20 @@ parser.add_argument(
     help="show or save common graph statistics",
 )
 parser.add_argument(
-    "-sc",
-    "--score",
+    "-sg",
+    "--score-greedy",
     default=False,
     action="store_true",
-    dest="score",
-    help="show or save echo chamber scores",
+    dest="score_greedy",
+    help="show or save echo chamber greedy scores",
 )
 parser.add_argument(
     "-se",
-    "--score-exact",
+    "--score-mip",
     default=False,
     action="store_true",
-    dest="score_exact",
-    help="show or save exact echo chamber scores computed with mip (may take a long time) along with greedy approximations",
+    dest="score_mip",
+    help="show or save MIP echo chamber scores",
 )
 parser.add_argument(
     "-a",
@@ -235,7 +235,8 @@ def print_negative_fraction_top_k(
 
 def print_scores(
     graph: PolarizationGraph,
-    exact: bool,
+    greedy: bool,
+    mip: bool,
     save_path: Optional[str],
     alpha: float = 0.4,
 ):
@@ -250,83 +251,86 @@ def print_scores(
 
     results_score = {}
 
-    start = time.time()
-    score, users_index, nc_threads = graph.score_components(alpha)
-    results_score["components"] = (score, users_index)
-    print(
-        f"(Connected components) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
-        file=scores_txt_file,
-    )
-    end = time.time()
-    print(
-        f"(Connected components) Elapsed time: {end - start}",
-        file=times_txt_file,
-    )
-
-    results_greedy_beta_pos = {}
-    for beta in [i / 10 for i in range(6, 11, 1)]:
+    if greedy:
         start = time.time()
-        score, users_index, nc_threads = graph.score_greedy_beta(alpha, beta)
-        results_greedy_beta_pos[beta] = (score, users_index)
+        score, users_index, nc_threads = graph.score_components(alpha)
+        results_score["components"] = (score, users_index)
         print(
-            f"(Greedy beta={beta}, pos. sampling) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+            f"(Connected components) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
             file=scores_txt_file,
         )
         end = time.time()
         print(
-            f"(Greedy beta={beta}, pos. sampling) Elapsed time: {end - start}",
+            f"(Connected components) Elapsed time: {end - start}",
             file=times_txt_file,
         )
 
-    results_score["greedy_beta_pos"] = results_greedy_beta_pos
+        results_greedy_beta_pos = {}
+        for beta in [i / 10 for i in range(6, 11, 1)]:
+            start = time.time()
+            score, users_index, nc_threads = graph.score_greedy_beta(
+                alpha, beta
+            )
+            results_greedy_beta_pos[beta] = (score, users_index)
+            print(
+                f"(Greedy beta={beta}, pos. sampling) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+                file=scores_txt_file,
+            )
+            end = time.time()
+            print(
+                f"(Greedy beta={beta}, pos. sampling) Elapsed time: {end - start}",
+                file=times_txt_file,
+            )
 
-    results_greedy_beta_uni = {}
-    for beta in [i / 10 for i in range(6, 11, 1)]:
+        results_score["greedy_beta_pos"] = results_greedy_beta_pos
+
+        results_greedy_beta_uni = {}
+        for beta in [i / 10 for i in range(6, 11, 1)]:
+            start = time.time()
+            score, users_index, nc_threads = graph.score_greedy_beta(
+                alpha, beta, positiveness_samples=False
+            )
+            results_greedy_beta_uni[beta] = (score, users_index)
+            print(
+                f"(Greedy beta={beta}, unif. sampling) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+                file=scores_txt_file,
+            )
+            end = time.time()
+            print(
+                f"(Greedy beta={beta}, unif. sampling) Elapsed time: {end - start}",
+                file=times_txt_file,
+            )
+
+        results_score["greedy_beta_uni"] = results_greedy_beta_uni
+
         start = time.time()
-        score, users_index, nc_threads = graph.score_greedy_beta(
-            alpha, beta, positiveness_samples=False
-        )
-        results_greedy_beta_uni[beta] = (score, users_index)
+        score, users_index, nc_threads = graph.score_greedy_peeling(alpha)
+        results_score["greedy_peeling"] = (score, users_index)
         print(
-            f"(Greedy beta={beta}, unif. sampling) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+            f"(Greedy peeling) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
             file=scores_txt_file,
         )
         end = time.time()
         print(
-            f"(Greedy beta={beta}, unif. sampling) Elapsed time: {end - start}",
+            f"(Greedy peeling) Elapsed time: {end - start}",
             file=times_txt_file,
         )
 
-    results_score["greedy_beta_uni"] = results_greedy_beta_uni
-
-    start = time.time()
-    score, users_index, nc_threads = graph.score_greedy_peeling(alpha)
-    results_score["greedy_peeling"] = (score, users_index)
-    print(
-        f"(Greedy peeling) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
-        file=scores_txt_file,
-    )
-    end = time.time()
-    print(
-        f"(Greedy peeling) Elapsed time: {end - start}",
-        file=times_txt_file,
-    )
-
-    if exact:
-        start = time.time()
-        score, users_index, _, nc_threads = graph.score_mip(
-            alpha, relaxation=True
-        )
-        results_score["mip_relaxation"] = (score, users_index)
-        print(
-            f"(MIP relaxation) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
-            file=scores_txt_file,
-        )
-        end = time.time()
-        print(
-            f"(MIP relaxation) Elapsed time: {end - start}",
-            file=times_txt_file,
-        )
+    if mip:
+        # start = time.time()
+        # score, users_index, _, nc_threads = graph.score_mip(
+        #     alpha, relaxation=True
+        # )
+        # results_score["mip_relaxation"] = (score, users_index)
+        # print(
+        #     f"(MIP relaxation) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
+        #     file=scores_txt_file,
+        # )
+        # end = time.time()
+        # print(
+        #     f"(MIP relaxation) Elapsed time: {end - start}",
+        #     file=times_txt_file,
+        # )
 
         start = time.time()
         score, users_index, nc_threads = graph.score_relaxation_algorithm(
@@ -712,8 +716,14 @@ def main():
     if args.stats:
         print_stats(graph, args.save_path)
 
-    if args.score or args.score_exact:
-        print_scores(graph, args.score_exact, args.save_path, args.alpha)
+    if args.score_greedy or args.score_mip:
+        print_scores(
+            graph,
+            args.score_greedy,
+            args.score_mip,
+            args.save_path,
+            args.alpha,
+        )
 
     if not args.graph_draw_no and args.save_path is not None:
         graph_output_path = os.path.join(args.save_path, "graph.pdf")
