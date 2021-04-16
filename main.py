@@ -251,6 +251,11 @@ def print_scores(
 
     results_score = {}
 
+    print(
+        f"The graph contains {graph.num_vertices()} vertices, {graph.num_edges()} edges and {len(graph.controversial_contents(alpha))} controversial contents",
+        file=scores_txt_file,
+    )
+
     if greedy:
         start = time.time()
         score, users_index, nc_threads = graph.score_components(alpha)
