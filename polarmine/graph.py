@@ -1408,9 +1408,46 @@ class PolarizationGraph:
                     score_max = score
                     score_max_vertices = vertices.copy()
                     score_max_n_nc_threads = n_nc_threads
+
         return score_max, score_max_vertices, score_max_n_nc_threads
 
-        return score_max, score_max_vertices, score_max_nc_threads
+    def select_echo_chamber(
+        self,
+        alpha: float,
+        vertices_index: list[int] = None,
+        controversial_contents: set = None,
+    ):
+        if vertices_index is None:
+            _, users, _, _ = self.score_mip(alpha, controversial_contents)
+
+        edge_filter = self.graph.new_edge_property("bool", val=False)
+        vertex_filter = self.graph.new_vertex_property("bool", val=False)
+
+        _, nc_threads = self.score_from_vertices_index(
+            vertices_index, alpha, controversial_contents
+        )
+
+        # use a set for faster search
+        vertices_index = set(vertices_index)
+        nc_threads = set(nc_threads)
+
+        for vertex_index in vertices_index:
+            vertex = self.graph.vertex(vertex_index)
+            vertex_filter[vertex] = True
+
+            for edge in vertex.out_edges():
+                # check if both the thread is non controversial and the target
+                # node is in the echo chamber
+                if (
+                    self.threads[edge].url in nc_threads
+                    and int(edge.target()) in vertices_index
+                ):
+                    edge_filter[edge] = True
+
+        self.graph.set_vertex_filter(vertex_filter)
+        self.graph.set_edge_filter(edge_filter)
+
+        return
 
     @classmethod
     def from_file(cls, filename: str):
