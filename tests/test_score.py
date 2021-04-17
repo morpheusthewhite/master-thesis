@@ -97,3 +97,14 @@ def test_graph_score_mip_relaxation_r():
     graph.remove_self_loops()
 
     graph.score_relaxation_algorithm(0.1)
+
+
+def test_graph_echo_chamber_selection():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+    graph.remove_self_loops()
+
+    _, vertices, edges, _ = graph.score_mip(0.4)
+    graph.select_echo_chamber(0.4, vertices)
+
+    assert graph.num_edges() == len(edges)
