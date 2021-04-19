@@ -52,6 +52,16 @@ test-reddit:
 test-graph:
 	${PYTHON} -m pytest tests/test_graph.py
 
+test-tweepy:
+	${PYTHON} -m pytest tests/test_tweepy.py
+
+test-score:
+	${PYTHON} -m pytest tests/test_score.py
+
+test-model:
+	PYTHONPATH=`pwd`
+	${PYTHON} tests/test_synthetic.py
+
 run:
 	${PYTHON} main.py
 
