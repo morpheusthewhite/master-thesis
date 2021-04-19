@@ -224,6 +224,7 @@ class PolarizationGraph:
         edge_color: bool = True,
         edge_width: bool = True,
         output: Optional[str] = None,
+        communities: Optional[list[int]] = None,
     ) -> None:
         """draw the graph
 
@@ -256,9 +257,22 @@ class PolarizationGraph:
         #      self.graph, eweight=weights_positive, p=1.5, C=0.1
         #  )
 
+        if communities is not None:
+            node_group_property_map = self.graph.new_vertex_property("int")
+            node_group_property_map.a = np.array(communities)
+
+            pos = gt.sfdp_layout(
+                self.graph,
+                groups=node_group_property_map,
+                mu=1000,
+                # eweight=weights_positive,
+            )
+        else:
+            pos = None
+
         gt.graph_draw(
             self.graph,
-            #  pos=pos,
+            pos=pos,
             edge_color=color_property_map,
             edge_pen_width=width_property_map,
             vertex_size=0,
