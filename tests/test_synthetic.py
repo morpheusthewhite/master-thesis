@@ -100,3 +100,6 @@ def test_synthetic():
         print("-" * 30)
 
     assert False
+
+
+test_synthetic()
