@@ -1,3 +1,5 @@
+import numpy as np
+
 from polarmine.collectors.reddit_collector import RedditCollector
 from polarmine.collectors.twitter_collector import TwitterCollector
 from polarmine.graph import PolarizationGraph
@@ -49,3 +51,18 @@ def test_graph_kcore_selection():
     num_vertices_masked = graph.graph.num_vertices()
 
     assert num_vertices_unmasked != num_vertices_masked
+
+
+def test_model_generation():
+    n_nodes = [20, 10]
+    omega_positive = [[0.6, 0.1], [0.2, 0.7]]
+    omega_negative = [[0.2, 0.4], [0.4, 0.1]]
+
+    graph = PolarizationGraph.from_model(
+        np.array(n_nodes),
+        2,
+        np.array(omega_positive),
+        np.array(omega_negative),
+    )
+
+    assert graph.num_vertices() == 30
