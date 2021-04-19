@@ -1449,6 +1449,80 @@ class PolarizationGraph:
 
         return
 
+    def generate(
+        self,
+        n_nodes: np.array,
+        n_threads: np.array,
+        omega_positive: np.array,
+        omega_negative: np.array,
+    ):
+        node_groups = []
+        for i, n_group_nodes in enumerate(n_nodes):
+            node_groups += [i] * n_group_nodes
+
+        # add the needed number of vertices to the graph
+        nodes = [vertex for vertex in self.graph.add_vertex(n=np.sum(n_nodes))]
+
+        for k in range(n_threads):
+
+            for i, node_i in enumerate(nodes):
+                for j, node_j in enumerate(nodes):
+                    if i < j:
+                        # get the groups of both vertices
+                        group_r = node_groups[i]
+                        group_s = node_groups[j]
+
+                        # get probabilities between group r and s
+                        omega_positive_rs = omega_positive[group_r, group_s]
+                        omega_negative_rs = omega_negative[group_r, group_s]
+                        omega_null_rs = (
+                            1 - omega_negative_rs - omega_positive_rs
+                        )
+
+                        # draw from the multinomial with the given parameters
+                        edge_outcome = np.random.multinomial(
+                            n=1,
+                            pvals=[
+                                omega_positive_rs,
+                                omega_negative_rs,
+                                omega_null_rs,
+                            ],
+                        )[0]
+
+                        if edge_outcome != 2:
+                            # an edge must be added
+                            edge = self.graph.add_edge(node_i, node_j)
+                            self.threads[edge] = Thread(
+                                str(k), None, None, None, str(k)
+                            )
+
+                            if edge_outcome == 0:
+                                self.weights[edge] = +1
+                            else:
+                                self.weights[edge] = -1
+
+    @classmethod
+    def from_model(
+        cls,
+        n_nodes: np.array,
+        n_threads: int,
+        omega_positive: np.array,
+        omega_negative: np.array,
+    ):
+        """Creates a PolarizationGraph object from the given model parameters
+
+        Args:
+            n_nodes (np.array): a numpy array with the number of elements in each class
+            omega_positive (np.array): a numpy 2D array where element ij
+            contains the probability of positive edge between class i and j
+            omega_positive (np.array): a numpy 2D array where element ij
+            contains the probability of negative edge between class i and j
+        """
+        graph = cls([])
+        graph.generate(n_nodes, n_threads, omega_positive, omega_negative)
+
+        return graph
+
     @classmethod
     def from_file(cls, filename: str):
         """Creates a PolarizationGraph object from the graph stored in a file
