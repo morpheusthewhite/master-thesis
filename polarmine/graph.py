@@ -1332,12 +1332,12 @@ class PolarizationGraph:
         score = pulp.value(model.objective)
 
         users = []
-        for i, vertex_variable in enumerate(vertices_binary_variables):
+        for i, vertex_variable in enumerate(vertices_continous_variables):
             if relaxation:
                 # if relaxation problem, return value of all the vertices
                 # instead of indices of non-zero nodes
                 users.append(pulp.value(vertex_variable))
-            elif pulp.value(vertex_variable) == 1:
+            elif pulp.value(vertex_variable) > 0:
                 users.append(i)
 
         edges = []
