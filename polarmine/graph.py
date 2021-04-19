@@ -1476,18 +1476,20 @@ class PolarizationGraph:
                         omega_positive_rs = omega_positive[group_r, group_s]
                         omega_negative_rs = omega_negative[group_r, group_s]
                         omega_null_rs = (
-                            1 - omega_negative_rs - omega_positive_rs
+                            1 - omega_positive_rs - omega_negative_rs
                         )
 
                         # draw from the multinomial with the given parameters
-                        edge_outcome = np.random.multinomial(
-                            n=1,
-                            pvals=[
-                                omega_positive_rs,
-                                omega_negative_rs,
-                                omega_null_rs,
-                            ],
-                        )[0]
+                        edge_outcome = np.where(
+                            np.random.multinomial(
+                                n=1,
+                                pvals=[
+                                    omega_positive_rs,
+                                    omega_negative_rs,
+                                    omega_null_rs,
+                                ],
+                            )
+                        )[0][0]
 
                         if edge_outcome != 2:
                             # an edge must be added
