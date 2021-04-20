@@ -353,8 +353,8 @@ def print_scores(
         )
 
         start = time.time()
-        score, users_index, _, nc_threads = graph.score_mip(alpha)
-        results_score["mip"] = (score, users_index)
+        score, users_index, edges, nc_threads = graph.score_mip(alpha)
+        results_score["mip"] = (score, users_index, edges)
         print(
             f"(MIP) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
             file=scores_txt_file,
@@ -366,8 +366,8 @@ def print_scores(
         )
 
         start = time.time()
-        score, users_index, _, nc_threads = graph.score_mip_densest(alpha)
-        results_score["mip-densest"] = (score, users_index)
+        score, users_index, edges, nc_threads = graph.score_mip_densest(alpha)
+        results_score["mip-densest"] = (score, users_index, edges)
         print(
             f"(MIP) Densest echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
             file=scores_txt_file,
