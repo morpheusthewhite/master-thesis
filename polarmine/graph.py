@@ -1517,6 +1517,10 @@ class PolarizationGraph:
                             else:
                                 self.weights[edge] = -1
 
+    def clear_filters(self):
+        self.graph.clear_filters()
+        return
+
     @classmethod
     def from_model(
         cls,
