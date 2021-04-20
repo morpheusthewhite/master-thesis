@@ -77,7 +77,7 @@ def test_synthetic(iterations: int = 1):
     omega_positive_list.append(np.array(omega_positive) / 32)
     omega_negative_list.append(np.array(omega_negative) / 32)
 
-    n_nodes = [20, 20]
+    n_nodes = [40, 40]
     omega_positive = [
         [0.45, 0.45],
         [0.45, 0.45],
@@ -92,7 +92,7 @@ def test_synthetic(iterations: int = 1):
     omega_positive_list.append(np.array(omega_positive) / 32)
     omega_negative_list.append(np.array(omega_negative) / 32)
 
-    n_nodes = [20, 20]
+    n_nodes = [40, 40]
     omega_positive = [
         [0.20, 0.20],
         [0.20, 0.20],
