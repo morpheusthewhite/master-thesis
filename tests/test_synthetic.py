@@ -2,14 +2,13 @@ import time
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import graph_tool.spectral as gt
 
 from polarmine.graph import PolarizationGraph
 
 OUTDIR = os.path.join("out", "synthetic")
 
 
-def test_synthetic():
+def test_synthetic(iterations: int = 1):
     if not os.path.exists(OUTDIR):
         dir1 = os.path.split(OUTDIR)[0]
 
@@ -122,12 +121,17 @@ def test_synthetic():
         plt.matshow(omega_negative / np.max(omega_negative))
         plt.savefig(omega_negative_pdf)
 
-        # adjacency = gt.adjacency(graph.graph)
-        # print(adjacency)
-        #
-        # plt.figure()
-        # plt.matshow(adjacency)
-        # plt.show()
+        scores = np.empty((iterations,))
+        for k in range(iterations):
+            # generate a graph
+            graph = PolarizationGraph.from_model(
+                n_nodes, n_threads, omega_positive, omega_negative
+            )
+
+            start = time.time()
+            score, _, _ = graph.score_relaxation_algorithm(0.2)
+            scores[k] = score
+            end = time.time()
 
         # create the array encoding the communities from the number of nodes
         # will save to file only one of the graphs
@@ -142,7 +146,7 @@ def test_synthetic():
         print(f"Vertices: {graph.num_vertices()}; Edges: {graph.num_edges()}")
         print(f"Omega positive: {omega_positive}")
         print(f"Omega negative: {omega_negative}")
-        print(f"Score MIP: {score}")
+        print(f"Score MIP: {np.average(scores)}")
         print(f"Time: {end - start}")
         print("-" * 30)
 
@@ -150,4 +154,4 @@ def test_synthetic():
 
 
 if __name__ == "__main__":
-    test_synthetic()
+    test_synthetic(5)
