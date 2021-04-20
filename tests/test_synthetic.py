@@ -113,8 +113,8 @@ def test_synthetic():
 
         # create the array encoding the communities from the number of nodes
         communities = []
-        for i, n_group_nodes in enumerate(n_nodes):
-            communities += [i] * n_group_nodes
+        for j, n_group_nodes in enumerate(n_nodes):
+            communities += [j] * n_group_nodes
 
         outfile = os.path.join(OUTDIR, "graph" + str(i) + ".pdf")
         graph.draw(output=outfile, communities=communities)
