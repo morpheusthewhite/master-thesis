@@ -132,4 +132,5 @@ def test_synthetic():
         i += 1
 
 
-test_synthetic()
+if __name__ == "__main__":
+    test_synthetic()
