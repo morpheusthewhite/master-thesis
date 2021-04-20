@@ -57,11 +57,28 @@ def test_synthetic():
     ]
 
     n_nodes_list.append(n_nodes)
-    n_threads_list.append(5)
-    omega_positive_list.append(np.array(omega_positive) / 8)
-    omega_negative_list.append(np.array(omega_negative) / 8)
+    n_threads_list.append(10)
+    omega_positive_list.append(np.array(omega_positive) / 32)
+    omega_negative_list.append(np.array(omega_negative) / 32)
 
+    # this second graph is much simpler. It has 40 vertices and 2
+    # different echo chambers, one for each community
     n_nodes = [40, 40]
+    omega_positive = [
+        [0.9, 0.01],
+        [0.01, 0.9],
+    ]
+    omega_negative = [
+        [0.01, 0.9],
+        [0.9, 0.01],
+    ]
+
+    n_nodes_list.append(n_nodes)
+    n_threads_list.append(10)
+    omega_positive_list.append(np.array(omega_positive) / 32)
+    omega_negative_list.append(np.array(omega_negative) / 32)
+
+    n_nodes = [20, 20]
     omega_positive = [
         [0.45, 0.45],
         [0.45, 0.45],
@@ -72,11 +89,11 @@ def test_synthetic():
     ]
 
     n_nodes_list.append(n_nodes)
-    n_threads_list.append(5)
-    omega_positive_list.append(np.array(omega_positive) / 8)
-    omega_negative_list.append(np.array(omega_negative) / 8)
+    n_threads_list.append(10)
+    omega_positive_list.append(np.array(omega_positive) / 32)
+    omega_negative_list.append(np.array(omega_negative) / 32)
 
-    n_nodes = [40, 40]
+    n_nodes = [20, 20]
     omega_positive = [
         [0.20, 0.20],
         [0.20, 0.20],
@@ -87,9 +104,9 @@ def test_synthetic():
     ]
 
     n_nodes_list.append(n_nodes)
-    n_threads_list.append(5)
-    omega_positive_list.append(np.array(omega_positive) / 8)
-    omega_negative_list.append(np.array(omega_negative) / 8)
+    n_threads_list.append(10)
+    omega_positive_list.append(np.array(omega_positive) / 32)
+    omega_negative_list.append(np.array(omega_negative) / 32)
 
     # keep track of iteration
     i = 0
