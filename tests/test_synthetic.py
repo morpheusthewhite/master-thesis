@@ -6,11 +6,16 @@ import graph_tool.spectral as gt
 
 from polarmine.graph import PolarizationGraph
 
-OUTDIR = "out"
+OUTDIR = os.path.join("out", "synthetic")
 
 
 def test_synthetic():
     if not os.path.exists(OUTDIR):
+        dir1 = os.path.split(OUTDIR)[0]
+
+        if not os.path.exists(dir1):
+            os.mkdir(dir1)
+
         os.mkdir(OUTDIR)
 
     n_nodes_list = []
