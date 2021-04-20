@@ -146,6 +146,7 @@ def test_synthetic(iterations: int = 1):
         print(f"Vertices: {graph.num_vertices()}; Edges: {graph.num_edges()}")
         print(f"Omega positive: {omega_positive}")
         print(f"Omega negative: {omega_negative}")
+        print(f"Fraction of negative edges: {graph.negative_edges_fraction()}")
         print(f"Score MIP: {np.average(scores)}")
         print(f"Time: {end - start}")
         print("-" * 30)
