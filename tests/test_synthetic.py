@@ -114,12 +114,13 @@ def test_synthetic():
     for n_nodes, n_threads, omega_positive, omega_negative in zip(
         n_nodes_list, n_threads_list, omega_positive_list, omega_negative_list
     ):
-        # generate a graph
-        graph = PolarizationGraph.from_model(
-            n_nodes, n_threads, omega_positive, omega_negative
-        )
+        omega_positive_pdf = os.path.join(OUTDIR, f"omega_positive{i}.pdf")
+        plt.matshow(omega_positive / np.max(omega_positive))
+        plt.savefig(omega_positive_pdf)
 
-        assert graph.num_vertices() == np.sum(n_nodes)
+        omega_negative_pdf = os.path.join(OUTDIR, f"omega_negative{i}.pdf")
+        plt.matshow(omega_negative / np.max(omega_negative))
+        plt.savefig(omega_negative_pdf)
 
         # adjacency = gt.adjacency(graph.graph)
         # print(adjacency)
@@ -129,19 +130,18 @@ def test_synthetic():
         # plt.show()
 
         # create the array encoding the communities from the number of nodes
+        # will save to file only one of the graphs
         communities = []
         for j, n_group_nodes in enumerate(n_nodes):
             communities += [j] * n_group_nodes
 
-        outfile = os.path.join(OUTDIR, "graph" + str(i) + ".pdf")
+        outfile = os.path.join(OUTDIR, f"graph{i}.pdf")
         graph.draw(output=outfile, communities=communities)
-
-        start = time.time()
-        score, _, _, _ = graph.score_mip(0.2)
-        end = time.time()
 
         print("-" * 30)
         print(f"Vertices: {graph.num_vertices()}; Edges: {graph.num_edges()}")
+        print(f"Omega positive: {omega_positive}")
+        print(f"Omega negative: {omega_negative}")
         print(f"Score MIP: {score}")
         print(f"Time: {end - start}")
         print("-" * 30)
