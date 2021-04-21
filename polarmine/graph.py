@@ -9,6 +9,7 @@ from scipy.special import softmax
 
 from polarmine.comment import Comment
 from polarmine.thread import Thread
+from polarmine.densest import densest_subgraph
 
 KEY_SCORE = "score"
 SENTIMENT_MAX_TEXT_LENGTH = 128
@@ -1434,6 +1435,63 @@ class PolarizationGraph:
                     score_max_n_nc_threads = n_nc_threads
 
         return score_max, score_max_vertices, score_max_n_nc_threads
+
+    def __aggregate_edges__(
+        self,
+        edges_ij: list[gt.Edge],
+        alpha: float,
+        controversial_contents: set,
+        simple: bool,
+    ):
+        if simple:
+            delta_minus_ij = 0
+            delta_ij = 0
+
+            for edge in edges_ij:
+                edge_content = self.threads[edge].content
+
+                if edge_content in controversial_contents:
+                    edge_weight = self.weights[edge]
+
+                    if edge_weight > 0:
+                        delta_ij += edge_weight
+                    else:
+                        delta_ij -= edge_weight
+                        delta_minus_ij -= edge_weight
+
+            if delta_ij > 0 and delta_minus_ij / delta_ij <= alpha:
+                return 1
+            else:
+                return 0
+
+    def score_densest_nc_subgraph(self, alpha: float, simple: bool = True):
+        controversial_contents = self.controversial_contents(alpha)
+
+        # edges of the G_d graph
+        edges = []
+
+        for vertex_i in self.graph.vertices():
+            i = int(vertex_i)
+
+            for vertex_j in self.graph.vertices():
+                j = int(vertex_j)
+
+                if j > i:
+                    edges_ij = self.graph.edge(
+                        vertex_i, vertex_j, all_edges=True
+                    )
+
+                    n_edges = self.__aggregate_edges__(
+                        edges_ij, alpha, controversial_contents, simple
+                    )
+
+                    # TODO: could be optimize to handle multiple edges as one
+                    # with bigger weight
+                    for k in range(n_edges):
+                        edges.append([i, j])
+
+        num_vertices = int(vertex_i) + 1
+        return densest_subgraph(num_vertices, edges)
 
     def select_echo_chamber(
         self,
