@@ -108,3 +108,13 @@ def test_graph_echo_chamber_selection():
     graph.select_echo_chamber(0.4, vertices)
 
     assert graph.num_edges() == len(edges)
+
+
+def test_graph_score_densest_nc_subgraph():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+    graph.remove_self_loops()
+
+    alpha = 0.4
+
+    graph.score_densest_nc_subgraph(alpha)
