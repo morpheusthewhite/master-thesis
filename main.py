@@ -58,11 +58,19 @@ parser.add_argument(
 )
 parser.add_argument(
     "-se",
-    "--score-mip",
+    "--score-exact",
     default=False,
     action="store_true",
     dest="score_mip",
-    help="show or save MIP echo chamber scores",
+    help="show or save exact MIP echo chamber scores",
+)
+parser.add_argument(
+    "-sa",
+    "--score-appr",
+    default=False,
+    action="store_true",
+    dest="score_appr",
+    help="show or save appromiximation echo chamber score (from MIP relaxation results)",
 )
 parser.add_argument(
     "-a",
@@ -237,6 +245,7 @@ def print_scores(
     graph: PolarizationGraph,
     greedy: bool,
     mip: bool,
+    appr: bool,
     save_path: Optional[str],
     alpha: float = 0.4,
 ):
@@ -338,21 +347,6 @@ def print_scores(
         # )
 
         start = time.time()
-        score, users_index, nc_threads = graph.score_relaxation_algorithm(
-            alpha
-        )
-        results_score["mip_relaxation_algorithm"] = (score, users_index)
-        print(
-            f"(MIP relaxation algorithm) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
-            file=scores_txt_file,
-        )
-        end = time.time()
-        print(
-            f"(MIP relaxation algorithm) Elapsed time: {end - start}",
-            file=times_txt_file,
-        )
-
-        start = time.time()
         score, users_index, edges, nc_threads = graph.score_mip(alpha)
         results_score["mip"] = (score, users_index, edges)
         print(
@@ -375,6 +369,22 @@ def print_scores(
         end = time.time()
         print(
             f"(MIP) Elapsed time: {end - start}",
+            file=times_txt_file,
+        )
+
+    if appr:
+        start = time.time()
+        score, users_index, nc_threads = graph.score_relaxation_algorithm(
+            alpha
+        )
+        results_score["mip_relaxation_algorithm"] = (score, users_index)
+        print(
+            f"(MIP relaxation algorithm) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+            file=scores_txt_file,
+        )
+        end = time.time()
+        print(
+            f"(MIP relaxation algorithm) Elapsed time: {end - start}",
             file=times_txt_file,
         )
 
@@ -734,11 +744,12 @@ def main():
     if args.stats:
         print_stats(graph, args.save_path)
 
-    if args.score_greedy or args.score_mip:
+    if args.score_greedy or args.score_mip or args.score_appr:
         print_scores(
             graph,
             args.score_greedy,
             args.score_mip,
+            args.score_appr,
             args.save_path,
             args.alpha,
         )
