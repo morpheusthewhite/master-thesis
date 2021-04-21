@@ -1370,16 +1370,26 @@ class PolarizationGraph:
                 edge = (source, target, pulp.value(edge_variable))
                 edges.append(edge)
 
-        nc_threads = []
-        for i, thread_variable in enumerate(thread_k_vars.values()):
+        #
+        # Iterating over thread variables is not sufficient for detecting
+        # active threads. In fact with this model formulation there can be some
+        # variables set to 1 which do not actually contribute (this because
+        # some vertices may have a 1 binary variable while still not taking any
+        # of the available weight and so having the continuous variable set to
+        # 0)
+        #
+        # nc_threads = []
+        # for i, thread_variable in enumerate(thread_k_vars.values()):
+        #
+        #     thread_value = pulp.value(thread_variable)
+        #     if relaxation:
+        #         # if relaxation problem, return value of all the vertices
+        #         # instead of indices of non-zero threads
+        #         nc_threads.append(thread_value)
+        #     elif thread_value == 1:
+        #         nc_threads.append(i)
 
-            thread_value = pulp.value(thread_variable)
-            if relaxation:
-                # if relaxation problem, return value of all the vertices
-                # instead of indices of non-zero threads
-                nc_threads.append(thread_value)
-            elif thread_value == 1:
-                nc_threads.append(i)
+        _, nc_threads = self.score_from_vertices_index(users, alpha)
 
         return score, users, edges, nc_threads
 
