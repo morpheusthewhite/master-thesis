@@ -4,6 +4,8 @@
 
 Source code of my master thesis at KTH Institute of technology and Polytechnic University of Turin.
 
+The current version of the thesis report is available at the following [link](https://drive.google.com/file/d/1JCwNjQNW-FDqSqdSn5DvGlCzF\_8CkJTg).
+
 <!-- ### Built With -->
 
 <!--  -->
