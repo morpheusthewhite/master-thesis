@@ -1463,6 +1463,36 @@ class PolarizationGraph:
                 return 1
             else:
                 return 0
+        else:
+            # deltas for each thread
+            thread_deltas_ij = {}
+
+            for edge in edges_ij:
+                edge_content = self.threads[edge].content
+
+                if edge_content in controversial_contents:
+                    edge_weight = self.weights[edge]
+                    edge_thread = self.threads[edge].url
+
+                    (
+                        delta_minus_ij,
+                        delta_ij,
+                    ) = thread_deltas_ij.get(edge_thread, (0, 0))
+
+                    if edge_weight > 0:
+                        delta_ij += edge_weight
+                    else:
+                        delta_ij -= edge_weight
+                        delta_minus_ij -= edge_weight
+
+                    thread_deltas_ij[edge_thread] = (delta_minus_ij, delta_ij)
+
+            n_edges = 0
+            for delta_minus_ij, delta_ij in thread_deltas_ij.values():
+                if delta_minus_ij / delta_ij <= alpha:
+                    n_edges += 1
+
+            return n_edges
 
     def score_densest_nc_subgraph(self, alpha: float, simple: bool = True):
         controversial_contents = self.controversial_contents(alpha)
