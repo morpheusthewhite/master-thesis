@@ -9,7 +9,8 @@ def densest_subgraph(
     Args:
         num_vertices (int): the number of vertices in the graph
         edges (list[int]): array of edges, each represented by a pair of
-        indices. Each index should be in {0, ..., num_vertices-1}
+        indices (of the vertices) and the corresponding weight. Each index
+        should be in {0, ..., num_vertices-1}
 
     Returns:
         (float, list[int]): the density and the indices of the vertices in the
@@ -29,13 +30,14 @@ def densest_subgraph(
     for i, edge in enumerate(edges):
         source = edge[0]
         target = edge[1]
+        weight = edge[2]
 
         edge_var = pulp.LpVariable(
             f"x_{source}_{target}_{i}",
             lowBound=0,
         )
 
-        objective += edge_var
+        objective += weight * edge_var
 
         model += edge_var <= vertices_variables[source]
         model += edge_var <= vertices_variables[target]
