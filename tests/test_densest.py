@@ -4,13 +4,13 @@ from polarmine.densest import densest_subgraph
 def test_densest_simple():
     num_vertices = 5
     edges = [
-        [0, 1],
-        [4, 3],
-        [0, 3],
-        [0, 2],
-        [2, 3],
-        [2, 1],
-        [3, 1],
+        [0, 1, 1],
+        [4, 3, 1],
+        [0, 3, 1],
+        [0, 2, 1],
+        [2, 3, 1],
+        [2, 1, 1],
+        [3, 1, 1],
     ]
 
     density, nodes = densest_subgraph(num_vertices, edges)
