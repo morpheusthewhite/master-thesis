@@ -1485,10 +1485,8 @@ class PolarizationGraph:
                         edges_ij, alpha, controversial_contents, simple
                     )
 
-                    # TODO: could be optimize to handle multiple edges as one
-                    # with bigger weight
-                    for k in range(n_edges):
-                        edges.append([i, j])
+                    if n_edges > 0:
+                        edges.append([i, j, n_edges])
 
         num_vertices = int(vertex_i) + 1
         return densest_subgraph(num_vertices, edges)
