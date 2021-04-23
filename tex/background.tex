@@ -67,20 +67,30 @@ be in this set is in the order of a thousand \cite{SanjeevArora2017}.
 \label{sub:_p_vs_np_}
 
 A fundamental question in Computational Complexity is wheter $\mathcal{P} =
-	\mathcal{NP} $: this corresponds to asking if there exist some problems for
-which the solution can be checked efficiently (i.e. in polynomial time) but
-for which it is not easy to find the solution, given the problem
-instance \cite{9780521884730}.
+	\mathcal{NP} $. Mostly people believe that this is not true, so
+$\mathcal{P} \neq \mathcal{NP} $, and also our daily experience tell us that
+often it is easier to check the correctness of a solution of a problem than
+finding it \cite{9780521884730}: in many cases coming up with the correct
+answer requires searching over an exponentially large set
+\cite{SanjeevArora2017}. Nonetheless no mathematical proof of this notion has
+been found and, in fact, in the last decades there has been little or no progress towards it \cite{Erickson2019}.
 
-If this is the case, as it is mostly accepted among the algorithm designers
-\cite{Erickson2019} (on this assumption also Modern Criptography heavily relies
-\cite{9780521884730}), then
-$\mathcal{P} \neq \mathcal{NP} $, which will then
-bring to a representation of the compexity classes as depicted in
-\autoref{fig:tex/img/complexity-diagram}. But, in fact, in the last decades
-there has been little or no progress towards this proof \cite{Erickson2019}.
+If, it is mostly accepted, $\mathcal{P} \neq \mathcal{NP} $ this would produce
+a situation as depicted in \autoref{fig:tex/img/complexity-diagram}:
+there are problems for which we are not able to find the solution
+efficiently (i.e. in polynomial time). On the other side this allows the
+existance of one-way-functions (i.e. functions whose inverse is much harder to
+compute than the original functions) on which Modern Criptography heavily
+relies \cite{9780521884730}.
+%
+% This brings the need for algorithms which are able to approximate the solution
+% in a reasonable amount of time.
 
-\begin{figure}[]
+% Viceversa, if $\mathcal{P} = \mathcal{NP} $, it would be very easy to find
+% proofs and mathematicians could be replaced by
+% look at 2.7.3 in Sanjeev's book
+
+\begin{figure}
 	\centering
 	\includegraphics[width=0.3\linewidth]{tex/img/complexity-diagram.png}
 	\caption{Venn diagram for the complexity classes if $\mathcal{P} \neq
@@ -88,8 +98,44 @@ there has been little or no progress towards this proof \cite{Erickson2019}.
 	\label{fig:tex/img/complexity-diagram}
 \end{figure}
 
-\subsection{Optimization Problems}%
+\subsection{Optimization Problems and $\mathcal{NPO} $}%
 \label{sub:optimization_problems}
+
+Optimization problems are defined from a problem instance $x$, a set of
+feasible solutions $S$ and a cost function that takes as input the problem
+instance $x$ a feasible solution $s \in S$, denoted as cost$_{O} (x, s) $.
+Given a minimization (maximization) problem the optimal solution is defined as
+the $s$ minimizing (maximizing) the value of cost$_{O} (x, s)$, and we denote
+by opt$_{O} (x) $ this value\cite{Trevisan2004}.
+
+\paragraph{$\mathcal{NPO} $}%
+\label{par:_npo_}
+
+is then the set of optimization problems whose cost function
+can be computed in polynomial time and for every instance of the problem $x$
+and feasible solution for that problem $s \in A$ there is a polynomial $q \; s.t.
+	\; s \leq q(|x|)$.
+
+If $\mathcal{P} \neq \mathcal{NP} $ for many optimization problems there is no
+algorithm for finding the optimal solution in polynomial time
+\cite{Trevisan2004}. This is again a fundamental limitation about what we can
+compute which then requires the definition of some \emph{approximation}
+which would instead be able to be computed in polynomial time
+\cite{Vazirani2002}.
+
+\paragraph{Approximation}%
+\label{par:r_approximations}
+
+$A$ is an r-approximation algorithm for an
+$\mathcal{NPO} $ minimization (maximization) problem $O$ if, for every instance
+$x$ of $O$ it holds that cost$_{O} (x, (A(x))) \leq r \cdot $opt$_{O} (x)
+$ (cost$_{O} (x, (A(x))) \leq 1/r \cdot $opt$_{O} (x)
+$),$A(x)$ being the optimal solution found by the approximation algorithm
+\cite{Trevisan2004}.
+
+\subsection{Approximation preserving reductions}%
+\label{sub:approximation_preserving_reductions}
+
 
 
 
