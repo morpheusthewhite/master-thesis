@@ -114,30 +114,90 @@ by opt$_{O} (x) $ this value\cite{Trevisan2004}.
 is then the set of optimization problems whose cost function
 can be computed in polynomial time and for every instance of the problem $x$
 and feasible solution for that problem $s \in A$ there is a polynomial $q \; s.t.
-	\; s \leq q(|x|)$.
+	\; s \leq q(|x|)$ (i.e. the size of every solution is bounded by a polynomial
+in $x$).
 
 If $\mathcal{P} \neq \mathcal{NP} $ for many optimization problems there is no
 algorithm for finding the optimal solution in polynomial time
 \cite{Trevisan2004}. This is again a fundamental limitation about what we can
-compute which then requires the definition of some \emph{approximation}
-which would instead be able to be computed in polynomial time
-\cite{Vazirani2002}.
+compute which then requires the definition of some alternative approaches, like
+the definition of \emph{approximation algorithm}
+which are able to be computed in polynomial time
+a solution which lies in a given factor from the optimal
+one\cite{Vazirani2002}.
 
 \paragraph{Approximation}%
 \label{par:r_approximations}
 
-$A$ is an r-approximation algorithm for an
-$\mathcal{NPO} $ minimization (maximization) problem $O$ if, for every instance
-$x$ of $O$ it holds that cost$_{O} (x, (A(x))) \leq r \cdot $opt$_{O} (x)
-$ (cost$_{O} (x, (A(x))) \leq 1/r \cdot $opt$_{O} (x)
-$),$A(x)$ being the optimal solution found by the approximation algorithm
-\cite{Trevisan2004}.
+$A$ is an r-approximation algorithm for an $\mathcal{NPO} $ minimization
+problem $O$ if, for every instance $x$ of $O$ it holds that
+\begin{equation*}
+	cost_{O} (x, (A(x))) \leq r \cdot opt_{O} (x)
+\end{equation*}
+
+\noindent
+(or, respectively, cost$_{O} (x, (A(x)))
+	\leq 1/r \cdot $opt$_{O} (x) $ for maximization problems), $A(x)$ being the
+optimal solution found by the approximation algorithm \cite{Trevisan2004}.
 
 \subsection{Approximation preserving reductions}%
 \label{sub:approximation_preserving_reductions}
 
+Problems approximability varies widely: while for some of them exists
+constant factor approximations, for some others even a remotely approximate
+solution cannot be found \cite{Ausiello2005} (some examples are listed in
+\autoref{tab:inapproximability-examples} ).
 
+% todo: reference to the papers proving each result instead of the hub
+\begin{table}
+	\centering
+	\caption{Examples of known inapproximability results, assuming $\mathcal{P}
+			\neq \mathcal{NP} $ \cite{10.1007/3-540-63248-4_10} }
+	\label{tab:inapproximability-examples}
+	\begin{tabular}{c|p{5cm}|c}
+		Problem                                                          & Description                                                   & Inapproximability \\
+		\hline
+		$ \textsc{MaxClique} $                                           & Biggest complete subgraph                                     & $|V|^{1-
+		\epsilon}, \forall \epsilon > 0 $                                                                                                                    \\
+		                                                                 &                                                               &                   \\
+		$ \textsc{MaximumIndipendentSet} $                               &
+		Biggest set of not connected nodes                               & $|V|^{1-
+		\epsilon}, \forall \epsilon > 0 $                                                                                                                    \\
+		                                                                 &                                                               &                   \\
+		$ \textsc{MinCut} $                                              & Partition of nodes in 2 sets $V_1$ and $V_2$ minimizing edges
+		between the 2 sets                                               & 1.0624                                                                            \\
+		                                                                 &                                                               &                   \\
+		$ \textsc{MaximumSetPacking} $                                   & Given a collection of
+		finite sets $C$,
+		finding the biggest collection $C' \subseteq C$ of disjoint sets & $|C|^{1-
+		\epsilon}, \forall \epsilon > 0 $                                                                                                                    \\
+	\end{tabular}
+\end{table}
 
+\emph{Approximation preserving reductions} are a fundamental notion for proving
+a partial order among optimization problems \cite{Ausiello2005}. An
+\emph{Approximation preserving reductions} must have
+the following properties (when reducing from a problem $A$ to a problem $B$)
+\cite{DemaineFall2014}:
+
+\begin{itemize}
+	\item any instance $x$ of $A$ should be mapped to an instance $x' = f(x)$
+	      of $B$ in polynomial time
+	\item any solution $y'$ of $B$ should be associated to a corresponding
+	      solution $y = g(y')$ of $A$ in polynomial time
+\end{itemize}
+
+So there are 2 feasible (i.e. requiring polynomial time) functions $f$ and $g$
+for mapping instances of $A$ to $B$ and solution of $B$ to solutions of $A$,
+respectively.
+
+There are different kinds of approximation preserving reductions.
+
+\subsubsection{Strict reductions}%
+\label{sub:strict_reductions}
+
+% \subsubsection{L reductions}%
+% \label{sub:l_reductions}
 
 \section{Linear and Mixed Integer Programming}%
 \label{sec:linear_and_mixed_integer_programming}
