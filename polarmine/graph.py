@@ -1565,7 +1565,11 @@ class PolarizationGraph:
         n_threads: np.array,
         omega_positive: np.array,
         omega_negative: np.array,
+        theta: float,
+        n_active_communities: int,
     ):
+        n_communities = len(n_nodes)
+
         node_groups = []
         for i, n_group_nodes in enumerate(n_nodes):
             node_groups += [i] * n_group_nodes
@@ -1574,6 +1578,9 @@ class PolarizationGraph:
         nodes = [vertex for vertex in self.graph.add_vertex(n=np.sum(n_nodes))]
 
         for k in range(n_threads):
+            active_communities = set(
+                np.random.choice(n_communities, 2, replace=False)
+            )
 
             for i, node_i in enumerate(nodes):
                 for j, node_j in enumerate(nodes):
@@ -1585,6 +1592,13 @@ class PolarizationGraph:
                         # get probabilities between group r and s
                         omega_positive_rs = omega_positive[group_r, group_s]
                         omega_negative_rs = omega_negative[group_r, group_s]
+                        if (
+                            group_r not in active_communities
+                            or group_s not in active_communities
+                        ):
+                            omega_positive_rs = omega_negative_rs * theta
+                            omega_negative_rs = omega_negative_rs * theta
+
                         omega_null_rs = (
                             1 - omega_positive_rs - omega_negative_rs
                         )
@@ -1624,6 +1638,8 @@ class PolarizationGraph:
         n_threads: int,
         omega_positive: np.array,
         omega_negative: np.array,
+        theta: float,
+        n_active_communities: int,
     ):
         """Creates a PolarizationGraph object from the given model parameters
 
@@ -1633,9 +1649,19 @@ class PolarizationGraph:
             contains the probability of positive edge between class i and j
             omega_positive (np.array): a numpy 2D array where element ij
             contains the probability of negative edge between class i and j
+            theta: parameter controlling the probability of interacting between
+            inactive communities
+            n_active_communities: number of active communities in each content
         """
         graph = cls([])
-        graph.generate(n_nodes, n_threads, omega_positive, omega_negative)
+        graph.generate(
+            n_nodes,
+            n_threads,
+            omega_positive,
+            omega_negative,
+            theta,
+            n_active_communities,
+        )
 
         return graph
 
