@@ -377,14 +377,14 @@ def print_scores(
         score, users_index, nc_threads = graph.score_relaxation_algorithm(
             alpha
         )
-        results_score["mip_relaxation_algorithm"] = (score, users_index)
+        results_score["mip_rounding_algorithm"] = (score, users_index)
         print(
-            f"(MIP relaxation algorithm) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+            f"(MIP rounding algorithm) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
             file=scores_txt_file,
         )
         end = time.time()
         print(
-            f"(MIP relaxation algorithm) Elapsed time: {end - start}",
+            f"(MIP rounding algorithm) Elapsed time: {end - start}",
             file=times_txt_file,
         )
 

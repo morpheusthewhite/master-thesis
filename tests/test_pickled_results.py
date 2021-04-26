@@ -1,6 +1,5 @@
 import pickle
 import argparse
-import graph_tool.all as gt
 
 from polarmine.graph import PolarizationGraph
 
@@ -40,7 +39,7 @@ parser.add_argument(
 
 
 MIP_KEY = "mip"
-MIP_APPR_KEY = "mip_relaxation_algorithm"
+MIP_APPR_KEY = "mip_rounding_algorithm"
 MIP_DENSEST_KEY = "mip-densest"
 
 
