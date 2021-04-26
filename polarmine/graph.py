@@ -1420,8 +1420,8 @@ class PolarizationGraph:
             source = edge[0]
             target = edge[1]
 
-            vertices.add(source)
-            vertices.add(target)
+            vertices.add(int(source))
+            vertices.add(int(target))
 
             if len(vertices) != vertices_size:
                 score, nc_threads = self.score_from_vertices_index(
@@ -1434,7 +1434,7 @@ class PolarizationGraph:
                     score_max_vertices = vertices.copy()
                     score_max_n_nc_threads = n_nc_threads
 
-        return score_max, score_max_vertices, score_max_n_nc_threads
+        return score_max, list(score_max_vertices), score_max_n_nc_threads
 
     def __aggregate_edges__(
         self,
