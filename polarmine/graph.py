@@ -6,6 +6,7 @@ from typing import Optional
 from transformers import AutoModelForSequenceClassification
 from transformers import AutoTokenizer
 from scipy.special import softmax
+from sklearn import metrics
 
 from polarmine.comment import Comment
 from polarmine.thread import Thread
@@ -1626,6 +1627,52 @@ class PolarizationGraph:
                                 self.weights[edge] = +1
                             else:
                                 self.weights[edge] = -1
+
+    def is_induced_edge(self, vertices: set):
+        is_induced_property = self.graph.new_edge_property("bool")
+        for i, edge in enumerate(self.graph.get_edges()):
+            if edge[0] in vertices or edge[1] in vertices:
+                is_induced_property.a[i] = True
+
+        return is_induced_property
+
+    def clustering_accuracy(
+        self,
+        vertices_assignment: list[int],
+        n_clusters: int,
+        alpha: float,
+        approximation: bool = True,
+    ):
+        current_edge_filter = self.graph.new_edge_property("bool")
+
+        # array containing prediction of group for each vertex
+        vertices_predicted = np.empty((self.graph.num_vertices()))
+        vertices_predicted[:] = -1
+
+        for i in range(n_clusters):
+            if approximation:
+                _, vertices, _ = self.score_relaxation_algorithm(alpha)
+            else:
+                _, vertices, _, _ = self.score_mip(alpha)
+
+            vertices_predicted[vertices] = i
+
+            induced_edges_property = self.is_induced_edge(set(vertices))
+
+            current_edge_filter.a = np.logical_or(
+                current_edge_filter.a, induced_edges_property.a
+            )
+            self.graph.set_edge_filter(current_edge_filter, True)
+
+        self.clear_filters()
+
+        adjusted_rand_score = metrics.adjusted_rand_score(
+            vertices_assignment, vertices_predicted
+        )
+        rand_score = metrics.rand_score(
+            vertices_assignment, vertices_predicted
+        )
+        return adjusted_rand_score, rand_score
 
     def clear_filters(self):
         self.graph.clear_filters()
