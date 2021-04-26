@@ -132,11 +132,11 @@ one\cite{Vazirani2002}.
 $A$ is an r-approximation algorithm for an $\mathcal{NPO} $ minimization
 problem $O$ if, for every instance $x$ of $O$ it holds that
 \begin{equation*}
-	cost_{O} (x, (A(x))) \leq r \cdot opt_{O} (x)
+	cost_{O} (x, A(x)) \leq r \cdot opt_{O} (x)
 \end{equation*}
 
 \noindent
-(or, respectively, cost$_{O} (x, (A(x)))
+(or, respectively, cost$_{O} (x, A(x))
 	\leq 1/r \cdot $opt$_{O} (x) $ for maximization problems), $A(x)$ being the
 optimal solution found by the approximation algorithm \cite{Trevisan2004}.
 
@@ -183,21 +183,46 @@ the following properties (when reducing from a problem $A$ to a problem $B$)
 \begin{itemize}
 	\item any instance $x$ of $A$ should be mapped to an instance $x' = f(x)$
 	      of $B$ in polynomial time
-	\item any solution $y'$ of $B$ should be associated to a corresponding
-	      solution $y = g(y')$ of $A$ in polynomial time
+	\item any solution $y' \in $ sol$(f(x))$ of $B$ should be associated to a corresponding
+	      solution $y = g(x, y') \in $ sol$(x)$ of $A$ in polynomial time
 \end{itemize}
 
-So there are 2 feasible (i.e. requiring polynomial time) functions $f$ and $g$
+So there are 2 efficient (i.e. requiring polynomial time) functions $f$ and $g$
 for mapping instances of $A$ to $B$ and solution of $B$ to solutions of $A$,
-respectively.
+respectively (\autoref{fig:tex/img/reduction_scheme}).
 
-There are different kinds of approximation preserving reductions.
+\begin{figure}
+	\centering
+	\includegraphics[width=0.6\linewidth]{tex/img/reduction_scheme.png}
+	\caption{The reduction scheme \cite{Crescenzi1997ASG}}%
+	\label{fig:tex/img/reduction_scheme}
+\end{figure}
 
-\subsubsection{Strict reductions}%
+There are at least 9 different kinds of approximation preserving reductions
+\cite{DemaineFall2014}(\autoref{fig:tex/img/approximation_preserving_reductions}) but we will
+focus only on one type.
+
+\begin{figure}[b]
+	\centering
+	\includegraphics[width=0.4\linewidth]{tex/img/approximation_preserving_reductions.png}
+	\caption{Taxonomy of approximation preserving reductions \cite{Crescenzi1997ASG}}%
+	\label{fig:tex/img/approximation_preserving_reductions}
+\end{figure}
+
+\subsubsection{S reductions}%
 \label{sub:strict_reductions}
 
-% \subsubsection{L reductions}%
-% \label{sub:l_reductions}
+An $S$ \emph{reduction} from problem $A$ to problem $B$ has the following properties \cite{Crescenzi1997ASG}:
+\begin{itemize}
+	\item fox any instance $x$ of problem $A$ it holds that opt$_{A} (x) = $ opt$_{B} (f(x))$
+	\item for any instance $x$ of $A$ and solution $y'$ of $B$, cost$_{A} (x,
+		      g(x, y')) = $ cost$_{B} (f(x), y')$
+\end{itemize}
+
+Strict reductions are the strongest type of \emph{approximation preserving
+	reductions} and imply all the others \cite{Crescenzi1997ASG}.
+
+\clearpage
 
 \section{Linear and Mixed Integer Programming}%
 \label{sec:linear_and_mixed_integer_programming}
