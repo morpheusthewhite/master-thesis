@@ -1,9 +1,10 @@
 praw
 treelib
 pytorch
+scikit - learn
 transformers
 validators
-boost-cpp
-graph-tool
+boost - cpp
+graph - tool
 matplotlib
 pulp
