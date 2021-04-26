@@ -1495,7 +1495,9 @@ class PolarizationGraph:
 
             return n_edges
 
-    def score_densest_nc_subgraph(self, alpha: float, simple: bool = True):
+    def score_densest_nc_subgraph(
+        self, alpha: float, simple: bool = True
+    ) -> (float, list[int]):
         controversial_contents = self.controversial_contents(alpha)
 
         # edges of the G_d graph
