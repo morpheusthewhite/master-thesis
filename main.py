@@ -388,6 +388,32 @@ def print_scores(
             file=times_txt_file,
         )
 
+        start = time.time()
+        score, users_index = graph.score_densest_nc_subgraph(alpha)
+        results_score["densest_nc_subgraph_simple"] = (score, users_index)
+        print(
+            f"(Densest nc subgraph (unthreaded)) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+            file=scores_txt_file,
+        )
+        end = time.time()
+        print(
+            f"(Densest nc subgraph (unthreaded)) Elapsed time: {end - start}",
+            file=times_txt_file,
+        )
+
+        start = time.time()
+        score, users_index = graph.score_densest_nc_subgraph(alpha, False)
+        results_score["densest_nc_subgraph"] = (score, users_index)
+        print(
+            f"(Densest nc subgraph (threaded)) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+            file=scores_txt_file,
+        )
+        end = time.time()
+        print(
+            f"(Densest nc subgraph (threaded)) Elapsed time: {end - start}",
+            file=times_txt_file,
+        )
+
     if save_path is not None:
         scores_txt_file.close()
 
