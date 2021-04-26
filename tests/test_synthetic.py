@@ -21,6 +21,8 @@ def test_synthetic(iterations: int = 1):
     n_threads_list = []
     omega_positive_list = []
     omega_negative_list = []
+    n_active_communities_list = []
+    theta_list = []
 
     # this first graph is not sparse at all. It has 100 vertices and it has
     # different echo chambers, approximately one for each community
@@ -42,6 +44,8 @@ def test_synthetic(iterations: int = 1):
     n_threads_list.append(2)
     omega_positive_list.append(np.array(omega_positive) / 4)
     omega_negative_list.append(np.array(omega_negative) / 16)
+    n_active_communities_list.append(2)
+    theta_list.append(1)
 
     # this second graph is much simpler. It has 40 vertices and 2
     # different echo chambers, one for each community
@@ -59,6 +63,8 @@ def test_synthetic(iterations: int = 1):
     n_threads_list.append(10)
     omega_positive_list.append(np.array(omega_positive) / 32)
     omega_negative_list.append(np.array(omega_negative) / 32)
+    n_active_communities_list.append(2)
+    theta_list.append(1)
 
     # this second graph is much simpler. It has 40 vertices and 2
     # different echo chambers, one for each community
@@ -76,6 +82,8 @@ def test_synthetic(iterations: int = 1):
     n_threads_list.append(10)
     omega_positive_list.append(np.array(omega_positive) / 32)
     omega_negative_list.append(np.array(omega_negative) / 32)
+    n_active_communities_list.append(2)
+    theta_list.append(1)
 
     n_nodes = [40, 40]
     omega_positive = [
@@ -91,6 +99,8 @@ def test_synthetic(iterations: int = 1):
     n_threads_list.append(10)
     omega_positive_list.append(np.array(omega_positive) / 32)
     omega_negative_list.append(np.array(omega_negative) / 32)
+    n_active_communities_list.append(2)
+    theta_list.append(1)
 
     n_nodes = [40, 40]
     omega_positive = [
@@ -106,12 +116,26 @@ def test_synthetic(iterations: int = 1):
     n_threads_list.append(10)
     omega_positive_list.append(np.array(omega_positive) / 32)
     omega_negative_list.append(np.array(omega_negative) / 32)
+    n_active_communities_list.append(2)
+    theta_list.append(1)
 
     # keep track of iteration
     i = 0
 
-    for n_nodes, n_threads, omega_positive, omega_negative in zip(
-        n_nodes_list, n_threads_list, omega_positive_list, omega_negative_list
+    for (
+        n_nodes,
+        n_threads,
+        omega_positive,
+        omega_negative,
+        n_active_communities,
+        theta,
+    ) in zip(
+        n_nodes_list,
+        n_threads_list,
+        omega_positive_list,
+        omega_negative_list,
+        n_active_communities_list,
+        theta_list,
     ):
         omega_positive_pdf = os.path.join(OUTDIR, f"omega_positive{i}.pdf")
         plt.matshow(omega_positive / np.max(omega_positive))
@@ -122,26 +146,40 @@ def test_synthetic(iterations: int = 1):
         plt.savefig(omega_negative_pdf)
 
         scores = np.empty((iterations,))
+        rand_scores = np.empty((iterations,))
+        adjusted_rand_scores = np.empty((iterations,))
         for k in range(iterations):
             # generate a graph
             graph = PolarizationGraph.from_model(
-                n_nodes, n_threads, omega_positive, omega_negative
+                n_nodes,
+                n_threads,
+                omega_positive,
+                omega_negative,
+                n_active_communities,
+                theta,
             )
+            # create the array encoding the communities from the number of
+            # nodes.
+            communities = []
+            for j, n_group_nodes in enumerate(n_nodes):
+                communities += [j] * n_group_nodes
 
             start = time.time()
             score, _, _ = graph.score_relaxation_algorithm(0.2)
-            scores[k] = score
+
+            adjusted_rand_score, rand_score = graph.clustering_accuracy(
+                communities, len(omega_negative[0]), 0.2
+            )
             end = time.time()
 
-        # create the array encoding the communities from the number of nodes
-        # will save to file only one of the graphs
-        communities = []
-        for j, n_group_nodes in enumerate(n_nodes):
-            communities += [j] * n_group_nodes
+            scores[k] = score
+            rand_scores[k] = rand_score
+            adjusted_rand_scores[k] = adjusted_rand_score
 
         outfile = os.path.join(OUTDIR, f"graph{i}.pdf")
         graph.draw(output=outfile, communities=communities)
 
+        # Will save to file only one of the graphs
         print("-" * 30)
         print(f"Vertices: {graph.num_vertices()}; Edges: {graph.num_edges()}")
         print(f"Omega positive: {omega_positive}")
@@ -149,10 +187,14 @@ def test_synthetic(iterations: int = 1):
         print(f"Fraction of negative edges: {graph.negative_edges_fraction()}")
         print(f"Score MIP: {np.average(scores)}")
         print(f"Time: {end - start}")
+        print(f"Clustering Rand score: {np.average(rand_scores)}")
+        print(
+            f"Clustering Adjusted Rand score: {np.average(adjusted_rand_scores)}"
+        )
         print("-" * 30)
 
         i += 1
 
 
 if __name__ == "__main__":
-    test_synthetic(5)
+    test_synthetic(2)
