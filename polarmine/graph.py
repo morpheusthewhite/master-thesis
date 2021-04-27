@@ -1562,7 +1562,97 @@ class PolarizationGraph:
 
         return
 
-    def generate(
+    def __edge_sample__(
+        self,
+        i: int,
+        j: int,
+        node_groups: list[int],
+        omega_positive: np.array,
+        omega_negative: np.array,
+        theta: float,
+        group_activation: bool,
+        active_communities: set = None,
+        user_is_active: np.array = None,
+    ):
+        # get the groups of both vertices
+        group_r = node_groups[i]
+        group_s = node_groups[j]
+
+        # get probabilities between group r and s
+        omega_positive_rs = omega_positive[group_r, group_s]
+        omega_negative_rs = omega_negative[group_r, group_s]
+
+        if group_activation:
+            if (
+                group_r not in active_communities
+                or group_s not in active_communities
+            ):
+                omega_positive_rs = omega_negative_rs * theta
+                omega_negative_rs = omega_negative_rs * theta
+        else:
+            # if one of the 2 nodes are not active reduce the
+            # probabilities
+            if not user_is_active[i] or not user_is_active[j]:
+                omega_positive_rs = omega_negative_rs * theta
+                omega_negative_rs = omega_negative_rs * theta
+
+        omega_null_rs = 1 - omega_positive_rs - omega_negative_rs
+
+        # draw from the multinomial with the given parameters
+        edge_outcome = np.where(
+            np.random.multinomial(
+                n=1,
+                pvals=[
+                    omega_positive_rs,
+                    omega_negative_rs,
+                    omega_null_rs,
+                ],
+            )
+        )[0][0]
+
+        return edge_outcome
+
+    def __thread_sample__(
+        self,
+        thread_id: str,
+        content_id: str,
+        nodes: list[gt.Vertex],
+        node_groups: list[int],
+        omega_positive: np.array,
+        omega_negative: np.array,
+        theta: float,
+        group_activation: bool,
+        active_communities: set = None,
+        node_is_active: list[int] = None,
+    ):
+        for i, node_i in enumerate(nodes):
+            for j, node_j in enumerate(nodes):
+                if i < j:
+                    edge_outcome = self.__edge_sample__(
+                        i,
+                        j,
+                        node_groups,
+                        omega_positive,
+                        omega_negative,
+                        theta,
+                        group_activation,
+                        active_communities,
+                        node_is_active,
+                    )
+
+                    if edge_outcome != 2:
+                        # an edge must be added
+                        edge = self.graph.add_edge(node_i, node_j)
+                        self.threads[edge] = Thread(
+                            thread_id, None, None, None, content_id
+                        )
+
+                        if edge_outcome == 0:
+                            self.weights[edge] = +1
+                        else:
+                            self.weights[edge] = -1
+
+    def generate1(
         self,
         n_nodes: np.array,
         n_threads: np.array,
@@ -1584,51 +1674,78 @@ class PolarizationGraph:
             active_communities = set(
                 np.random.choice(n_communities, 2, replace=False)
             )
+            self.__thread_sample__(
+                str(k),
+                str(k),
+                nodes,
+                node_groups,
+                omega_positive,
+                omega_negative,
+                theta,
+                True,
+                active_communities,
+            )
 
-            for i, node_i in enumerate(nodes):
-                for j, node_j in enumerate(nodes):
-                    if i < j:
-                        # get the groups of both vertices
-                        group_r = node_groups[i]
-                        group_s = node_groups[j]
+    def generate2(
+        self,
+        n_nodes: np.array,
+        n_threads: int,
+        phi: np.array,
+        omega_positive: np.array,
+        omega_negative: np.array,
+        theta: float,
+        beta_a: float,
+        beta_n: float,
+    ):
 
-                        # get probabilities between group r and s
-                        omega_positive_rs = omega_positive[group_r, group_s]
-                        omega_negative_rs = omega_negative[group_r, group_s]
-                        if (
-                            group_r not in active_communities
-                            or group_s not in active_communities
-                        ):
-                            omega_positive_rs = omega_negative_rs * theta
-                            omega_negative_rs = omega_negative_rs * theta
+        node_groups = []
+        for i, n_group_nodes in enumerate(n_nodes):
+            node_groups += [i] * n_group_nodes
 
-                        omega_null_rs = (
-                            1 - omega_positive_rs - omega_negative_rs
-                        )
+        follow_graph = gt.generate_sbm(node_groups, phi)
 
-                        # draw from the multinomial with the given parameters
-                        edge_outcome = np.where(
-                            np.random.multinomial(
-                                n=1,
-                                pvals=[
-                                    omega_positive_rs,
-                                    omega_negative_rs,
-                                    omega_null_rs,
-                                ],
-                            )
-                        )[0][0]
+        # add the needed number of vertices to the graph
+        nodes = [vertex for vertex in self.graph.add_vertex(n=np.sum(n_nodes))]
 
-                        if edge_outcome != 2:
-                            # an edge must be added
-                            edge = self.graph.add_edge(node_i, node_j)
-                            self.threads[edge] = Thread(
-                                str(k), None, None, None, str(k)
-                            )
+        for k in range(n_threads):
 
-                            if edge_outcome == 0:
-                                self.weights[edge] = +1
-                            else:
-                                self.weights[edge] = -1
+            # sample if a node is active or not, i.e. from a categorical with
+            # probability (beta_a, 1-beta_a)
+            node_is_active = np.random.choice(
+                2, len(node_groups), p=[1 - beta_a, beta_a]
+            )
+
+            active_queue = list(np.where(node_is_active)[0])
+
+            # propagate activation through neighbours
+            while len(active_queue) > 0:
+                active_node = active_queue.pop(0)
+
+                node_neighbours = follow_graph.get_all_neighbors(active_node)
+
+                # sample once for all the neighbours of the node, even if some
+                # of them may already be active
+                get_activated = np.random.choice(
+                    2, node_neighbours.shape[0], p=[1 - beta_n, beta_n]
+                )
+
+                for j, neighbour in enumerate(node_neighbours):
+                    if not node_is_active(neighbour) and get_activated[j]:
+                        node_is_active[neighbour] = 1
+                        active_queue.append(neighbour)
+
+            self.__thread_sample__(
+                str(k),
+                str(k),
+                nodes,
+                node_groups,
+                omega_positive,
+                omega_negative,
+                theta,
+                False,
+                None,
+                node_is_active,
+            )
 
     def is_induced_edge(self, vertices: set):
         is_induced_property = self.graph.new_edge_property("bool")
@@ -1681,7 +1798,7 @@ class PolarizationGraph:
         return
 
     @classmethod
-    def from_model(
+    def from_model1(
         cls,
         n_nodes: np.array,
         n_threads: int,
@@ -1703,13 +1820,51 @@ class PolarizationGraph:
             n_active_communities: number of active communities in each content
         """
         graph = cls([])
-        graph.generate(
+        graph.generate1(
             n_nodes,
             n_threads,
             omega_positive,
             omega_negative,
             theta,
             n_active_communities,
+        )
+
+        return graph
+
+    @classmethod
+    def from_model2(
+        cls,
+        n_nodes: np.array,
+        n_threads: int,
+        phi: np.array,
+        omega_positive: np.array,
+        omega_negative: np.array,
+        theta: float,
+        beta_a: float,
+        beta_n: float,
+    ):
+        """Creates a PolarizationGraph object from the given model parameters
+
+        Args:
+            n_nodes (np.array): a numpy array with the number of elements in each class
+            omega_positive (np.array): a numpy 2D array where element ij
+            contains the probability of positive edge between class i and j
+            omega_positive (np.array): a numpy 2D array where element ij
+            contains the probability of negative edge between class i and j
+            theta: parameter controlling the probability of interacting between
+            inactive communities
+            n_active_communities: number of active communities in each content
+        """
+        graph = cls([])
+        graph.generate2(
+            n_nodes,
+            n_threads,
+            phi,
+            omega_positive,
+            omega_negative,
+            theta,
+            beta_a,
+            beta_n,
         )
 
         return graph
