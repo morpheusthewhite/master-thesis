@@ -1730,7 +1730,7 @@ class PolarizationGraph:
                 )
 
                 for j, neighbour in enumerate(node_neighbours):
-                    if not node_is_active(neighbour) and get_activated[j]:
+                    if not node_is_active[neighbour] and get_activated[j]:
                         node_is_active[neighbour] = 1
                         active_queue.append(neighbour)
 
