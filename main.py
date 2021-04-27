@@ -390,10 +390,9 @@ def print_scores(
 
         start = time.time()
         score, users_index = graph.score_densest_nc_subgraph(alpha)
-        score, nc_threads = graph.score_from_vertices_index(users_index, alpha)
         results_score["densest_nc_subgraph_simple"] = (score, users_index)
         print(
-            f"(Densest nc subgraph (unthreaded)) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
+            f"(Densest nc subgraph (unthreaded)) Echo chamber score: {score} on {len(users_index)} vertices",
             file=scores_txt_file,
         )
         end = time.time()
@@ -404,10 +403,9 @@ def print_scores(
 
         start = time.time()
         score, users_index = graph.score_densest_nc_subgraph(alpha, False)
-        score, nc_threads = graph.score_from_vertices_index(users_index, alpha)
         results_score["densest_nc_subgraph"] = (score, users_index)
         print(
-            f"(Densest nc subgraph (threaded)) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
+            f"(Densest nc subgraph (threaded)) Echo chamber score: {score} on {len(users_index)} vertices",
             file=scores_txt_file,
         )
         end = time.time()
