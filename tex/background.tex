@@ -227,7 +227,7 @@ Strict reductions are the strongest type of \emph{approximation preserving
 \section{Linear and Mixed Integer Programming}%
 \label{sec:linear_and_mixed_integer_programming}
 
-Linear programming is a widely used optimization technique and one of the most
+\acrlong{LP} is a widely used optimization technique and one of the most
 effective; the term refers to problems in which both the constraints and \emph{objective
 	function} are linear
 \cite{Edgar2001}\cite{Vanderbei2008}\cite{Dantzig1998}\cite{Martin1998}.
@@ -235,7 +235,7 @@ effective; the term refers to problems in which both the constraints and \emph{o
 \subsection{The structure of a linear programming model}%
 \label{sub:the_structure_of_a_linear_programming_model}
 
-In a linear programming problem we are given a cost vector $ \mathbf{c} = (c_1,
+In a \acrfull{LP} problem we are given a cost vector $ \mathbf{c} = (c_1,
 	\dots, c_n) $ and we want to minimize (or maximize) a linear cost function over
 the variables $ \mathbf{x} = (x_1, \dots, x_n) $ with the coefficients of the
 cost vector $ \mathbf{c} $, i.e.
@@ -270,7 +270,7 @@ constraints over the variables \cite{Bertsimas1997}\cite{Vanderbei2008}:
 %     a_1 x_1 + \dots + a_n x_n \geq b
 % \end{align*}
 %
-In general is possible to formulate any linear programming problem can be formulated as follows (called \emph{standard form}) \cite{Vanderbei2008}
+In general is possible to formulate any \acrshort{LP} problem as follows (called \emph{standard form}) \cite{Vanderbei2008}
 
 \begin{alignat*}{2}
 	 & \text{minimize}   &       & \sum_{i=1}^{m} c_{i}x_{i} \\
@@ -290,3 +290,6 @@ constraints, \emph{optimum} if it maximizes the \emph{objective function}
 
 \subsection{Solving an LP problem}%
 \label{sub:solving_an_lp_problem}
+
+\subsection{Mixed Integer Programming}%
+\label{sub:mixed_integer_programming}
