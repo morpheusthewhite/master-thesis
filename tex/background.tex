@@ -226,3 +226,67 @@ Strict reductions are the strongest type of \emph{approximation preserving
 
 \section{Linear and Mixed Integer Programming}%
 \label{sec:linear_and_mixed_integer_programming}
+
+Linear programming is a widely used optimization technique and one of the most
+effective; the term refers to problems in which both the constraints and \emph{objective
+	function} are linear
+\cite{Edgar2001}\cite{Vanderbei2008}\cite{Dantzig1998}\cite{Martin1998}.
+
+\subsection{The structure of a linear programming model}%
+\label{sub:the_structure_of_a_linear_programming_model}
+
+In a linear programming problem we are given a cost vector $ \mathbf{c} = (c_1,
+	\dots, c_n) $ and we want to minimize (or maximize) a linear cost function over
+the variables $ \mathbf{x} = (x_1, \dots, x_n) $ with the coefficients of the
+cost vector $ \mathbf{c} $, i.e.
+\begin{equation*}
+	\mathbf{cx} = \sum^{n}_{i=1} c_i x_i
+\end{equation*}
+(known as the \emph{objective function}) while satisfying some linear
+constraints over the variables \cite{Bertsimas1997}\cite{Vanderbei2008}:
+
+\begin{equation*}
+	a_1 x_1 + \dots + a_n x_n \begin{Bmatrix} \leq \\ = \\ \geq \end{Bmatrix} b
+\end{equation*}
+
+% There is no \emp{a priori} preference regarding how the problem is formulated
+% since it is easy to convert an inequality into a equality constraint through
+% additional variables ($\omega $ in the example below) called \emph{slack}
+% \cite{Vanderbei2008}. For example one in the form
+% \begin{equation*}
+%     a_1 x_1 + \dots + a_n x_n \leq b
+% \end{equation*}
+% is equivalent to
+% \begin{equation*}
+%     a_1 x_1 + \dots + a_n x_n + \omega = b, \quad \omega \geq 0
+% \end{equation*}
+% and viceversa an equality
+% \begin{equation*}
+%     a_1 x_1 + \dots + a_n x_n = b
+% \end{equation*}
+% can be converted into
+% \begin{align*}
+%     a_1 x_1 + \dots + a_n x_n \leq b \\
+%     a_1 x_1 + \dots + a_n x_n \geq b
+% \end{align*}
+%
+In general is possible to formulate any linear programming problem can be formulated as follows (called \emph{standard form}) \cite{Vanderbei2008}
+
+\begin{alignat*}{2}
+	 & \text{minimize}   &       & \sum_{i=1}^{m} c_{i}x_{i} \\
+	 & \text{subiect to} & \quad &
+	\begin{aligned}[t]
+		\sum_{i=1}^{n} a_{1i}  x_{i} & \leq b_{1} &                        \\
+		\vdots                                                             \\
+		\sum_{i=1}^{n} a_{mi}  x_{i} & \leq b_{m} &                        \\
+		x_{i}                        & \geq 0,    & \quad i & =1 ,\dots, n
+	\end{aligned}
+\end{alignat*}
+
+The $x_i$ are known also as \emph{decision variables}; a choice of $ \mathbf{x}
+$ if called \emph{solution} and \emph{feasible solution} if it satisfies the
+constraints, \emph{optimum} if it maximizes the \emph{objective function}
+\cite{Vanderbei2008}.
+
+\subsection{Solving an LP problem}%
+\label{sub:solving_an_lp_problem}
