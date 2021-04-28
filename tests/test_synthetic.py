@@ -18,12 +18,12 @@ def evaluate_graph(
     start = time.time()
     score, _, _ = graph.score_relaxation_algorithm(alpha)
 
-    adjusted_rand_score, rand_score = graph.clustering_accuracy(
+    adjusted_rand_score, rand_score, jaccard_score = graph.clustering_accuracy(
         communities, n_communities, alpha
     )
     end = time.time()
 
-    return score, rand_score, adjusted_rand_score, end - start
+    return score, rand_score, adjusted_rand_score, jaccard_score, end - start
 
 
 def print_results(
@@ -34,25 +34,38 @@ def print_results(
     duration: int,
     rand_scores: np.array,
     adjusted_rand_scores: np.array,
+    jaccard_scores: np.array,
+    outfile,
 ):
     # Will save to file only one of the graphs
-    print("-" * 30)
-    print(f"Vertices: {graph.num_vertices()}; Edges: {graph.num_edges()}")
-    print(f"Omega positive: {omega_positive}")
-    print(f"Omega negative: {omega_negative}")
-    print(f"Fraction of negative edges: {graph.negative_edges_fraction()}")
-    print(f"Score MIP: {np.average(scores)}")
-    print(f"Time: {duration}")
-    print(f"Clustering Rand score: {np.average(rand_scores)}")
+    print("-" * 30, file=outfile)
     print(
-        f"Clustering Adjusted Rand score: {np.average(adjusted_rand_scores)}"
+        f"Vertices: {graph.num_vertices()}; Edges: {graph.num_edges()}",
+        file=outfile,
     )
-    print("-" * 30)
+    print(f"Omega positive: {omega_positive}", file=outfile)
+    print(f"Omega negative: {omega_negative}", file=outfile)
+    print(
+        f"Fraction of negative edges: {graph.negative_edges_fraction()}",
+        file=outfile,
+    )
+    print(f"Score MIP: {np.average(scores)}", file=outfile)
+    print(f"Time: {duration}", file=outfile)
+    print(f"Clustering Rand score: {np.average(rand_scores)}", file=outfile)
+    print(
+        f"Clustering Adjusted Rand score: {np.average(adjusted_rand_scores)}",
+        file=outfile,
+    )
+    print(
+        f"Jaccard score: {np.average(jaccard_scores)}",
+        file=outfile,
+    )
+    print("-" * 30, file=outfile)
 
     return
 
 
-def test_synthetic1(iterations: int = 1):
+def test_synthetic1(results_outfile, iterations: int = 1):
     n_nodes_list = []
     n_threads_list = []
     omega_positive_list = []
@@ -162,6 +175,7 @@ def test_synthetic1(iterations: int = 1):
     scores = np.empty((iterations,))
     rand_scores = np.empty((iterations,))
     adjusted_rand_scores = np.empty((iterations,))
+    jaccard_scores = np.empty((iterations,))
 
     for (
         n_nodes,
@@ -208,13 +222,18 @@ def test_synthetic1(iterations: int = 1):
             for j, n_group_nodes in enumerate(n_nodes):
                 communities += [j] * n_group_nodes
 
-            score, rand_score, adjusted_rand_score, duration = evaluate_graph(
-                graph, alpha, n_communities, communities
-            )
+            (
+                score,
+                rand_score,
+                adjusted_rand_score,
+                jaccard_score,
+                duration,
+            ) = evaluate_graph(graph, alpha, n_communities, communities)
 
             scores[k] = score
             rand_scores[k] = rand_score
             adjusted_rand_scores[k] = adjusted_rand_score
+            jaccard_scores[k] = jaccard_score
 
         outfile = os.path.join(OUTDIR, f"model1_graph{i}.pdf")
         graph.draw(output=outfile, communities=communities)
@@ -227,12 +246,14 @@ def test_synthetic1(iterations: int = 1):
             duration,
             rand_scores,
             adjusted_rand_scores,
+            jaccard_scores,
+            results_outfile,
         )
 
         i += 1
 
 
-def test_synthetic2(iterations: int = 1):
+def test_synthetic2(results_outfile, iterations: int = 1):
 
     n_nodes_list = []
     n_threads_list = []
@@ -410,7 +431,6 @@ def test_synthetic2(iterations: int = 1):
         omega_positive,
         omega_negative,
         phi,
-        n_active_communities,
         theta,
         beta_a,
         beta_n,
@@ -420,7 +440,6 @@ def test_synthetic2(iterations: int = 1):
         omega_positive_list,
         omega_negative_list,
         phi_list,
-        n_active_communities_list,
         theta_list,
         beta_a_list,
         beta_n_list,
@@ -446,6 +465,7 @@ def test_synthetic2(iterations: int = 1):
         scores = np.empty((iterations,))
         rand_scores = np.empty((iterations,))
         adjusted_rand_scores = np.empty((iterations,))
+        jaccard_scores = np.empty((iterations,))
         for k in range(iterations):
             # generate a graph
             graph = PolarizationGraph.from_model2(
@@ -464,13 +484,18 @@ def test_synthetic2(iterations: int = 1):
             for j, n_group_nodes in enumerate(n_nodes):
                 communities += [j] * n_group_nodes
 
-            score, rand_score, adjusted_rand_score, duration = evaluate_graph(
-                graph, alpha, n_communities, communities
-            )
+            (
+                score,
+                rand_score,
+                adjusted_rand_score,
+                jaccard_score,
+                duration,
+            ) = evaluate_graph(graph, alpha, n_communities, communities)
 
             scores[k] = score
             rand_scores[k] = rand_score
             adjusted_rand_scores[k] = adjusted_rand_score
+            jaccard_scores[k] = adjusted_rand_score
 
         outfile = os.path.join(OUTDIR, f"model2_graph{i}.pdf")
         graph.draw(output=outfile, communities=communities)
@@ -483,6 +508,8 @@ def test_synthetic2(iterations: int = 1):
             duration,
             rand_scores,
             adjusted_rand_scores,
+            jaccard_scores,
+            results_outfile,
         )
 
         i += 1
@@ -497,5 +524,9 @@ if __name__ == "__main__":
 
         os.mkdir(OUTDIR)
 
-    test_synthetic1(2)
-    test_synthetic2(2)
+    outfile = open(os.path.join(OUTDIR, "results.txt"), "w")
+
+    test_synthetic1(outfile, 3)
+    test_synthetic2(outfile, 2)
+
+    outfile.close()
