@@ -1768,6 +1768,9 @@ class PolarizationGraph:
         vertices_predicted = np.empty((self.graph.num_vertices()))
         vertices_predicted[:] = -1
 
+        vertices_assignment = np.array(vertices_assignment)
+
+        iterations_score = []
         for i in range(n_clusters):
             if approximation:
                 _, vertices, _ = self.score_relaxation_algorithm(alpha)
@@ -1783,6 +1786,20 @@ class PolarizationGraph:
             )
             self.graph.set_edge_filter(current_edge_filter, True)
 
+            # compute jaccard coefficient for the current classification
+            subgraph_vertices_assignment = vertices_assignment[vertices]
+            majority_class = np.bincount(subgraph_vertices_assignment).argmax()
+
+            class_assignment = (vertices_assignment == majority_class).astype(
+                np.int32
+            )
+            class_prediction = np.zeros_like(class_assignment)
+            class_prediction[vertices] = 1
+            iteration_score = metrics.jaccard_score(
+                class_assignment, class_prediction
+            )
+            iterations_score.append(iteration_score)
+
         self.clear_filters()
 
         adjusted_rand_score = metrics.adjusted_rand_score(
@@ -1795,7 +1812,7 @@ class PolarizationGraph:
         jaccard_score = metrics.jaccard_score(
             vertices_assignment, vertices_predicted, average="micro"
         )
-        return adjusted_rand_score, rand_score, jaccard_score
+        return adjusted_rand_score, rand_score, jaccard_score, iterations_score
 
     def clear_filters(self):
         self.graph.clear_filters()
