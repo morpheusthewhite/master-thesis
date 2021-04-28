@@ -18,12 +18,22 @@ def evaluate_graph(
     start = time.time()
     score, _, _ = graph.score_relaxation_algorithm(alpha)
 
-    adjusted_rand_score, rand_score, jaccard_score = graph.clustering_accuracy(
-        communities, n_communities, alpha
-    )
+    (
+        adjusted_rand_score,
+        rand_score,
+        jaccard_score,
+        iterations_score,
+    ) = graph.clustering_accuracy(communities, n_communities, alpha)
     end = time.time()
 
-    return score, rand_score, adjusted_rand_score, jaccard_score, end - start
+    return (
+        score,
+        rand_score,
+        adjusted_rand_score,
+        jaccard_score,
+        iterations_score,
+        end - start,
+    )
 
 
 def print_results(
@@ -35,7 +45,9 @@ def print_results(
     rand_scores: np.array,
     adjusted_rand_scores: np.array,
     jaccard_scores: np.array,
+    iterations_score: list[float],
     outfile,
+    plotfilename,
 ):
     # Will save to file only one of the graphs
     print("-" * 30, file=outfile)
@@ -60,6 +72,12 @@ def print_results(
         f"Jaccard score: {np.average(jaccard_scores)}",
         file=outfile,
     )
+
+    # plot scores along iterations
+    plt.figure()
+    plt.plot(iterations_score)
+    plt.savefig(plotfilename)
+
     print("-" * 30, file=outfile)
 
     return
@@ -227,6 +245,7 @@ def test_synthetic1(results_outfile, iterations: int = 1):
                 rand_score,
                 adjusted_rand_score,
                 jaccard_score,
+                iterations_score,
                 duration,
             ) = evaluate_graph(graph, alpha, n_communities, communities)
 
@@ -238,6 +257,7 @@ def test_synthetic1(results_outfile, iterations: int = 1):
         outfile = os.path.join(OUTDIR, f"model1_graph{i}.pdf")
         graph.draw(output=outfile, communities=communities)
 
+        plotfilename = os.path.join(OUTDIR, f"model1_scores{i}.pdf")
         print_results(
             graph,
             omega_positive,
@@ -247,7 +267,9 @@ def test_synthetic1(results_outfile, iterations: int = 1):
             rand_scores,
             adjusted_rand_scores,
             jaccard_scores,
+            iterations_score,
             results_outfile,
+            plotfilename,
         )
 
         i += 1
@@ -490,6 +512,7 @@ def test_synthetic2(results_outfile, iterations: int = 1):
                 rand_score,
                 adjusted_rand_score,
                 jaccard_score,
+                iterations_score,
                 duration,
             ) = evaluate_graph(graph, alpha, n_communities, communities)
 
@@ -500,6 +523,7 @@ def test_synthetic2(results_outfile, iterations: int = 1):
 
         outfile = os.path.join(OUTDIR, f"model2_graph{i}.pdf")
         graph.draw(output=outfile, communities=communities)
+        plotfilename = os.path.join(OUTDIR, f"model1_scores{i}.pdf")
 
         print_results(
             graph,
@@ -510,7 +534,9 @@ def test_synthetic2(results_outfile, iterations: int = 1):
             rand_scores,
             adjusted_rand_scores,
             jaccard_scores,
+            iterations_score,
             results_outfile,
+            plotfilename,
         )
 
         i += 1
@@ -527,7 +553,7 @@ if __name__ == "__main__":
 
     outfile = open(os.path.join(OUTDIR, "results.txt"), "w")
 
-    test_synthetic1(outfile, 3)
+    #  test_synthetic1(outfile, 3)
     test_synthetic2(outfile, 2)
 
     outfile.close()
