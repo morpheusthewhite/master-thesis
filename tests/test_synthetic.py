@@ -239,116 +239,168 @@ def test_synthetic2(iterations: int = 1):
     omega_positive_list = []
     omega_negative_list = []
     phi_list = []
-    n_active_communities_list = []
     theta_list = []
     beta_a_list = []
     beta_n_list = []
 
-    # this first graph is not sparse at all. It has 100 vertices and it has
-    # different echo chambers, approximately one for each community
-    n_nodes = [40, 20, 30, 10]
-    omega_positive = [
-        [0.3, 0.05, 0.1, 0.05],
-        [0.05, 0.35, 0.06, 0.05],
-        [0.06, 0.05, 0.30, 0.05],
-        [0.05, 0.05, 0.04, 0.30],
-    ]
-    omega_negative = [
-        [0.2, 0.4, 0.22, 0.3],
-        [0.4, 0.2, 0.4, 0.3],
-        [0.5, 0.4, 0.2, 0.6],
-        [0.4, 0.33, 0.3, 0.2],
-    ]
-    phi = [
-        [0.3, 0.05, 0.1, 0.05],
-        [0.05, 0.35, 0.06, 0.05],
-        [0.06, 0.05, 0.30, 0.05],
-        [0.05, 0.05, 0.04, 0.30],
-    ]
+    # -----------------------------------
+    # GRAPH 1
+    # -----------------------------------
+
+    n_nodes = [20, 20, 20, 20]
+    omega_positive = np.array(
+        [
+            [0.8, 0.03, 0.03, 0.03],
+            [0.03, 0.8, 0.03, 0.03],
+            [0.03, 0.03, 0.8, 0.03],
+            [0.03, 0.03, 0.03, 0.8],
+        ]
+    )
+    omega_negative = np.ones_like(omega_positive) - omega_positive
+    phi = np.array(
+        [
+            [0.7, 0.2, 0.2, 0.2],
+            [0.2, 0.7, 0.2, 0.2],
+            [0.2, 0.2, 0.7, 0.2],
+            [0.2, 0.2, 0.2, 0.7],
+        ]
+    )
 
     n_nodes_list.append(n_nodes)
-    n_threads_list.append(2)
+    n_threads_list.append(8)
     omega_positive_list.append(np.array(omega_positive) / 4)
-    omega_negative_list.append(np.array(omega_negative) / 16)
+    omega_negative_list.append(np.array(omega_negative) / 8)
     phi_list.append(np.array(phi))
-    n_active_communities_list.append(2)
-    theta_list.append(1)
-    beta_a_list.append(0.04)
-    beta_n_list.append(0.04)
+    theta_list.append(0.1)
+    beta_a_list.append(1 / 8)
+    beta_n_list.append(1 / 3)
 
-    #     # this second graph is much simpler. It has 40 vertices and 2
-    #     # different echo chambers, one for each community
-    #     n_nodes = [40, 40]
-    #     omega_positive = [
-    #         [0.8, 0.1],
-    #         [0.1, 0.8],
-    #     ]
-    #     omega_negative = [
-    #         [0.1, 0.8],
-    #         [0.8, 0.1],
-    #     ]
-    #
-    #     n_nodes_list.append(n_nodes)
-    #     n_threads_list.append(10)
-    #     omega_positive_list.append(np.array(omega_positive) / 32)
-    #     omega_negative_list.append(np.array(omega_negative) / 32)
-    #     n_active_communities_list.append(2)
-    #     theta_list.append(1)
-    #
-    #     # this second graph is much simpler. It has 40 vertices and 2
-    #     # different echo chambers, one for each community
-    #     n_nodes = [40, 40]
-    #     omega_positive = [
-    #         [0.9, 0.01],
-    #         [0.01, 0.9],
-    #     ]
-    #     omega_negative = [
-    #         [0.01, 0.9],
-    #         [0.9, 0.01],
-    #     ]
-    #
-    #     n_nodes_list.append(n_nodes)
-    #     n_threads_list.append(10)
-    #     omega_positive_list.append(np.array(omega_positive) / 32)
-    #     omega_negative_list.append(np.array(omega_negative) / 32)
-    #     n_active_communities_list.append(2)
-    #     theta_list.append(1)
-    #
-    #     n_nodes = [40, 40]
-    #     omega_positive = [
-    #         [0.45, 0.45],
-    #         [0.45, 0.45],
-    #     ]
-    #     omega_negative = [
-    #         [0.45, 0.45],
-    #         [0.45, 0.45],
-    #     ]
-    #
-    #     n_nodes_list.append(n_nodes)
-    #     n_threads_list.append(10)
-    #     omega_positive_list.append(np.array(omega_positive) / 32)
-    #     omega_negative_list.append(np.array(omega_negative) / 32)
-    #     n_active_communities_list.append(2)
-    #     theta_list.append(1)
-    #
-    #     n_nodes = [40, 40]
-    #     omega_positive = [
-    #         [0.20, 0.20],
-    #         [0.20, 0.20],
-    #     ]
-    #     omega_negative = [
-    #         [0.60, 0.60],
-    #         [0.60, 0.60],
-    #     ]
-    #
-    #     n_nodes_list.append(n_nodes)
-    #     n_threads_list.append(10)
-    #     omega_positive_list.append(np.array(omega_positive) / 32)
-    #     omega_negative_list.append(np.array(omega_negative) / 32)
-    #     n_active_communities_list.append(2)
-    #     theta_list.append(1)
-    #
-    # keep track of iteration
+    # -----------------------------------
+    # GRAPH 2
+    # -----------------------------------
+
+    n_nodes = [20, 20, 20, 20]
+    omega_positive = np.array(
+        [
+            [0.7, 0.1, 0.1, 0.1],
+            [0.1, 0.7, 0.1, 0.1],
+            [0.1, 0.1, 0.7, 0.1],
+            [0.1, 0.1, 0.1, 0.7],
+        ]
+    )
+    omega_negative = np.ones_like(omega_positive) - omega_positive
+    phi = np.array(
+        [
+            [0.6, 0.4, 0.4, 0.4],
+            [0.4, 0.6, 0.4, 0.4],
+            [0.4, 0.4, 0.6, 0.4],
+            [0.4, 0.4, 0.4, 0.6],
+        ]
+    )
+
+    n_nodes_list.append(n_nodes)
+    n_threads_list.append(8)
+    omega_positive_list.append(np.array(omega_positive) / 32)
+    omega_negative_list.append(np.array(omega_negative) / 64)
+    phi_list.append(np.array(phi) / 8)
+    theta_list.append(0.1)
+    beta_a_list.append(1 / 1)
+    beta_n_list.append(1 / 3)
+
+    # -----------------------------------
+    # GRAPH 3
+    # -----------------------------------
+
+    n_nodes = [20, 20, 20, 20]
+    omega_positive = np.array(
+        [
+            [0.5, 0.4, 0.4, 0.4],
+            [0.4, 0.5, 0.4, 0.4],
+            [0.4, 0.4, 0.5, 0.4],
+            [0.4, 0.4, 0.4, 0.5],
+        ]
+    )
+    omega_negative = np.ones_like(omega_positive) - omega_positive
+    phi = np.array(
+        [
+            [0.5, 0.5, 0.5, 0.5],
+            [0.5, 0.5, 0.5, 0.5],
+            [0.5, 0.5, 0.5, 0.5],
+            [0.5, 0.5, 0.5, 0.5],
+        ]
+    )
+
+    n_nodes_list.append(n_nodes)
+    n_threads_list.append(8)
+    omega_positive_list.append(np.array(omega_positive) / 8)
+    omega_negative_list.append(np.array(omega_negative) / 8)
+    phi_list.append(np.array(phi))
+    theta_list.append(0.1)
+    beta_a_list.append(1 / 8)
+    beta_n_list.append(1 / 3)
+
+    # -----------------------------------
+    # GRAPH 4
+    # -----------------------------------
+
+    n_nodes = [20, 20, 20, 20]
+    omega_positive = np.array(
+        [
+            [0.9, 0.01, 0.01, 0.01],
+            [0.01, 0.9, 0.01, 0.01],
+            [0.01, 0.01, 0.9, 0.01],
+            [0.01, 0.01, 0.01, 0.9],
+        ]
+    )
+    omega_negative = np.ones_like(omega_positive) - omega_positive
+    phi = np.array(
+        [
+            [0.7, 0.2, 0.2, 0.2],
+            [0.2, 0.7, 0.2, 0.2],
+            [0.2, 0.2, 0.7, 0.2],
+            [0.2, 0.2, 0.2, 0.7],
+        ]
+    )
+    n_nodes_list.append(n_nodes)
+    n_threads_list.append(18)
+    omega_positive_list.append(np.array(omega_positive) / 8)
+    omega_negative_list.append(np.array(omega_negative) / 8)
+    phi_list.append(np.array(phi))
+    theta_list.append(0.1)
+    beta_a_list.append(1 / 8)
+    beta_n_list.append(1 / 3)
+
+    # -----------------------------------
+    # GRAPH 5
+    # -----------------------------------
+
+    n_nodes = [30, 30, 30, 30]
+    omega_positive = np.array(
+        [
+            [0.9, 0.01, 0.01, 0.01],
+            [0.01, 0.9, 0.01, 0.01],
+            [0.01, 0.01, 0.9, 0.01],
+            [0.01, 0.01, 0.01, 0.9],
+        ]
+    )
+    omega_negative = np.ones_like(omega_positive) - omega_positive
+    phi = np.array(
+        [
+            [0.7, 0.2, 0.2, 0.2],
+            [0.2, 0.7, 0.2, 0.2],
+            [0.2, 0.2, 0.7, 0.2],
+            [0.2, 0.2, 0.2, 0.7],
+        ]
+    )
+    n_nodes_list.append(n_nodes)
+    n_threads_list.append(18)
+    omega_positive_list.append(np.array(omega_positive) / 4)
+    omega_negative_list.append(np.array(omega_negative) / 8)
+    phi_list.append(np.array(phi))
+    theta_list.append(0.1)
+    beta_a_list.append(1 / 8)
+    beta_n_list.append(1 / 3)
+
     i = 0
     alpha = 0.2
 
