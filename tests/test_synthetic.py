@@ -425,6 +425,11 @@ def test_synthetic2(results_outfile, iterations: int = 1):
     i = 0
     alpha = 0.2
 
+    scores = np.empty((iterations,))
+    rand_scores = np.empty((iterations,))
+    adjusted_rand_scores = np.empty((iterations,))
+    jaccard_scores = np.empty((iterations,))
+
     for (
         n_nodes,
         n_threads,
@@ -462,10 +467,6 @@ def test_synthetic2(results_outfile, iterations: int = 1):
         plt.matshow(phi / np.max(phi))
         plt.savefig(phi_pdf)
 
-        scores = np.empty((iterations,))
-        rand_scores = np.empty((iterations,))
-        adjusted_rand_scores = np.empty((iterations,))
-        jaccard_scores = np.empty((iterations,))
         for k in range(iterations):
             # generate a graph
             graph = PolarizationGraph.from_model2(
