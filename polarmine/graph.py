@@ -1791,7 +1791,11 @@ class PolarizationGraph:
         rand_score = metrics.rand_score(
             vertices_assignment, vertices_predicted
         )
-        return adjusted_rand_score, rand_score
+
+        jaccard_score = metrics.jaccard_score(
+            vertices_assignment, vertices_predicted
+        )
+        return adjusted_rand_score, rand_score, jaccard_score
 
     def clear_filters(self):
         self.graph.clear_filters()
