@@ -1793,7 +1793,7 @@ class PolarizationGraph:
         )
 
         jaccard_score = metrics.jaccard_score(
-            vertices_assignment, vertices_predicted
+            vertices_assignment, vertices_predicted, average="micro"
         )
         return adjusted_rand_score, rand_score, jaccard_score
 
