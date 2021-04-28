@@ -288,6 +288,10 @@ class PolarizationGraph:
     def num_edges(self):
         return self.graph.num_edges()
 
+    def num_components(self):
+        components, _ = gt.label_components(self.graph)
+        return np.max(components.a) + 1
+
     def negative_edges_fraction(self):
 
         # verify that a filter exists before cycling
