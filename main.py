@@ -78,7 +78,7 @@ parser.add_argument(
     default=0.4,
     type=float,
     dest="alpha",
-    help="maximum fraction of negative edges of non controversial content",
+    help="maximum fraction of negative edges of non controversial content. If -1 it is chosen as the median of the fraction of negative edges of the contents",
 )
 parser.add_argument(
     "-sp",
@@ -257,6 +257,9 @@ def print_scores(
         scores_txt_file = open(scores_txt, "w")
         times_txt = os.path.join(save_path, "times.txt")
         times_txt_file = open(times_txt, "w")
+
+    if alpha == -1:
+        alpha = graph.alpha_median()
 
     results_score = {}
 
