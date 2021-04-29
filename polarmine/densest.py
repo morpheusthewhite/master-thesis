@@ -1,4 +1,7 @@
+import itertools
 import pulp
+import graph_tool.all as gt
+import numpy as np
 
 
 def densest_subgraph(
@@ -54,3 +57,73 @@ def densest_subgraph(
             vertices.append(i)
 
     return density, vertices
+
+
+def dcs_am_exact(graph: gt.Graph):
+    """Compute exactly DCS-AM using Charikar's k-core algorithm
+
+    Args:
+        graph (gt.Graph): a graph with an inner edge property "content"
+        associated to the content of the edges
+    """
+
+    def select_content(graph: gt.Graph, content: str):
+        contents = graph.edge_properties["content"]
+        edge_filter = graph.new_edge_property("bool")
+
+        for edge in graph.edges():
+            edge_filter[edge] = contents[edge] == content
+
+        current_edge_filter, _ = graph.get_edge_filter()
+
+        if current_edge_filter is not None:
+            edge_filter.a = np.logical_and(
+                edge_filter.a, current_edge_filter.a
+            )
+
+        graph.set_edge_filter(edge_filter)
+
+    def select_kcore(graph: gt.Graph, k: int):
+        kcore = gt.kcore_decomposition(graph)
+        vertex_filter = graph.new_vertex_property("bool")
+
+        for vertex in graph.vertices():
+            vertex_filter[vertex] = kcore[vertex] >= k
+
+        graph.set_vertex_filter(vertex_filter)
+
+    contents = set(graph.edge_properties["content"])
+
+    def find_k_list_core(graph: gt.Graph, k_list: list[int]) -> np.array:
+        for content, k in zip(contents, k_list):
+            select_content(graph, content)
+            select_kcore(graph, k)
+
+            if graph.num_vertices() == 0:
+                return []
+
+            graph.set_edge_filter(None)
+
+        return graph.get_vertices()
+
+    score_best = 0
+    vertices_best = []
+
+    for k_list in itertools.product(
+        range(graph.num_vertices()), repeat=len(contents)
+    ):
+        score = sum(k_list)
+
+        # consider the current k_list only if it will produce a score higher
+        # than the best one
+        if score > score_best:
+            vertices = find_k_list_core(graph, k_list)
+
+            # the algorithm found a solution if the vertices set is not empty
+            if len(vertices) > 0:
+                score_best = score
+                vertices_best = vertices
+
+            graph.clear_filters()
+
+    return score_best, vertices_best
