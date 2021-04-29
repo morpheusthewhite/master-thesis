@@ -756,6 +756,14 @@ class PolarizationGraph:
 
         return controversial_contents
 
+    def alpha_median(self):
+        negative_edges_fractions = list(
+            self.negative_edges_fraction_content_dict().values()
+        )
+
+        alpha_median = np.median(np.array(negative_edges_fractions))
+        return alpha_median
+
     def score_components(self, alpha: int) -> (int, list[int], int):
         comp, _ = gt.label_components(self.graph, directed=False)
         controversial_contents = self.controversial_contents(alpha)
