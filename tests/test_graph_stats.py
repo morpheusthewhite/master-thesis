@@ -277,3 +277,11 @@ def test_graph_content_thread_neg_fraction_kcore():
 
         for neg_fraction in threads_dict.values():
             assert neg_fraction >= 0 and neg_fraction <= 1
+
+
+def test_graph_alpha_median():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    alpha_median = graph.alpha_median()
+    assert alpha_median >= 0
