@@ -272,19 +272,16 @@ constraints over the variables \cite{Bertsimas1997}\cite{Vanderbei2008}:
 %
 In general is possible to formulate any \acrshort{LP} problem as follows (called \emph{standard form}) \cite{Vanderbei2008}
 
-\begin{equation}
+\begin{alignat}{3}
 	\label{eq:standard-form}
-	\begin{alignat*}{2}
-		 & \text{minimize}   &       & \sum_{i=1}^{n} c_{i}x_{i} \\
-		 & \text{subject to} & \quad &
-		\begin{aligned}[t]
-			\sum_{i=1}^{n} a_{1i}  x_{i} & \leq b_{1} &                        \\
-			\vdots                                                             \\
-			\sum_{i=1}^{n} a_{mi}  x_{i} & \leq b_{m} &                        \\
-			x_{i}                        & \geq 0,    & \quad i & =1 ,\dots, n
-		\end{aligned}
-	\end{alignat*}
-\end{equation}
+	\begin{aligned}[t]
+		\text{minimize}   &       & \sum_{i=1}^{n} c_{i}x_{i}                                          \\
+		\text{subject to} & \quad & \sum_{i=1}^{n} a_{1i}  x_{i} & \leq b_{1} &                        \\
+		                  &       & \vdots                                                             \\
+		                  &       & \sum_{i=1}^{n} a_{mi}  x_{i} & \leq b_{m} &                        \\
+		                  &       & x_{i}                        & \geq 0,    & \quad i & =1 ,\dots, n
+	\end{aligned}
+\end{alignat}
 
 
 The $x_i$ are known also as \emph{decision variables}; a choice of $ \mathbf{x}
@@ -303,19 +300,17 @@ Starting from the \emph{standard form} (\autoref{eq:standard-form})
 for the \emph{objective} function, allowing to express the problem as follows
 \cite{Vanderbei2008}\cite{Edgar2001}
 
-\begin{equation}
+\begin{alignat}{2}
 	\label{eq:standard-form}
-	\begin{alignat*}{2}
-		 &  & \quad &
-		\begin{aligned}[t]
-			\zeta   & = \sum_{i=1}^{n} c_{i}x_{i}                                       \\
-			x_{n+1} & = b_{1} - \sum_{i=1}^{n} a_{1i}  x_{i} &                          \\
-			\vdots                                                                      \\
-			x_{n+m} & = b_{m} - \sum_{i=1}^{n} a_{mi}  x_{i} &                          \\
-			x_{i}   & \geq 0,                                & \quad i & =1 ,\dots, n+m
-		\end{aligned}
-	\end{alignat*}
-\end{equation}
+	 &  & \quad &
+	\begin{aligned}[t]
+		\zeta   & = \sum_{i=1}^{n} c_{i}x_{i}                                       \\
+		x_{n+1} & = b_{1} - \sum_{i=1}^{n} a_{1i}  x_{i} &                          \\
+		\vdots                                                                      \\
+		x_{n+m} & = b_{m} - \sum_{i=1}^{n} a_{mi}  x_{i} &                          \\
+		x_{i}   & \geq 0,                                & \quad i & =1 ,\dots, n+m
+	\end{aligned}
+\end{alignat}
 
 The first phase involves finding a feasible solution for the problem. More
 specifically, we look for $m$ variables, called \emph{basic variables}, whose
@@ -326,18 +321,16 @@ $ be the set of \emph{basic variables} and $\mathcal{N} $ the set of
 \emph{nonbasic variables} \cite{Vanderbei2008}\cite{Bertsimas1997}. Then the
 problem can be reformulated as follows
 
-\begin{equation}
+\begin{alignat}{2}
 	\label{eq:standard-form-simplex-new}
-	\begin{alignat*}{2}
-		 &  & \quad &
-		\begin{aligned}[t]
-			\zeta & = \bar{\zeta} + \sum_{j \in \mathcal{N} }^{n} c_{j}x_{j}                                      \\
-			x_{i} & = \bar{b}_{i} - \sum_{j \in \mathcal{N} }^{n} \bar{a}_{ij}
-			x_{j} & i                                                          & \in \mathcal{B}                  \\
-			x_{i} & \geq 0,                                                    & \quad i         & =1 ,\dots, n+m
-		\end{aligned}
-	\end{alignat*}
-\end{equation}
+	 &  & \quad &
+	\begin{aligned}[t]
+		\zeta & = \bar{\zeta} + \sum_{j \in \mathcal{N} }^{n} c_{j}x_{j}                                      \\
+		x_{i} & = \bar{b}_{i} - \sum_{j \in \mathcal{N} }^{n} \bar{a}_{ij}
+		x_{j} & i                                                          & \in \mathcal{B}                  \\
+		x_{i} & \geq 0,                                                    & \quad i         & =1 ,\dots, n+m
+	\end{aligned}
+\end{alignat}
 
 The second phase of the \emph{simplex method} aims at improving the current
 solution: if $c_{j} \geq 0, \; \forall j \in \mathcal{N} $ then the value of the
