@@ -129,7 +129,7 @@ def dcs_am_exact(graph: gt.Graph):
 
 
 def score_m(graph: gt.Graph, vertex: int, n_contents: int) -> float:
-    degree = graph.get_all_edges(vertex)
+    degree = graph.get_all_edges(vertex).shape[0]
 
     return degree / n_contents
 
@@ -173,7 +173,7 @@ def dcs_am_from_vertices(graph: gt.Graph) -> int:
     return dcs_am_score
 
 
-def find_bff_m(graph: gt.Graph) -> int:
+def find_bff_m(graph: gt.Graph, num_contents: int) -> int:
     num_vertices = graph.num_vertices()
 
     def filter_vertex(vertex: int):
@@ -193,7 +193,7 @@ def find_bff_m(graph: gt.Graph) -> int:
         min_vertex = -1
 
         for vertex in graph.get_vertices():
-            score = score_m(graph, vertex)
+            score = score_m(graph, vertex, num_contents)
 
             if score < min_score:
                 min_score = score
