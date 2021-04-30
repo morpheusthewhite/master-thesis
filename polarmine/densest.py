@@ -127,3 +127,48 @@ def dcs_am_exact(graph: gt.Graph):
             graph.clear_filters()
 
     return score_best, vertices_best
+
+
+def score_m(graph: gt.Graph, vertex: int, n_contents: int) -> float:
+    degree = graph.get_all_edges(vertex)
+
+    return degree / n_contents
+
+
+def dcs_am_from_vertices(graph: gt.Graph) -> int:
+    """calculate DCS-AM score of the selected vertices in the graph
+
+    Args:
+        graph (gt.Graph): a graph where vertices not in S are filtered out
+
+    Returns:
+        int: the DCS-AM score
+    """
+    contents_property = graph.ep["content"]
+    contents = set([contents_property[edge] for edge in graph.edges()])
+    contents_degree_dict = {}
+
+    for vertex in graph.vertices():
+        vertex_content_degree_dict = {}
+
+        for edge in vertex.all_edges():
+            edge_content = contents_property[edge]
+            degree = vertex_content_degree_dict.get(edge_content, 0) + 1
+            vertex_content_degree_dict[edge_content] = degree
+
+        for content in contents:
+            # if the content is not present then the degree of the vertex is 0
+            vertex_degree = vertex_content_degree_dict.get(content, 0)
+
+            # append the degree of the current vertex to the degree of the
+            # other vertices
+            degrees = contents_degree_dict.get(content, [])
+            degrees.append(vertex_degree)
+
+            contents_degree_dict[content] = degrees
+
+    dcs_am_score = 0
+    for content, degrees in contents_degree_dict.items():
+        dcs_am_score += min(degrees)
+
+    return dcs_am_score
