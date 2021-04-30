@@ -59,6 +59,21 @@ def densest_subgraph(
     return density, vertices
 
 
+def select_contents(graph: gt.Graph, contents: list[str]):
+    contents = graph.edge_properties["content"]
+    edge_filter = graph.new_edge_property("bool")
+
+    for edge in graph.edges():
+        edge_filter[edge] = contents[edge] in contents
+
+    current_edge_filter, _ = graph.get_edge_filter()
+
+    if current_edge_filter is not None:
+        edge_filter.a = np.logical_and(edge_filter.a, current_edge_filter.a)
+
+    graph.set_edge_filter(edge_filter)
+
+
 def dcs_am_exact(graph: gt.Graph):
     """Compute exactly DCS-AM using Charikar's k-core algorithm
 
@@ -66,22 +81,6 @@ def dcs_am_exact(graph: gt.Graph):
         graph (gt.Graph): a graph with an inner edge property "content"
         associated to the content of the edges
     """
-
-    def select_content(graph: gt.Graph, content: str):
-        contents = graph.edge_properties["content"]
-        edge_filter = graph.new_edge_property("bool")
-
-        for edge in graph.edges():
-            edge_filter[edge] = contents[edge] == content
-
-        current_edge_filter, _ = graph.get_edge_filter()
-
-        if current_edge_filter is not None:
-            edge_filter.a = np.logical_and(
-                edge_filter.a, current_edge_filter.a
-            )
-
-        graph.set_edge_filter(edge_filter)
 
     def select_kcore(graph: gt.Graph, k: int):
         kcore = gt.kcore_decomposition(graph)
@@ -96,7 +95,7 @@ def dcs_am_exact(graph: gt.Graph):
 
     def find_k_list_core(graph: gt.Graph, k_list: list[int]) -> np.array:
         for content, k in zip(contents, k_list):
-            select_content(graph, content)
+            select_contents(graph, [content])
             select_kcore(graph, k)
 
             if graph.num_vertices() == 0:
@@ -145,7 +144,7 @@ def dcs_am_from_vertices(graph: gt.Graph) -> int:
         int: the DCS-AM score
     """
     contents_property = graph.ep["content"]
-    contents = set([contents_property[edge] for edge in graph.edges()])
+    contents = set(graph.edge_properties["content"])
     contents_degree_dict = {}
 
     for vertex in graph.vertices():
