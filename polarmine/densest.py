@@ -172,3 +172,39 @@ def dcs_am_from_vertices(graph: gt.Graph) -> int:
         dcs_am_score += min(degrees)
 
     return dcs_am_score
+
+
+def find_bff_m(graph: gt.Graph) -> int:
+    num_vertices = graph.num_vertices()
+
+    def filter_vertex(vertex: int):
+        vertex_filter, _ = graph.get_vertex_filter()
+
+        if vertex_filter is None:
+            vertex_filter = graph.new_vertex_property("bool", val=True)
+
+        vertex_filter.a[vertex] = False
+        graph.set_vertex_filter(vertex_filter)
+
+    max_dcs_am_score = -1
+    max_dcs_am_vertices = []
+
+    for i in range(num_vertices):
+        min_score = -1
+        min_vertex = -1
+
+        for vertex in graph.get_vertices():
+            score = score_m(graph, vertex)
+
+            if score < min_score:
+                min_score = score
+                min_vertex = vertex
+
+        filter_vertex(min_vertex)
+        dcs_am_score = dcs_am_from_vertices(graph)
+
+        if dcs_am_score > max_dcs_am_score:
+            max_dcs_am_score = dcs_am_score
+            max_dcs_am_vertices = graph.get_vertices()
+
+    return max_dcs_am_score, max_dcs_am_vertices
