@@ -1,6 +1,6 @@
 import graph_tool.all as gt
 
-from polarmine.densest import densest_subgraph, dcs_am_exact
+from polarmine import densest
 
 
 def test_densest_simple():
@@ -15,7 +15,7 @@ def test_densest_simple():
         [3, 1, 1],
     ]
 
-    density, nodes = densest_subgraph(num_vertices, edges)
+    density, nodes = densest.densest_subgraph(num_vertices, edges)
 
     assert density == 6 / 4
 
@@ -51,8 +51,7 @@ def test_dcs_am_exact1():
     edge = graph.add_edge(vertices[4], vertices[2])
     contents_property[edge] = "b"
 
-    score, vertices = dcs_am_exact(graph)
-    print(vertices)
+    score, vertices = densest.dcs_am_exact(graph)
     assert score == 2
 
 
@@ -84,7 +83,49 @@ def test_dcs_am_exact2():
     edge = graph.add_edge(vertices[2], vertices[1])
     contents_property[edge] = "c"
 
-    score, vertices = dcs_am_exact(graph)
-    print(vertices)
+    score, vertices = densest.dcs_am_exact(graph)
     assert score == 3
     assert set(vertices) == {1, 2}
+
+
+def test_dcs_am_score():
+    graph = gt.Graph()
+    contents_property = graph.new_edge_property("string")
+    graph.ep["content"] = contents_property
+
+    vertices = list(graph.add_vertex(5))
+
+    edge = graph.add_edge(vertices[1], vertices[0])
+    contents_property[edge] = "a"
+
+    edge = graph.add_edge(vertices[2], vertices[1])
+    contents_property[edge] = "a"
+
+    edge = graph.add_edge(vertices[3], vertices[4])
+    contents_property[edge] = "a"
+
+    edge = graph.add_edge(vertices[3], vertices[0])
+    contents_property[edge] = "b"
+
+    edge = graph.add_edge(vertices[1], vertices[2])
+    contents_property[edge] = "b"
+
+    edge = graph.add_edge(vertices[4], vertices[2])
+    contents_property[edge] = "b"
+
+    score = densest.dcs_am_from_vertices(graph)
+    assert score == 2
+
+    edge = graph.add_edge(vertices[2], vertices[1])
+    contents_property[edge] = "c"
+
+    score = densest.dcs_am_from_vertices(graph)
+    assert score == 2
+
+    filter_property = graph.new_vertex_property("bool")
+    filter_property.a[1] = True
+    filter_property.a[2] = True
+    graph.set_vertex_filter(filter_property)
+
+    score = densest.dcs_am_from_vertices(graph)
+    assert score == 3
