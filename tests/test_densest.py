@@ -159,11 +159,11 @@ def test_find_bff_m():
     edge = graph.add_edge(vertices[2], vertices[1])
     contents_property[edge] = "c"
 
-    score1, vertices1 = densest.find_bff_m(graph, 3)
+    score1, vertices = densest.find_bff_m(graph, 3)
 
     # verity that the returned set produces the given score
     filter_property = graph.new_vertex_property("bool")
-    filter_property.a[list(vertices1)] = True
+    filter_property.a[list(vertices)] = True
     graph.set_vertex_filter(filter_property)
 
     score2 = densest.dcs_am_from_vertices(graph)
@@ -199,9 +199,13 @@ def test_o2_bff():
     edge = graph.add_edge(vertices[2], vertices[1])
     contents_property[edge] = "c"
 
-    score, vertices = densest.o2_bff_dcs_am_incremental_overlap(graph, 2)
-    import pdb
+    score1, vertices = densest.o2_bff_dcs_am_incremental_overlap(graph, 2)
 
-    pdb.set_trace()
-    assert score >= 2
-    assert 1 in vertices and 2 in vertices
+    # verity that the returned set produces the given score
+    filter_property = graph.new_vertex_property("bool")
+    filter_property.a[list(vertices)] = True
+    graph.set_vertex_filter(filter_property)
+
+    score2 = densest.dcs_am_from_vertices(graph)
+
+    assert score1 == score2
