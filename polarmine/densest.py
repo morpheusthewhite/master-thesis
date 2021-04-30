@@ -3,6 +3,8 @@ import pulp
 import graph_tool.all as gt
 import numpy as np
 
+from sklearn.metrics import jaccard_score
+
 
 def densest_subgraph(
     num_vertices: int, edges: list[int]
@@ -207,3 +209,73 @@ def find_bff_m(graph: gt.Graph, num_contents: int) -> int:
             max_dcs_am_vertices = graph.get_vertices()
 
     return max_dcs_am_score, max_dcs_am_vertices
+
+
+def o2_bff_dcs_am_incremental_overlap(graph: gt.Graph, k: int):
+    contents = list(set(graph.edge_properties["content"]))
+    num_vertices = graph.num_vertices()
+    S_i = []
+
+    for content in contents:
+        select_contents(graph, [content])
+        score, vertices = find_bff_m(graph, len(contents))
+
+        vertices_i_bin = np.zeros(num_vertices)
+        vertices_i_bin[vertices] = 1
+
+        S_i.append(vertices_i_bin)
+        graph.clear_filters()
+
+    max_pair = ()
+    max_jaccard_score = 0
+
+    # find the pair of vertices which are most similar (jaccard score)
+    for indices_pair in itertools.combinations(range(len(contents)), 2):
+        i, j = indices_pair
+        vertices_i, vertices_j = S_i[i], S_i[j]
+
+        score = jaccard_score(vertices_i, vertices_j)
+        if score > max_jaccard_score:
+            max_jaccard_score = score
+            max_pair = (i, j)
+
+    # most similar pair of vertices: these are the corresponding indices
+    i, j = max_pair
+    C_prev = {contents[i], contents[j]}
+
+    for _ in range(2, k):
+        select_contents(graph, C_prev)
+        _, vertices = find_bff_m(graph, len(contents))
+
+        # array of binaries representing which vertices are in the current S
+        vertices_bin = np.zeros(num_vertices)
+        vertices_bin[vertices] = 1
+
+        # variables needed to keep most similar new set of vertices
+        max_content = -1
+        max_jaccard_score = -1
+
+        # choose which content to add to the previous ones
+        for content_index, content in enumerate(contents):
+
+            # consider only content which are not already selected
+            if content not in C_prev:
+
+                # compute the jaccard similarity between the S_i of this
+                # content and the current set of vertices associated with
+                # C_prev
+                content_vertices = S_i[content_index]
+
+                score = jaccard_score(content_vertices, vertices_bin)
+
+                if score > max_jaccard_score:
+                    max_jaccard_score = score
+                    max_content = content_index
+
+        C_prev.add(max_content)
+        graph.clear_filters()
+
+    select_contents(graph, C_prev)
+    graph.clear_filters()
+
+    return find_bff_m(graph, len(contents))
