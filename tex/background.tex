@@ -4,8 +4,7 @@
 This chapter provides the background knowledge relevant for the thesis work. It
 will initially discuss graph and related problems (\autoref{sec:signed_graphs_and_density}) which are significant in the
 following used methodologies, as well as concepts of computational complexity
-(\autoref{sec:computational_complexity_and_approximability}) and Linear
-Programming (\autoref{sec:linear_and_mixed_integer_programming}).
+(\autoref{sec:computational_complexity_and_approximability}) and \acrlong{LP} (\autoref{sec:linear_and_mixed_integer_programming}).
 
 \section{Signed graphs and density}%
 \label{sec:signed_graphs_and_density}
@@ -236,7 +235,7 @@ effective; the term refers to problems in which both the constraints and \emph{o
 \label{sub:the_structure_of_a_linear_programming_model}
 
 In a \acrfull{LP} problem we are given a cost vector $ \mathbf{c} = (c_1,
-	\dots, c_n) $ and we want to minimize (or maximize) a linear cost function over
+	\dots, c_n) $ and we want to maximize (or minimize) a linear cost function over
 the variables $ \mathbf{x} = (x_1, \dots, x_n) $ with the coefficients of the
 cost vector $ \mathbf{c} $, i.e.
 \begin{equation*}
@@ -275,7 +274,7 @@ In general is possible to formulate any \acrshort{LP} problem as follows (called
 \begin{alignat}{3}
 	\label{eq:standard-form}
 	\begin{aligned}[t]
-		\text{minimize}   &       & \sum_{i=1}^{n} c_{i}x_{i}                                          \\
+		\text{maximize}   &       & \sum_{i=1}^{n} c_{i}x_{i}                                          \\
 		\text{subject to} & \quad & \sum_{i=1}^{n} a_{1i}  x_{i} & \leq b_{1} &                        \\
 		                  &       & \vdots                                                             \\
 		                  &       & \sum_{i=1}^{n} a_{mi}  x_{i} & \leq b_{m} &                        \\
@@ -334,8 +333,8 @@ problem can be reformulated as follows
 
 The second phase of the \emph{simplex method} aims at improving the current
 solution: if $c_{j} \geq 0, \; \forall j \in \mathcal{N} $ then the value of the
-objective function cannot be decreased and we found an optimum. If, instead, there is at least a $c_{j}
-	< 0$ then we can decrease the value of $\zeta$ by increasing $x_{j} $; now
+objective function cannot be increased and we found an optimum. If, instead, there is at least a $c_{j}
+	> 0$ then we can increase the value of $\zeta$ by increasing $x_{j} $; now
 there are 2 different cases \cite{Vanderbei2008}
 \begin{itemize}
 	\item as $x_{j} $ increases there is at least a variable $\tilde{x}_{j} $
@@ -347,10 +346,10 @@ there are 2 different cases \cite{Vanderbei2008}
 	      \cite{Vanderbei2008}.
 	\item if no such $\tilde{x}_{j} $ variable exists then the value of $x_{j}
 	      $ can be increased indefinitely and the problem is said to be
-	      \emph{unbounded}, i.e. it can achieve any arbitrarily small value.
+	      \emph{unbounded}, i.e. it can achieve any arbitrarily large value.
 \end{itemize}
 
-The process is illustrated in picture \autoref{fig:tex/img/simplex}
+The process is illustrated in \autoref{fig:tex/img/simplex}.
 
 \begin{figure}
 	\centering
