@@ -362,3 +362,40 @@ The process is illustrated in \autoref{fig:tex/img/simplex}.
 
 \subsection{Mixed Integer Programming}%
 \label{sub:mixed_integer_programming}
+
+Many problems involve not only continous variables but also variable that take binary or
+integer values: these are known as \acrfull{MIP} problems. Furthermore, some of
+these problems are linear in the constraints and objective function and are
+known as \acrfull{MILP} problems
+\cite{Edgar2001}\cite{Wolsey1998}.
+
+A generic \acrshort{MILP} can be expressed as \cite{Conforti2016}
+
+\begin{alignat}{3}
+	\label{eq:standard-form-milp}
+	\begin{aligned}[t]
+		\text{maximize}   &                                     & \sum_{i=1}^{n_{1} } c_{i}x_{i} +
+		\sum_{i=1}^{n_{2} } h_{i}y_{i}                                                                                                                               \\
+		\text{subject to} & \quad                               & \sum_{i=1}^{n_{1} } a_{1i}  x_{i} + \sum_{i=1}^{n_{2} } g_{1i}  y_{i} & \leq b_{1}       &         \\
+		                  &                                     & \vdots                                                                                             \\
+		                  &                                     & \sum_{i=1}^{n_{1} } a_{mi}  x_{i} + \sum_{i=1}^{n_{2} } g_{1i}  y_{i} & \leq b_{m}       &         \\
+		% &       & \sum_{i=1}^{n} a_{mi}  x_{i}                                          & \leq b_{m} &                        \\
+		                  &                                     & x_{i}
+		                  & \geq 0,                             & \quad i                                                               & =1 ,\dots, n_{1}           \\
+		                  &                                     & y_{i}                                                                 & \geq 0,          & \quad i
+		                  & =1 ,\dots, n_{2} \; \text{integral}
+	\end{aligned}
+\end{alignat}
+
+For convenience we will refer to \acrshort{MILP} problems as \acrshort{MIP} in
+the rest of the document.
+
+The \emph{relaxation} of a \acrshort{MIP} problem is defined as the same
+problem where the integrality constraints have been removed \cite{Edgar2001}.
+
+Solving a \acrshort{MILP} is a difficult task in general, differently from the
+\acrshort{LP} problems. It has been shown also that \acrshort{MIP} is
+$\mathcal{NP}$-\textbf{Hard} \cite{Kannan1978}\cite{Liberti2019}. This is why the \emph{relaxation} is often considered
+to get an approximation of the exact solution and it is much easier
+\cite{Conforti2016}.
+
