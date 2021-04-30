@@ -159,6 +159,49 @@ def test_find_bff_m():
     edge = graph.add_edge(vertices[2], vertices[1])
     contents_property[edge] = "c"
 
-    score, vertices = densest.dcs_am_exact(graph)
+    score1, vertices1 = densest.find_bff_m(graph, 3)
+
+    # verity that the returned set produces the given score
+    filter_property = graph.new_vertex_property("bool")
+    filter_property.a[list(vertices1)] = True
+    graph.set_vertex_filter(filter_property)
+
+    score2 = densest.dcs_am_from_vertices(graph)
+
+    assert score1 == score2
+
+
+def test_o2_bff():
+    graph = gt.Graph()
+    contents_property = graph.new_edge_property("string")
+    graph.ep["content"] = contents_property
+
+    vertices = list(graph.add_vertex(5))
+
+    edge = graph.add_edge(vertices[1], vertices[0])
+    contents_property[edge] = "a"
+
+    edge = graph.add_edge(vertices[2], vertices[1])
+    contents_property[edge] = "a"
+
+    edge = graph.add_edge(vertices[3], vertices[4])
+    contents_property[edge] = "a"
+
+    edge = graph.add_edge(vertices[3], vertices[0])
+    contents_property[edge] = "b"
+
+    edge = graph.add_edge(vertices[1], vertices[2])
+    contents_property[edge] = "b"
+
+    edge = graph.add_edge(vertices[4], vertices[2])
+    contents_property[edge] = "b"
+
+    edge = graph.add_edge(vertices[2], vertices[1])
+    contents_property[edge] = "c"
+
+    score, vertices = densest.o2_bff_dcs_am_incremental_overlap(graph, 2)
+    import pdb
+
+    pdb.set_trace()
     assert score >= 2
     assert 1 in vertices and 2 in vertices
