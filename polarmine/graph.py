@@ -292,6 +292,10 @@ class PolarizationGraph:
         components, _ = gt.label_components(self.graph)
         return np.max(components.a) + 1
 
+    def num_contents(self):
+        contents = set(map(lambda thread: thread.content, self.threads))
+        return len(contents)
+
     def negative_edges_fraction(self):
 
         # verify that a filter exists before cycling
