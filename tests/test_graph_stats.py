@@ -285,3 +285,10 @@ def test_graph_alpha_median():
 
     alpha_median = graph.alpha_median()
     assert alpha_median >= 0
+
+
+def test_graph_num_contents():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+
+    assert graph.num_contents() == N_CONTENTS
