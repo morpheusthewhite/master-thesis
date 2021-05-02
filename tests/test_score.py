@@ -128,3 +128,14 @@ def test_graph_score_densest_nc_subgraph():
     alpha = 0.4
 
     graph.score_densest_nc_subgraph(alpha, simple=False)
+
+
+def test_graph_score_o2_bff():
+    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    assert graph is not None
+    graph.remove_self_loops()
+
+    alpha = 0.2
+
+    score, vertices = graph.o2_bff_dcs_am(alpha, 2)
+    assert score > 0
