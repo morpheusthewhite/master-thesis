@@ -395,7 +395,44 @@ problem where the integrality constraints have been removed \cite{Edgar2001}.
 
 Solving a \acrshort{MILP} is a difficult task in general, differently from the
 \acrshort{LP} problems. It has been shown also that \acrshort{MIP} is
-$\mathcal{NP}$-\textbf{Hard} \cite{Kannan1978}\cite{Liberti2019}. This is why the \emph{relaxation} is often considered
+$\mathcal{NP}$-\textbf{Hard}
+\cite{Kannan1978}\cite{Liberti2019}\cite{Schrijver1998}. This is why the \emph{relaxation} is often considered
 to get an approximation of the exact solution and it is much easier
 \cite{Conforti2016}.
 
+\subsection{Solving a MIP}%
+\label{sub:solving_a_mip}
+
+One approach that has been proven successfull for solving \acrshort{MIP} is th
+e Branch-and-Bound, which is guaranteed to find an optimal solution
+\cite{Conforti2016}\cite{Edgar2001}.
+
+Given a problem $P$ the process starts by solving the \emph{relaxation} of $P$
+and finding its optimal solution $(\tilde{x}, \tilde{y})$.
+Let $S$ and  $\tilde{S}$ be the set of feasible solutions
+for the original problem $A$ and its relaxation, respectively. By definition
+we have that $S \subseteq \tilde{S} $.
+Therefore \cite{Edgar2001}
+\begin{itemize}
+	\item If the relaxation problem is not feasible so will also the original
+	      problem
+	\item If $\tilde{y}$ has only integer values then we found the optimal
+	      solution for the original problem $A$
+\end{itemize}
+
+If, instead, $\tilde{y}$ contains some fractional values, we start by
+initialing the value of the best solution so far, $\zeta$, with $-\infty$.
+Then we choose one of the fractional variables that are required to be integral
+in the original problem $A$, say $y_j$ with value $f$, and create $2$
+subproblems, respectively adding the constraint $y_{j} \leq \lfloor f \rfloor$
+and $y_{j} \geq \lceil f \rceil$. This step is called \emph{branching}. We now
+consider the solution of each subproblem $(x_j, y_j)$ with value of the
+objective function $z_{j} $ \cite{Edgar2001}\cite{Conforti2016}.
+
+\begin{itemize}
+	\item If either of the subproblems is not feasible or its value $z_{j} $ is
+	      lower then the best one found so far then it does not to be
+	      considered further. This is called \emph{pruning}.
+	\item if $y_{j} $ are all integer values then $\zeta = z_{j} $
+	\item otherwise we subdivide again in $2$ subproblems as done above.
+\end{itemize}
