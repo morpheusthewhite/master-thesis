@@ -292,9 +292,9 @@ class PolarizationGraph:
         components, _ = gt.label_components(self.graph)
         return np.max(components.a) + 1
 
-    def num_contents(self, controversial: bool = False):
-        if controversial:
-            contents = self.controversial_contents()
+    def num_contents(self, alpha: float = -1):
+        if alpha != -1:
+            contents = self.controversial_contents(alpha)
         else:
             contents = set(map(lambda thread: thread.content, self.threads))
         return len(contents)
