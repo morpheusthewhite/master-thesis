@@ -5,6 +5,7 @@ import sys
 import os
 import pickle
 import time
+import numpy as np
 from typing import Optional
 
 from polarmine.graph import PolarizationGraph
@@ -414,6 +415,21 @@ def print_scores(
         end = time.time()
         print(
             f"(Densest nc subgraph (threaded)) Elapsed time: {end - start}",
+            file=times_txt_file,
+        )
+
+        start = time.time()
+        n_contents = graph.num_contents(alpha)
+        k = int(np.ceil(n_contents / 10))
+        score, users_index = graph.o2_bff_dcs_am(alpha, k)
+        results_score["densest_nc_subgraph"] = (score, users_index)
+        print(
+            f"(O2-BFF(DCS-AM)) Echo chamber score: {score} on {len(users_index)} vertices for k={k}",
+            file=scores_txt_file,
+        )
+        end = time.time()
+        print(
+            f"(O2-BFF(DCS-AM)) Elapsed time: {end - start}",
             file=times_txt_file,
         )
 
