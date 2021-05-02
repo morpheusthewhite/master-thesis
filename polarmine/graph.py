@@ -1184,6 +1184,10 @@ class PolarizationGraph:
                 target_edge_variables.append(edge_var)
                 vertices_edge_variables[target] = target_edge_variables
 
+        if len(edge_variables) == 0:
+            # no controversial content and so no edge to be considered
+            return 0, [], [], 0
+
         # add thread controversy constraints
         for k, edges_var_tuple in enumerate(thread_edges_dict.values()):
             edges_negative_var, edges_var = edges_var_tuple
@@ -1419,7 +1423,10 @@ class PolarizationGraph:
     ) -> (int, list[int], int):
         controversial_contents = self.controversial_contents(alpha)
 
-        _, users, edges, _ = self.score_mip(alpha, relaxation=True)
+        score, users, edges, _ = self.score_mip(alpha, relaxation=True)
+        if score == 0:
+            return score, users, edges
+
         users = [user if user is not None else -1 for user in users]
 
         edges_np = np.array(edges)
