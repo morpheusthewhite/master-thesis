@@ -213,6 +213,12 @@ def find_bff_m(graph: gt.Graph, num_contents: int) -> int:
 
 def o2_bff_dcs_am_incremental_overlap(graph: gt.Graph, k: int):
     contents = list(set(graph.edge_properties["content"]))
+
+    # return a trivial so;lution if there are less than 2 contents
+    # even if this is not numerically correct
+    if len(contents) < 2:
+        return 0
+
     num_vertices = graph.num_vertices()
     S_i = []
 
