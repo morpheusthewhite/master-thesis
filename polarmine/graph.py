@@ -1576,6 +1576,23 @@ class PolarizationGraph:
         num_vertices, edges = self.nc_graph(alpha, simple, False)
         return densest.densest_subgraph(num_vertices, edges)
 
+    def o2_bff_dcs_am(self, alpha: float, k: int) -> (int, list[int]):
+        num_vertices, edges = self.nc_graph(alpha, False, layer=True)
+
+        # construct the graph with the given vertices and edges
+        graph = gt.Graph()
+        vertices = list(graph.add_vertex(num_vertices))
+
+        # create the content edge property for the graph
+        content_property = graph.new_edge_property("string")
+        graph.ep["content"] = content_property
+
+        for edge in edges:
+            edge_desc = graph.add_edge(vertices[edge[0]], vertices[edge[1]])
+            content_property[edge_desc] = edge[2]
+
+        return densest.o2_bff_dcs_am_incremental_overlap(graph, k)
+
     def select_echo_chamber(
         self,
         alpha: float,
