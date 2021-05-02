@@ -233,7 +233,7 @@ def o2_bff_dcs_am_incremental_overlap(graph: gt.Graph, k: int):
         graph.clear_filters()
 
     max_pair = ()
-    max_jaccard_score = 0
+    max_jaccard_score = -1
 
     # find the pair of vertices which are most similar (jaccard score)
     for indices_pair in itertools.combinations(range(len(contents)), 2):
