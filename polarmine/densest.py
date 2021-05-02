@@ -219,7 +219,7 @@ def o2_bff_dcs_am_incremental_overlap(
     # return a trivial solution if there are less than 2 contents
     # even if this is not numerically correct
     if len(contents) < 2:
-        return 0
+        return 0, []
 
     num_vertices = graph.num_vertices()
     S_i = []
