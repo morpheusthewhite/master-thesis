@@ -130,7 +130,7 @@ def dcs_am_exact(graph: gt.Graph):
     return score_best, vertices_best
 
 
-def score_m(graph: gt.Graph, vertex: int, n_contents: int) -> float:
+def score_a(graph: gt.Graph, vertex: int, n_contents: int) -> float:
     degree = graph.get_all_edges(vertex).shape[0]
 
     return degree / n_contents
@@ -175,7 +175,7 @@ def dcs_am_from_vertices(graph: gt.Graph) -> int:
     return dcs_am_score
 
 
-def find_bff_m(graph: gt.Graph, num_contents: int) -> (int, list[int]):
+def find_bff_a(graph: gt.Graph, num_contents: int) -> (int, list[int]):
     num_vertices = graph.num_vertices()
 
     def filter_vertex(vertex: int):
@@ -195,7 +195,7 @@ def find_bff_m(graph: gt.Graph, num_contents: int) -> (int, list[int]):
         min_vertex = -1
 
         for vertex in graph.get_vertices():
-            score = score_m(graph, vertex, num_contents)
+            score = score_a(graph, vertex, num_contents)
 
             if score < min_score:
                 min_score = score
@@ -226,7 +226,7 @@ def o2_bff_dcs_am_incremental_overlap(
 
     for content in contents:
         select_contents(graph, [content])
-        score, vertices = find_bff_m(graph, len(contents))
+        score, vertices = find_bff_a(graph, len(contents))
 
         vertices_i_bin = np.zeros(num_vertices)
         vertices_i_bin[vertices] = 1
@@ -253,7 +253,7 @@ def o2_bff_dcs_am_incremental_overlap(
 
     for _ in range(2, k):
         select_contents(graph, C_prev)
-        _, vertices = find_bff_m(graph, len(contents))
+        _, vertices = find_bff_a(graph, len(contents))
 
         # array of binaries representing which vertices are in the current S
         vertices_bin = np.zeros(num_vertices)
@@ -286,4 +286,4 @@ def o2_bff_dcs_am_incremental_overlap(
     select_contents(graph, C_prev)
     graph.clear_filters()
 
-    return find_bff_m(graph, len(contents))
+    return find_bff_a(graph, len(contents))
