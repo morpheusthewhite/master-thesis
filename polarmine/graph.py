@@ -292,8 +292,11 @@ class PolarizationGraph:
         components, _ = gt.label_components(self.graph)
         return np.max(components.a) + 1
 
-    def num_contents(self):
-        contents = set(map(lambda thread: thread.content, self.threads))
+    def num_contents(self, controversial: bool = False):
+        if controversial:
+            contents = self.controversial_contents()
+        else:
+            contents = set(map(lambda thread: thread.content, self.threads))
         return len(contents)
 
     def negative_edges_fraction(self):
