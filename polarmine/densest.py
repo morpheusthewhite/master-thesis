@@ -175,7 +175,7 @@ def dcs_am_from_vertices(graph: gt.Graph) -> int:
     return dcs_am_score
 
 
-def find_bff_m(graph: gt.Graph, num_contents: int) -> int:
+def find_bff_m(graph: gt.Graph, num_contents: int) -> (int, list[int]):
     num_vertices = graph.num_vertices()
 
     def filter_vertex(vertex: int):
@@ -211,10 +211,12 @@ def find_bff_m(graph: gt.Graph, num_contents: int) -> int:
     return max_dcs_am_score, max_dcs_am_vertices
 
 
-def o2_bff_dcs_am_incremental_overlap(graph: gt.Graph, k: int):
+def o2_bff_dcs_am_incremental_overlap(
+    graph: gt.Graph, k: int
+) -> (int, list[int]):
     contents = list(set(graph.edge_properties["content"]))
 
-    # return a trivial so;lution if there are less than 2 contents
+    # return a trivial solution if there are less than 2 contents
     # even if this is not numerically correct
     if len(contents) < 2:
         return 0
