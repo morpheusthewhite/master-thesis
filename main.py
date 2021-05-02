@@ -74,6 +74,14 @@ parser.add_argument(
     help="show or save appromiximation echo chamber score (from MIP relaxation results)",
 )
 parser.add_argument(
+    "-sb",
+    "--score-bff",
+    default=False,
+    action="store_true",
+    dest="score_bff",
+    help="show or save O2-BFF score (DCS-AM)",
+)
+parser.add_argument(
     "-a",
     "--alpha",
     default=0.4,
@@ -247,6 +255,7 @@ def print_scores(
     greedy: bool,
     mip: bool,
     appr: bool,
+    bff: bool,
     save_path: Optional[str],
     alpha: float = 0.4,
 ):
@@ -418,6 +427,7 @@ def print_scores(
             file=times_txt_file,
         )
 
+    if bff:
         start = time.time()
         n_contents = graph.num_contents(alpha)
         k = int(np.ceil(n_contents / 10))
@@ -789,12 +799,18 @@ def main():
     if args.stats:
         print_stats(graph, args.save_path)
 
-    if args.score_greedy or args.score_mip or args.score_appr:
+    if (
+        args.score_greedy
+        or args.score_mip
+        or args.score_appr
+        or args.score_bff
+    ):
         print_scores(
             graph,
             args.score_greedy,
             args.score_mip,
             args.score_appr,
+            args.score_bff,
             args.save_path,
             args.alpha,
         )
