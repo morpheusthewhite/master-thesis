@@ -10,7 +10,7 @@ from sklearn import metrics
 
 from polarmine.comment import Comment
 from polarmine.thread import Thread
-from polarmine.densest import densest_subgraph
+from polarmine import densest
 
 KEY_SCORE = "score"
 SENTIMENT_MAX_TEXT_LENGTH = 128
@@ -1460,6 +1460,21 @@ class PolarizationGraph:
         controversial_contents: set,
         simple: bool,
     ):
+        """Aggregate edges of a certain vertex
+
+        Args:
+            edges_ij (list[gt.Edge]): the list of edges between a pair of
+            vertices
+            alpha (float): alpha used for definying controversy
+            controversial_contents (set): the list of controversial contents
+            simple (bool): if True does not aggregate separately edges
+            belonging to different threads
+
+        Returns:
+            the list of contents in which the edges will have a pair if simple
+            is False, 1 or 0 otherwise (if there is an edge or not,
+            respectively)
+        """
         if simple:
             delta_minus_ij = 0
             delta_ij = 0
@@ -1504,16 +1519,18 @@ class PolarizationGraph:
 
                     thread_deltas_ij[edge_thread] = (delta_minus_ij, delta_ij)
 
-            n_edges = 0
-            for delta_minus_ij, delta_ij in thread_deltas_ij.values():
+            threads = []
+            for thread, delta_tuple in thread_deltas_ij.items():
+                delta_minus_ij, delta_ij = delta_tuple
+
                 if delta_minus_ij / delta_ij <= alpha:
-                    n_edges += 1
+                    threads.append(thread)
 
-            return n_edges
+            return threads
 
-    def score_densest_nc_subgraph(
-        self, alpha: float, simple: bool = True
-    ) -> (float, list[int]):
+    def nc_graph(
+        self, alpha: float, simple: bool = True, layer: bool = False
+    ) -> list[int]:
         controversial_contents = self.controversial_contents(alpha)
 
         # edges of the G_d graph
@@ -1530,15 +1547,31 @@ class PolarizationGraph:
                         vertex_i, vertex_j, all_edges=True
                     )
 
-                    n_edges = self.__aggregate_edges__(
+                    edges_aggregated = self.__aggregate_edges__(
                         edges_ij, alpha, controversial_contents, simple
                     )
 
-                    if n_edges > 0:
-                        edges.append([i, j, n_edges])
+                    if simple:
+                        if edges_aggregated > 0:
+                            edges.append([i, j, 1])
+                    elif layer:
+                        edges.extend(
+                            [[i, j, thread] for thread in edges_aggregated]
+                        )
+                    else:
+                        # layer is false and simple is false
+                        n_edges_aggregated = len(edges_aggregated)
+                        if n_edges_aggregated > 0:
+                            edges.append([i, j, n_edges_aggregated])
 
         num_vertices = int(vertex_i) + 1
-        return densest_subgraph(num_vertices, edges)
+        return num_vertices, edges
+
+    def score_densest_nc_subgraph(
+        self, alpha: float, simple: bool = True
+    ) -> (float, list[int]):
+        num_vertices, edges = self.nc_graph(alpha, simple, False)
+        return densest.densest_subgraph(num_vertices, edges)
 
     def select_echo_chamber(
         self,
