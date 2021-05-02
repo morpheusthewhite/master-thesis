@@ -1423,9 +1423,11 @@ class PolarizationGraph:
     ) -> (int, list[int], int):
         controversial_contents = self.controversial_contents(alpha)
 
-        score, users, edges, _ = self.score_mip(alpha, relaxation=True)
+        score, users, edges, nc_threads = self.score_mip(
+            alpha, relaxation=True
+        )
         if score == 0:
-            return score, users, edges
+            return score, users, nc_threads
 
         users = [user if user is not None else -1 for user in users]
 
