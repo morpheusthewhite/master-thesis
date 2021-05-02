@@ -191,7 +191,9 @@ def find_bff_a(graph: gt.Graph, num_contents: int) -> (int, list[int]):
     max_dcs_am_vertices = []
 
     for i in range(num_vertices):
-        min_score = -1
+        # initialize the min with 2 since its maximum possible value is 1 (1
+        # edge per layer
+        min_score = 2
         min_vertex = -1
 
         for vertex in graph.get_vertices():
