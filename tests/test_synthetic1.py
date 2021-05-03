@@ -1,86 +1,16 @@
-import time
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 
 from polarmine.graph import PolarizationGraph
+from lib_synthetic import evaluate_graph, print_results
 
 OUTDIR = os.path.join("out", "synthetic")
 
-
-def evaluate_graph(
-    graph: PolarizationGraph,
-    alpha: float,
-    n_communities: int,
-    communities: list[int],
-):
-
-    start = time.time()
-    score, _, _ = graph.score_relaxation_algorithm(alpha)
-
-    (
-        adjusted_rand_score,
-        rand_score,
-        jaccard_score,
-        iterations_score,
-    ) = graph.clustering_accuracy(communities, n_communities, alpha)
-    end = time.time()
-
-    return (
-        score,
-        rand_score,
-        adjusted_rand_score,
-        jaccard_score,
-        iterations_score,
-        end - start,
-    )
-
-
-def print_results(
-    graph: PolarizationGraph,
-    omega_positive: np.array,
-    omega_negative: np.array,
-    scores: np.array,
-    duration: int,
-    rand_scores: np.array,
-    adjusted_rand_scores: np.array,
-    jaccard_scores: np.array,
-    iterations_score: list[float],
-    outfile,
-    plotfilename,
-):
-    # Will save to file only one of the graphs
-    print("-" * 30, file=outfile)
-    print(
-        f"Vertices: {graph.num_vertices()}; Edges: {graph.num_edges()}",
-        file=outfile,
-    )
-    print(f"Omega positive: {omega_positive}", file=outfile)
-    print(f"Omega negative: {omega_negative}", file=outfile)
-    print(
-        f"Fraction of negative edges: {graph.negative_edges_fraction()}",
-        file=outfile,
-    )
-    print(f"Score MIP: {np.average(scores)}", file=outfile)
-    print(f"Time: {duration}", file=outfile)
-    print(f"Clustering Rand score: {np.average(rand_scores)}", file=outfile)
-    print(
-        f"Clustering Adjusted Rand score: {np.average(adjusted_rand_scores)}",
-        file=outfile,
-    )
-    print(
-        f"Jaccard score: {np.average(jaccard_scores)}",
-        file=outfile,
-    )
-
-    # plot scores along iterations
-    plt.figure()
-    plt.plot(iterations_score)
-    plt.savefig(plotfilename)
-
-    print("-" * 30, file=outfile)
-
-    return
+"""
+The following are generic tests run to get an overview about how the model and
+measure behave in some example conditions
+"""
 
 
 def test_synthetic1(results_outfile, iterations: int = 1):
@@ -293,6 +223,37 @@ def test_synthetic2(results_outfile, iterations: int = 1):
     n_nodes = [20, 20, 20, 20]
     omega_positive = np.array(
         [
+            [0.9, 0.01, 0.01, 0.01],
+            [0.01, 0.9, 0.01, 0.01],
+            [0.01, 0.01, 0.9, 0.01],
+            [0.01, 0.01, 0.01, 0.9],
+        ]
+    )
+    omega_negative = np.ones_like(omega_positive) - omega_positive
+    phi = np.array(
+        [
+            [0.7, 0.2, 0.2, 0.2],
+            [0.2, 0.7, 0.2, 0.2],
+            [0.2, 0.2, 0.7, 0.2],
+            [0.2, 0.2, 0.2, 0.7],
+        ]
+    )
+    n_nodes_list.append(n_nodes)
+    n_threads_list.append(18)
+    omega_positive_list.append(np.array(omega_positive) / 4)
+    omega_negative_list.append(np.array(omega_negative) / 8)
+    phi_list.append(np.array(phi))
+    theta_list.append(0.1)
+    beta_a_list.append(1 / 8)
+    beta_n_list.append(1 / 3)
+
+    # -----------------------------------
+    # GRAPH 2
+    # -----------------------------------
+
+    n_nodes = [20, 20, 20, 20]
+    omega_positive = np.array(
+        [
             [0.8, 0.03, 0.03, 0.03],
             [0.03, 0.8, 0.03, 0.03],
             [0.03, 0.03, 0.8, 0.03],
@@ -319,7 +280,7 @@ def test_synthetic2(results_outfile, iterations: int = 1):
     beta_n_list.append(1 / 3)
 
     # -----------------------------------
-    # GRAPH 2
+    # GRAPH 3
     # -----------------------------------
 
     n_nodes = [20, 20, 20, 20]
@@ -351,7 +312,7 @@ def test_synthetic2(results_outfile, iterations: int = 1):
     beta_n_list.append(1 / 3)
 
     # -----------------------------------
-    # GRAPH 3
+    # GRAPH 4
     # -----------------------------------
 
     n_nodes = [20, 20, 20, 20]
@@ -376,68 +337,6 @@ def test_synthetic2(results_outfile, iterations: int = 1):
     n_nodes_list.append(n_nodes)
     n_threads_list.append(8)
     omega_positive_list.append(np.array(omega_positive) / 8)
-    omega_negative_list.append(np.array(omega_negative) / 8)
-    phi_list.append(np.array(phi))
-    theta_list.append(0.1)
-    beta_a_list.append(1 / 8)
-    beta_n_list.append(1 / 3)
-
-    # -----------------------------------
-    # GRAPH 4
-    # -----------------------------------
-
-    n_nodes = [20, 20, 20, 20]
-    omega_positive = np.array(
-        [
-            [0.9, 0.01, 0.01, 0.01],
-            [0.01, 0.9, 0.01, 0.01],
-            [0.01, 0.01, 0.9, 0.01],
-            [0.01, 0.01, 0.01, 0.9],
-        ]
-    )
-    omega_negative = np.ones_like(omega_positive) - omega_positive
-    phi = np.array(
-        [
-            [0.7, 0.2, 0.2, 0.2],
-            [0.2, 0.7, 0.2, 0.2],
-            [0.2, 0.2, 0.7, 0.2],
-            [0.2, 0.2, 0.2, 0.7],
-        ]
-    )
-    n_nodes_list.append(n_nodes)
-    n_threads_list.append(18)
-    omega_positive_list.append(np.array(omega_positive) / 8)
-    omega_negative_list.append(np.array(omega_negative) / 8)
-    phi_list.append(np.array(phi))
-    theta_list.append(0.1)
-    beta_a_list.append(1 / 8)
-    beta_n_list.append(1 / 3)
-
-    # -----------------------------------
-    # GRAPH 5
-    # -----------------------------------
-
-    n_nodes = [30, 30, 30, 30]
-    omega_positive = np.array(
-        [
-            [0.9, 0.01, 0.01, 0.01],
-            [0.01, 0.9, 0.01, 0.01],
-            [0.01, 0.01, 0.9, 0.01],
-            [0.01, 0.01, 0.01, 0.9],
-        ]
-    )
-    omega_negative = np.ones_like(omega_positive) - omega_positive
-    phi = np.array(
-        [
-            [0.7, 0.2, 0.2, 0.2],
-            [0.2, 0.7, 0.2, 0.2],
-            [0.2, 0.2, 0.7, 0.2],
-            [0.2, 0.2, 0.2, 0.7],
-        ]
-    )
-    n_nodes_list.append(n_nodes)
-    n_threads_list.append(18)
-    omega_positive_list.append(np.array(omega_positive) / 4)
     omega_negative_list.append(np.array(omega_negative) / 8)
     phi_list.append(np.array(phi))
     theta_list.append(0.1)
@@ -551,7 +450,7 @@ if __name__ == "__main__":
 
         os.mkdir(OUTDIR)
 
-    outfile = open(os.path.join(OUTDIR, "results.txt"), "w")
+    outfile = open(os.path.join(OUTDIR, "results1.txt"), "w")
 
     #  test_synthetic1(outfile, 3)
     test_synthetic2(outfile, 2)
