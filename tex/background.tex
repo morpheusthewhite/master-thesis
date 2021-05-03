@@ -433,6 +433,12 @@ objective function $z_{j} $ \cite{Edgar2001}\cite{Conforti2016}.
 	\item If either of the subproblems is not feasible or its value $z_{j} $ is
 	      lower then the best one found so far then it does not to be
 	      considered further. This is called \emph{pruning}.
-	\item if $y_{j} $ are all integer values then $\zeta = z_{j} $
+	\item otherwise if $y_{j} $ are all integer values then $\zeta = z_{j} $
 	\item otherwise we subdivide again in $2$ subproblems as done above.
 \end{itemize}
+
+When there are no remaining subproblems to consider the Branch-and-Bound method
+terminates \cite{Edgar2001}.
+
+\section{Related work}%
+\label{sec:related_work}
