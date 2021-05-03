@@ -269,7 +269,7 @@ def print_scores(
         times_txt_file = open(times_txt, "w")
 
     if alpha == -1:
-        alphas = graph.alpha_median()
+        alphas = [graph.alpha_median()]
         print(
             f"Median alpha of the graph: {alpha}",
             file=scores_txt_file,
