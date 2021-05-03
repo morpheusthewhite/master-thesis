@@ -24,6 +24,9 @@ chemistry and geography (\autoref{fig:tex/img/sample-graph})\cite{Newman2018}\ci
 	\label{fig:tex/img/sample-graph}
 \end{figure}
 
+\paragraph{Different types of graphs}%
+\label{par:different_types_of_graphs}
+
 In its simplest form graph are \emph{undirected} and \emph{unweighted}. In an
 \emph{undirected} graph relationships are bi-directional, while in directed graph
 the order of nodes in a link reflects the
@@ -32,8 +35,21 @@ graph instead associates a weight $\omega $ to each edge
 \cite{Menczer2020}\cite{AlbertLaszloNortheasternUniversity2016}.
 
 Sometimes also edges are allowed to be either positive or negative (for example when
-definying the relationships in a acquaintance network): these are called
-\emph{signed graphs} \cite{Newman2018}.
+definying the relationships in a acquaintance network): these king of networks
+are usually called \emph{signed graphs} \cite{Newman2018}.
+
+\subsection{Densest subgraphs}%
+\label{sub:densest_subgraphs}
+
+Finding dense subgraphs is a problem which has received a lot of attention and
+has been studied a lot, and different definitions have been adopted
+\cite{charikar2000greedy}\cite{asahiro1995finding}\cite{asahiro2000greedily}
+\cite{feige1997densest}.
+
+We will refer to the definition in \cite{charikar2000greedy} and presents some
+of its results which are used and important for the development of the methods
+in the following chapters.
+
 
 
 \clearpage
