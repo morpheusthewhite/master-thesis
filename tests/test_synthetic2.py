@@ -232,7 +232,7 @@ def test_synthetic(results_outfile, iterations: int = 1):
                 scores[k] = score
                 rand_scores[k] = rand_score
                 adjusted_rand_scores[k] = adjusted_rand_score
-                jaccard_scores[k] = adjusted_rand_score
+                jaccard_scores[k] = jaccard_score
 
             outfile = os.path.join(OUTDIR, f"model2_graph{i}_{n_members}.pdf")
             graph.draw(output=outfile, communities=communities)
