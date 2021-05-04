@@ -188,16 +188,19 @@ def test_synthetic(results_outfile, iterations: int = 1):
             )
             plt.matshow(omega_positive / np.max(omega_positive))
             plt.savefig(omega_positive_pdf)
+            plt.close()
 
             omega_negative_pdf = os.path.join(
                 OUTDIR, f"model2_omega_negative{i}_{n_members}.pdf"
             )
             plt.matshow(omega_negative / np.max(omega_negative))
             plt.savefig(omega_negative_pdf)
+            plt.close()
 
             phi_pdf = os.path.join(OUTDIR, f"model2_phi{i}_{n_members}.pdf")
             plt.matshow(phi / np.max(phi))
             plt.savefig(phi_pdf)
+            plt.close()
 
             for k in range(iterations):
                 # generate a graph
