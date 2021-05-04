@@ -1102,6 +1102,9 @@ class PolarizationGraph:
         variables_ub = 1 if relaxation else None
 
         controversial_contents = self.controversial_contents(alpha)
+        if len(controversial_contents) == 0:
+            # no controversial content and so no edge to be considered
+            return 0, [], [], 0
 
         model = pulp.LpProblem("echo-chamber-score", pulp.LpMaximize)
         vertices_variables = [
@@ -1184,10 +1187,6 @@ class PolarizationGraph:
                 target_edge_variables.append(edge_var)
                 vertices_edge_variables[target] = target_edge_variables
 
-        if len(edge_variables) == 0:
-            # no controversial content and so no edge to be considered
-            return 0, [], [], 0
-
         # add thread controversy constraints
         for k, edges_var_tuple in enumerate(thread_edges_dict.values()):
             edges_negative_var, edges_var = edges_var_tuple
@@ -1213,6 +1212,9 @@ class PolarizationGraph:
         model.solve()
 
         score = pulp.value(model.objective)
+
+        if score == 0:
+            return 0, [], [], 0
 
         users = []
         for i, vertex_variable in enumerate(vertices_variables):
@@ -1895,6 +1897,9 @@ class PolarizationGraph:
     def clear_filters(self):
         self.graph.clear_filters()
         return
+
+    def shuffle(self):
+        pass
 
     @classmethod
     def from_model1(
