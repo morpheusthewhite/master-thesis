@@ -228,7 +228,14 @@ def o2_bff_dcs_am_incremental_overlap(
 
     for content in contents:
         select_contents(graph, [content])
-        score, vertices = find_bff_a(graph, len(contents))
+
+        edges = graph.get_edges()
+        num_vertices = np.max(edges) + 1
+        weights = np.ones((edges.shape[0], 1), dtype=np.int32)
+        edges_weight = np.hstack((edges, weights))
+
+        _, vertices = densest_subgraph(num_vertices, edges_weight)
+        #  score, vertices = find_bff_a(graph, len(contents))
 
         vertices_i_bin = np.zeros(num_vertices)
         vertices_i_bin[vertices] = 1
