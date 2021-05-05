@@ -271,7 +271,7 @@ def print_scores(
     if alpha == -1:
         alphas = [graph.alpha_median()]
         print(
-            f"Median alpha of the graph: {alpha}",
+            f"Median alpha of the graph: {alphas[0]}",
             file=scores_txt_file,
         )
     elif alpha == -2:
