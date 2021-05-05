@@ -38,7 +38,13 @@ Sometimes also edges are allowed to be either positive or negative (for example 
 definying the relationships in a acquaintance network): these king of networks
 are usually called \emph{signed graphs} \cite{Newman2018}.
 
-\subsection{Densest subgraphs}%
+\bigskip
+
+In the rest of the document we will abuse notation and refer to vertices both
+as $v_{i} \in V $ and $i \in V$; similarly we will refer to edges both as
+$e_{ij} \in E $ and as $ij \in E$.
+
+\subsection{The Densest Subgraph Problem}%
 \label{sub:densest_subgraphs}
 
 Finding dense subgraphs is a problem which has received a lot of attention and
@@ -50,6 +56,74 @@ We will refer to the definition in \cite{charikar2000greedy} and presents some
 of its results which are used and important for the development of the methods
 in the following chapters.
 
+\medskip
+
+Let $G = (V, E)$ be an undirected graph, $S$ a subset of the nodes, i.e. $S
+	\subseteq V$, and $E(S)$ the edges of $G$ induced by $S$, i.e.
+
+\begin{equation*}
+	E(S) = \{e_{ij} \in E \; s.t. \; v_i \in S \land \; v_j \in S\}
+\end{equation*}
+The density $f(S)$ is defined as
+
+\begin{equation}
+	f(S) = \frac{|E(S)|}{|S|}
+\end{equation}
+
+According to this definition it is easy to see that $2 \cdot f(S)$ is the
+average degree of the subgraph induced by $S$.
+
+The density of the graph $f(G)$ is then defined as
+
+\begin{equation}
+	f(G) = \max_{S \subseteq V} {f(S)}
+\end{equation}
+
+The problem of computing $f(G)$ is known as the \emph{Densest Subgraph Problem}
+\cite{charikar2000greedy}.
+
+There are different techniques for solving it: a solution based on parametric
+maximum flow has been proposed in \cite{Gallo1989}; Charikar in
+\cite{charikar2000greedy} proposed an alternative solution based on the
+following \acrlong{LP} model (a more in-depth discussion about \acrshort{LP}
+can be found in \autoref{sec:linear_and_mixed_integer_programming})
+
+\begin{alignat}{3}
+	\label{eq:standard-form}
+	\begin{aligned}[t]
+		\text{maximize}   &       & \sum_{ij \in E} x_{ij}                 \\
+		\text{subject to} & \quad & x_{ij}                  & \leq y_{i} &
+		\forall ij        & \in E                                          \\
+		                  &       & x_{ij}                  & \leq y_{j} &
+		\forall ij        & \in E                                          \\
+		                  &       & \sum^{}_{i \in V} y_{i} & \leq 1     & \\
+		                  &       & y_{i}                   & \geq 0,    &
+		\quad \forall i   & \in V                                          \\
+		                  &       & x_{ij}                  & \geq 0,    &
+		\forall ij        & \in E                                          \\
+	\end{aligned}
+\end{alignat}
+
+Let $S(r) \coloneqq \{v_{i} : y_{i} \geq r\} $ and $E(r) \coloneqq \{e_{ij} :
+	x_{ij} \geq r\} $. It is easy to see that, given the model as defined
+above, $E(r)$ is the set of edges induced by the vertices in $S(r)$.
+
+The set of vertices $S$ maximizing the density $f(S)$ can then be reconstructed
+from the results of the \acrshort{LP} problem by finding the density of $S(r)$
+for choices of $r = y_{i}, \; \forall i \in V $ \cite{charikar2000greedy}.
+
+\paragraph{An approximate algorithm for the Densest Subgraph Problem}%
+\label{par:an_approximate_algorithm_for_the_densest_subgraph_problem}
+
+In \cite{charikar2000greedy} Charikar also defines a greedy approach for
+solving the Densest Subgraph problem which gives a $2$-approximation for
+$f(G)$.
+
+The algorithm starts by defining a set of vertices $S$ which is initialized
+with $V$ and, along the iteration, it removes from $S$ the vertex $v_i$ which
+has the lowest degree in the subgraph induced by $S$ until $S$ is empty. Then
+it returns the $S$ which, along the iterations, was associated with the highest
+density $f(S)$.
 
 
 \clearpage
