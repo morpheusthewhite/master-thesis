@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=node] (0) at (-3, 2) {$v_1$};
+		\node [style=node] (1) at (1.25, 2) {$v_2$};
+		\node [style=node] (2) at (-3, -2) {$v_3$};
+		\node [style=node] (3) at (1.25, -2) {$v_4$};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw (0) to (1);
+		\draw (1) to (2);
+		\draw (2) to (3);
+	\end{pgfonlayer}
+\end{tikzpicture}
