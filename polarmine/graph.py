@@ -218,7 +218,7 @@ class PolarizationGraph:
 
         # load class attributes. Note: self.users is not initialized as it
         # not considered important
-        self.weights = self.graph.vertex_properties["flairs"]
+        self.flairs = self.graph.vertex_properties["flairs"]
         self.weights = self.graph.edge_properties["weights"]
         self.times = self.graph.edge_properties["times"]
         self.threads = self.graph.edge_properties["threads"]
