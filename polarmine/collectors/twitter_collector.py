@@ -73,23 +73,47 @@ class TwitterCollector(Collector):
         Returns:
             list[tweepy.Status]: a list of statuses
         """
-        if keyword is not None:
-            cursor = tweepy.Cursor(
-                self.twitter.search,
-                q=f"{keyword} min_replies:{TWEET_MIN_REPLIES} -filter:replies",
-                tweet_mode="extended",
-            )
-        elif page is not None:
-            cursor = tweepy.Cursor(
-                self.twitter.user_timeline,
-                screen_name=page,
-                tweet_mode="extended",
-                exclude_replies=True,
-            )
-        else:
-            raise NotImplementedError
+        nstatuses_found = 0
+        statuses_found = []
+        max_id = None
 
-        return list(cursor.items(ncontents))
+        while nstatuses_found < ncontents:
+            nstatuses_remaining = ncontents - nstatuses_found
+
+            if keyword is not None:
+                cursor = tweepy.Cursor(
+                    self.twitter.search,
+                    q=f"{keyword} min_replies:{TWEET_MIN_REPLIES} -filter:replies",
+                    tweet_mode="extended",
+                    max_id=max_id,
+                )
+            elif page is not None:
+                cursor = tweepy.Cursor(
+                    self.twitter.user_timeline,
+                    screen_name=page,
+                    tweet_mode="extended",
+                    exclude_replies=True,
+                    max_id=max_id,
+                )
+            else:
+                raise NotImplementedError
+
+            # get the remaining number of statuses
+            statuses_last = list(cursor.items(nstatuses_remaining))
+            statuses_found.extend(statuses_last)
+
+            if len(statuses_last) > 0:
+                # use the id of the last (least recent) status retrieved
+                # it is also the last in the list as the statuses are order
+                # from the most recent to the oldest
+                status_last = statuses_last[-1]
+                # need to subtract 1 since in the API it is specified that the
+                # tweet id equal to max_id is considered
+                max_id = status_last.id - 1
+
+                nstatuses_found += len(statuses_last)
+
+        return statuses_found
 
     def __status_to_shares__(self, status: tweepy.Status) -> Iterator:
         """Find statuses which sharing the same external url of the given status
