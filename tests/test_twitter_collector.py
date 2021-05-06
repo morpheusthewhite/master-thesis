@@ -9,6 +9,27 @@ from polarmine.thread import Thread
 twitter_collector = TwitterCollector()
 
 
+def test_twitter_find_statuses_easy():
+    # verify that the collector finds the exact number of contents requested
+    ncontents = 200
+    statuses = twitter_collector.__find_statuses__(ncontents, None, "nytimes")
+    assert len(statuses) == ncontents
+
+
+def test_twitter_find_statuses_medium():
+    # verify that the collector finds the exact number of contents requested
+    ncontents = 600
+    statuses = twitter_collector.__find_statuses__(ncontents, None, "nytimes")
+    assert len(statuses) == ncontents
+
+
+def test_twitter_find_statuses_hard():
+    # verify that the collector finds the exact number of contents requested
+    ncontents = 1000
+    statuses = twitter_collector.__find_statuses__(ncontents, None, "nytimes")
+    assert len(statuses) == ncontents
+
+
 def test_twitter_collect_simple():
     # simple check on single content
     discussion_trees = list(
