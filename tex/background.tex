@@ -126,6 +126,86 @@ it returns the $S$ which, along the iterations, was associated with the highest
 density $f(S)$.
 
 
+
+\subsection{The Densest Common Subgraph Problem}%
+\label{sub:the_common_densest_subgraph_problem}
+
+The \acrfull{DCS} Problem was initially introduced in \cite{jethava2015finding}
+and later studied in \cite{andersson2016finding}, \cite{charikar2018finding}
+and \cite{semertzidis2019finding} that also introduced new variants.
+
+\begin{figure}
+	\begin{center}
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\tikzfig{tex/tikz/graph_history1}
+			\caption{$G_1$}
+			\label{fig:graph_sequence_example1}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\tikzfig{tex/tikz/graph_history2}
+			\caption{$G_2$}
+			\label{fig:graph_sequence_example2}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\tikzfig{tex/tikz/graph_history3}
+			\caption{$G_3$}
+			\label{fig:graph_sequence_example3}
+		\end{subfigure}
+	\end{center}
+	\caption{An example of graph sequence $\mathcal{G} = (G_1, G_2, G_3) $ over $4$ vertices}
+	\label{fig:graph_sequence_example}
+\end{figure}
+
+Let $\mathcal{G} = (G_1, G_2, \dots, G_T) $ be a sequence of graphs on the same
+set of vertices $V$ (an example is shown in Figure~X), %TODO $S \subseteq V$ a
+subset of the nodes, $G_i[S]$ the subgraph induced by $S$ in $G_i$,
+$\text{deg}_{G_i[S]} (v_{j} )$ the degree of $v_{j} \in S$ in $G_i[S]$ and
+$\text{min-deg}(G_i[S])$ the minimum induced degree, i.e.
+$\text{min-deg}(G_i[S]) \coloneqq \min _{v_{j}  \in S} \text{deg} _{G_i[S]}
+	(v_{j}) $.
+
+Solving the \acrlong{DCS} Problem means finding a subset
+of the vertices $S \subseteq V$ that maximizes some aggregate density function
+over the graph sequence.
+
+According to the aggregate function there are different variants
+
+\begin{itemize}
+	\item \acrshort{DCS}-MM maximizes the Minimum of the Minimum degrees along
+	      the graph sequence, i.e.
+	      \begin{equation}
+		      \min_{i \in [T]} \text{min-deg} (G_i[S])
+	      \end{equation}
+	      A non trivial solution means finding a set of nodes which are linked
+	      in all the graphs $G_i \in \mathcal{G} $.
+	      In \cite{semertzidis2019finding} it is shown a simple greedy approach
+	      for finding the solution in polinomial time.
+	\item \acrshort{DCS}-AM uses the following as density aggregation function
+	      \begin{equation}
+		      \min_{i \in [T]}
+		      \frac{\sum^{}_{v_{j} \in S } \text{deg}_{G_i[S]} (v_{j} )}{S}
+	      \end{equation}
+	      This means finding a set of vertices $S$ which are dense in the sense
+	      that have a non-trivial average degree in all the graphs of the
+	      sequence.
+
+	      Charikar, Naamad and Yu provide in \cite{charikar2018finding} some
+	      approximation algorithms with guaranteed bounds; they also prove its
+	      inapproximability to within a $\mathcal{O}(2 ^{\log^{1-\epsilon} n} )
+	      $ factor unless $\mathcal{NP} \subseteq \mathbf{DTIME} (n
+		      ^{\text{poly}\log n} ) $, $\forall \epsilon > 0$
+	      \footnote{They show this results through a reduction from
+	      $\textsc{MinRep}$, which has been shown to have the mentioned gap
+	      hardness \cite{charikar2018finding}\cite{kortsarz2001hardness}.
+
+	      $ \mathbf{DTIME}(f(n)) $ refers to the class of problems that
+	      have time complexity $f(n)$ \cite{9780521884730}.
+	      }.
+\end{itemize}
+
 \clearpage
 
 \section{Computational complexity and \\approximability}%
