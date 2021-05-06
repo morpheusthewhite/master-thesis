@@ -16,21 +16,34 @@ KEY_SCORE = "score"
 SENTIMENT_MAX_TEXT_LENGTH = 128
 MODEL = "cardiffnlp/twitter-roberta-base-sentiment"
 
+# dictionary converting flair string into index
+FLAIR_DICT = {
+    None: -1,
+    "Unflaired": -1,
+    "Nonsupporter": 0,
+    "Trump Supporter": 1,
+    "Undecided": 2,
+}
+
 
 class PolarizationGraph:
 
     """A graph class providing methods for polarization analysis """
 
-    def __init__(self, discussion_trees: list[treelib.Tree]):
+    def __init__(
+        self, discussion_trees: list[treelib.Tree], users_flair: dict
+    ):
         self.graph = gt.Graph()
 
         # definition of graph property maps
         # edge weights (calculated with sentiment analysis classifier)
+        self.flairs = self.graph.new_vertex_property("int")
         self.weights = self.graph.new_edge_property("double")
         self.times = self.graph.new_edge_property("double")
         self.threads = self.graph.new_edge_property("object")
 
         # make properties internal
+        self.graph.vertex_properties["flairs"] = self.flairs
         self.graph.edge_properties["weights"] = self.weights
         self.graph.edge_properties["times"] = self.times
         self.graph.edge_properties["threads"] = self.threads
@@ -66,7 +79,7 @@ class PolarizationGraph:
 
                 # get/create the corresponding vertex
                 node_author = node.tag
-                node_vertex = self.get_user_vertex(node_author)
+                node_vertex = self.get_user_vertex(node_author, users_flair)
 
                 # children of the current node
                 children = discussion_tree.children(node_identifier)
@@ -76,7 +89,9 @@ class PolarizationGraph:
                     comment_author = child.tag
 
                     # find the node if it is in the graph
-                    comment_vertex = self.get_user_vertex(comment_author)
+                    comment_vertex = self.get_user_vertex(
+                        comment_author, users_flair
+                    )
 
                     # and add the edge
                     self.add_edge(comment_vertex, node_vertex, comment, thread)
@@ -166,7 +181,7 @@ class PolarizationGraph:
         else:
             return -probabilities[0]
 
-    def get_user_vertex(self, user: int) -> gt.Vertex:
+    def get_user_vertex(self, user: int, users_flairs: dict) -> gt.Vertex:
         vertex_index = self.users.get(user)
 
         if vertex_index is None:
@@ -175,6 +190,15 @@ class PolarizationGraph:
             # get the index and add it to the dictionary
             vertex_index = self.graph.vertex_index[vertex]
             self.users[user] = vertex_index
+
+            user_flair_str = users_flairs[user]
+
+            # strip the strings
+            if user_flair_str is not None:
+                user_flair_str = user_flair_str.strip()
+
+            user_flair_int = FLAIR_DICT.get(user_flair_str, -1)
+            self.flairs[vertex] = user_flair_int
         else:
             # retrieve the vertex object from the graph
             vertex = self.graph.vertex(vertex_index)
@@ -194,6 +218,7 @@ class PolarizationGraph:
 
         # load class attributes. Note: self.users is not initialized as it
         # not considered important
+        self.weights = self.graph.vertex_properties["flairs"]
         self.weights = self.graph.edge_properties["weights"]
         self.times = self.graph.edge_properties["times"]
         self.threads = self.graph.edge_properties["threads"]
@@ -1980,7 +2005,7 @@ class PolarizationGraph:
         Args:
             filename (str): filename of the file where the graph is stored
         """
-        graph = cls([])
+        graph = cls([], {})
         graph.load(filename)
 
         return graph
