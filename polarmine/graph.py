@@ -20,9 +20,20 @@ MODEL = "cardiffnlp/twitter-roberta-base-sentiment"
 FLAIR_DICT = {
     None: -1,
     "Unflaired": -1,
+    # AskTrumpSupporters
     "Nonsupporter": 0,
     "Trump Supporter": 1,
     "Undecided": 2,
+    # DebateReligion
+    "baháʼí": 0,
+    "buddhist": 1,
+    "christian": 2,
+    "hindu": 3,
+    "jewish": 4,
+    "muslim": 5,
+    "pagan": 6,
+    "shinto": 7,
+    "sikh": 8,
 }
 
 
