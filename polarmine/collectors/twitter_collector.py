@@ -60,7 +60,7 @@ class TwitterCollector(Collector):
             name = friend.name
 
             try:
-                page = wp.page(name)
+                page = wp.page(name, silent=True)
                 infobox = page.get_parse().data["infobox"]
             except LookupError:
                 # the page does not exist
