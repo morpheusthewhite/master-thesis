@@ -1920,6 +1920,21 @@ class PolarizationGraph:
 
         return
 
+    def deselect_unlabeled(self):
+        vertex_filter = self.graph.new_vertex_property("bool")
+
+        for vertex in self.graph.vertices():
+            if self.labels[vertex] != -1:
+                vertex_filter[vertex] = 1
+
+        current_filter, _ = self.graph.get_vertex_filter
+
+        if current_filter is not None:
+            vertex_filter.a = np.logical_and(current_filter.a, vertex_filter.a)
+
+        self.graph.set_vertex_filter(vertex_filter)
+        return
+
     @classmethod
     def from_model1(
         cls,
