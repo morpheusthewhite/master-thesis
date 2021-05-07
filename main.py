@@ -34,6 +34,13 @@ save_load_group.add_argument(
     help="load the mined graph at the given path",
 )
 parser.add_argument(
+    "--label",
+    default=False,
+    action="store_true",
+    dest="label",
+    help="label selected nodes and save the graph",
+)
+parser.add_argument(
     "--draw-no",
     "-dn",
     default=None,
@@ -796,14 +803,6 @@ def main():
         # mine data and store it
         contents = iter([])
 
-        if args.r or args.r_kw is not None or args.r_pg is not None:
-            reddit_collector = RedditCollector()
-            reddit_iter = reddit_collector.collect(
-                args.rn, args.r_kw, args.r_pg, limit=args.rl, cross=args.rc
-            )
-
-            contents = itertools.chain(contents, reddit_iter)
-
         if args.t_kw is not None or args.t_pg is not None:
             twitter_collector = TwitterCollector()
             twitter_iter = twitter_collector.collect(
@@ -817,13 +816,22 @@ def main():
         if args.dump is not None:
             graph.dump(args.dump)
 
-    if args.k > 0:
-        graph.select_kcore(args.k)
-
     if args.save_path is not None and not os.path.exists(args.save_path):
         os.mkdir(args.save_path)
 
+    if args.k > 0:
+        graph.select_kcore(args.k)
+
+    if args.label:
+        graph.label_nodes()
+
+        if args.load is not None:
+            graph.dump(args.load)
+        elif args.dump is not None:
+            graph.dump(args.dump)
+
     graph.remove_self_loops()
+
     if args.stats:
         print_stats(graph, args.save_path)
 
