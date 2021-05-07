@@ -8,6 +8,7 @@ from transformers import AutoTokenizer
 from scipy.special import softmax
 from sklearn import metrics
 
+from polarmine.collectors.twitter_collector import TwitterCollector
 from polarmine.comment import Comment
 from polarmine.thread import Thread
 from polarmine import densest
@@ -26,11 +27,15 @@ class PolarizationGraph:
 
         # definition of graph property maps
         # edge weights (calculated with sentiment analysis classifier)
+        self.screen_names = self.graph.new_vertex_property("string")
+        self.labels = self.graph.new_vertex_property("int")
         self.weights = self.graph.new_edge_property("double")
         self.times = self.graph.new_edge_property("double")
         self.threads = self.graph.new_edge_property("object")
 
         # make properties internal
+        self.graph.vertex_properties["screen_names"] = self.screen_names
+        self.graph.vertex_properties["labels"] = self.labels
         self.graph.edge_properties["weights"] = self.weights
         self.graph.edge_properties["times"] = self.times
         self.graph.edge_properties["threads"] = self.threads
@@ -175,6 +180,7 @@ class PolarizationGraph:
             # get the index and add it to the dictionary
             vertex_index = self.graph.vertex_index[vertex]
             self.users[user] = vertex_index
+            self.screen_names[vertex] = user
         else:
             # retrieve the vertex object from the graph
             vertex = self.graph.vertex(vertex_index)
@@ -194,6 +200,8 @@ class PolarizationGraph:
 
         # load class attributes. Note: self.users is not initialized as it
         # not considered important
+        self.screen_names = self.graph.vertex_properties["screen_names"]
+        self.labels = self.graph.vertex_properties["labels"]
         self.weights = self.graph.edge_properties["weights"]
         self.times = self.graph.edge_properties["times"]
         self.threads = self.graph.edge_properties["threads"]
@@ -1900,6 +1908,17 @@ class PolarizationGraph:
 
     def shuffle(self):
         pass
+
+    def label_nodes(self):
+        twitter = TwitterCollector()
+
+        for vertex in self.graph.vertices():
+            vertex_screen_name = self.screen_names[vertex]
+
+            label = twitter.get_user_label(vertex_screen_name)
+            self.labels[vertex] = label
+
+        return
 
     @classmethod
     def from_model1(
