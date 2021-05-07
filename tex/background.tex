@@ -224,7 +224,7 @@ According to the aggregate function there are different variants
 	      \footnote{By reducing from the
 		      $\textsc{MaximumIndipendentSet}$}. They also provide a fixed
 	      parameter polinomial time algorithm which can be used for solving
-	      exactly this problem for small $|T|$ as well as approximation
+	      exactly this problem for small $|T|$ as well as an approximation
 	      algorithm.
 	\item \acrshort{DCS}-AA maximizing
 
@@ -243,7 +243,37 @@ According to the aggregate function there are different variants
 	      similarly the approximation algorithm in
 	      \autoref{par:an_approximate_algorithm_for_the_densest_subgraph_problem}
 	      provides a 2-approximation for the optimal solution.
+
+	      More specifically, solving this problem is equivalent to solve the
+	      \acrfull{DCS} on the average graph $\hat{H}_{\mathcal{G} }  $, which
+	      is defined as a weighted graph whose weight of each edge is the
+	      fraction of graphs in the sequence $\mathcal{G} $ where the edge is
+	      present \cite{semertzidis2019finding}.
 \end{itemize}
+
+\subsection{The $\textsc{O}^{2} \textsc{Bff}$ Problem}%
+\label{sub:the_o_2_bff_problem}
+
+The \acrshort{DCS} is also known as the \acrfull{BFF} Problem as defined in
+\cite{semertzidis2019finding}; in the same paper also another class of similar
+problem is defined, the \acrlong{O2BFF} Problem.
+
+Let $\mathcal{G} = (G_1, G_2, \dots, G_T) $ be a sequence of graphs on the same
+vertex set $V$. The \acrfull{O2BFF} is defined as the set of
+vertices $S \subseteq V$ and the set of $k$ graphs $\mathcal{L}_{k} \subseteq
+	\mathcal{G}  $ that maximize some density aggregation function $f(S,
+	\mathcal{L}_{k}) $.
+
+As this problem relies again on a function $f$ which aggregates the density
+across the graphs $G_i$, similarly to the \acrshort{DCS} Problem $4$ variants
+can be defined, using the same functions mentioned in
+\autoref{sub:the_common_densest_subgraph_problem}.
+
+We will focus and present only an algorithm for approximating
+\acrshort{O2BFF}-AM; the other algorithms can be found in
+\cite{semertzidis2019finding}.
+
+
 
 \clearpage
 
