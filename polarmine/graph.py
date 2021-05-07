@@ -1115,6 +1115,7 @@ class PolarizationGraph:
             return 0, [], [], 0
 
         model = pulp.LpProblem("echo-chamber-score", pulp.LpMaximize)
+        num_vertices = np.max(self.graph.get_vertices()) + 1
         vertices_variables = [
             pulp.LpVariable(
                 f"y_{index}",
@@ -1122,7 +1123,7 @@ class PolarizationGraph:
                 lowBound=variables_lb,
                 upBound=variables_ub,
             )
-            for index in self.graph.get_vertices()
+            for index in range(num_vertices)
         ]
 
         # thread: ([negative edges vars],[edges variables]) dictionary
@@ -1853,7 +1854,8 @@ class PolarizationGraph:
         current_edge_filter = self.graph.new_edge_property("bool")
 
         # array containing prediction of group for each vertex
-        vertices_predicted = np.empty((self.graph.num_vertices()))
+        num_vertices = np.max(self.graph.get_vertices()) + 1
+        vertices_predicted = np.empty((num_vertices,))
         vertices_predicted[:] = -1
 
         vertices_assignment = np.array(vertices_assignment)
