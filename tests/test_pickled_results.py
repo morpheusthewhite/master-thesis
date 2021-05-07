@@ -1,18 +1,36 @@
 import pickle
 import argparse
+import sys
 
 from polarmine.graph import PolarizationGraph
+
+MIP_PARAM = "MIP"
+ROUNDING_PARAM = "rounding"
+MIP_DENSEST_PARAM = "MIP-densest"
+
+MIP_KEY = "mip"
+APPR_KEY = "mip_rounding_algorithm"
+MIP_DENSEST_KEY = "mip-densest"
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--scores",
-    "-sc",
+    "--scores-filename",
+    "-sf",
     type=str,
     default=None,
     metavar="filename",
     dest="scores_filename",
     help="filename of scores pickle",
+)
+parser.add_argument(
+    "--score",
+    "-sc",
+    type=str,
+    default=None,
+    metavar="method",
+    dest="score",
+    help=f"the result of which score to analyze. Possible values: {MIP_PARAM}, {ROUNDING_PARAM}, {MIP_DENSEST_PARAM}",
 )
 parser.add_argument(
     "--stats",
@@ -38,41 +56,50 @@ parser.add_argument(
 )
 
 
-MIP_KEY = "mip"
-MIP_APPR_KEY = "mip_rounding_algorithm"
-MIP_DENSEST_KEY = "mip-densest"
-
-
 def analyze(
     graph_filename: str = None,
     scores_filename: str = None,
     stats_filename: str = None,
+    score: str = None,
     alpha: float = 0.4,
 ):
     graph = PolarizationGraph.from_file(graph_filename)
     graph.remove_self_loops()
+
+    if stats_filename is not None:
+        stats_file = open(stats_filename, "w")
+    else:
+        stats_file = sys.stdout
+
+    if alpha == -1:
+        alpha = graph.alpha_median()
 
     if scores_filename is not None:
         with open(scores_filename, "rb") as scores_file:
             scores = pickle.load(scores_file)
 
         # visualize Echo Chamber solution
-        if scores.get(MIP_KEY) is not None:
-            graph.select_echo_chamber(alpha, scores[MIP_KEY][1])
-            graph.draw()
-            graph.clear_filters()
+        if score == MIP_PARAM:
+            score_key = MIP_KEY
+        elif score == ROUNDING_PARAM:
+            score_key = APPR_KEY
+        elif score == MIP_DENSEST_PARAM:
+            score_key = MIP_DENSEST_KEY
+        else:
+            return
 
-        # visualize Echo Chamber solution
-        if scores.get(MIP_DENSEST_KEY) is not None:
-            graph.select_echo_chamber(alpha, scores[MIP_APPR_KEY][1])
-            graph.draw()
-            graph.clear_filters()
+        users = scores[score_key][1]
+        graph.select_echo_chamber(alpha, users)
 
-        # visualize Echo Chamber approximation solution
-        if scores.get(MIP_DENSEST_KEY) is not None:
-            graph.select_echo_chamber(alpha, scores[MIP_DENSEST_KEY][1])
-            graph.draw()
-            graph.clear_filters()
+        print(
+            f"Number of components in the resulting graph: {graph.num_components()}",
+            file=stats_file,
+        )
+
+        graph.draw(output=graph_filename)
+
+        if stats_filename is not None:
+            stats_file.close()
 
 
 if __name__ == "__main__":
@@ -82,5 +109,6 @@ if __name__ == "__main__":
         args.graph_filename,
         args.scores_filename,
         args.stats_filename,
+        args.score,
         args.alpha,
     )
