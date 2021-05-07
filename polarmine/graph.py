@@ -1927,7 +1927,7 @@ class PolarizationGraph:
             if self.labels[vertex] != -1:
                 vertex_filter[vertex] = 1
 
-        current_filter, _ = self.graph.get_vertex_filter
+        current_filter, _ = self.graph.get_vertex_filter()
 
         if current_filter is not None:
             vertex_filter.a = np.logical_and(current_filter.a, vertex_filter.a)
