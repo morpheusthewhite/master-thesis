@@ -183,7 +183,7 @@ According to the aggregate function there are different variants
 	      in all the graphs $G_i \in \mathcal{G} $.
 	      In \cite{semertzidis2019finding} it is shown a simple greedy approach
 	      for finding the solution in polinomial time.
-	\item \acrshort{DCS}-AM uses the following as density aggregation function
+	\item \acrshort{DCS}-MA uses the following as density aggregation function
 	      \begin{equation}
 		      \min_{i \in [T]}
 		      \frac{\sum^{}_{v_{j} \in S } \text{deg}_{G_i[S]} (v_{j} )}{S}
@@ -192,18 +192,57 @@ According to the aggregate function there are different variants
 	      that have a non-trivial average degree in all the graphs of the
 	      sequence.
 
-	      Charikar, Naamad and Yu provide in \cite{charikar2018finding} some
-	      approximation algorithms with guaranteed bounds; they also prove its
+
+	      Charikar, Naamad and Yu in \cite{charikar2018finding} and
+	      Semertzidis, Pitoura, Terzi, Tsaparas in
+	      \cite{semertzidis2019finding} provide some
+	      approximation algorithms with guaranteed bounds;
+	      \cite{charikar2018finding} also proves its
 	      inapproximability to within a $\mathcal{O}(2 ^{\log^{1-\epsilon} n} )
 	      $ factor unless $\mathcal{NP} \subseteq \mathbf{DTIME} (n
 		      ^{\text{poly}\log n} ) $, $\forall \epsilon > 0$
 	      \footnote{They show this results through a reduction from
-	      $\textsc{MinRep}$, which has been shown to have the mentioned gap
-	      hardness \cite{charikar2018finding}\cite{kortsarz2001hardness}.
+	      $\textsc{MinRep}$, which has been shown to have the mentioned
+	      inapproximability \cite{charikar2018finding}\cite{kortsarz2001hardness}.
 
 	      $ \mathbf{DTIME}(f(n)) $ refers to the class of problems that
 	      have time complexity $f(n)$ \cite{9780521884730}.
 	      }.
+	\item \acrshort{DCS}-AM, whose density aggregation function is
+
+	      \begin{equation}
+		      \sum^{}_{i \in [T]} \min\text{-deg} (G_i [S])
+	      \end{equation}
+
+	      which will push the algorithms to find a set of vertices which are
+	      generally (i.e. in at least some of the graphs in the sequence)
+	      connected to each other.
+
+	      Charikar, Naamad and Yu proved in \cite{charikar2018finding} a
+	      its inapproximability within $n^{1-\epsilon} $ unless
+	      $\mathcal{P} = \mathcal{NP}  $, $\forall \epsilon > 0$
+	      \footnote{By reducing from the
+		      $\textsc{MaximumIndipendentSet}$}. They also provide a fixed
+	      parameter polinomial time algorithm which can be used for solving
+	      exactly this problem for small $|T|$ as well as approximation
+	      algorithm.
+	\item \acrshort{DCS}-AA maximizing
+
+	      \begin{equation}
+		      \sum^{}_{i \in |T|} \frac{\sum^{}_{v_{j} \in S} \text{deg}_{G_i[S]}
+		      (v_{j} )}{|S|}
+	      \end{equation}
+
+	      this puts less restrictions that the previous variants on the
+	      solutions, requiring only an high average degree on the union of the
+	      graphs.
+
+	      This problem can be solved optimally in polynomial time as it can be
+	      easily reduced to the classical Densest Subgraph problem
+	      (\autoref{sub:densest_subgraphs}) \cite{semertzidis2019finding};
+	      similarly the approximation algorithm in
+	      \autoref{par:an_approximate_algorithm_for_the_densest_subgraph_problem}
+	      provides a 2-approximation for the optimal solution.
 \end{itemize}
 
 \clearpage
