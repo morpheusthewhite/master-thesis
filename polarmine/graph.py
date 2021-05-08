@@ -48,13 +48,13 @@ class PolarizationGraph:
 
         # definition of graph property maps
         # edge weights (calculated with sentiment analysis classifier)
-        self.flairs = self.graph.new_vertex_property("int")
+        self.labels = self.graph.new_vertex_property("int")
         self.weights = self.graph.new_edge_property("double")
         self.times = self.graph.new_edge_property("double")
         self.threads = self.graph.new_edge_property("object")
 
         # make properties internal
-        self.graph.vertex_properties["flairs"] = self.flairs
+        self.graph.vertex_properties["flairs"] = self.labels
         self.graph.edge_properties["weights"] = self.weights
         self.graph.edge_properties["times"] = self.times
         self.graph.edge_properties["threads"] = self.threads
@@ -209,7 +209,7 @@ class PolarizationGraph:
                 user_flair_str = user_flair_str.strip()
 
             user_flair_int = FLAIR_DICT.get(user_flair_str, -1)
-            self.flairs[vertex] = user_flair_int
+            self.labels[vertex] = user_flair_int
         else:
             # retrieve the vertex object from the graph
             vertex = self.graph.vertex(vertex_index)
@@ -229,7 +229,7 @@ class PolarizationGraph:
 
         # load class attributes. Note: self.users is not initialized as it
         # not considered important
-        self.flairs = self.graph.vertex_properties["flairs"]
+        self.labels = self.graph.vertex_properties["flairs"]
         self.weights = self.graph.edge_properties["weights"]
         self.times = self.graph.edge_properties["times"]
         self.threads = self.graph.edge_properties["threads"]
