@@ -289,7 +289,7 @@ class PolarizationGraph:
         return self.graph.num_edges()
 
     def num_components(self):
-        components, _ = gt.label_components(self.graph)
+        components, _ = gt.label_components(self.graph, directed=False)
         return np.max(components.a) + 1
 
     def num_contents(self, alpha: float = -1):
