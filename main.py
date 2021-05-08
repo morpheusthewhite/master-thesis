@@ -82,6 +82,14 @@ parser.add_argument(
     help="show or save O2-BFF score (DCS-AM)",
 )
 parser.add_argument(
+    "-scl",
+    "--score-clustering",
+    default=False,
+    action="store_true",
+    dest="score_clustering",
+    help="cluster nodes through repeated ECP solutions and save or show accuracy",
+)
+parser.add_argument(
     "-a",
     "--alpha",
     default=0.4,
@@ -209,6 +217,79 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
+
+
+def score_clustering(
+    graph: PolarizationGraph, alpha: float, save_path: str = None
+):
+    if save_path is None:
+        clustering_txt_file = sys.stdout
+    else:
+        clustering_txt = os.path.join(save_path, "clustering.txt")
+        clustering_txt_file = open(clustering_txt, "w")
+
+    if alpha == -1:
+        alphas = [graph.alpha_median()]
+        print(
+            f"Median alpha of the graph: {alphas[0]}",
+            file=clustering_txt_file,
+        )
+    elif alpha == -2:
+        alpha_median = graph.alpha_median()
+        print(
+            f"Median alpha of the graph: {alpha_median}",
+            file=clustering_txt_file,
+        )
+
+        alphas = [alpha_median] + list(np.arange(0.1, 1, 0.1))
+    else:
+        alphas = [alpha]
+
+    (
+        adj_rand_score,
+        rand_score,
+        jaccard,
+        jaccard_iterations,
+        precision_iterations,
+    ) = graph.clustering_accuracy(graph.labels.a, 2, alpha)
+
+    print(f"Adjusted RAND score: {adj_rand_score}", file=clustering_txt_file)
+    print(f"RAND score: {rand_score}", file=clustering_txt_file)
+    print(f"Jaccard score: {jaccard}", file=clustering_txt_file)
+
+    plt.figure()
+    plt.title("Jaccard score over iterations")
+    plt.plot(jaccard_iterations)
+    plt.xlabel("Iteration number")
+    plt.ylabel("Jaccard score")
+
+    if save_path is not None:
+        jaccard_iterations_pdf = os.path.join(
+            save_path, "jaccard_iterations.pdf"
+        )
+        plt.savefig(jaccard_iterations_pdf)
+    else:
+        plt.show()
+        plt.close()
+
+    plt.figure()
+    plt.title("Precision score over iterations")
+    plt.plot(precision_iterations)
+    plt.xlabel("Iteration number")
+    plt.ylabel("Precision score")
+
+    if save_path is not None:
+        precision_iterations_pdf = os.path.join(
+            save_path, "precision_iterations.pdf"
+        )
+        plt.savefig(precision_iterations_pdf)
+    else:
+        plt.show()
+        plt.close()
+
+    if save_path is not None:
+        clustering_txt_file.close()
+    return
 
 
 def print_negative_fraction_top_k(
@@ -834,6 +915,10 @@ def main():
             args.save_path,
             args.alpha,
         )
+
+    if args.score_clustering:
+        graph.deselect_unlabeled()
+        score_clustering(graph, args.alpha, args.save_path)
 
     if not args.graph_draw_no and args.save_path is not None:
         graph_output_path = os.path.join(args.save_path, "graph.pdf")
