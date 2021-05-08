@@ -7,6 +7,7 @@ import urllib
 import validators
 import wptools as wp
 import numpy as np
+import pycurl
 from typing import Optional, Iterator
 
 from polarmine.collectors.collector import Collector
@@ -59,12 +60,19 @@ class TwitterCollector(Collector):
         for friend in friends.items(MAX_FOLLOWINGS):
             name = friend.name
 
-            try:
-                page = wp.page(name, silent=True)
-                infobox = page.get_parse().data["infobox"]
-            except LookupError:
-                # the page does not exist
-                continue
+            found = False
+            while not found:
+                try:
+                    page = wp.page(name, silent=True)
+                    infobox = page.get_parse().data["infobox"]
+                    found = True
+                except LookupError:
+                    # the page does not exist
+                    infobox = None
+                    found = True
+                except pycurl.error:
+                    # some connection error, try again
+                    pass
 
             # there may be no infobox in the page
             if infobox is None:
