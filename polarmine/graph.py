@@ -1924,6 +1924,7 @@ class PolarizationGraph:
             iteration_precision_score = np.sum(
                 np.logical_and(class_prediction, class_assignment)
             ) / np.sum(class_prediction)
+            iterations_precision_score.append(iteration_precision_score)
 
         self.clear_filters()
 
