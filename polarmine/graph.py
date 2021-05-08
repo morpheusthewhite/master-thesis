@@ -1889,6 +1889,7 @@ class PolarizationGraph:
         vertices_assignment = np.array(vertices_assignment)
 
         iterations_score = []
+        iterations_precision_score = []
         for i in range(n_clusters):
             if approximation:
                 _, vertices, _ = self.score_relaxation_algorithm(alpha)
@@ -1902,6 +1903,8 @@ class PolarizationGraph:
             current_edge_filter.a = np.logical_or(
                 current_edge_filter.a, induced_edges_property.a
             )
+            # we invert the filter since the edges which are set to 1 are the
+            # ones to be ignored
             self.graph.set_edge_filter(current_edge_filter, True)
 
             # compute jaccard coefficient for the current classification
@@ -1918,6 +1921,10 @@ class PolarizationGraph:
             )
             iterations_score.append(iteration_score)
 
+            iteration_precision_score = np.sum(
+                np.logical_and(class_prediction, class_assignment)
+            ) / np.sum(class_prediction)
+
         self.clear_filters()
 
         adjusted_rand_score = metrics.adjusted_rand_score(
@@ -1930,7 +1937,13 @@ class PolarizationGraph:
         jaccard_score = metrics.jaccard_score(
             vertices_assignment, vertices_predicted, average="micro"
         )
-        return adjusted_rand_score, rand_score, jaccard_score, iterations_score
+        return (
+            adjusted_rand_score,
+            rand_score,
+            jaccard_score,
+            iterations_score,
+            iterations_precision_score,
+        )
 
     def clear_filters(self):
         self.graph.clear_filters()
