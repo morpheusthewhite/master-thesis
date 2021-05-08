@@ -1875,10 +1875,10 @@ class PolarizationGraph:
     def clustering_accuracy(
         self,
         vertices_assignment: list[int],
-        n_clusters: int,
         alpha: float,
         approximation: bool = True,
     ):
+        n_clusters = max(vertices_assignment) + 1
         current_edge_filter = self.graph.new_edge_property("bool")
 
         vertices_assignment = np.array(vertices_assignment)
