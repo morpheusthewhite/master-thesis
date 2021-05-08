@@ -1895,6 +1895,11 @@ class PolarizationGraph:
             else:
                 _, vertices, _, _ = self.score_mip(alpha)
 
+            # handle the case in which there are no vertices in the result,
+            # i.e. no echo chamber was found
+            if len(vertices) == 0:
+                break
+
             vertices_predicted[vertices] = i
 
             induced_edges_property = self.is_induced_edge(set(vertices))
@@ -1908,6 +1913,7 @@ class PolarizationGraph:
 
             # compute jaccard coefficient for the current classification
             subgraph_vertices_assignment = vertices_assignment[vertices]
+
             majority_class = np.bincount(subgraph_vertices_assignment).argmax()
 
             class_assignment = (vertices_assignment == majority_class).astype(
