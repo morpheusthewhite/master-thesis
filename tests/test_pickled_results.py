@@ -129,6 +129,12 @@ def analyze(
 
         graph.draw(output=graph_pdf_filename_echo_chambers)
         graph.clear_filters()
+
+        print(
+            f"Number of components in the original graph: {graph.num_components_from_vertices(users)}",
+            file=outfile,
+        )
+
         graph.draw(show_vertices=users, output=graph_pdf_filename_full)
 
         if save_path is not None:
