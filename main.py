@@ -9,6 +9,7 @@ import numpy as np
 from typing import Optional
 
 from polarmine.graph import PolarizationGraph
+from polarmine.utils import plot_degree_distribution
 from polarmine.collectors.reddit_collector import RedditCollector
 from polarmine.collectors.twitter_collector import TwitterCollector
 
@@ -587,59 +588,9 @@ def print_stats(graph: PolarizationGraph, save_path):
         content_fractions_dict, stats_txt_file, key="content"
     )
 
-    # show total degree distribution
-    probabilities, bins = graph.degree_distribution()
-    results_stats["total_degree_distribution"] = (probabilities, bins)
-    plt.figure()
-    plt.title("Total degree distribution")
-    plt.plot(bins, probabilities)
-    plt.xscale("log")
-    plt.yscale("log")
-    plt.xlabel("Total degree")
-    plt.ylabel("Fraction of nodes")
-
-    if save_path is not None:
-        degree_dist_pdf = os.path.join(save_path, "degree-total-dist.pdf")
-        plt.savefig(degree_dist_pdf)
-    else:
-        plt.show()
-        plt.close()
-
-    # show in degree distribution
-    probabilities, bins = graph.degree_distribution("in")
-    results_stats["in_degree_distribution"] = (probabilities, bins)
-    plt.figure()
-    plt.title("In degree distribution")
-    plt.plot(bins, probabilities)
-    plt.xscale("log")
-    plt.yscale("log")
-    plt.xlabel("In degree")
-    plt.ylabel("Fraction of nodes")
-
-    if save_path is not None:
-        degree_dist_pdf = os.path.join(save_path, "degree-in-dist.pdf")
-        plt.savefig(degree_dist_pdf)
-    else:
-        plt.show()
-        plt.close()
-
-    # show out degree distribution
-    probabilities, bins = graph.degree_distribution("out")
-    results_stats["out_degree_distribution"] = (probabilities, bins)
-    plt.figure()
-    plt.title("Out degree distribution")
-    plt.plot(bins, probabilities)
-    plt.xscale("log")
-    plt.yscale("log")
-    plt.xlabel("Out degree")
-    plt.ylabel("Fraction of nodes")
-
-    if save_path is not None:
-        degree_dist_pdf = os.path.join(save_path, "degree-out-dist.pdf")
-        plt.savefig(degree_dist_pdf)
-    else:
-        plt.show()
-        plt.close()
+    plot_degree_distribution(graph, save_path, "total")
+    plot_degree_distribution(graph, save_path, "in")
+    plot_degree_distribution(graph, save_path, "out")
 
     # show user fidelity histogram
     fidelities = graph.fidelity_values()
