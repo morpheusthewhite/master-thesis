@@ -57,38 +57,37 @@ class TwitterCollector(Collector):
         # the party
         label_counts = np.zeros((2))
         try:
-            friends_iterator = friends.items(MAX_FOLLOWINGS)
+            for friend in friends.items(MAX_FOLLOWINGS):
+                name = friend.name
+
+                found = False
+                while not found:
+                    try:
+                        page = wp.page(name, silent=True)
+                        infobox = page.get_parse().data["infobox"]
+                        found = True
+                    except LookupError:
+                        # the page does not exist
+                        infobox = None
+                        found = True
+                    except pycurl.error:
+                        # some connection error, try again
+                        pass
+
+                # there may be no infobox in the page
+                if infobox is None:
+                    continue
+
+                party = infobox.get("party", "")
+
+                if "Democratic" in party:
+                    label_counts[DEMOCRATIC_LABEL] += 1
+                elif "Republican" in party:
+                    label_counts[REPUBLICAN_LABEL] += 1
+
         except tweepy.TweepError:
             # raised if the user does not allow to view its followers
             return -1
-
-        for friend in friends_iterator:
-            name = friend.name
-
-            found = False
-            while not found:
-                try:
-                    page = wp.page(name, silent=True)
-                    infobox = page.get_parse().data["infobox"]
-                    found = True
-                except LookupError:
-                    # the page does not exist
-                    infobox = None
-                    found = True
-                except pycurl.error:
-                    # some connection error, try again
-                    pass
-
-            # there may be no infobox in the page
-            if infobox is None:
-                continue
-
-            party = infobox.get("party", "")
-
-            if "Democratic" in party:
-                label_counts[DEMOCRATIC_LABEL] += 1
-            elif "Republican" in party:
-                label_counts[REPUBLICAN_LABEL] += 1
 
         if label_counts[REPUBLICAN_LABEL] == label_counts[DEMOCRATIC_LABEL]:
             return UNLABELED
