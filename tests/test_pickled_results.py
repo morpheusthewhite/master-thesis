@@ -84,10 +84,14 @@ def analyze(
             os.mkdir(save_path)
 
         outfile = os.path.join(save_path, "results_stats.txt")
-        graph_pdf_filename = os.path.join(save_path, "graph.pdf")
+        graph_pdf_filename_echo_chambers = os.path.join(
+            save_path, "graph_echo_chambers.pdf"
+        )
+        graph_pdf_filename_full = os.path.join(save_path, "graph_full.pdf")
     else:
         outfile = sys.stdout
-        graph_pdf_filename = None
+        graph_pdf_filename_echo_chambers = None
+        graph_pdf_filename_full = None
 
     if alpha == -1:
         alpha = graph.alpha_median()
@@ -123,7 +127,9 @@ def analyze(
             file=outfile,
         )
 
-        graph.draw(output=graph_pdf_filename)
+        graph.draw(output=graph_pdf_filename_echo_chambers)
+        graph.clear_filters()
+        graph.draw(show_vertices=users, output=graph_pdf_filename_full)
 
         if save_path is not None:
             outfile.close()
