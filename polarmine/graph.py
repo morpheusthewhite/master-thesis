@@ -226,6 +226,20 @@ class PolarizationGraph:
 
         self.graph.save(filename)
 
+    def remove_isolated(self):
+        vertex_filter = self.graph.new_vertex_property("bool")
+
+        degrees = self.graph.degree_property_map("total")
+        vertex_filter.a = degrees.a != 0
+
+        current_filter, _ = self.graph.get_vertex_filter()
+
+        if current_filter is not None:
+            vertex_filter.a = np.logical_and(current_filter.a, vertex_filter.a)
+
+        self.graph.set_vertex_filter(vertex_filter)
+        return
+
     def remove_self_loops(self):
         gt.remove_self_loops(self.graph)
 
