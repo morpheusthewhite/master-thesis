@@ -4,6 +4,7 @@ import sys
 import os
 
 from polarmine.graph import PolarizationGraph
+from polarmine.utils import plot_degree_distribution
 
 MIP_PARAM = "MIP"
 ROUNDING_PARAM = "rounding"
@@ -127,7 +128,12 @@ def analyze(
             file=outfile,
         )
 
-        graph.draw(output=graph_pdf_filename_echo_chambers)
+        plot_degree_distribution(graph, save_path, "total")
+        plot_degree_distribution(graph, save_path, "out")
+
+        if save_path is not None:
+            graph.draw(output=graph_pdf_filename_echo_chambers)
+
         graph.clear_filters()
 
         print(
@@ -135,9 +141,8 @@ def analyze(
             file=outfile,
         )
 
-        graph.draw(show_vertices=users, output=graph_pdf_filename_full)
-
         if save_path is not None:
+            graph.draw(show_vertices=users, output=graph_pdf_filename_full)
             outfile.close()
 
 
