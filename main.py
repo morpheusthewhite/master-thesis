@@ -934,6 +934,7 @@ def main():
 
     if args.score_clustering:
         graph.deselect_unlabeled()
+        graph.remove_isolated()
         score_clustering(graph, args.alpha, args.save_path)
 
     if not args.graph_draw_no and args.save_path is not None:
