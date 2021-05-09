@@ -1918,12 +1918,18 @@ class PolarizationGraph:
 
             induced_edges_property = self.is_induced_edge(set(vertices))
 
-            current_edge_filter.a = np.logical_or(
-                current_edge_filter.a, induced_edges_property.a
+            # exclude induced vertices, i.e. keep edges that are not induced
+            # and unfilter previously
+            current_edge_filter.a = np.logical_and(
+                current_edge_filter.a, np.logical_not(induced_edges_property.a)
             )
+<<<<<<< HEAD
             # we invert the filter since the edges which are set to 1 are the
             # ones to be ignored
             self.graph.set_edge_filter(current_edge_filter, True)
+=======
+            self.graph.set_edge_filter(current_edge_filter)
+>>>>>>> 9cb850b (fix(graph): correct filtering in clustering routine)
 
             # compute jaccard coefficient for the current classification
             subgraph_vertices_assignment = vertices_assignment[vertices]
