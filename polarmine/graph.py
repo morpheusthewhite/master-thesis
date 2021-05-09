@@ -15,6 +15,7 @@ from polarmine import densest
 KEY_SCORE = "score"
 SENTIMENT_MAX_TEXT_LENGTH = 128
 MODEL = "cardiffnlp/twitter-roberta-base-sentiment"
+VERTEX_SIZE_SHOW = 50
 
 
 class PolarizationGraph:
@@ -227,6 +228,7 @@ class PolarizationGraph:
         edge_width: bool = True,
         output: Optional[str] = None,
         communities: Optional[list[int]] = None,
+        show_vertices: list[int] = None,
     ) -> None:
         """draw the graph
 
@@ -249,6 +251,19 @@ class PolarizationGraph:
             width_property_map.a = np.abs(self.weights.a)
         else:
             width_property_map = None
+
+        if show_vertices is not None:
+            # show passed vertices with a different color
+            vertex_fill_color = self.graph.new_vertex_property("string")
+            show_vertices = set(show_vertices)
+            for vertex in self.graph.vertices():
+                if vertex in show_vertices:
+                    vertex_fill_color[vertex] = "blue"
+                else:
+                    vertex_fill_color[vertex] = "gray"
+        else:
+            # show black vertices otherwise
+            vertex_fill_color = "black"
 
         # use weight to influence layout
         # shift weights to [0, 2] to improve visualization
@@ -278,7 +293,7 @@ class PolarizationGraph:
             edge_color=color_property_map,
             edge_pen_width=width_property_map,
             vertex_size=0,
-            vertex_fill_color="black",
+            vertex_fill_color=vertex_fill_color,
             output=output,
         )
 
