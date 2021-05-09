@@ -131,6 +131,28 @@ def analyze(
         plot_degree_distribution(graph, save_path, "total")
         plot_degree_distribution(graph, save_path, "out")
 
+        average_shortest_path_length = graph.average_shortest_path_length()
+        median_shortest_path_length = graph.median_shortest_path_length()
+        average_degree = graph.average_degree()
+        unique_average_degree = graph.average_degree(unique=True)
+
+        print(
+            f"Average shortest path length: {average_shortest_path_length}",
+            file=outfile,
+        )
+        print(
+            f"Median shortest path length: {median_shortest_path_length}",
+            file=outfile,
+        )
+        print(
+            f"Average degree: {average_degree}",
+            file=outfile,
+        )
+        print(
+            f"Unique average degree: {unique_average_degree}",
+            file=outfile,
+        )
+
         if save_path is not None:
             graph.draw(output=graph_pdf_filename_echo_chambers)
 
