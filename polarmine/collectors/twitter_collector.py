@@ -56,8 +56,13 @@ class TwitterCollector(Collector):
         # count the number of times someone who is followed belong to each of
         # the party
         label_counts = np.zeros((2))
+        try:
+            friends_iterator = friends.items(MAX_FOLLOWINGS)
+        except tweepy.TweepError:
+            # raised if the user does not allow to view its followers
+            return -1
 
-        for friend in friends.items(MAX_FOLLOWINGS):
+        for friend in friends_iterator:
             name = friend.name
 
             found = False
