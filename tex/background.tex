@@ -177,6 +177,7 @@ According to the aggregate function there are different variants
 	\item \acrshort{DCS}-MM maximizes the Minimum of the Minimum degrees along
 	      the graph sequence, i.e.
 	      \begin{equation}
+		      \label{eq:dcs-mm}
 		      \min_{i \in [T]} \text{min-deg} (G_i[S])
 	      \end{equation}
 	      A non trivial solution means finding a set of nodes which are linked
@@ -185,6 +186,7 @@ According to the aggregate function there are different variants
 	      for finding the solution in polinomial time.
 	\item \acrshort{DCS}-MA uses the following as density aggregation function
 	      \begin{equation}
+		      \label{eq:dcs-ma}
 		      \min_{i \in [T]}
 		      \frac{\sum^{}_{v_{j} \in S } \text{deg}_{G_i[S]} (v_{j} )}{S}
 	      \end{equation}
@@ -211,6 +213,7 @@ According to the aggregate function there are different variants
 	\item \acrshort{DCS}-AM, whose density aggregation function is
 
 	      \begin{equation}
+		      \label{eq:dcs-am}
 		      \sum^{}_{i \in [T]} \min\text{-deg} (G_i [S])
 	      \end{equation}
 
@@ -229,6 +232,7 @@ According to the aggregate function there are different variants
 	\item \acrshort{DCS}-AA maximizing
 
 	      \begin{equation}
+		      \label{eq:dcs-aa}
 		      \sum^{}_{i \in |T|} \frac{\sum^{}_{v_{j} \in S} \text{deg}_{G_i[S]}
 		      (v_{j} )}{|S|}
 	      \end{equation}
@@ -273,7 +277,73 @@ We will focus and present only an algorithm for approximating
 \acrshort{O2BFF}-AM; the other algorithms can be found in
 \cite{semertzidis2019finding}.
 
+Let us first define $\textsc{Score}_{a}  $, a procedure that removes the node
+with the lowest degree in a graph while properly updating the degree of the
+other nodes (\autoref{alg:score_a}).
 
+\begin{algorithm}
+	\SetAlgoLined
+	\KwResult{The vertex with the lowest degree is removed and returned}
+	$\hat{H}_{\mathcal{G} } \leftarrow $ average graph of $\mathcal{G} $ \;
+	$\hat{E} \leftarrow $ set of edges of $\hat{H}_{\mathcal{G} }  $ \;
+	$\mathcal{F}[d] \leftarrow $ set of nodes with degree
+	\footnotemark
+	$d$ in $\hat{H}_{\mathcal{G} }  $\;
+
+	\bigskip
+
+	\SetKwBlock{Function}
+	{function \textnormal{$\textsc{ScoreAndUpdate}( \mathcal{G} )$ \{ }}
+	{}
+
+	\Function {
+		$score_{a} \leftarrow $ smallest $d$ s.t. $\mathcal{F}[d] \neq
+			\emptyset$\;
+		$u \leftarrow$ a node with degree $d$ \;
+
+		remove $u$ from $\mathcal{F} [d]$ \;
+
+		\bigskip
+		\ForEach{$(u, v) \in \hat{E}$}{
+			remove $v$ from $\mathcal{F}[d_{v} ] $ \;
+			remove $(u, v)$ from $\hat{E}$ and update degree of $v$ \;
+			add $v$ to $\mathcal{F}[d_{v} ] $ \;
+		}
+
+		$V \setminus \{ u \}$ \;
+		\Return $u$ \;
+	}
+	\}
+	\caption{The $\textsc{Score}_{a}  $ algorithm}
+	\label{alg:score_a}
+\end{algorithm}
+
+\footnotetext{We consider the degree $d$ of a vertex $v_{i} $ in a weighted graph as
+the sum of the weights of the edges of the node, i.e. $ \sum^{}_{(v_{i} , v_{j}
+	) \in E} w_{ij}  $}
+
+Let us also define $\textsc{FindBff}_{a} $, a greedy approach for finding
+the subgraph with the highest density $f$ (which corresponds to
+\autoref{eq:dcs-am} in our case, but in can replaced by any of the other
+density aggregation functions). This function repeatedly calls
+$\textsc{ScoreAndUpdate}$ to remove the node with the lowest degree and efficiently update
+the graph. When the graph is empty it returns the subset of nodes
+that obtained the highest density score $f$ (\autoref{alg:findbff_a}).
+
+\begin{algorithm}
+	\SetAlgoLined
+	\KwResult{A subset of nodes $S \subseteq V$}
+	$S_{0} = V$ \;
+
+	\For{$i \in \{ 1, \dots, |V|\}$ }{
+		$v_{i} $ = $\textsc{ScoreAndUpdate}(\mathcal{G}[S_{i} ]) $ \;
+		$S_{i} = S_{i -1} \setminus \{v_{i}\} $ \;
+	}
+
+	\Return arg$\max _{i \in \{ 1, \dots, |V|\}} f(S_{i}, \mathcal{G})  $
+	\caption{The $\textsc{FindBff}_{a} $ algorithm}
+	\label{alg:findbff_a}
+\end{algorithm}
 
 \clearpage
 
