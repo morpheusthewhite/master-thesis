@@ -307,6 +307,16 @@ class PolarizationGraph:
         components, _ = gt.label_components(self.graph, directed=False)
         return np.max(components.a) + 1
 
+    def num_components_from_vertices(self, vertices: list[int]):
+        """Count the number of different components associated to the given
+        vertices
+
+        Args:
+            vertices (list[int]): the list of the indices of the vertices
+        """
+        components, _ = gt.label_components(self.graph, directed=False)
+        return len(set(components.a[vertices]))
+
     def num_contents(self, alpha: float = -1):
         if alpha != -1:
             contents = self.controversial_contents(alpha)
