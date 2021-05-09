@@ -1965,6 +1965,15 @@ class PolarizationGraph:
             iterations_precision_score,
         )
 
+    def labeled_vertices_fraction(self):
+        current_vertex_filter, _ = self.graph.get_vertex_filter()
+        is_labeled = self.labels.a != -1
+        if current_vertex_filter is not None:
+            n_labeled_vertices = np.sum(current_vertex_filter.a * is_labeled)
+            return n_labeled_vertices / np.sum(current_vertex_filter.a)
+        else:
+            return np.sum(is_labeled) / is_labeled.shape[0]
+
     def clear_filters(self):
         self.graph.clear_filters()
         return
