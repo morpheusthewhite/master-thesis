@@ -9,7 +9,7 @@ import numpy as np
 from typing import Optional
 
 from polarmine.graph import PolarizationGraph
-from polarmine.utils import plot_degree_distribution
+from polarmine.utils import plot_degree_distribution, print_top_k
 from polarmine.collectors.reddit_collector import RedditCollector
 from polarmine.collectors.twitter_collector import TwitterCollector
 
@@ -210,45 +210,6 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
-
-
-def print_negative_fraction_top_k(
-    negative_edges_fraction_dict, file_, key="thread", k=3
-):
-    negative_edges_fraction_dict_sorted = {
-        k: v
-        for k, v in sorted(
-            negative_edges_fraction_dict.items(), key=lambda item: item[1]
-        )
-    }
-
-    # keys are either contents or threads
-    keys = list(negative_edges_fraction_dict_sorted.keys())
-    k = min(k, len(keys))
-
-    print(
-        f"{key.capitalize()} lowest negative edge fraction top {k}:",
-        file=file_,
-    )
-    for i in range(k):
-        key_ith = keys[i]
-
-        print(
-            f"\t{key_ith} with {negative_edges_fraction_dict_sorted[key_ith]}",
-            file=file_,
-        )
-
-    print(
-        f"{key.capitalize()} highest negative edge fraction top {k}:",
-        file=file_,
-    )
-    for i in range(1, k + 1):
-        key_ith = keys[-i]
-
-        print(
-            f"\t{key_ith} with {negative_edges_fraction_dict_sorted[key_ith]}",
-            file=file_,
-        )
 
 
 def print_scores(
@@ -561,8 +522,18 @@ def print_stats(graph: PolarizationGraph, save_path):
         plt.close()
 
     # write the top-k (both ascending and descending) of the contents
-    print_negative_fraction_top_k(
-        thread_fractions_dict, stats_txt_file, key="thread"
+    print_top_k(
+        thread_fractions_dict,
+        outfile=stats_txt_file,
+        key="thread",
+        value="negative edge fraction",
+    )
+    print_top_k(
+        thread_fractions_dict,
+        outfile=stats_txt_file,
+        key="thread",
+        value="negative edge fraction",
+        reverse=True,
     )
 
     # show negative edge fraction histogram for threads
@@ -584,8 +555,18 @@ def print_stats(graph: PolarizationGraph, save_path):
         plt.close()
 
     # write the top-k (both ascending and descending) of the contents
-    print_negative_fraction_top_k(
-        content_fractions_dict, stats_txt_file, key="content"
+    print_top_k(
+        content_fractions_dict,
+        outfile=stats_txt_file,
+        key="content",
+        value="negative edge fraction",
+    )
+    print_top_k(
+        content_fractions_dict,
+        outfile=stats_txt_file,
+        key="content",
+        value="negative edge fraction",
+        reverse=True,
     )
 
     plot_degree_distribution(graph, save_path, "total")
