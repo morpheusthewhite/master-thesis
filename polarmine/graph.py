@@ -1980,6 +1980,7 @@ class PolarizationGraph:
             jaccard_score,
             iterations_score,
             iterations_precision_score,
+            iterations_vertices,
         )
 
     def labeled_vertices_fraction(self):
