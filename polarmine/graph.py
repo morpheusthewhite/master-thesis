@@ -12,7 +12,6 @@ from polarmine.comment import Comment
 from polarmine.thread import Thread
 from polarmine import densest
 
-KEY_SCORE = "score"
 SENTIMENT_MAX_TEXT_LENGTH = 128
 MODEL = "cardiffnlp/twitter-roberta-base-sentiment"
 VERTEX_SIZE_SHOW = 50
@@ -760,7 +759,7 @@ class PolarizationGraph:
     def score_from_vertices_index(
         self,
         vertices_index: list[int],
-        alpha: int,
+        alpha: float,
         controversial_contents: set = None,
     ) -> (float, list[str]):
         thread_edges_dict = self.__vertices_subthreads_dict__(
