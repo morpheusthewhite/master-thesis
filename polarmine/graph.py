@@ -1865,7 +1865,10 @@ class PolarizationGraph:
         alpha: float,
         approximation: bool = True,
     ):
-        current_edge_filter = self.graph.new_edge_property("bool")
+        current_edge_filter, _ = self.graph.get_edge_filter()
+        if current_edge_filter is None:
+            current_edge_filter = self.graph.new_edge_property("bool")
+            current_edge_filter.a = np.ones_like(current_edge_filter.a)
 
         # array containing prediction of group for each vertex
         num_vertices = np.max(self.graph.get_vertices()) + 1
