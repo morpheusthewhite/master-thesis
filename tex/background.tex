@@ -310,7 +310,7 @@ other nodes (\autoref{alg:score_a}).
 			add $v$ to $\mathcal{F}[d_{v} ] $ \;
 		}
 
-		$V \setminus \{ u \}$ \;
+		$V = V \setminus \{ u \}$ \;
 		\Return $u$ \;
 	}
 	\}
@@ -324,7 +324,7 @@ the sum of the weights of the edges of the node, i.e. $ \sum^{}_{(v_{i} , v_{j}
 
 Let us also define $\textsc{FindBff}_{a} $, a greedy approach for finding
 the subgraph with the highest density $f$ (which corresponds to
-\autoref{eq:dcs-am} in our case, but in can replaced by any of the other
+\autoref{eq:dcs-am} in our case, but it can replaced by any of the other
 density aggregation functions). This function repeatedly calls
 $\textsc{ScoreAndUpdate}$ to remove the node with the lowest degree and efficiently update
 the graph. When the graph is empty it returns the subset of nodes
@@ -345,7 +345,55 @@ that obtained the highest density score $f$ (\autoref{alg:findbff_a}).
 	\label{alg:findbff_a}
 \end{algorithm}
 
-\clearpage
+Semertzidis, Pitoura, Terzi, Tsaparas in \cite{semertzidis2019finding} present
+$2$ different approaches for approximating this score: an \emph{iterative} one
+which starts with a set $\mathcal{L} _{k} \in \mathcal{G} $ of $k$ graphs and improves it to
+increase the score, and an \emph{incremental} one in which the set of $k$
+graphs $\mathcal{L}_{k} $ is selected along the $k$ iterations, starting with a
+pair and adding snapshots $G \in \mathcal{G} $ one by one.
+
+Furthermore they identify $2$ possible approaches for each of them. We will
+focus on the \acrfull{INCO}.
+
+The algorithms starts by solving the \acrshort{BFF} problem on each of the
+graphs $G_{i} $ in $\mathcal{G} $ and finding the corresponding set of vertices
+$S_{i} $ of the solution. Then $\mathcal{L}_{2}  $ is chosen as the pair of graphs which
+have the most similar set of vertices in the respective solutions, where the
+similarity is measured through the Jaccard coefficient.
+
+The \acrshort{BFF} problem is now solved on $\mathcal{L} _{2} $ to obtain a set
+of vertices which is compared against the other $S_i$ previously computed to
+find the most similar one, as before, and the process continues until
+$\mathcal{L}_{k} $ is constructed (\autoref{alg:inc_o_a}). Finally the
+$\textsc{FindBff}_{a} $ is called on $\mathcal{L}_{k}  $ and the resulting set of
+vertices is returned along with $\mathcal{L}_{k}  $.
+
+\begin{algorithm}[H]
+	\SetAlgoLined
+	\KwResult{A subset of nodes $S \subseteq V$ and of graphs $\mathcal{L}_{k}
+			\subseteq \mathcal{G}$}
+	\For{$i \in \{ 1, \dots, |\mathcal{G}|\}$ }{
+		$S_{i} = \textsc{FindBff}_{a} (\{ G_i \})$ \;
+	}
+	$\mathcal{L}_{k} = \text{arg}\max_{G_{i}, G_{j} \in \mathcal{G}}
+		Jaccard(S_i, S_j) $ \;
+
+	\For{$i \in \{ 3, \dots, k\}$ }{
+		$S_{C} = \textsc{FindBff}_{a} (\mathcal{L}_{i-1}) $ \;
+
+		$G_{m}  = \text{arg}\max_{G_{j} \in \mathcal{G}, \; G_j \not\in \mathcal{L}_{i-1}}
+			Jaccard(S_C, S_j) $ \;
+
+		$\mathcal{L}_{i} =  \mathcal{L}_{i-1} \cup \{G_m\}$ \;
+	}
+
+	$S = \textsc{FindBff}_{a} (\mathcal{L}_{k}) $ \;
+
+	\Return $S, \; \mathcal{L}_{k}  $ \;
+	\caption{The \acrshort{INCO} algorithm for approximating
+		\acrshort{O2BFF}-AM}
+	\label{alg:inc_o_a}
+\end{algorithm}
 
 \section{Computational complexity and \\approximability}%
 \label{sec:computational_complexity_and_approximability}
