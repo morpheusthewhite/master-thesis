@@ -4,7 +4,7 @@ import sys
 import os
 
 from polarmine.graph import PolarizationGraph
-from polarmine.utils import plot_degree_distribution
+from polarmine.utils import plot_degree_distribution, print_top_k
 
 MIP_PARAM = "MIP"
 ROUNDING_PARAM = "rounding"
@@ -151,6 +151,16 @@ def analyze(
         print(
             f"Unique average degree: {unique_average_degree}",
             file=outfile,
+        )
+
+        # print contribution to content from each content
+        content_contributions = graph.n_interactions_dict()
+        print_top_k(
+            content_contributions,
+            outfile,
+            "content",
+            "score contribution",
+            reverse=True,
         )
 
         if save_path is not None:
