@@ -1883,6 +1883,8 @@ class PolarizationGraph:
 
         iterations_score = []
         iterations_precision_score = []
+        iterations_vertices = []
+
         for i in range(n_clusters):
             if approximation:
                 score, vertices, _ = self.score_relaxation_algorithm(alpha)
@@ -1929,6 +1931,8 @@ class PolarizationGraph:
                 np.logical_and(class_prediction, class_assignment)
             ) / np.sum(class_prediction)
             iterations_precision_score.append(iteration_precision_score)
+
+            iterations_vertices.append(vertices)
 
         self.clear_filters()
 
