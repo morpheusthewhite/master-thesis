@@ -181,6 +181,7 @@ class PolarizationGraph:
             vertex_index = self.graph.vertex_index[vertex]
             self.users[user] = vertex_index
             self.screen_names[vertex] = user
+            self.labels[vertex] = -1
         else:
             # retrieve the vertex object from the graph
             vertex = self.graph.vertex(vertex_index)
