@@ -1992,6 +1992,22 @@ class PolarizationGraph:
         else:
             return np.sum(is_labeled) / is_labeled.shape[0]
 
+    def label_distribution(self):
+        current_vertex_filter, _ = self.graph.get_vertex_filter()
+
+        selected_nodes_index = list(np.where(current_vertex_filter.a == 1)[0])
+        selected_nodes_label = self.labels.a[selected_nodes_index]
+
+        n_labels = np.max(selected_nodes_label) + 1
+        labels_count = np.empty((n_labels))
+
+        for label in range(n_labels):
+            label_count = np.sum(selected_nodes_label == label)
+            labels_count[label] = label_count
+
+        labels_count = labels_count / np.sum(labels_count)
+        return labels_count
+
     def clear_filters(self):
         self.graph.clear_filters()
         return
