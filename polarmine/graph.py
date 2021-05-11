@@ -1851,11 +1851,15 @@ class PolarizationGraph:
                 node_is_active,
             )
 
-    def is_induced_edge(self, vertices: set):
+    def is_induced_edge(self, vertices: set, threads: set):
         is_induced_property = self.graph.new_edge_property("bool")
-        for i, edge in enumerate(self.graph.get_edges()):
-            if edge[0] in vertices or edge[1] in vertices:
-                is_induced_property.a[i] = True
+
+        for edge in self.graph.edges():
+            source, target = tuple(edge)
+            thread = self.threads[edge].url
+
+            if source in vertices and target in vertices and thread in threads:
+                is_induced_property[edge] = True
 
         return is_induced_property
 
@@ -1866,7 +1870,10 @@ class PolarizationGraph:
         alpha: float,
         approximation: bool = True,
     ):
-        current_edge_filter = self.graph.new_edge_property("bool")
+        current_edge_filter, _ = self.graph.get_edge_filter()
+        if current_edge_filter is None:
+            current_edge_filter = self.graph.new_edge_property("bool")
+            current_edge_filter.a = np.ones_like(current_edge_filter.a)
 
         # array containing prediction of group for each vertex
         vertices_predicted = np.empty((self.graph.num_vertices()))
@@ -1875,15 +1882,22 @@ class PolarizationGraph:
         vertices_assignment = np.array(vertices_assignment)
 
         iterations_score = []
+        iterations_vertices = []
+
         for i in range(n_clusters):
             if approximation:
-                _, vertices, _ = self.score_relaxation_algorithm(alpha)
+                score, vertices, _ = self.score_relaxation_algorithm(alpha)
+                score, nc_threads = self.score_from_vertices_index(
+                    vertices, alpha
+                )
             else:
-                _, vertices, _, _ = self.score_mip(alpha)
+                score, vertices, _, _ = self.score_mip(alpha)
 
             vertices_predicted[vertices] = i
 
-            induced_edges_property = self.is_induced_edge(set(vertices))
+            induced_edges_property = self.is_induced_edge(
+                set(vertices), set(nc_threads)
+            )
 
             # exclude induced vertices, i.e. keep edges that are not induced
             # and unfilter previously
@@ -1906,6 +1920,8 @@ class PolarizationGraph:
             )
             iterations_score.append(iteration_score)
 
+            iterations_vertices.append(vertices)
+
         self.clear_filters()
 
         adjusted_rand_score = metrics.adjusted_rand_score(
@@ -1918,7 +1934,13 @@ class PolarizationGraph:
         jaccard_score = metrics.jaccard_score(
             vertices_assignment, vertices_predicted, average="micro"
         )
-        return adjusted_rand_score, rand_score, jaccard_score, iterations_score
+        return (
+            adjusted_rand_score,
+            rand_score,
+            jaccard_score,
+            iterations_score,
+            iterations_vertices,
+        )
 
     def clear_filters(self):
         self.graph.clear_filters()

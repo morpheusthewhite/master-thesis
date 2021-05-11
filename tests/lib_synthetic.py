@@ -23,6 +23,7 @@ def evaluate_graph(
         rand_score,
         jaccard_score,
         iterations_score,
+        _,
     ) = graph.clustering_accuracy(communities, n_communities, alpha)
     end = time.time()
 
