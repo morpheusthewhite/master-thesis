@@ -1934,6 +1934,13 @@ class PolarizationGraph:
 
             iterations_vertices.append(vertices)
 
+        current_vertex_filter, _ = self.graph.get_vertex_filter()
+        selected_vertices = list(np.where(current_vertex_filter.a != 0)[0])
+
+        # ignore the unselected nodes for computing the clustering statistics
+        vertices_assignment = vertices_assignment[selected_vertices]
+        vertices_predicted = vertices_predicted[selected_vertices]
+
         self.clear_filters()
 
         adjusted_rand_score = metrics.adjusted_rand_score(
