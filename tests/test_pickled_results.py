@@ -84,7 +84,9 @@ def analyze(
         if not os.path.exists(save_path):
             os.mkdir(save_path)
 
-        outfile = os.path.join(save_path, "results_stats.txt")
+        outfilename = os.path.join(save_path, "results_stats.txt")
+        outfile = open(outfilename, "w")
+
         graph_pdf_filename_echo_chambers = os.path.join(
             save_path, "graph_echo_chambers.pdf"
         )
