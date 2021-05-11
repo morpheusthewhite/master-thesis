@@ -1875,11 +1875,11 @@ class PolarizationGraph:
             current_edge_filter = self.graph.new_edge_property("bool")
             current_edge_filter.a = np.ones_like(current_edge_filter.a)
 
-        # array containing prediction of group for each vertex
-        vertices_predicted = np.empty((self.graph.num_vertices()))
-        vertices_predicted[:] = -1
-
         vertices_assignment = np.array(vertices_assignment)
+
+        # array containing prediction of group for each vertex
+        vertices_predicted = np.empty_like(vertices_assignment)
+        vertices_predicted[:] = -1
 
         iterations_score = []
         iterations_vertices = []
