@@ -1128,6 +1128,9 @@ class PolarizationGraph:
         variables_cat = pulp.LpContinuous if relaxation else pulp.LpBinary
         variables_lb = 0 if relaxation else None
         variables_ub = 1 if relaxation else None
+        variables_cat_thread = (
+            pulp.LpContinuous if alpha <= 0.5 else pulp.LpBinary
+        )
 
         controversial_contents = self.controversial_contents(alpha)
         if len(controversial_contents) == 0:
@@ -1157,6 +1160,13 @@ class PolarizationGraph:
         # list of all the edge variables x_ij
         edge_variables = []
 
+        # additional needed constraints require additional variables
+        if alpha > 0.5:
+            # thread: ([negative a_ij vars],[a_ij variables]) dictionary
+            thread_aij_edges_dict = {}
+            # list of all the edge variables a_ij
+            aij_edge_variables = []
+
         for i, edge in enumerate(self.graph.edges()):
             thread_obj = self.threads[edge]
             content = thread_obj.content
@@ -1166,6 +1176,7 @@ class PolarizationGraph:
                 source, target = tuple(edge)
                 source = int(source)
                 target = int(target)
+                weight = self.weights[edge]
 
                 thread = thread_obj.url
                 edge_var = pulp.LpVariable(
@@ -1178,11 +1189,17 @@ class PolarizationGraph:
                 z_k = thread_k_vars.get(thread)
                 if z_k is None:
                     z_k = pulp.LpVariable(
-                        f"z_{hash(thread)}", lowBound=0, upBound=1
+                        f"z_{hash(thread)}",
+                        lowBound=0,
+                        upBound=1,
+                        cat=variables_cat_thread,
                     )
                     thread_k_vars[thread] = z_k
 
-                objective += edge_var
+                if weight > 0:
+                    objective += edge_var
+                else:
+                    objective -= edge_var
 
                 model += edge_var <= vertices_variables[source]
                 model += edge_var <= vertices_variables[target]
@@ -1199,7 +1216,7 @@ class PolarizationGraph:
                     thread, ([], [])
                 )
 
-                if self.weights[edge] < 0:
+                if weight < 0:
                     edges_negative_var.append(edge_var)
                 edges_var.append(edge_var)
 
@@ -1215,6 +1232,38 @@ class PolarizationGraph:
                 target_edge_variables.append(edge_var)
                 vertices_edge_variables[target] = target_edge_variables
 
+                # additional constraints for alpha > 0.5
+
+                if alpha > 0.5:
+                    aij_edge_var = pulp.LpVariable(
+                        f"a_{source}_{target}_{i}",
+                        lowBound=0,
+                        upBound=1,
+                    )
+
+                    model += (
+                        aij_edge_var
+                        >= -1
+                        + vertices_variables[source]
+                        + vertices_variables[target]
+                    )
+                    model += aij_edge_var <= vertices_variables[source]
+                    model += aij_edge_var <= vertices_variables[target]
+
+                    edges_negative_var, edges_var = thread_aij_edges_dict.get(
+                        thread, ([], [])
+                    )
+
+                    if weight < 0:
+                        edges_negative_var.append(aij_edge_var)
+                    edges_var.append(aij_edge_var)
+
+                    thread_aij_edges_dict[thread] = (
+                        edges_negative_var,
+                        edges_var,
+                    )
+                    aij_edge_variables.append(aij_edge_var)
+
         # add thread controversy constraints
         for k, edges_var_tuple in enumerate(thread_edges_dict.values()):
             edges_negative_var, edges_var = edges_var_tuple
@@ -1225,6 +1274,21 @@ class PolarizationGraph:
             edges_sum = pulp.lpSum(edges_var)
 
             model += neg_edges_sum - alpha * edges_sum <= 0
+
+        if alpha > 0.5:
+            for thread, edges_var_tuple in thread_aij_edges_dict.items():
+                edges_negative_var, edges_var = edges_var_tuple
+
+                # sum of variables associated to negative edges of a single thread
+                neg_edges_sum = pulp.lpSum(edges_negative_var)
+                # sum of variables associated to edges of a single thread
+                edges_sum = pulp.lpSum(edges_var)
+
+                N_k = len(edges_var) - len(edges_negative_var)
+                model += (
+                    neg_edges_sum - alpha * edges_sum
+                    >= -N_k * thread_k_vars[thread]
+                )
 
         # add constraint for setting to one only vertices where at least one
         # edge is at 1
