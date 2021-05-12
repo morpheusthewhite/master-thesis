@@ -323,6 +323,10 @@ class PolarizationGraph:
             contents = set(map(lambda thread: thread.content, self.threads))
         return len(contents)
 
+    def num_threads(self):
+        threads = set(map(lambda thread: thread.url, self.threads))
+        return len(threads)
+
     def negative_edges_fraction(self):
 
         # verify that a filter exists before cycling
@@ -555,7 +559,7 @@ class PolarizationGraph:
     def global_clustering(self):
         return gt.global_clustering(self.graph)
 
-    def average_degree(self, degree="total", unique=False) -> int:
+    def average_degree(self, degree="out", unique=False) -> int:
         """compute average degree. Consider only filtered nodes
 
         Args:
