@@ -1915,13 +1915,17 @@ class PolarizationGraph:
             # compute jaccard coefficient for the current classification
             subgraph_vertices_assignment = vertices_assignment[vertices]
 
+            # majority class in the returned vertices
             majority_class = np.bincount(subgraph_vertices_assignment).argmax()
 
+            # vertices that really belong to the majority class
             class_assignment = (vertices_assignment == majority_class).astype(
                 np.int32
             )
             class_prediction = np.zeros_like(class_assignment)
+            # set to one vertices that are returned
             class_prediction[vertices] = 1
+
             iteration_score = metrics.jaccard_score(
                 class_assignment, class_prediction
             )
