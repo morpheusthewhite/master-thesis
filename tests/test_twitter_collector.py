@@ -95,3 +95,8 @@ def test_twitter_shares():
 
         # all threads must have the same content
         assert thread_content == content
+
+
+def test_twitter_get_user_label():
+    label = twitter_collector.get_user_label("joebiden")
+    assert label == 0 or label == 1 or label == -1

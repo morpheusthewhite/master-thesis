@@ -8,6 +8,7 @@ from transformers import AutoTokenizer
 from scipy.special import softmax
 from sklearn import metrics
 
+from polarmine.collectors.twitter_collector import TwitterCollector
 from polarmine.comment import Comment
 from polarmine.thread import Thread
 from polarmine import densest
@@ -26,11 +27,15 @@ class PolarizationGraph:
 
         # definition of graph property maps
         # edge weights (calculated with sentiment analysis classifier)
+        self.screen_names = self.graph.new_vertex_property("string")
+        self.labels = self.graph.new_vertex_property("int")
         self.weights = self.graph.new_edge_property("double")
         self.times = self.graph.new_edge_property("double")
         self.threads = self.graph.new_edge_property("object")
 
         # make properties internal
+        self.graph.vertex_properties["screen_names"] = self.screen_names
+        self.graph.vertex_properties["labels"] = self.labels
         self.graph.edge_properties["weights"] = self.weights
         self.graph.edge_properties["times"] = self.times
         self.graph.edge_properties["threads"] = self.threads
@@ -175,6 +180,8 @@ class PolarizationGraph:
             # get the index and add it to the dictionary
             vertex_index = self.graph.vertex_index[vertex]
             self.users[user] = vertex_index
+            self.screen_names[vertex] = user
+            self.labels[vertex] = -1
         else:
             # retrieve the vertex object from the graph
             vertex = self.graph.vertex(vertex_index)
@@ -194,6 +201,8 @@ class PolarizationGraph:
 
         # load class attributes. Note: self.users is not initialized as it
         # not considered important
+        self.screen_names = self.graph.vertex_properties["screen_names"]
+        self.labels = self.graph.vertex_properties["labels"]
         self.weights = self.graph.edge_properties["weights"]
         self.times = self.graph.edge_properties["times"]
         self.threads = self.graph.edge_properties["threads"]
@@ -217,6 +226,20 @@ class PolarizationGraph:
             filename = filename + ".gt"
 
         self.graph.save(filename)
+
+    def remove_isolated(self):
+        vertex_filter = self.graph.new_vertex_property("bool")
+
+        degrees = self.graph.degree_property_map("total")
+        vertex_filter.a = degrees.a != 0
+
+        current_filter, _ = self.graph.get_vertex_filter()
+
+        if current_filter is not None:
+            vertex_filter.a = np.logical_and(current_filter.a, vertex_filter.a)
+
+        self.graph.set_vertex_filter(vertex_filter)
+        return
 
     def remove_self_loops(self):
         gt.remove_self_loops(self.graph)
@@ -1138,6 +1161,7 @@ class PolarizationGraph:
             return 0, [], [], 0
 
         model = pulp.LpProblem("echo-chamber-score", pulp.LpMaximize)
+        num_vertices = np.max(self.graph.get_vertices()) + 1
         vertices_variables = [
             pulp.LpVariable(
                 f"y_{index}",
@@ -1145,7 +1169,7 @@ class PolarizationGraph:
                 lowBound=variables_lb,
                 upBound=variables_ub,
             )
-            for index in self.graph.get_vertices()
+            for index in range(num_vertices)
         ]
 
         # thread: ([negative edges vars],[edges variables]) dictionary
@@ -1950,6 +1974,7 @@ class PolarizationGraph:
         vertices_predicted[:] = -1
 
         iterations_score = []
+        iterations_precision_score = []
         iterations_vertices = []
 
         for i in range(n_clusters):
@@ -1960,6 +1985,10 @@ class PolarizationGraph:
                 )
             else:
                 score, vertices, _, _ = self.score_mip(alpha)
+            # handle the case in which there are no vertices in the result,
+            # i.e. no echo chamber was found
+            if len(vertices) == 0:
+                break
 
             vertices_predicted[vertices] = i
 
@@ -1976,17 +2005,27 @@ class PolarizationGraph:
 
             # compute jaccard coefficient for the current classification
             subgraph_vertices_assignment = vertices_assignment[vertices]
+
+            # majority class in the returned vertices
             majority_class = np.bincount(subgraph_vertices_assignment).argmax()
 
+            # vertices that really belong to the majority class
             class_assignment = (vertices_assignment == majority_class).astype(
                 np.int32
             )
             class_prediction = np.zeros_like(class_assignment)
+            # set to one vertices that are returned
             class_prediction[vertices] = 1
+
             iteration_score = metrics.jaccard_score(
                 class_assignment, class_prediction
             )
             iterations_score.append(iteration_score)
+
+            iteration_precision_score = np.sum(
+                np.logical_and(class_prediction, class_assignment)
+            ) / np.sum(class_prediction)
+            iterations_precision_score.append(iteration_precision_score)
 
             iterations_vertices.append(vertices)
 
@@ -2014,8 +2053,34 @@ class PolarizationGraph:
             rand_score,
             jaccard_score,
             iterations_score,
+            iterations_precision_score,
             iterations_vertices,
         )
+
+    def labeled_vertices_fraction(self):
+        current_vertex_filter, _ = self.graph.get_vertex_filter()
+        is_labeled = self.labels.a != -1
+        if current_vertex_filter is not None:
+            n_labeled_vertices = np.sum(current_vertex_filter.a * is_labeled)
+            return n_labeled_vertices / np.sum(current_vertex_filter.a)
+        else:
+            return np.sum(is_labeled) / is_labeled.shape[0]
+
+    def label_distribution(self):
+        current_vertex_filter, _ = self.graph.get_vertex_filter()
+
+        selected_nodes_index = list(np.where(current_vertex_filter.a == 1)[0])
+        selected_nodes_label = self.labels.a[selected_nodes_index]
+
+        n_labels = np.max(selected_nodes_label) + 1
+        labels_count = np.empty((n_labels))
+
+        for label in range(n_labels):
+            label_count = np.sum(selected_nodes_label == label)
+            labels_count[label] = label_count
+
+        labels_count = labels_count / np.sum(labels_count)
+        return labels_count
 
     def clear_filters(self):
         self.graph.clear_filters()
@@ -2023,6 +2088,32 @@ class PolarizationGraph:
 
     def shuffle(self):
         pass
+
+    def label_nodes(self):
+        twitter = TwitterCollector()
+
+        for vertex in self.graph.vertices():
+            vertex_screen_name = self.screen_names[vertex]
+
+            label = twitter.get_user_label(vertex_screen_name)
+            self.labels[vertex] = label
+
+        return
+
+    def deselect_unlabeled(self):
+        vertex_filter = self.graph.new_vertex_property("bool")
+
+        for vertex in self.graph.vertices():
+            if self.labels[vertex] != -1:
+                vertex_filter[vertex] = 1
+
+        current_filter, _ = self.graph.get_vertex_filter()
+
+        if current_filter is not None:
+            vertex_filter.a = np.logical_and(current_filter.a, vertex_filter.a)
+
+        self.graph.set_vertex_filter(vertex_filter)
+        return
 
     @classmethod
     def from_model1(

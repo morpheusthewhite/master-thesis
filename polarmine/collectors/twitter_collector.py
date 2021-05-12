@@ -5,6 +5,9 @@ import tweepy
 import itertools
 import urllib
 import validators
+import wptools as wp
+import numpy as np
+import pycurl
 from typing import Optional, Iterator
 
 from polarmine.collectors.collector import Collector
@@ -15,6 +18,13 @@ from polarmine.tweepy import APIv2
 
 QUOTE_MIN_REPLIES = 1
 TWEET_MIN_REPLIES = 1
+
+# max number of following that are checked before labeling user
+MAX_FOLLOWINGS = 100
+
+UNLABELED = -1
+REPUBLICAN_LABEL = 0
+DEMOCRATIC_LABEL = 1
 
 
 class TwitterCollector(Collector):
@@ -34,6 +44,55 @@ class TwitterCollector(Collector):
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_key, access_secret)
         self.twitter = APIv2(auth, wait_on_rate_limit=True, retry_delay=10)
+
+    def get_user_label(self, screen_name: str):
+        friends = tweepy.Cursor(
+            self.twitter.friends,
+            screen_name=screen_name,
+            skip_status=True,
+            count=100,
+        )
+
+        # count the number of times someone who is followed belong to each of
+        # the party
+        label_counts = np.zeros((2))
+        try:
+            for friend in friends.items(MAX_FOLLOWINGS):
+                name = friend.name
+
+                found = False
+                while not found:
+                    try:
+                        page = wp.page(name, silent=True)
+                        infobox = page.get_parse().data["infobox"]
+                        found = True
+                    except LookupError:
+                        # the page does not exist
+                        infobox = None
+                        found = True
+                    except pycurl.error:
+                        # some connection error, try again
+                        pass
+
+                # there may be no infobox in the page
+                if infobox is None:
+                    continue
+
+                party = infobox.get("party", "")
+
+                if "Democratic" in party:
+                    label_counts[DEMOCRATIC_LABEL] += 1
+                elif "Republican" in party:
+                    label_counts[REPUBLICAN_LABEL] += 1
+
+        except tweepy.TweepError:
+            # raised if the user does not allow to view its followers
+            return -1
+
+        if label_counts[REPUBLICAN_LABEL] == label_counts[DEMOCRATIC_LABEL]:
+            return UNLABELED
+        else:
+            return np.argmax(label_counts)
 
     def __get_keys__(self):
         """Retrieve twitter keys from environment"""
@@ -184,7 +243,7 @@ class TwitterCollector(Collector):
         if root_data is not None:
             # use provided data
             discussion_tree.create_node(
-                tag=hash(status_author_name),
+                tag=status_author_name,
                 identifier=status_id,
                 data=root_data,
             )
@@ -193,7 +252,7 @@ class TwitterCollector(Collector):
             # the tag of the node is the author of the tweet
             # this branch is tipically taken by quote replies
             comment_text = status.full_text
-            comment_author = hash(status.author.screen_name)
+            comment_author = status.author.screen_name
             comment_time = status.created_at.timestamp()
             comment = Comment(comment_text, comment_author, comment_time)
             discussion_tree.create_node(
@@ -238,7 +297,7 @@ class TwitterCollector(Collector):
                     # the tag of the node is the author of the tweet
                     comment_id = s.id
                     comment_text = s.full_text
-                    comment_author = hash(s.author.screen_name)
+                    comment_author = s.author.screen_name
                     comment_time = s.created_at.timestamp()
                     comment = Comment(
                         comment_text, comment_author, comment_time
@@ -332,7 +391,7 @@ class TwitterCollector(Collector):
         thread_url = f"https://twitter.com/user/status/{status_id}"
         thread_text = status.full_text
         thread_time = status.created_at.timestamp()
-        thread_author = hash(status_author_name)
+        thread_author = status_author_name
         thread = Thread(
             thread_url,
             thread_text,
@@ -391,7 +450,7 @@ class TwitterCollector(Collector):
                     )
                     thread_share_text = status_share.full_text
                     thread_share_time = status_share.created_at.timestamp()
-                    thread_share_author = hash(status_share.author.screen_name)
+                    thread_share_author = status_share.author.screen_name
                     thread_share = Thread(
                         thread_share_url,
                         thread_share_text,

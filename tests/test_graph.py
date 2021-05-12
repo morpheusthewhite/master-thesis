@@ -66,3 +66,18 @@ def test_model_generation():
     )
 
     assert graph.num_vertices() == 30
+
+
+def test_labeled_selection():
+    contents = list(
+        twitter_collector.collect(1, keyword="nytimes", limit=10, cross=False)
+    )
+
+    graph = PolarizationGraph(contents)
+    assert graph is not None
+
+    graph.labels.a = np.empty_like(graph.labels.a, dtype=np.int32)
+    graph.labels.a = -1
+    graph.labels[0] = 1
+
+    assert graph.num_vertices() == 1
