@@ -777,7 +777,7 @@ class PolarizationGraph:
 
             if n_negative_edges / n_edges <= alpha:
                 # non controversial threads
-                score += n_edges
+                score += n_edges - 2 * n_negative_edges
                 nc_threads.append(thread)
 
         return score, nc_threads
