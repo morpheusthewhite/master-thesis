@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.stats import truncnorm
 
 from polarmine.graph import PolarizationGraph
 from lib_synthetic import evaluate_graph, print_results
@@ -8,23 +9,20 @@ from lib_synthetic import evaluate_graph, print_results
 OUTDIR = os.path.join("out", "synthetic")
 
 
+def add_noise(signal: np.array, noise_sign: np.array, std_dev: float):
+    # sample noise from truncated normal distribution
+    noise = truncnorm.rvs(a=0, b=1, scale=std_dev, size=noise_sign.shape)
+
+    noise = noise * noise_sign
+    noised_signal = signal + noise
+
+    return noised_signal
+
+
 def test_synthetic(results_outfile, iterations: int = 1):
 
-    n_nodes_list = []
-    n_threads_list = []
-    omega_positive_list = []
-    omega_negative_list = []
-    phi_list = []
-    theta_list = []
-    beta_a_list = []
-    beta_n_list = []
-
-    # -----------------------------------
-    # GRAPH 1
-    # -----------------------------------
-
     n_nodes = [20, 20, 20, 20]
-    omega_positive = np.array(
+    omega_positive_no_noise = np.array(
         [
             [1, 0, 0, 0],
             [0, 1, 0, 0],
@@ -32,7 +30,6 @@ def test_synthetic(results_outfile, iterations: int = 1):
             [0, 0, 0, 1],
         ]
     )
-    omega_negative = np.ones_like(omega_positive) - omega_positive
     phi = np.array(
         [
             [1, 0, 0, 0],
@@ -41,46 +38,41 @@ def test_synthetic(results_outfile, iterations: int = 1):
             [0, 0, 0, 1],
         ]
     )
-    n_nodes_list.append(n_nodes)
-    n_threads_list.append(2)
-    omega_positive_list.append(omega_positive)
-    omega_negative_list.append(omega_negative)
-    phi_list.append(phi)
-    theta_list.append(0.1)
-    beta_a_list.append(1)
-    beta_n_list.append(1)
 
-    i = 0
-    alpha = 0.2
+    # graph dimension parameters
+    n_threads = 3
+    n_members = 4
+
+    # activation parameters
+    theta = 0
+    beta_a = 1
+    beta_n = 1
 
     scores = np.empty((iterations,))
     rand_scores = np.empty((iterations,))
     adjusted_rand_scores = np.empty((iterations,))
     jaccard_scores = np.empty((iterations,))
 
-    for (
-        n_nodes,
-        n_threads,
-        omega_positive,
-        omega_negative,
-        phi,
-        theta,
-        beta_a,
-        beta_n,
-    ) in zip(
-        n_nodes_list,
-        n_threads_list,
-        omega_positive_list,
-        omega_negative_list,
-        phi_list,
-        theta_list,
-        beta_a_list,
-        beta_n_list,
-    ):
-        n_members = 4
+    i = 0
+    alpha = 0.2
 
-        n_communities = len(omega_negative)
-        n_nodes = [n_members] * n_communities
+    n_communities = len(omega_positive_no_noise)
+    n_nodes = [n_members] * n_communities
+
+    # noise standard deviations:
+    sigmas = [0, 0.1, 0.5, 1]
+    noise_sign = np.array(
+        [
+            [-1, 1, 1, 1],
+            [1, -1, 1, 1],
+            [1, 1, -1, 1],
+            [1, 1, 1, -1],
+        ]
+    )
+
+    for sigma in sigmas:
+        # generate and add noise to omega
+        omega_positive = add_noise(omega_positive_no_noise, noise_sign, sigma)
 
         omega_positive_pdf = os.path.join(
             OUTDIR, f"model2_omega_positive{i}_{n_members}.pdf"
@@ -89,6 +81,7 @@ def test_synthetic(results_outfile, iterations: int = 1):
         plt.savefig(omega_positive_pdf)
         plt.close()
 
+        omega_negative = np.ones_like(omega_positive) - omega_positive
         omega_negative_pdf = os.path.join(
             OUTDIR, f"model2_omega_negative{i}_{n_members}.pdf"
         )
