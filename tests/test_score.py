@@ -2,6 +2,7 @@ import os
 
 from polarmine.collectors.reddit_collector import RedditCollector
 from polarmine.graph import PolarizationGraph
+from polarmine.thread import Thread
 
 
 # folder containing the graph file
@@ -139,3 +140,28 @@ def test_graph_score_o2_bff():
 
     score, vertices = graph.o2_bff_dcs_am(alpha, 2)
     assert score > 0
+
+
+def test_graph_mip_score_artificial():
+    graph = PolarizationGraph([], [])
+
+    thread = Thread("a", None, None, None, "a")
+
+    e1 = graph.graph.add_edge(0, 1)
+    e2 = graph.graph.add_edge(0, 1)
+    graph.weights[e1] = +1
+    graph.weights[e2] = +1
+
+    e3 = graph.graph.add_edge(0, 2)
+    e4 = graph.graph.add_edge(0, 2)
+    graph.weights[e3] = -1
+    graph.weights[e4] = -1
+
+    graph.threads[e1] = thread
+    graph.threads[e2] = thread
+    graph.threads[e3] = thread
+    graph.threads[e4] = thread
+
+    score, vertices, _, _ = graph.score_mip(0.4, False)
+    assert score == 2
+    assert 0 in vertices and 1 in vertices

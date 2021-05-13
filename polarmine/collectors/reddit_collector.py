@@ -118,6 +118,7 @@ class RedditCollector(Collector):
             submissions.extend(submission.duplicates())
 
         discussion_trees = []
+        users_flair = {}
 
         # iterate over original submission and (eventually) crossposts
         for s in submissions:
@@ -152,6 +153,8 @@ class RedditCollector(Collector):
                 tag=author_hash, identifier=s_id, data=thread
             )
 
+            users_flair[author_hash] = s.author_flair_text
+
             # iterate over comments to the submission
             for comment in comment_forest.list():
 
@@ -170,6 +173,8 @@ class RedditCollector(Collector):
                     comment.body, author_hash, comment.created_utc
                 )
 
+                users_flair[author_hash] = comment.author_flair_text
+
                 discussion_tree.create_node(
                     tag=author_hash,
                     identifier=id_,
@@ -179,7 +184,7 @@ class RedditCollector(Collector):
 
             discussion_trees.append(discussion_tree)
 
-        return discussion_trees
+        return users_flair, discussion_trees
 
     def collect(
         self,
@@ -211,18 +216,25 @@ class RedditCollector(Collector):
         """
         contents_id = self.__find_contents_id__(ncontents, keyword, page)
         discussion_trees = iter([])
+        users_flair_aggregated = {}
 
         for i, content_id in enumerate(contents_id):
             submission = self.reddit.submission(content_id)
 
-            content_discussion_trees = self.__submission_to_discussion_trees__(
+            (
+                users_flair,
+                content_discussion_trees,
+            ) = self.__submission_to_discussion_trees__(
                 submission, keyword, limit, cross
             )
             discussion_trees = itertools.chain(
                 discussion_trees, content_discussion_trees
             )
 
+            for user, flair in users_flair.items():
+                users_flair_aggregated[user] = flair
+
             if i + 1 >= ncontents:
                 break
 
-        return discussion_trees
+        return users_flair_aggregated, discussion_trees
