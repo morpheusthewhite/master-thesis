@@ -13,6 +13,7 @@ def evaluate_graph(
     alpha: float,
     n_communities: int,
     communities: list[int],
+    approximation: bool = True,
 ):
 
     start = time.time()
@@ -24,7 +25,9 @@ def evaluate_graph(
         jaccard_score,
         iterations_score,
         _,
-    ) = graph.clustering_accuracy(communities, n_communities, alpha)
+    ) = graph.clustering_accuracy(
+        communities, n_communities, alpha, approximation
+    )
     end = time.time()
 
     return (
