@@ -1334,7 +1334,7 @@ class PolarizationGraph:
                 edges.append(edge)
 
         nc_threads = []
-        for i, thread_variable in enumerate(thread_k_vars.values()):
+        for thread, thread_variable in thread_k_vars.items():
 
             thread_value = pulp.value(thread_variable)
             if relaxation:
@@ -1342,7 +1342,7 @@ class PolarizationGraph:
                 # instead of indices of non-zero threads
                 nc_threads.append(thread_value)
             elif thread_value == 1:
-                nc_threads.append(i)
+                nc_threads.append(thread)
 
         return score, users, edges, nc_threads
 
