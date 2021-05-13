@@ -39,7 +39,7 @@ def test_synthetic(results_outfile):
     )
 
     # graph dimension parameters
-    n_threads = 3
+    n_threads = 2
     n_members = 4
 
     # activation parameters
@@ -138,12 +138,16 @@ def test_synthetic(results_outfile):
     sigmas_adj_rand_pdf = os.path.join(OUTDIR, f"model2_sigmas_adj_rand.pdf")
     plt.figure()
     plt.plot(sigmas, sigmas_adj_rand_score)
+    plt.xlabel(r"$\sigma$")
+    plt.ylabel("Adjusted RAND")
     plt.savefig(sigmas_adj_rand_pdf)
     plt.close()
 
     sigmas_jaccard_pdf = os.path.join(OUTDIR, f"model2_sigmas_jaccard.pdf")
     plt.figure()
     plt.plot(sigmas, sigmas_jaccard_score)
+    plt.xlabel(r"$\sigma$")
+    plt.ylabel("Jaccard")
     plt.savefig(sigmas_jaccard_pdf)
     plt.close()
 
