@@ -1959,7 +1959,7 @@ class PolarizationGraph:
                     vertices, alpha
                 )
             else:
-                score, vertices, _, _ = self.score_mip(alpha)
+                score, vertices, _, nc_threads = self.score_mip(alpha)
 
             vertices_predicted[vertices] = i
 
