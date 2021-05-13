@@ -1961,7 +1961,11 @@ class PolarizationGraph:
             else:
                 score, vertices, _, nc_threads = self.score_mip(alpha)
 
-            vertices_predicted[vertices] = i
+            # compute jaccard coefficient for the current classification
+            subgraph_vertices_assignment = vertices_assignment[vertices]
+            majority_class = np.bincount(subgraph_vertices_assignment).argmax()
+
+            vertices_predicted[vertices] = majority_class
 
             induced_edges_property = self.is_induced_edge(
                 set(vertices), set(nc_threads)
@@ -1973,10 +1977,6 @@ class PolarizationGraph:
                 current_edge_filter.a, np.logical_not(induced_edges_property.a)
             )
             self.graph.set_edge_filter(current_edge_filter)
-
-            # compute jaccard coefficient for the current classification
-            subgraph_vertices_assignment = vertices_assignment[vertices]
-            majority_class = np.bincount(subgraph_vertices_assignment).argmax()
 
             class_assignment = (vertices_assignment == majority_class).astype(
                 np.int32
@@ -2009,6 +2009,7 @@ class PolarizationGraph:
         jaccard_score = metrics.jaccard_score(
             vertices_assignment, vertices_predicted, average="micro"
         )
+
         return (
             adjusted_rand_score,
             rand_score,
