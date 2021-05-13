@@ -21,7 +21,6 @@ def add_noise(signal: np.array, noise_sign: np.array, std_dev: float):
 
 def test_synthetic(results_outfile, iterations: int = 1):
 
-    n_nodes = [20, 20, 20, 20]
     omega_positive_no_noise = np.array(
         [
             [1, 0, 0, 0],
@@ -70,28 +69,28 @@ def test_synthetic(results_outfile, iterations: int = 1):
         ]
     )
 
+    sigmas_adj_rand_score = []
+    sigmas_jaccard_score = []
+
     for sigma in sigmas:
         # generate and add noise to omega
         omega_positive = add_noise(omega_positive_no_noise, noise_sign, sigma)
 
         omega_positive_pdf = os.path.join(
-            OUTDIR, f"model2_omega_positive{i}_{n_members}.pdf"
+            OUTDIR, f"model2_omega_positive{i}.pdf"
         )
+        plt.figure()
         plt.matshow(omega_positive / np.max(omega_positive))
         plt.savefig(omega_positive_pdf)
         plt.close()
 
         omega_negative = np.ones_like(omega_positive) - omega_positive
         omega_negative_pdf = os.path.join(
-            OUTDIR, f"model2_omega_negative{i}_{n_members}.pdf"
+            OUTDIR, f"model2_omega_negative{i}.pdf"
         )
+        plt.figure()
         plt.matshow(omega_negative / np.max(omega_negative))
         plt.savefig(omega_negative_pdf)
-        plt.close()
-
-        phi_pdf = os.path.join(OUTDIR, f"model2_phi{i}_{n_members}.pdf")
-        plt.matshow(phi / np.max(phi))
-        plt.savefig(phi_pdf)
         plt.close()
 
         for k in range(iterations):
@@ -126,11 +125,9 @@ def test_synthetic(results_outfile, iterations: int = 1):
             adjusted_rand_scores[k] = adjusted_rand_score
             jaccard_scores[k] = jaccard_score
 
-        outfile = os.path.join(OUTDIR, f"model2_graph{i}_{n_members}.pdf")
+        outfile = os.path.join(OUTDIR, f"model2_graph{i}.pdf")
         graph.draw(output=outfile, communities=communities)
-        plotfilename = os.path.join(
-            OUTDIR, f"model1_scores{i}_{n_members}.pdf"
-        )
+        plotfilename = os.path.join(OUTDIR, f"model1_scores{i}.pdf")
 
         print_results(
             graph,
@@ -146,7 +143,22 @@ def test_synthetic(results_outfile, iterations: int = 1):
             plotfilename,
         )
 
+        sigmas_adj_rand_score.append(np.average(adjusted_rand_scores))
+        sigmas_jaccard_score.append(np.average(jaccard_scores))
+
         i += 1
+
+    sigmas_adj_rand_pdf = os.path.join(OUTDIR, f"model2_sigmas_adj_rand.pdf")
+    plt.figure()
+    plt.plot(sigmas, sigmas_adj_rand_score)
+    plt.savefig(sigmas_adj_rand_pdf)
+    plt.close()
+
+    sigmas_jaccard_pdf = os.path.join(OUTDIR, f"model2_sigmas_jaccard.pdf")
+    plt.figure()
+    plt.plot(sigmas, sigmas_jaccard_score)
+    plt.savefig(sigmas_jaccard_pdf)
+    plt.close()
 
 
 if __name__ == "__main__":
