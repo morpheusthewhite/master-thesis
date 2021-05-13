@@ -19,7 +19,7 @@ def add_noise(signal: np.array, noise_sign: np.array, std_dev: float):
     return noised_signal
 
 
-def test_synthetic(results_outfile, iterations: int = 1):
+def test_synthetic(results_outfile):
 
     omega_positive_no_noise = np.array(
         [
@@ -47,12 +47,7 @@ def test_synthetic(results_outfile, iterations: int = 1):
     beta_a = 1
     beta_n = 1
 
-    scores = np.empty((iterations,))
-    rand_scores = np.empty((iterations,))
-    adjusted_rand_scores = np.empty((iterations,))
-    jaccard_scores = np.empty((iterations,))
-
-    i = 0
+    # controversy parameter
     alpha = 0.2
 
     n_communities = len(omega_positive_no_noise)
@@ -77,7 +72,7 @@ def test_synthetic(results_outfile, iterations: int = 1):
         omega_positive = add_noise(omega_positive_no_noise, noise_sign, sigma)
 
         omega_positive_pdf = os.path.join(
-            OUTDIR, f"model2_omega_positive{i}.pdf"
+            OUTDIR, f"model2_omega_positive_sigma_{sigma}.pdf"
         )
         plt.figure()
         plt.matshow(omega_positive / np.max(omega_positive))
@@ -86,67 +81,59 @@ def test_synthetic(results_outfile, iterations: int = 1):
 
         omega_negative = np.ones_like(omega_positive) - omega_positive
         omega_negative_pdf = os.path.join(
-            OUTDIR, f"model2_omega_negative{i}.pdf"
+            OUTDIR, f"model2_omega_negative_sigma_{sigma}.pdf"
         )
         plt.figure()
         plt.matshow(omega_negative / np.max(omega_negative))
         plt.savefig(omega_negative_pdf)
         plt.close()
 
-        for k in range(iterations):
-            # generate a graph
-            graph = PolarizationGraph.from_model2(
-                n_nodes,
-                n_threads,
-                phi,
-                omega_positive,
-                omega_negative,
-                theta,
-                beta_a,
-                beta_n,
-            )
-            # create the array encoding the communities from the number of
-            # nodes.
-            communities = []
-            for j, n_group_nodes in enumerate(n_nodes):
-                communities += [j] * n_group_nodes
+        # generate a graph
+        graph = PolarizationGraph.from_model2(
+            n_nodes,
+            n_threads,
+            phi,
+            omega_positive,
+            omega_negative,
+            theta,
+            beta_a,
+            beta_n,
+        )
+        # create the array encoding the communities from the number of
+        # nodes.
+        communities = []
+        for j, n_group_nodes in enumerate(n_nodes):
+            communities += [j] * n_group_nodes
 
-            (
-                score,
-                rand_score,
-                adjusted_rand_score,
-                jaccard_score,
-                iterations_score,
-                duration,
-            ) = evaluate_graph(graph, alpha, n_communities, communities, False)
+        (
+            score,
+            rand_score,
+            adjusted_rand_score,
+            jaccard_score,
+            iterations_score,
+            duration,
+        ) = evaluate_graph(graph, alpha, n_communities, communities, False)
 
-            scores[k] = score
-            rand_scores[k] = rand_score
-            adjusted_rand_scores[k] = adjusted_rand_score
-            jaccard_scores[k] = jaccard_score
-
-        outfile = os.path.join(OUTDIR, f"model2_graph{i}.pdf")
+        outfile = os.path.join(OUTDIR, f"model2_graph_sigma_{sigma}.pdf")
         graph.draw(output=outfile, communities=communities)
-        plotfilename = os.path.join(OUTDIR, f"model1_scores{i}.pdf")
+        plotfilename = os.path.join(OUTDIR, f"model1_scores_sigma_{sigma}.pdf")
 
         print_results(
             graph,
             omega_positive,
             omega_negative,
-            scores,
+            score,
             duration,
-            rand_scores,
-            adjusted_rand_scores,
-            jaccard_scores,
+            rand_score,
+            adjusted_rand_score,
+            jaccard_score,
             iterations_score,
             results_outfile,
             plotfilename,
         )
 
-        sigmas_adj_rand_score.append(np.average(adjusted_rand_scores))
-        sigmas_jaccard_score.append(np.average(jaccard_scores))
-
-        i += 1
+        sigmas_adj_rand_score.append(adjusted_rand_score)
+        sigmas_jaccard_score.append(jaccard_score)
 
     sigmas_adj_rand_pdf = os.path.join(OUTDIR, f"model2_sigmas_adj_rand.pdf")
     plt.figure()
@@ -172,6 +159,6 @@ if __name__ == "__main__":
 
     outfile = open(os.path.join(OUTDIR, "results3.txt"), "w")
 
-    test_synthetic(outfile, 2)
+    test_synthetic(outfile)
 
     outfile.close()
