@@ -8,3 +8,5 @@ boost-cpp
 graph-tool
 matplotlib
 pulp
+numpy
+scipy
