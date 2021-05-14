@@ -1,16 +1,108 @@
 \chapter{Methods}
 \label{ch:methods}
 
-\section{The Interaction Graph}
-\label{sec:dataCollection}
+This chapter focuses on describing the main topic of the
+research: the problems are motivated and defined in
+\autoref{sec:the_echo_chamber_problem}, and their complexity is then analyzed
+in \autoref{sec:problem_complexity_and_approximability}, while proposing some
+alternative problem definitions. Algorithms and models for solving and
+approximating the problems are then proposed in
+\autoref{sec:solving_the_problem}; the definition of a generative model
+concludes the chapter (\autoref{sec:generative_model}).
+
+\section{The \acrlong{ECP}}%
+\label{sec:the_echo_chamber_problem}
+
+This section starts by outlining the graph on which the analysis is carried
+out (\autoref{sub:interaction-graph}), the process for building it
+(\autoref{sub:collection_and_preprocessing}) and finally defines the
+\acrlong{ECP} and the \acrlong{D-ECP} (\autoref{sub:the_problem_definition} and
+\autoref{sub:the_densest_echo_chamber_problem}).
+
+\subsection{The Interaction Graph}
+\label{sub:interaction-graph}
+
+The \emph{Interaction Graph} $G$ is the graph which encodes the informations
+regarding the interactions between the users.
+
+In this graph each users is associated to a vertex $v \in V$ and each edge to
+an interaction between the $2$ corresponding users it links. For this reason we
+will sometime refer to vertices as users in the rest of the document.
+
+$G = (V, E^{+}, E^{-})  $ is a
+signed and weighted graph, the weights being in the interval $[-1, +1]$,
+corresponding to positive and negative interactions, meaning that for smaller
+the value of the weight the interaction will more "negative".
+
+The \emph{Interaction Graph} is also directed, so that an edge from vertex $v_{i}
+$ to vertex $v_{j} $ corresponds to a reply from user $v_{i} $ to $v_{j} $.
+
+Let a content $C$ be any kind of resource that triggers a discussion in one or
+more threads $T$. The set of threads associated to $C$ is denoted as
+$\mathcal{T}_{C} $. A content is usually represented by a newspaper article and
+it is identified by its url, e.g.
+
+	{\footnotesize
+		\begin{center}
+			\url{https://www.nytimes.com/2021/03/04/us/richard-barnett-pelosi-tantrum.html}
+		\end{center}
+	}
+
+A corresponding thread may then be, for example, a user posting and commenting
+the same url on its Twitter account (see \autoref{fig:twitter-thread}), thus
+generating a discussion.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.6\linewidth]{tex/img/twitter_thread.png}
+	\caption{An thread associated to the mentioned New York Times article}%
+	\label{fig:twitter-thread}
+\end{figure}
+
+The \emph{Interaction Graph} is a \emph{multiplex graph}, each layer being
+represented by a thread $T$ whose edges are the interactions happening in it.
+Note also that for this reason each of the layers can contain more than one
+edge between $2$ users, as each pair of users can reply to each other more than
+once.
+
+We will also use $\mathcal{C} $ for denoting the set of contents We will assume that $G = \bigcup _{C \in \mathcal{} } $
+
+An example of \emph{Interaction Graph} can be seen in
+\autoref{fig:interaction-graph-example}.
+
+\begin{figure}
+	\begin{center}
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\tikzfig{tex/tikz/graph_thread1}
+			\caption{$T_{1} \in \mathcal{T}_{C_{1}} $}
+			\label{fig:tex/tikz/graph_thread1.tikz}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\tikzfig{tex/tikz/graph_thread2}
+			\caption{$T_{2} \in \mathcal{T}_{C_{1}} $}
+			\label{fig:tex/tikz/graph_thread2.tikz}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\tikzfig{tex/tikz/graph_thread3}
+			\caption{$T_{3} \in \mathcal{T}_{C_{2}} $}
+			\label{fig:tex/tikz/graph_thread3.tikz}
+		\end{subfigure}
+	\end{center}
+	\caption{An example of \emph{Interaction Graph}, green and red edges
+		representing positive and negative interactions, respectively. It
+		contains $3$ threads and $2$ contents, the first $2$ layers each being
+		associated to a thread of content $C_{1} $, the last layer to a thread
+		of content $C_{2} $}
+	\label{fig:interaction-graph-example}
+\end{figure}
 
 \subsection{Collection and preprocessing}%
 \label{sub:collection_and_preprocessing}
 
 % todo: data collection process and compliance with current legislation
-
-\section{The Echo Chamber Problem}%
-\label{sec:the_echo_chamber_problem}
 
 \subsection{The problem definition}%
 \label{sub:the_problem_definition}
