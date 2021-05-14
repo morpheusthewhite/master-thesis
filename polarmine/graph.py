@@ -22,7 +22,9 @@ class PolarizationGraph:
 
     """A graph class providing methods for polarization analysis """
 
-    def __init__(self, discussion_trees: list[treelib.Tree]):
+    def __init__(
+        self, discussion_trees: list[treelib.Tree], close_triangles: True
+    ):
         self.graph = gt.Graph()
 
         # definition of graph property maps
@@ -76,6 +78,10 @@ class PolarizationGraph:
                 # children of the current node
                 children = discussion_tree.children(node_identifier)
 
+                if close_triangles:
+                    children_sign = []
+                    children_vertex = []
+
                 for child in children:
                     comment = child.data
                     comment_author = child.tag
@@ -84,10 +90,36 @@ class PolarizationGraph:
                     comment_vertex = self.get_user_vertex(comment_author)
 
                     # and add the edge
-                    self.add_edge(comment_vertex, node_vertex, comment, thread)
+                    edge_weight = self.add_edge(
+                        comment_vertex, node_vertex, comment, thread
+                    )
 
                     # equeue this child
                     queue.append(child)
+
+                    if close_triangles:
+                        children_vertex.append(comment_vertex)
+
+                        edge_sign = -1 if edge_weight < 0 else +1
+                        children_sign.append(edge_sign)
+
+                if close_triangles:
+                    for i, child_i in enumerate(children):
+                        for j, _ in enumerate(children):
+                            if i < j:
+                                triangle_edge_sign = (
+                                    children_sign[i] * children_sign[j]
+                                )
+
+                                # edge added for completing the triangles
+                                triangle_edge = self.graph.add_edge(
+                                    children_vertex[i], children_vertex[j]
+                                )
+
+                                self.weights[
+                                    triangle_edge
+                                ] = triangle_edge_sign
+                                self.threads[triangle_edge] = thread
 
         self.self_loop_mask = self.graph.new_edge_property("bool")
         self.self_loop_mask.a = (
@@ -144,6 +176,8 @@ class PolarizationGraph:
         self.weights[edge] = sentiment_score
         self.times[edge] = comment.time
         self.threads[edge] = thread
+
+        return sentiment_score
 
     def sentiment_weight(self, text):
 
