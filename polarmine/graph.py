@@ -2020,7 +2020,8 @@ class PolarizationGraph:
                     vertices, alpha
                 )
             else:
-                score, vertices, _, _ = self.score_mip(alpha)
+                score, vertices, _, nc_threads = self.score_mip(alpha)
+
             # handle the case in which there are no vertices in the result,
             # i.e. no echo chamber was found
             if len(vertices) == 0:
