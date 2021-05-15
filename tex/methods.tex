@@ -65,7 +65,7 @@ Note also that for this reason each of the layers can contain more than one
 edge between $2$ users, as each pair of users can reply to each other more than
 once.
 
-We will also use $\mathcal{C} $ for denoting the set of contents We will assume that $G = \bigcup _{C \in \mathcal{} } $
+We will also use $\mathcal{C} $ for denoting the set of contents.
 
 An example of \emph{Interaction Graph} can be seen in
 \autoref{fig:interaction-graph-example}.
@@ -153,6 +153,57 @@ ones) while no data is publicly available.
 
 \subsection{The problem definition}%
 \label{sub:the_problem_definition}
+
+The main goal of the research is finding echo chambers in social medias, more
+specifically on the \emph{Interaction Graph} as defined in
+\autoref{sub:interaction-graph}.
+
+Our definition is based on the idea that echo chambers can be identified by
+looking at contents which is generally highly debated (we will call
+this type of content \emph{controversial}) but which is discussed with little
+or no animosity in small subgraphs. This subgraphs are the \emph{Echo
+	Chambers}.
+
+\bigskip
+
+Given an \emph{Interaction Graph} $G = (V, E^{+}, E^{-})$ on some contents
+$\mathcal{C} $ and threads, let $\eta(T)$ the number of negative edges over the
+total number of edges in the layer associated to thread $T$. Similarly,
+let $\eta(C)$ be the fraction of negative edges in all threads associated to
+content $C$.
+
+Let $\alpha \in [0,1]$. A thread (or content) is \emph{controversial} if
+$\eta(T) \geq \alpha$ (or, similarly, $\eta(C) \geq \alpha $). Conversely a
+thread (or content) is \emph{non-controversial} if $\eta(T) < \alpha$ ($\eta(C) <
+	\alpha$). Intutively, \emph{controversial} threads contain many negative
+interactions. We denote as $\hat{\mathcal{C} } \subseteq \mathcal{C} $ the
+set of \emph{controversial} contents.
+
+\medskip
+
+\emph{Echo Chambers} correspond to \emph{non-controversial} smaller subgraphs
+(i.e. with few negative edges) discussing a
+\emph{controversial} content.
+
+More formally, let $T[U]$ the subgraph induced in the layer associated to
+thread $T$ by the vertices $U$; let $|T^{+} [U]|$ and $|T^{-} [U]|$ its number
+of positive and negative edges, respectively.
+
+We define $\mathcal{S}_C (U)$ as the set of \emph{non-controversial} threads
+induced by $U$, for \textit{controversial} contents, i.e.
+	{\small
+		\begin{equation}
+			\mathcal{S} _{C} (U) = \{ T[U] \; s.t. \; T[U] \; non \;
+			controversial, T \in \mathcal{T} _{C}, C
+			\in \hat{\mathcal{C}}, U \subseteq V\}
+		\end{equation}
+	}
+
+Thus $\mathcal{S} _C (U)$ will contain threads which are \emph{globally} non
+controversial but it is defined only for contents that are \emph{globally}
+controversial.
+
+\medskip
 
 \subsection{The Densest Echo Chamber Problem}%
 \label{sub:the_densest_echo_chamber_problem}
