@@ -141,6 +141,8 @@ class TwitterCollector(Collector):
             except urllib.error.URLError:
                 # certificate errors, may happen when the url is quite strange
                 return iter([])
+            except ConnectionResetError:
+                return iter([])
 
             url_parsed = urllib.parse.urlparse(url_redirected)
 
