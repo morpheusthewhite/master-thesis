@@ -223,10 +223,10 @@ We know define the Echo Chamber Score of a set of vertices $U$.
 
 We can now define the \acrfull{ECP}.
 
-\begin{definition}[\acrlong{ECP}]
-	Given an \emph{Interaction Graph} $G$ and $\alpha \in [0, 1]$ find a set of vertices $U \subseteq
-		V$ maximizing the Echo Chamber Score (\autoref{eq:echo-chamber-score}).
-\end{definition}
+\begin{problem}[\acrlong{ECP}]
+Given an \emph{Interaction Graph} $G$ and $\alpha \in [0, 1]$ find a set of vertices $U \subseteq
+	V$ maximizing the Echo Chamber Score (\autoref{eq:echo-chamber-score}).
+\end{problem}
 
 We will denote with $\hat{U}$ the set of users maximizing
 \autoref{eq:echo-chamber-score} and with $\xi(G)$ its corresponding score, i.e.
@@ -238,6 +238,30 @@ We will denote with $\hat{U}$ the set of users maximizing
 
 \subsection{The Densest Echo Chamber Problem}%
 \label{sub:the_densest_echo_chamber_problem}
+
+The \acrshort{ECP} doesn't take into account the number of users producing a
+certain score; this means that the set $U$ may involve disconnected and sparse
+subgraphs, depending on the structure of the graph $G$.
+
+For this reason it is interesting also to study another variant of the
+\acrshort{ECP}, the \acrlong{D-ECP}, which we now define.
+
+\begin{definition}[Echo Chamber Score]
+	Let $U \subseteq V$ be a subset of vertices. Its Densest Echo Chamber Score is
+
+	\begin{equation}
+		\label{eq:densest-echo-chamber-score}
+		\xi(U) = \sum^{}_{\mathcal{C} \in \mathcal{\hat{C}}} \sum^{}_{T[U] \in
+		\mathcal{S} _{C} (U)} \frac{(|T^{+} [U]| - |T ^{-} [U]|)}{|U|}
+	\end{equation}
+\end{definition}
+
+Similarly to the \acrshort{ECP} we can now define the corresponding problem
+
+\begin{problem}[\acrlong{D-ECP}]
+Given an \emph{Interaction Graph} $G$ and $\alpha \in [0, 1]$ find a set of vertices $U \subseteq
+	V$ maximizing the Densest Echo Chamber Score (\autoref{eq:densest-echo-chamber-score}).
+\end{problem}
 
 \section{Problems complexity and approximability}%
 \label{sec:problem_complexity_and_approximability}
