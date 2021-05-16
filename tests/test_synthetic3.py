@@ -40,7 +40,7 @@ def test_synthetic(results_outfile):
 
     # graph dimension parameters
     n_threads = 2
-    n_members = 4
+    n_members = 6
 
     # activation parameters
     theta = 0
@@ -54,7 +54,7 @@ def test_synthetic(results_outfile):
     n_nodes = [n_members] * n_communities
 
     # noise standard deviations:
-    sigmas = [0, 0.1, 0.5, 1]
+    sigmas = np.arange(0, 1.1, 0.1)
     noise_sign = np.array(
         [
             [-1, 1, 1, 1],
@@ -131,6 +131,7 @@ def test_synthetic(results_outfile):
             results_outfile,
             plotfilename,
         )
+        results_outfile.flush()
 
         sigmas_adj_rand_score.append(adjusted_rand_score)
         sigmas_jaccard_score.append(jaccard_score)
