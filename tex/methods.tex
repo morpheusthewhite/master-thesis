@@ -172,10 +172,14 @@ total number of edges in the layer associated to thread $T$. Similarly,
 let $\eta(C)$ be the fraction of negative edges in all threads associated to
 content $C$.
 
-Let $\alpha \in [0,1]$. A thread (or content) is \emph{controversial} if
-$\eta(T) \geq \alpha$ (or, similarly, $\eta(C) \geq \alpha $). Conversely a
-thread (or content) is \emph{non-controversial} if $\eta(T) < \alpha$ ($\eta(C) <
-	\alpha$). Intutively, \emph{controversial} threads contain many negative
+\begin{definition}[Controversial thread]
+	Let $\alpha \in [0,1]$. A thread (or content) is \emph{controversial} if
+	$\eta(T) \geq \alpha$ (or, similarly, $\eta(C) \geq \alpha $). Conversely, a
+	thread (or content) is \emph{non-controversial} if $\eta(T) < \alpha$ ($\eta(C) <
+		\alpha$).
+\end{definition}
+
+Intutively, \emph{controversial} threads contain many negative
 interactions. We denote as $\hat{\mathcal{C} } \subseteq \mathcal{C} $ the
 set of \emph{controversial} contents.
 
@@ -204,6 +208,33 @@ controversial but it is defined only for contents that are \emph{globally}
 controversial.
 
 \medskip
+
+We know define the Echo Chamber Score of a set of vertices $U$.
+
+\begin{definition}[Echo Chamber Score]
+	Let $U \subseteq V$ be a subset of vertices. Its Echo Chamber Score is
+
+	\begin{equation}
+		\label{eq:echo-chamber-score}
+		\xi(U) = \sum^{}_{\mathcal{C} \in \mathcal{\hat{C}}} \sum^{}_{T[U] \in
+		\mathcal{S} _{C} (U)} (|T^{+} [U]| - |T ^{-} [U]|)
+	\end{equation}
+\end{definition}
+
+We can now define the \acrfull{ECP}.
+
+\begin{definition}[\acrlong{ECP}]
+	Given an \emph{Interaction Graph} $G$ and $\alpha \in [0, 1]$ find a set of vertices $U \subseteq
+		V$ maximizing the Echo Chamber Score (\autoref{eq:echo-chamber-score}).
+\end{definition}
+
+We will denote with $\hat{U}$ the set of users maximizing
+\autoref{eq:echo-chamber-score} and with $\xi(G)$ its corresponding score, i.e.
+
+\begin{align*}
+	\hat{U} & \coloneqq \argmax_{U \subseteq V} \xi(U) & \xi(G) & \coloneqq
+	\xi(\hat{U})
+\end{align*}
 
 \subsection{The Densest Echo Chamber Problem}%
 \label{sub:the_densest_echo_chamber_problem}
