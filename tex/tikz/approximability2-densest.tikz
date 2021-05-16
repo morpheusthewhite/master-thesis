@@ -1,0 +1,27 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=node] (0) at (-3, -0.75) {$v_{2}$};
+		\node [style=node] (1) at (-1.25, 2.5) {$v_{1}$};
+		\node [style=node] (2) at (1.5, -2.5) {$v_{3}$};
+		\node [style=node] (3) at (3, 1.5) {$v_x$};
+		\node [style=node] (4) at (0, 0) {$v_{r}$};
+		\node [style=none] (5) at (1.5, 0.75) {$\vdots$};
+		\node [style=none] (6) at (-1, -2.5) {$\vdots$};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=oriented positive, bend left=15] (4) to (1);
+		\draw [style=oriented positive, bend right=15] (4) to (2);
+		\draw [style=oriented positive, bend left=15] (4) to (0);
+		\draw [style=oriented negative] (0) to (2);
+		\draw [style=oriented negative, bend right=60, looseness=1.75] (4) to (3);
+		\draw [style=oriented negative, bend left=60, looseness=1.75] (4) to (3);
+		\draw [style=oriented negative, bend right=60, looseness=2.00] (0) to (2);
+		\draw [style=oriented positive, bend right=15] (4) to (1);
+		\draw [style=oriented positive, bend right=15] (4) to (0);
+		\draw [style=oriented positive, bend left=15] (4) to (2);
+		\draw [style=oriented positive, bend right=15, looseness=1.25] (1) to (0);
+		\draw [style=oriented positive, bend left=15] (1) to (0);
+		\draw [style=oriented positive, bend left=75, looseness=2.25] (1) to (2);
+		\draw [style=oriented positive, bend left=90, looseness=2.50] (1) to (2);
+	\end{pgfonlayer}
+\end{tikzpicture}
