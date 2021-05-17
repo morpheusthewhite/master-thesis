@@ -23,7 +23,9 @@ class PolarizationGraph:
     """A graph class providing methods for polarization analysis """
 
     def __init__(
-        self, discussion_trees: list[treelib.Tree], close_triangles: True
+        self,
+        discussion_trees: list[treelib.Tree],
+        close_triangles: bool = True,
     ):
         self.graph = gt.Graph()
 
