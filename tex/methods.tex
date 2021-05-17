@@ -569,8 +569,123 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 \section{Solving the problem}%
 \label{sec:solving_the_problem}
 
+Now we present some techniques for calculating exactly and approximating both
+the \acrshort{ECP} and the \acrshort{D-ECP}.
+
 \subsection{A MIP model for the \acrshort{ECP}}%
 \label{sub:a_mip_model_for_the_ecp}
+
+Let $G$ be our \emph{Interaction Graph} for contents $\mathcal{C} $,
+controversial contents $\mathcal{\hat{C}} \subseteq \mathcal{C} $ and
+threads $T \in \mathcal{T}_{C}, \; C \in \mathcal{C} $. Let $E^{+}(T) $
+and $E^{-}(T ) $ be the set of positive and negative edges of thread $T$,
+respectively, and $E(T)$ the set of all the edges of thread $T$. Fix $\alpha \in [0, 1]$.
+
+The following \acrshort{MIP} model is able to solve the \acrshort{ECP} on $G$
+for values of $\alpha \leq 0.5$ \footnotemark.
+
+\footnotetext{In this solution one of the definition has been changed:
+	for the solution a thread $T$ is \emph{non-controversial} if $\eta(T) \leq \alpha
+	$. The original case needs only a modification of the RHS of
+	\autoref{eq:ecp-alpha-constraint1}}
+
+\begin{equation}
+	\label{eq:ecp-exact1}
+	\text{maximize} \; \sum_{ T_{k} \in \mathcal{T}_{C}, \; C \in
+		\mathcal{\hat{C}} } \big( \sum^{}_{ij \in E^{+} (T_{k})} x_{ij}
+		^{k} - \sum_{ij \in E^{-} (T_{k})} x_{ij} ^{k} \big)
+\end{equation} \begin{center} subject to \end{center}
+\begin{gather}
+	\label{eq:ecp-v1}
+	x _{ij}^{k}  \leq y_i \quad\quad \forall ij \in E(T_{k}), T_{k} \in
+	\mathcal{T}_{C}, C \in \mathcal{\hat{C}} \\
+	\label{eq:ecp-v2}
+	x _{ij}^{k}  \leq y_j \quad\quad \forall ij \in E(T_{k}), T_{k} \in
+	\mathcal{T}_{C}, C \in \mathcal{\hat{C}} \\
+	\label{eq:ecp-t1}
+	x _{ij}^{k}  \leq z_k \quad\quad \forall ij \in E(T_{k}), T_{k} \in
+	\mathcal{T}_{C}, C \in \mathcal{\hat{C}} \\
+	\label{eq:ecp-e1}
+	x _{ij} ^{k} \geq - 2 + y_i + y_j + z_k \quad\quad \forall ij \in E(T_k), T_k \in \mathcal{T} _{C}, C \in \hat{\mathcal{C} }
+\end{gather}
+\begin{equation}
+	\label{eq:ecp-alpha-constraint1}
+	\sum^{}_{ij \in E^{-} (T_k)} x_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
+	x_{ij} ^{k}  \leq 0 \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+	\hat{\mathcal{C}}
+\end{equation}
+\begin{gather}
+	\label{eq:ecp-vertex-def1}
+	y _{i} \in  \{0, 1\} \quad\quad \forall i \in V \\
+	\label{eq:ecp-edge-def1}
+	0 \leq x _{ij} ^{k}  \leq 1 \quad\quad \forall ij \in E(T_{k}), T_{k} \in
+	\mathcal{T}_{C}, C \in \mathcal{\hat{C}} \\
+	\label{eq:ecp-thread-def1}
+	0 \leq z _{k} \leq 1 \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+	\hat{\mathcal{C}}
+\end{gather}
+
+The \acrshort{MIP} model introduces variables $x$, $y$ and $z$.
+\begin{itemize}
+	\item $y$ variables are associated to vertices
+	      (\autoref{eq:ecp-vertex-def1}). Intutively $y_i = 1$ means that the
+	      vertex $v_{i} $ is part of the set $U \subseteq V$ considered for the
+	      score. Let $U \coloneqq \{ v_{i} \; s.t. \; y_{i} = 1, \;
+		      v_{i} \in V \}$.
+	\item $x$ variables are associated to edges (\autoref{eq:ecp-edge-def1}).
+	      A value of $x_{ij}^{k} = 1$ should be interpreted as the fact that
+	      the edge $e_{ij} $ of thread $T_{k} $ is contributing to the score,
+	      i.e. $T_k \in \mathcal{S}_{C} (U)$.
+	\item $z$ variables are associated to threads
+	      (\autoref{eq:ecp-thread-def1}). A value of $1$ in this case
+	      is associated to \emph{non-controversial} threads.
+\end{itemize}
+
+Let us consider Equations \ref{eq:ecp-v1}-\ref{eq:ecp-t1}. Due to them an
+edge $e_{ij}  $ of thread $T_{k} $ implies that
+both vertices $v_{i} $ and $v_{j} $ are in $U$ and the thread is not controversial.
+
+Viceversa \autoref{eq:ecp-e1} makes sure that, if both the incident vertices
+are in $U$ and $z_{k} = 1$, then the edge contributes to the score.
+
+Let us now consider a thread $T_k \in \mathcal{S}_{C} $.
+
+Due to \autoref{eq:ecp-t1} and \autoref{eq:ecp-e1} all and only the edges
+induced by $U$ have value $z_{k} $, i.e. $x_{ij}^{k} = z_k \; \forall v_{i}, v_{j}
+	\in U$.
+
+These variables will contribute to the objective function by
+
+\begin{multline}
+	\label{eq:ecp-thread-contribution}
+	\sum^{}_{ij \in E^{+} (T_{k})} x_{ij} ^{k} - \sum_{ij \in E^{-} (T_{k})}
+	x_{ij} ^{k} = \sum^{}_{ij \in E^{+} (T_{k})} z_k - \sum_{ij \in E^{-} (T_{k})}
+	z_k = \\
+	z_k (|E^{+} (T_{k})| - |E^{-} (T_{k})|)
+\end{multline}
+
+Let's suppose $T_k$ \emph{non-controversial}. Then by definition we have
+$\eta(T_k) \leq \alpha $ and so
+
+\begin{align}
+	\eta(T_k)                                                 & \leq \alpha                                    \\
+	\frac{|E^{-} (T_{k})|}{|E^{-} (T_{k})| + |E^{+} (T_{k})|} & \leq \alpha                                    \\
+	{|E^{-} (T_{k})|}                                         & \leq \alpha(|E^{-} (T_{k})| + |E^{+} (T_{k})|) \\
+	\alpha {|E^{+} (T_{k})|}                                  & \geq (1 -
+	\alpha ) |E^{-} (T_{k})|                                                                                   \\
+	\frac{{|E^{+} (T_{k})|}}{|E^{-} (T_{k})|}
+	                                                          & \geq \frac{(1 -
+		\alpha )}{\alpha } \geq 1
+\end{align}
+
+Where the last inequality holds since $\alpha \in [0, 0.5]$. So $|E^{+} (T_{k})| \geq
+	|E^{-} (T_{k})|$. Thus the contribution of the thread will be maximized by
+choosing $z_k = 1$ (\autoref{eq:ecp-thread-contribution}).
+\autoref{eq:ecp-alpha-constraint1} can be easily seen to be satisfied since the
+thread is \emph{non-controversial}.
+
+Let us now suppose that $T_k \not\in \mathcal{S}_{C}(U)  $ . In this case setting $z_k$ to a value
+different from $0$ will break constraint~\ref{eq:ecp-alpha-constraint1}.
 
 \subsection{A MIP model for the \acrshort{D-ECP}}%
 \label{sub:a_mip_model_for_the_ecp}
