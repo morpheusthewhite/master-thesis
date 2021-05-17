@@ -358,23 +358,28 @@ class TwitterCollector(Collector):
                 self.twitter.search, q=query, tweet_mode="extended"
             )
 
-            for quote_reply in cursor_quote.items():
-                # exclude quote replies which also reply to some tweet to
-                # prevent having duplicates (which would be detected among the
-                # normal replies of the root tweet). This is a rare case, yet
-                # some fancy guys like doing it.  This is an extreme solution,
-                # in fact it would suffice to check that the current tweet
-                # replies to another tweet which has not beed already fetched
-                # nor it will be
-                if quote_reply.in_reply_to_status_id is None:
-                    # quote replies can be handled as normal status since their
-                    # text is the reply (without including the quote)
-                    discussion_subtree = self.__status_to_discussion_tree__(
-                        quote_reply, limit=limit
-                    )
+            try:
+                for quote_reply in cursor_quote.items():
+                    # exclude quote replies which also reply to some tweet to
+                    # prevent having duplicates (which would be detected among the
+                    # normal replies of the root tweet). This is a rare case, yet
+                    # some fancy guys like doing it.  This is an extreme solution,
+                    # in fact it would suffice to check that the current tweet
+                    # replies to another tweet which has not beed already fetched
+                    # nor it will be
+                    if quote_reply.in_reply_to_status_id is None:
+                        # quote replies can be handled as normal status since their
+                        # text is the reply (without including the quote)
+                        discussion_subtree = (
+                            self.__status_to_discussion_tree__(
+                                quote_reply, limit=limit
+                            )
+                        )
 
-                    # add subthread as children of the root
-                    thread.paste(status_id, discussion_subtree)
+                        # add subthread as children of the root
+                        thread.paste(status_id, discussion_subtree)
+            except tweepy.TweepError:
+                pass
 
             if exclude_share is None or content not in exclude_share:
                 if exclude_share is not None:
