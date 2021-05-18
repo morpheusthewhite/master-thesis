@@ -17,6 +17,12 @@ MODEL = "cardiffnlp/twitter-roberta-base-sentiment"
 VERTEX_SIZE_SHOW = 50
 
 
+CLUSTERING_APPROXIMATION = "appr"
+CLUSTERING_EXACT = "exact"
+CLUSTERING_NC_SUBGRAPH = "densest_nc_subgraph"
+CLUSTERING_02_BFF = "densest_nc_subgraph"
+
+
 class PolarizationGraph:
 
     """A graph class providing methods for polarization analysis """
@@ -1642,6 +1648,7 @@ class PolarizationGraph:
         # edges of the G_d graph
         edges = []
 
+        vertex_i = -1
         for vertex_i in self.graph.vertices():
             i = int(vertex_i)
 
@@ -1926,7 +1933,11 @@ class PolarizationGraph:
             source, target = tuple(edge)
             thread = self.threads[edge].url
 
-            if source in vertices and target in vertices and thread in threads:
+            if (
+                source in vertices
+                and target in vertices
+                and (len(threads) == 0 or thread in threads)
+            ):
                 is_induced_property[edge] = True
 
         return is_induced_property
@@ -1936,7 +1947,7 @@ class PolarizationGraph:
         vertices_assignment: list[int],
         n_clusters: int,
         alpha: float,
-        approximation: bool = True,
+        method: str = CLUSTERING_APPROXIMATION,
     ):
         current_edge_filter, _ = self.graph.get_edge_filter()
         if current_edge_filter is None:
@@ -1952,14 +1963,27 @@ class PolarizationGraph:
         iterations_score = []
         iterations_vertices = []
 
+        num_threads = self.num_threads()
+
         for i in range(n_clusters):
-            if approximation:
+            if CLUSTERING_APPROXIMATION:
                 score, vertices, _ = self.score_relaxation_algorithm(alpha)
                 score, nc_threads = self.score_from_vertices_index(
                     vertices, alpha
                 )
+            elif CLUSTERING_NC_SUBGRAPH:
+                _, vertices = self.score_densest_nc_subgraph(alpha, False)
+                nc_threads = []
+            elif CLUSTERING_02_BFF:
+                _, vertices = self.o2_bff_dcs_am(
+                    alpha, np.ceil(num_threads / 2)
+                )
+                nc_threads = []
             else:
                 score, vertices, _, nc_threads = self.score_mip(alpha)
+
+            if len(vertices) == 0:
+                break
 
             # compute jaccard coefficient for the current classification
             subgraph_vertices_assignment = vertices_assignment[vertices]
@@ -1974,7 +1998,8 @@ class PolarizationGraph:
             # exclude induced vertices, i.e. keep edges that are not induced
             # and unfilter previously
             current_edge_filter.a = np.logical_and(
-                current_edge_filter.a, np.logical_not(induced_edges_property.a)
+                current_edge_filter.a,
+                np.logical_not(induced_edges_property.a),
             )
             self.graph.set_edge_filter(current_edge_filter)
 
