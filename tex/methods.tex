@@ -285,8 +285,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 
 	\bigskip
 	Let $G_{1}  = (V_{1} ,E_{1} )$ be an undirected and unweighted graph and
-	$\lambda \geq \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N}$ and
-	$n_{1} \coloneqq |V_{1}| $.
+	$\lambda > \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N} $ and $n_{1} \coloneqq |V_{1}| $.
 	We construct the \emph{Interaction Graph} ${G}_{2}  = (V_{2} , E^{+}_{2} , E
 			^{-}_{2} ) $ as follows
 
@@ -340,9 +339,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 		\begin{align}
 			\eta(C) = \frac{m_{2}^{-} }{m_{2}^{-} +
 				m_{2}^{+} } \geq \frac{\lambda n_{1}}{\lambda n_{1}
-				+ n_{1} } = \frac{\lambda }{\lambda + 1} =
-			\frac{ \frac{\alpha }{1 - \alpha }  }{ \frac{\alpha }{1 - \alpha }
-				+ 1 } \geq \alpha
+				+ n_{1} } = \frac{\lambda }{\lambda + 1} > \alpha
 		\end{align}
 	\end{proof}
 
@@ -380,7 +377,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 
 		\begin{equation}
 			\eta(T[S]) \geq \frac{\lambda n_1}{\lambda n_1 + |S-1|} \geq \frac{\lambda n_1}{\lambda n_1 + n_1} = \frac{\lambda
-			}{\lambda + 1} \geq \alpha
+			}{\lambda + 1} > \alpha
 		\end{equation}
 
 		This means that $T[S]$ is controversial $\implies \xi(S) = 0
@@ -421,8 +418,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 
 	\bigskip
 	Let $G_{1}  = (V_{1} ,E_{1} )$ be an undirected and unweighted graph and
-	$\lambda \geq \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N}$ and
-	$n_{1} \coloneqq |V_{1}| $.
+	$\lambda > \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N} $ and $n_{1} \coloneqq |V_{1}| $.
 	We construct the \emph{interaction} graph ${G}_{2}  = (V_{2} , E^{+}_{2} , E
 			^{-}_{2} ) $ as follows
 
@@ -479,9 +475,8 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 		\begin{align}
 			\eta(C) = \frac{m_{2}^{-} }{m_{2}^{-} +
 				m_{2}^{+} } \geq \frac{\lambda n_{1} ^{2} }{\lambda n_{1}^{2}
-				+ n_{1}^{2}  } = \frac{\lambda }{\lambda + 1} =
-			\frac{ \frac{\alpha }{1 - \alpha }  }{ \frac{\alpha }{1 - \alpha }
-				+ 1 } \geq \alpha
+				+ n_{1}^{2}  } = \frac{\lambda }{\lambda + 1}
+			> \alpha
 		\end{align}
 	\end{proof}
 
@@ -539,7 +534,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 		\begin{equation}
 			\eta(T[S]) \geq \frac{\lambda (n_1+1)^2}{\lambda (n_1+1)^2 + n(n+1)} \geq
 			\frac{\lambda (n_1+1)^{2} }{\lambda (n_1+1)^2 + (n_1+1)^2} = \frac{\lambda }{\lambda +
-				1} \geq \alpha
+				1} > \alpha
 		\end{equation}
 
 		This means that $T[S]$ is controversial $\implies \psi(S) = 0
