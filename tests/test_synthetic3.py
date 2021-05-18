@@ -4,7 +4,14 @@ import matplotlib.pyplot as plt
 from scipy.stats import truncnorm
 
 from polarmine.graph import PolarizationGraph
-from lib_synthetic import evaluate_graph, print_results
+from lib_synthetic import (
+    evaluate_graph,
+    print_results,
+    CLUSTERING_EXACT,
+    CLUSTERING_02_BFF,
+    CLUSTERING_APPROXIMATION,
+    CLUSTERING_NC_SUBGRAPH,
+)
 
 OUTDIR = os.path.join("out", "synthetic")
 
@@ -112,7 +119,9 @@ def test_synthetic(results_outfile):
             jaccard_score,
             iterations_score,
             duration,
-        ) = evaluate_graph(graph, alpha, n_communities, communities, False)
+        ) = evaluate_graph(
+            graph, alpha, n_communities, communities, CLUSTERING_02_BFF
+        )
 
         outfile = os.path.join(OUTDIR, f"model2_graph_sigma_{sigma}.pdf")
         graph.draw(output=outfile, communities=communities)

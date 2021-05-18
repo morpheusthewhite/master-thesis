@@ -3,7 +3,13 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import (
+    PolarizationGraph,
+    CLUSTERING_EXACT,
+    CLUSTERING_02_BFF,
+    CLUSTERING_APPROXIMATION,
+    CLUSTERING_NC_SUBGRAPH,
+)
 
 OUTDIR = os.path.join("out", "synthetic")
 
@@ -13,7 +19,7 @@ def evaluate_graph(
     alpha: float,
     n_communities: int,
     communities: list[int],
-    approximation: bool = True,
+    method: str = CLUSTERING_APPROXIMATION,
 ):
 
     start = time.time()
@@ -25,9 +31,7 @@ def evaluate_graph(
         jaccard_score,
         iterations_score,
         _,
-    ) = graph.clustering_accuracy(
-        communities, n_communities, alpha, approximation
-    )
+    ) = graph.clustering_accuracy(communities, n_communities, alpha, method)
     end = time.time()
 
     return (
