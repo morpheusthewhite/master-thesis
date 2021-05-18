@@ -174,9 +174,9 @@ content $C$.
 
 \begin{definition}[Controversial thread]
 	Let $\alpha \in [0,1]$. A thread (or content) is \emph{controversial} if
-	$\eta(T) \geq \alpha$ (or, similarly, $\eta(C) \geq \alpha $). Conversely, a
-	thread (or content) is \emph{non-controversial} if $\eta(T) < \alpha$ ($\eta(C) <
-		\alpha$).
+	$\eta(T) > \alpha$ (or, similarly, $\eta(C) > \alpha $). Conversely, a
+	thread (or content) is \emph{non-controversial} if $\eta(T) \leq \alpha$
+	($\eta(C) \leq \alpha$).
 \end{definition}
 
 Intutively, \emph{controversial} threads contain many negative
@@ -582,12 +582,12 @@ and $E^{-}(T ) $ be the set of positive and negative edges of thread $T$,
 respectively, and $E(T)$ the set of all the edges of thread $T$. Fix $\alpha \in [0, 1]$.
 
 The following \acrshort{MIP} model is able to solve the \acrshort{ECP} on $G$
-for values of $\alpha \leq 0.5$ \footnotemark.
-
-\footnotetext{In this solution one of the definition has been changed:
-	for the solution a thread $T$ is \emph{non-controversial} if $\eta(T) \leq \alpha
-	$. The original case needs only a modification of the RHS of
-	\autoref{eq:ecp-alpha-constraint1}}
+for values of $\alpha \leq 0.5$.
+%
+% \footnotetext{In this solution one of the definition has been changed:
+%     for the solution a thread $T$ is \emph{non-controversial} if $\eta(T) \leq \alpha
+%     $. The original case needs only a modification of the RHS of
+%     \autoref{eq:ecp-alpha-constraint1}}
 
 \begin{equation}
 	\label{eq:ecp-exact1}
