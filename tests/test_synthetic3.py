@@ -116,7 +116,9 @@ def test_synthetic(results_outfile):
             OUTDIR, f"model2_graph_noise_{noise_value}.pdf"
         )
         graph.draw(output=outfile_graph, communities=communities)
-        plotfilename = os.path.join(OUTDIR, f"model1_scores_noise_{noise}.pdf")
+        plotfilename = os.path.join(
+            OUTDIR, f"model1_scores_noise_{noise_value}.pdf"
+        )
 
         print_results(
             graph,
