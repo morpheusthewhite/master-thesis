@@ -1533,6 +1533,30 @@ class PolarizationGraph:
         if score == 0:
             return score, users, nc_threads
 
+        def score_from_components(
+            components_decomposition: np.array, num_components: int
+        ):
+            max_score = -1
+            max_score_vertices = []
+            max_n_nc_threads = 0
+
+            for i in range(num_components):
+                components_vertices = np.where(
+                    components_decomposition.a == i
+                )[0]
+
+                if components_vertices.shape[0] > 1:
+                    score, nc_threads = self.score_from_vertices_index(
+                        components_vertices, alpha
+                    )
+
+                    if score > max_score:
+                        max_score = score
+                        max_score_vertices = components_vertices
+                        max_n_nc_threads = len(nc_threads)
+
+            return max_score, max_score_vertices, max_n_nc_threads
+
         users = [user if user is not None else -1 for user in users]
 
         edges_np = np.array(edges)
@@ -1549,12 +1573,37 @@ class PolarizationGraph:
         vertices = set()
         vertices_size = 0
 
+        # graph used for detecting connected components
+        components_graph = gt.Graph(directed=False)
+        components_graph.add_edge_list(edges_np[:, :2])
+        components_graph.set_fast_edge_removal(True)
+
+        old_num_components = -1
+
         for edge in edges_sorted:
             source = edge[0]
             target = edge[1]
 
             vertices.add(int(source))
             vertices.add(int(target))
+
+            components_graph.add_edge(source, target)
+
+            components, _ = gt.label_components(components_graph)
+            num_components = np.max(components.a) + 1
+
+            if num_components != old_num_components:
+                old_num_components = num_components
+                (
+                    score,
+                    vertices_components,
+                    n_nc_threads,
+                ) = score_from_components(components, num_components)
+
+                if score > score_max:
+                    score_max = score
+                    score_max_vertices = vertices_components
+                    score_max_n_nc_threads = n_nc_threads
 
             if len(vertices) != vertices_size:
                 score, nc_threads = self.score_from_vertices_index(
