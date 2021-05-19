@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import truncnorm
 
 from polarmine.graph import PolarizationGraph
 from lib_synthetic import (
@@ -37,7 +36,6 @@ def test_synthetic(results_outfile):
 
     # graph dimension parameters
     n_threads = 2
-    n_members = 6
 
     # activation parameters
     theta = 0
@@ -47,8 +45,10 @@ def test_synthetic(results_outfile):
     # controversy parameter
     alpha = 0.2
 
+    #  n_members = 6
     n_communities = len(omega_positive_no_noise)
-    n_nodes = [n_members] * n_communities
+    #  n_nodes = [n_members] * n_communities
+    n_nodes = [7, 6, 5, 4]
 
     # noise standard deviations:
     noise_values = np.arange(0, 1.1, 0.1)
@@ -72,19 +72,17 @@ def test_synthetic(results_outfile):
         omega_positive_pdf = os.path.join(
             OUTDIR, f"model2_omega_positive_noise_{noise_value}.pdf"
         )
-        plt.figure()
-        plt.matshow(omega_positive / np.max(omega_positive))
+        plt.matshow(omega_positive / np.max(omega_positive), fignum=0)
         plt.savefig(omega_positive_pdf)
-        plt.close()
+        plt.clf()
 
         omega_negative = np.ones_like(omega_positive) - omega_positive
         omega_negative_pdf = os.path.join(
             OUTDIR, f"model2_omega_negative_noise_{noise_value}.pdf"
         )
-        plt.figure()
-        plt.matshow(omega_negative / np.max(omega_negative))
+        plt.matshow(omega_negative / np.max(omega_negative), fignum=0)
         plt.savefig(omega_negative_pdf)
-        plt.close()
+        plt.clf()
 
         # generate a graph
         graph = PolarizationGraph.from_model2(
@@ -139,20 +137,18 @@ def test_synthetic(results_outfile):
         noise_jaccard_score.append(jaccard_score)
 
     noise_adj_rand_pdf = os.path.join(OUTDIR, "model2_noise_adj_rand.pdf")
-    plt.figure()
     plt.plot(noise_values, noise_adj_rand_score)
     plt.xlabel("noise")
     plt.ylabel("Adjusted RAND")
     plt.savefig(noise_adj_rand_pdf)
-    plt.close()
+    plt.clf()
 
     noise_jaccard_pdf = os.path.join(OUTDIR, "model2_noise_jaccard.pdf")
-    plt.figure()
     plt.plot(noise_values, noise_jaccard_score)
     plt.xlabel("noise")
     plt.ylabel("Jaccard")
     plt.savefig(noise_jaccard_pdf)
-    plt.close()
+    plt.clf()
 
 
 if __name__ == "__main__":

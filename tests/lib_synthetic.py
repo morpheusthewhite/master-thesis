@@ -82,9 +82,9 @@ def print_results(
     )
 
     # plot scores along iterations
-    plt.figure()
     plt.plot(iterations_score)
     plt.savefig(plotfilename)
+    plt.clf()
 
     print("-" * 30, file=outfile)
 
