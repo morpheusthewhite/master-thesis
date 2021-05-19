@@ -16,16 +16,6 @@ from lib_synthetic import (
 OUTDIR = os.path.join("out", "synthetic")
 
 
-def add_noise(signal: np.array, noise_sign: np.array, std_dev: float):
-    # sample noise from truncated normal distribution
-    noise = truncnorm.rvs(a=0, b=1, scale=std_dev, size=noise_sign.shape)
-
-    noise = noise * noise_sign
-    noised_signal = signal + noise
-
-    return noised_signal
-
-
 def test_synthetic(results_outfile):
 
     omega_positive_no_noise = np.array(
@@ -61,7 +51,7 @@ def test_synthetic(results_outfile):
     n_nodes = [n_members] * n_communities
 
     # noise standard deviations:
-    sigmas = np.arange(0, 1.1, 0.1)
+    noise_values = np.arange(0, 1.1, 0.1)
     noise_sign = np.array(
         [
             [-1, 1, 1, 1],
@@ -71,15 +61,16 @@ def test_synthetic(results_outfile):
         ]
     )
 
-    sigmas_adj_rand_score = []
-    sigmas_jaccard_score = []
+    noise_adj_rand_score = []
+    noise_jaccard_score = []
 
-    for sigma in sigmas:
+    for noise_value in noise_values:
         # generate and add noise to omega
-        omega_positive = add_noise(omega_positive_no_noise, noise_sign, sigma)
+        noise = noise_value * noise_sign
+        omega_positive = omega_positive_no_noise + noise
 
         omega_positive_pdf = os.path.join(
-            OUTDIR, f"model2_omega_positive_sigma_{sigma}.pdf"
+            OUTDIR, f"model2_omega_positive_noise_{noise_value}.pdf"
         )
         plt.figure()
         plt.matshow(omega_positive / np.max(omega_positive))
@@ -88,7 +79,7 @@ def test_synthetic(results_outfile):
 
         omega_negative = np.ones_like(omega_positive) - omega_positive
         omega_negative_pdf = os.path.join(
-            OUTDIR, f"model2_omega_negative_sigma_{sigma}.pdf"
+            OUTDIR, f"model2_omega_negative_noise_{noise_value}.pdf"
         )
         plt.figure()
         plt.matshow(omega_negative / np.max(omega_negative))
@@ -123,9 +114,9 @@ def test_synthetic(results_outfile):
             graph, alpha, n_communities, communities, CLUSTERING_02_BFF
         )
 
-        outfile = os.path.join(OUTDIR, f"model2_graph_sigma_{sigma}.pdf")
-        graph.draw(output=outfile, communities=communities)
-        plotfilename = os.path.join(OUTDIR, f"model1_scores_sigma_{sigma}.pdf")
+        outfile_graph = os.path.join(OUTDIR, f"model2_graph_noise_{noise}.pdf")
+        graph.draw(output=outfile_graph, communities=communities)
+        plotfilename = os.path.join(OUTDIR, f"model1_scores_noise_{noise}.pdf")
 
         print_results(
             graph,
@@ -142,23 +133,23 @@ def test_synthetic(results_outfile):
         )
         results_outfile.flush()
 
-        sigmas_adj_rand_score.append(adjusted_rand_score)
-        sigmas_jaccard_score.append(jaccard_score)
+        noise_adj_rand_score.append(adjusted_rand_score)
+        noise_jaccard_score.append(jaccard_score)
 
-    sigmas_adj_rand_pdf = os.path.join(OUTDIR, f"model2_sigmas_adj_rand.pdf")
+    noise_adj_rand_pdf = os.path.join(OUTDIR, "model2_noise_adj_rand.pdf")
     plt.figure()
-    plt.plot(sigmas, sigmas_adj_rand_score)
-    plt.xlabel(r"$\sigma$")
+    plt.plot(noise_values, noise_adj_rand_score)
+    plt.xlabel("noise")
     plt.ylabel("Adjusted RAND")
-    plt.savefig(sigmas_adj_rand_pdf)
+    plt.savefig(noise_adj_rand_pdf)
     plt.close()
 
-    sigmas_jaccard_pdf = os.path.join(OUTDIR, f"model2_sigmas_jaccard.pdf")
+    noise_jaccard_pdf = os.path.join(OUTDIR, "model2_noise_jaccard.pdf")
     plt.figure()
-    plt.plot(sigmas, sigmas_jaccard_score)
-    plt.xlabel(r"$\sigma$")
+    plt.plot(noise_values, noise_jaccard_score)
+    plt.xlabel("noise")
     plt.ylabel("Jaccard")
-    plt.savefig(sigmas_jaccard_pdf)
+    plt.savefig(noise_jaccard_pdf)
     plt.close()
 
 
