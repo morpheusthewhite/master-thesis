@@ -35,11 +35,13 @@ class PolarizationGraph:
         self.weights = self.graph.new_edge_property("double")
         self.times = self.graph.new_edge_property("double")
         self.threads = self.graph.new_edge_property("object")
+        self.comments = self.graph.new_edge_property("string")
 
         # make properties internal
         self.graph.edge_properties["weights"] = self.weights
         self.graph.edge_properties["times"] = self.times
         self.graph.edge_properties["threads"] = self.threads
+        self.graph.edge_properties["comments"] = self.comments
 
         # initialization of sentiment analysis classifier
         self.sentiment_tokenizer = AutoTokenizer.from_pretrained(
@@ -145,6 +147,7 @@ class PolarizationGraph:
         self.weights[edge] = sentiment_score
         self.times[edge] = comment.time
         self.threads[edge] = thread
+        self.comments[edge] = comment.text
 
     def sentiment_weight(self, text):
 
@@ -203,6 +206,7 @@ class PolarizationGraph:
         self.weights = self.graph.edge_properties["weights"]
         self.times = self.graph.edge_properties["times"]
         self.threads = self.graph.edge_properties["threads"]
+        self.comments = self.graph.edge_properties["comments"]
 
         # compute self-loop mask
         self.self_loop_mask = self.graph.new_edge_property("bool")
