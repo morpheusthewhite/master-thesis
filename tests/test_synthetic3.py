@@ -114,7 +114,9 @@ def test_synthetic(results_outfile):
             graph, alpha, n_communities, communities, CLUSTERING_02_BFF
         )
 
-        outfile_graph = os.path.join(OUTDIR, f"model2_graph_noise_{noise}.pdf")
+        outfile_graph = os.path.join(
+            OUTDIR, f"model2_graph_noise_{noise_value}.pdf"
+        )
         graph.draw(output=outfile_graph, communities=communities)
         plotfilename = os.path.join(OUTDIR, f"model1_scores_noise_{noise}.pdf")
 
