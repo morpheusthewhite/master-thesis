@@ -670,6 +670,47 @@ thread is \emph{non-controversial}.
 Let us now suppose that $T_k \not\in \mathcal{S}_{C}(U)  $ . In this case setting $z_k$ to a value
 different from $0$ will violate constraint~\ref{eq:ecp-alpha-constraint1}.
 
+\bigskip
+
+Let us now consider $\alpha \in (0.5, 1]$. With the current formulation if, for
+a thread $T_k$, we have that $0.5 < \eta(T_k) \leq \alpha $ then the model will
+prefer a solution in which all the edges $e_{ij} \in E_k$ are set to $0$, which
+still satisfies all the constraints, even if the induced subgraph in the thread
+is \emph{non-controversial} (and so contributes to the score and $x_{ij}^{k}  $
+need to be set to 1). For this reason we need to introduce to the previous
+problem the following constraints
+
+\begin{gather}
+	\label{eq:ecp-a-alpha-constraint}
+	\sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
+	a_{ij} ^{k} \geq - N_{k} z_{k}  \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+	\hat{\mathcal{C}} \\
+	\label{eq:ecp-a-ij-g-i-j}
+	a_{ij}^{k} \geq -1 + y_i + y_j \quad\quad \forall ij \in E_k \\
+	\label{eq:ecp-a-ij-l-i}
+	a_{ij}^{k} \leq y_i\quad\quad \forall ij \in E_k \\
+	\label{eq:ecp-a-ij-l-j}
+	a_{ij}^{k} \leq y_j \quad\quad \forall ij \in E_k \\
+	\label{eq:ecp-a-domain-2}
+	0 \leq a_{ij}^{k} \leq 1 \quad\quad \forall ij \in E_k \\
+	\label{eq:ecp-z-domain-2}
+	0 \leq z _{k} \in  \{0, 1\} \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+	\hat{\mathcal{C}}
+\end{gather}
+
+Where \autoref{eq:ecp-z-domain-2} replaces \autoref{eq:ecp-thread-def1} and
+$N_k \coloneqq \alpha |E^{+}_k| $ is a positive constant (its value correspond
+to the minimum possible value achievable by the LHS to make the constraint as
+tight as possible).
+
+Variables $a_{ij}^{k}  $, associated to edges, are set to $1$ iff the
+corresponding vertices are in $U$
+(Equations~\ref{eq:ecp-a-ij-g-i-j}-\ref{eq:ecp-a-ij-l-j}). Consequently, if the
+subgraph induced is not controversial then by definition the LHS of
+\autoref{eq:ecp-a-alpha-constraint} will be smaller than $0$, forcing $z_k$ to
+be 1, thus bounding the corresponding $x_{ij} ^{k} $ to be $1$ due to
+\autoref{eq:ecp-e1}.
+
 
 \subsection{A MIP model for the \acrshort{D-ECP}}%
 \label{sub:a_mip_model_for_the_ecp}
