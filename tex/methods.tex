@@ -812,6 +812,39 @@ The result is clearly dependant on the choice of the initial node: the process
 should be repeated for different initial nodes; also, a variant
 of the algorithm prefers starting from the vertices with the highest fraction of positive edges.
 
+One of the limitations of this approach is that the algorithm will only find
+sets of users that are connected in the original graph.
+
+\subsubsection{Peeling algorithm}%
+\label{ssub:peeling_algorithm}
+
+Inspired to the greedy algorithm proposed in \cite{charikar2000greedy}, this
+algorithms starts by considering as set of $U = V$, all the vertices,
+iteratively removing the worst nodes (\autoref{alg:algorithm_peeling})
+
+\begin{algorithm}
+	\SetAlgoLined
+	% \KwResult{Write here the result }
+	$U = V$\;
+	$S = \textsc{Score}_{\xi}(U)$ \;
+	\While{$U \neq \emptyset$ }{
+		$v = \arg\max_{v_{j} \in U }
+			\textsc{Score}_{\xi} (U \setminus \{ v_{j} \})$ \;
+		$U \leftarrow U \setminus \{ v \}$ \;
+
+		$S = \max(S, \textsc{Score}_{\xi} (U)) $ \;
+	}
+	\Return $S$ \;
+
+	\caption{Peeling algorithm}
+	\label{alg:algorithm_peeling}
+\end{algorithm}
+
+In the case in some iterations the algorithm is unable to choose due to the
+fact that one or more nodes produce the same score, then one of them is
+randomly selected (or, alternatevily, the one which has the highest fraction of
+negative edges).
+
 \subsection{Solvable variants of the problem}%
 \label{sub:solvable_variants_of_the_problem}
 
