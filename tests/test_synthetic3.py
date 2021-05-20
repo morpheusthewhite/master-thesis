@@ -15,7 +15,7 @@ from lib_synthetic import (
 OUTDIR = os.path.join("out", "synthetic")
 
 
-def test_synthetic(results_outfile):
+def test_synthetic(results_outfile, n_iterations: int = 5):
 
     omega_positive_no_noise = np.array(
         [
@@ -64,6 +64,11 @@ def test_synthetic(results_outfile):
     noise_adj_rand_score = []
     noise_jaccard_score = []
 
+    scores = np.empty((n_iterations,))
+    rand_scores = np.empty((n_iterations,))
+    adjusted_rand_scores = np.empty((n_iterations,))
+    jaccard_scores = np.empty((n_iterations,))
+
     for noise_value in noise_values:
         # generate and add noise to omega
         noise = noise_value * noise_sign
@@ -84,33 +89,40 @@ def test_synthetic(results_outfile):
         plt.savefig(omega_negative_pdf)
         plt.clf()
 
-        # generate a graph
-        graph = PolarizationGraph.from_model2(
-            n_nodes,
-            n_threads,
-            phi,
-            omega_positive,
-            omega_negative,
-            theta,
-            beta_a,
-            beta_n,
-        )
         # create the array encoding the communities from the number of
         # nodes.
         communities = []
         for j, n_group_nodes in enumerate(n_nodes):
             communities += [j] * n_group_nodes
 
-        (
-            score,
-            rand_score,
-            adjusted_rand_score,
-            jaccard_score,
-            iterations_score,
-            duration,
-        ) = evaluate_graph(
-            graph, alpha, n_communities, communities, CLUSTERING_02_BFF
-        )
+        for k in range(n_iterations):
+            # generate a graph
+            graph = PolarizationGraph.from_model2(
+                n_nodes,
+                n_threads,
+                phi,
+                omega_positive,
+                omega_negative,
+                theta,
+                beta_a,
+                beta_n,
+            )
+
+            (
+                score,
+                rand_score,
+                adjusted_rand_score,
+                jaccard_score,
+                iterations_score,
+                duration,
+            ) = evaluate_graph(
+                graph, alpha, n_communities, communities, CLUSTERING_EXACT
+            )
+
+            scores[k] = score
+            rand_scores[k] = rand_score
+            adjusted_rand_scores[k] = adjusted_rand_score
+            jaccard_scores[k] = jaccard_score
 
         outfile_graph = os.path.join(
             OUTDIR, f"model2_graph_noise_{noise_value}.pdf"
@@ -124,11 +136,11 @@ def test_synthetic(results_outfile):
             graph,
             omega_positive,
             omega_negative,
-            score,
+            scores,
             duration,
-            rand_score,
-            adjusted_rand_score,
-            jaccard_score,
+            rand_scores,
+            adjusted_rand_scores,
+            jaccard_scores,
             iterations_score,
             results_outfile,
             plotfilename,
