@@ -718,6 +718,100 @@ be 1, thus bounding the corresponding $x_{ij} ^{k} $ to be $1$ due to
 \subsection{Approximation algorithms}%
 \label{sub:approximation_algorithms}
 
+We now present some approximation algorithms for solving the defined scores.
+Let $\textsc{Score}_{\xi} (U)$ and $\textsc{Score}_{\psi} (U)$ be the functions computing the
+\emph{Echo Chamber Score} and \emph{Densest-Echo Chamber Score} of $U$,
+respectively. These subroutines iterate over the edges of the vertices in $U$,
+ignoring those that are not induced by $U$, and counting for each thread $T \in
+	\mathcal{T}_{C}, C \in \mathcal{\hat{C}} $ the number of edges and negative edges
+to see which are \emph{controversial}, then calculating their contributions
+(\autoref{alg:score_xi} shows in detail $\textsc{Score}_\xi$;
+$\textsc{Score}_\psi$ can simply be computed as $\xi(U)/|U|$).
+
+\begin{algorithm}
+	\SetAlgoLined
+	\KwResult{$\xi(U)$}
+	$N^{+} (T) \leftarrow 0, \; N^{-} (T) \leftarrow 0\; \forall $ threads $T
+		\in \mathcal{T}_{C}, C \in \mathcal{\hat{C}}   $ \;
+
+	\ForEach{$v_{i} \in U$}{
+		$S_i \leftarrow$ edges starting from $v_{i} $ \;
+		\ForEach{$e_{ij} \in S_i$ \textbf{if} $v_{j} \in U$}{
+			$T_{ij}  \leftarrow$ thread of $e_{ij} $ \;
+			$w_{ij}  \leftarrow$ weight of $e_{ij} $ \;
+
+			\uIf{$w_{ij} \geq 0$}{
+				$N^{+}(T_{ij} ) \leftarrow N^{+}(T_{ij} ) + 1$ \;
+			}\Else{
+				$N^{-}(T_{ij} ) \leftarrow N^{-}(T_{ij} ) + 1$ \;
+			}
+
+		}
+	}
+
+	$\xi(U) \leftarrow 0$ \;
+	$\eta(T) \leftarrow\frac{N^{-}(T)}{(N^{-}(T) + N^{+} (T))}$ \;
+	\ForEach{$T\in \mathcal{T}_{C}, C \in \mathcal{\hat{C}}$ \textbf{if}
+		$ \eta(T) \leq \alpha $}{
+		$\xi(U) \leftarrow \xi(U) + N^{+}(T) - N^{-}(T)$
+	}
+
+	\caption{The $\textsc{Score}_{\xi}  $ subroutine}
+	\label{alg:score_xi}
+\end{algorithm}
+
+\subsubsection{The $\beta$ algorithm}%
+\label{ssub:the_beta_approach}
+
+This algorithm (\autoref{alg:algorithm_beta}) construct a set of users $U$ by
+iteratively adding the node which increases the score the most or removing from
+$U$ the one which contributes the least, stopping when the score cannot be
+increased by adding a node. Frequency of addition and removal are regulated
+through $\beta $ (for smaller values an higher density is to be expected,
+generally).
+
+\begin{algorithm}
+	\SetAlgoLined
+	% \KwResult{Write here the result }
+	$U = \{$ random node $\}$\;
+	$\xi(U) = \textsc{Score}_{\xi}(U)$ \;
+	\While{ $\exists \; v_{j} \; s.t. \; \textsc{Score}_{\xi} (U \bigcup \; \{
+			v_{j} \} )> \xi(U)$}{
+		$N(U) \leftarrow $ neighbours of vertices in $U$ in the graph $G$ \;
+		With probability $\beta $\:  {
+			$U \leftarrow U \bigcup \; \{ \arg\max_{v_{j} \in N(U)}
+				\textsc{Score}_{\xi} (U \bigcup \;
+				\{ v_{j} \}) \}$ \;
+		}
+
+		With probability $(1 - \beta )$ \: {
+			$U \leftarrow U \setminus \{ \arg\max_{v_{j} \in U }
+				\textsc{Score}_{\xi} (U \setminus \{ v_{j} \}) \}$ \;
+		}
+
+		% \uIf{1 is sampled from $Be(\beta )$}{
+		%     $v = \arg\max_{v_{j} \in V \setminus U }
+		%         \textsc{Score}_{\xi} (U \bigcup \;
+		%         \{ v_{j} \}) $ \;
+		%     $U \leftarrow U \bigcup \; \{ v \}$ \;
+		% }\Else{
+		%     $v =  \arg\max_{v_{j} \in U }
+		%         \textsc{Score}_{\xi} (U \setminus \{ v_{j} \}) $ \;
+		%     $U \leftarrow U \setminus \; \{ v \}$ \;
+		% }
+	}
+	\caption{$\beta$ algorithm}
+	\label{alg:algorithm_beta}
+\end{algorithm}
+
+In addition, one may also want to ignore a node when it is removed for the
+next iterations, in order to avoid stucking the algorithm in repeatedly adding
+and taking out from $U$ the same vertex.
+
+The result is clearly dependant on the choice of the initial node: the process
+should be repeated for different initial nodes; also, a variant
+of the algorithm prefers starting from the vertices with the highest fraction of positive edges.
+
 \subsection{Solvable variants of the problem}%
 \label{sub:solvable_variants_of_the_problem}
 
