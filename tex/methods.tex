@@ -713,7 +713,85 @@ be 1, thus bounding the corresponding $x_{ij} ^{k} $ to be $1$ due to
 
 
 \subsection{A MIP model for the \acrshort{D-ECP}}%
-\label{sub:a_mip_model_for_the_ecp}
+\label{sub:a_mip_model_for_the_d_ecp}
+
+Similarly to the \acrshort{ECP}, here we propose a \acrshort{MIP} model for
+finding a solution for the \acrshort{D-ECP}, $\alpha \in [0, 0.5]$.
+
+For simplifying notation we define $E_{k} \coloneqq E(T_{k}), T_{k} \in
+	\mathcal{T}_{C}, C \in \mathcal{\hat{C}}$.
+
+\begin{equation}
+	\text{maximize} \; \sum_{ T_{k} \in \mathcal{T}_{C}, \; C \in
+		\mathcal{\hat{C}} } \big( \sum^{}_{ij \in E^{+} (T_{k})} x_{ij}
+		^{k} - \sum_{ij \in E^{-} (T_{k})} x_{ij} ^{k} \big)
+\end{equation}
+\begin{gather}
+	\label{eq:d-ecp-a-ij-l-bi}
+	a_{ij}^{k} \leq b_{i} \quad\quad \forall ij \in E_k \\
+	\label{eq:d-ecp-a-ij-l-bj}
+	a_{ij}^{k} \leq b_{j} \quad\quad \forall ij \in E_k \\
+	\label{eq:d-ecp-a-ij-l-zk}
+	a_{ij}^{k} \leq z_k  \quad\quad \forall ij \in E_k \\
+	\label{eq:d-ecp-a-ij-g-ijk}
+	a _{ij} ^{k} \geq - 2 + b_i + b_j + z_k \quad\quad \forall ij \in E_k \\
+	\label{eq:d-ecp-alpha-constraint}
+	\sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
+	a_{ij} ^{k}  \leq 0 \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+	\hat{\mathcal{C}} \\
+	\label{eq:d-ecp-edge-charikar1}
+	x _{ij}^{k}  \leq y_i \quad\quad \forall ij \in E_{k} \\
+	\label{eq:d-ecp-edge-charikar2}
+	x _{ij} ^{k} \leq y_j \quad\quad \forall ij \in E_k \\
+	\label{eq:d-ecp-vertex-charikar1}
+	\sum^{}_{i \in V} y_i \leq 1 \\
+	\label{eq:d-ecp-}
+	y_i \leq b_i \quad\quad \forall i \in V \\
+	\label{eq:d-ecp-}
+	y_i \geq -1 + b_i + y_j \quad\quad \forall i,j \in V \\
+	\label{eq:d-ecp-}
+	x_{ij}^{k} \geq -1 + a_{ij} ^{k} + y_i \quad \forall ij E_k \\
+	\label{eq:d-ecp-}
+	x_{ij}^{k} \geq -1 + a_{ij} ^{k} + y_j \quad \forall ij \in E_k \\
+	\label{eq:d-ecp-}
+	x_{ij} ^{k} \leq a_{ij} ^{k} \quad\quad \forall ij \in E_k \\
+	\label{eq:d-ecp-a-ij}
+	a _{ij} ^{k}  \in \{0, 1\} \quad\quad \forall ij \in E_k\\
+	\label{eq:d-ecp-b-i}
+	b _{i} \in \{0, 1\} \quad\quad \forall i \in V \\
+	\label{eq:d-ecp-y-i}
+	y _{i} \geq 0 \quad\quad \forall i \in V \\
+	\label{eq:d-ecp-x-ij}
+	x _{ij} ^{k}  \geq 0 \quad\quad \forall ij \in E_k\\
+	\label{eq:d-ecp-z-k}
+	0 \leq z _{k} \leq 1 \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+	\hat{\mathcal{C}}
+\end{gather}
+
+\begin{itemize}
+	\item $y_i$ and $b_i$ variables are associated to vertices. $b_i$ are used
+	      to identify nodes which are in $U$, similarly to
+	      \autoref{sub:a_mip_model_for_the_ecp}. Thus we define $U \coloneqq \{ v_i
+		      \; s.t. \; b_i = 1\}$.
+
+	      $y_i$ variables, similarly to
+	      \autoref{eq:charikar-model-densest-subgraph}, are needed for
+	      computing the density value, the objective function,
+	      by forcing the edges of the node $v_{i} $ to take a value lower that
+	      $y_i$ (\autoref{eq:d-ecp-edge-charikar1} and
+	      \autoref{eq:d-ecp-edge-charikar2}).
+	\item $x_{ij}^{k}  $ and $a_{ij}^{k}  $ are associated to edges: the
+	      first one will assume the value of the edge contribution to the score (in
+	      our case $0$ or $1/|U|$) while the second is a binary variable taking
+	      value $1$ if the edge is contributing to the score, $0$ otherwise.
+	\item $z_k$ are the exact analogous of its homonym in
+	      \autoref{sub:a_mip_model_for_the_ecp}.
+\end{itemize}
+
+In Equations~\ref{eq:d-ecp-a-ij-l-bi}-\ref{eq:d-ecp-alpha-constraint}
+we can easily recognize the same constraints as in the \acrshort{ECP}, while in
+Equations~\ref{eq:d-ecp-edge-charikar1}-\ref{eq:d-ecp-vertex-charikar1}
+Charikar's model for solving the Densest Subgraph \cite{charikar2000greedy}.
 
 \subsection{Approximation algorithms}%
 \label{sub:approximation_algorithms}
@@ -974,10 +1052,45 @@ in this situation the algorithm is able to reconstruct the exact solution of the
 \subsection{Solvable variants of the problem}%
 \label{sub:solvable_variants_of_the_problem}
 
-\section{A generative model}%
-\label{sec:generative_model}
+Due to the intrinsic complexity of the problems
+(\autoref{sec:problem_complexity_and_approximability}) we define variants of
+the problems, for some of which we are also able to find an exact solution.
+
+For these new problems we need to define new graphs, obtained by preprocessing
+the \emph{Interaction Graph}.
+
+\subsubsection{The \acrlong{PA} Graph}%
+\label{sub:pa-graph}
+
+Let $G = (V, E^{+}, E^{-})$ be the interaction graph, $\delta(v_{i}, v_{j})$ and
+$\delta^{-} (v_{i}, v_{j})$ the sum of the edges and negative edges , respectively,
+associated to controversial contents between vertices $v_{i} $ and $v_{j} $.
+
+\bigskip
+
+The \acrfull{PA} graph $G_P = (V_{P}, E_{P}) $ is constructed as follows from
+$G$:
+
+\begin{itemize}
+	\item for any vertex $v_{i} \in V$ add a corresponding vertex in $V_{P} $
+	\item for any pair of vertices $v_i, v_j$ in $G$ let $\eta(v_i,v_j)
+		      \coloneqq \frac{\delta^{-} (v_i,v_j)}{\delta (v_i,v_j)} $. If
+	      $\eta(v_i,v_j) \leq \alpha $ add a positive edge between $v_{i} $ and
+	      $v_{j} $ in $G_{P} $ \footnotemark.
+	      % \item don't add any edge otherwise between $v_{i} $ and $v_{j} $
+\end{itemize}
+
+\footnotetext{If, instead, $\eta(v_i,v_j) > \alpha $ or $\delta(v_{i}, v_{j}) =
+		0$ then don't add any edge between the 2 vertices}
 
 
+
+The problem then is finding the Densest Subgraph of $G_P$, i.e., if $E_{P} [U]$
+is the set of edges induced on $G_P$ by $U \subseteq V$, finding $U$ maximizing
+
+\begin{equation}
+	\xi(U) = \frac{|E_{P} [U]|}{|U|}
+\end{equation}
 
 % \subsection{Validity of method}
 % \todo[inline]{How will you know if your results are valid?}
