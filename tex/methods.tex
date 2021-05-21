@@ -845,6 +845,132 @@ fact that one or more nodes produce the same score, then one of them is
 randomly selected (or, alternatevily, the one which has the highest fraction of
 negative edges).
 
+\subsubsection{Rounding algorithm}%
+\label{ssub:rounding_algorithm}
+
+This algorithm reconstruct a solution starting from the results of the
+relaxation of the exact models and is again inspired by the algorithm for
+Reconstructing the exact solution from the \acrshort{LP} model in
+\cite{charikar2000greedy}.
+
+Let $r_{i}$ and $r_{ij} ^{k} $ be the value of $y_i$ and $x_{ij}^{k} $ in the
+solution of the relaxation, respectively.
+
+Let $\tilde{E}$ be the sequence of edges ordered in ascending order by $r_{ij}
+		^{k} $. The algorithm (\autoref{alg:algorithm_rounding}) goes by iterating over
+edges in $\tilde{E}$, adding them a \emph{dummy} graph $\hat{G}$, also eventually
+adding incident nodes if not already present. At each iterations it is computed
+the score of the vertices that were added to the graph $\hat{G}$ and the score
+of the vertices of each component in the graph, keeping track of the best
+result.
+
+\begin{algorithm}
+	\SetAlgoLined
+	$\hat{G} = \leftarrow $ empty graph \;
+	$\hat{V} \leftarrow $ vertices of $\hat{G}$ \;
+	$S = 0$
+
+	\ForEach{ $e_{ij}^{k} \in \tilde{E}$ }{
+		$\hat{V} \leftarrow \hat{V} \bigcup \{ v_{i} \}$ \textbf{if} $v_i
+			\not\in \hat{V}$ \;
+		$\hat{V} \leftarrow \hat{V} \bigcup \{ v_{j} \}$ \textbf{if} $v_j
+			\not\in \hat{V}$ \;
+
+		$S \leftarrow \max(S, \; \textsc{Score}_{\xi}(\hat{V})  )$
+
+		\ForEach{component $C$ in $\hat{G}$}{
+			$S \leftarrow \max(S, \; \textsc{Score}_{\xi}(C)  )$
+		}
+
+	}
+
+	\Return S \;
+	\caption{Rounding algorithm}
+	\label{alg:algorithm_rounding}
+\end{algorithm}
+
+The motivation for algorithm can be seen in
+Figures~\ref{fig:rounding-original}-\ref{fig:rounding-relaxed}: the problem
+relaxation involves a solution whose value assigned to the edges can be used to
+find subgraphs with many positive edges by using each separate component as set
+of users $U$.
+
+\begin{figure}
+	\begin{center}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\tikzfig{tex/tikz/rounding_original_t1}
+			\caption{$T_1$}
+			\label{fig:rounding-original-t1}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\tikzfig{tex/tikz/rounding_original_t2}
+			\caption{$T_2$}
+			\label{fig:rounding-original-t2}
+		\end{subfigure}
+	\end{center}
+	\caption{Example original \emph{Interaction Graph} $G$}
+	\label{fig:rounding-original}
+\end{figure}
+\begin{figure}
+	\begin{center}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\tikzfig{tex/tikz/rounding_integer_t1}
+			\caption{$T_1$}
+			\label{fig:rounding-integer-t1}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\tikzfig{tex/tikz/rounding_integer_t2}
+			\caption{$T_2$}
+			\label{fig:rounding-original-t2}
+		\end{subfigure}
+	\end{center}
+	\caption{Exact solution of the example in \autoref{fig:rounding-original},
+		$\alpha = 0.4$}
+	\label{fig:rounding-integer}
+\end{figure}
+\begin{figure}
+	\begin{center}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\scalebox{0.8}{
+				\tikzfig{tex/tikz/rounding_relaxed_t1}
+			}
+			\caption{$T_1$, where $z_1 = 0.66$}
+			\label{fig:rounding-relaxed-t1}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\scalebox{0.8}{
+				\tikzfig{tex/tikz/rounding_relaxed_t2}
+			}
+			\caption{$T_2$, where $z_2 = 1.0$}
+			\label{fig:rounding-relaxed-t2}
+		\end{subfigure}
+	\end{center}
+	\caption{Solution of the relaxation of $G$ of
+		\autoref{fig:rounding-original}, $\alpha = 0.4$}
+	\label{fig:rounding-relaxed}
+\end{figure}
+
+While one may think from these examples that the relaxation trivially assignes
+non-zero values only to positive edges, \autoref{fig:rounding-original2} shows
+a case in which a negative edge, $e_{31}$ gets the value of $1$; furthermore,
+in this situation the algorithm is able to reconstruct the exact solution of the problem.
+
+\begin{figure}
+	\centering
+	\tikzfig{tex/tikz/rounding_original2}
+	\caption[Example of rounding algorithm finding the exact solution]{Another \emph{Interaction graph} example, with a single thread. In
+		this case the rounding algorithm is able to find the exact solution by
+		selecting all the nodes except for $v_4$. In the result of the
+		relaxation all the edges except for $e_{42}$ get the value of $1$}%
+	\label{fig:rounding-original2}
+\end{figure}
+
 \subsection{Solvable variants of the problem}%
 \label{sub:solvable_variants_of_the_problem}
 
