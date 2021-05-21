@@ -1062,7 +1062,7 @@ the \emph{Interaction Graph}.
 \subsubsection{The \acrlong{PA} Graph}%
 \label{sub:pa-graph}
 
-Let $G = (V, E^{+}, E^{-})$ be the interaction graph, $\delta(v_{i}, v_{j})$ and
+Let $G = (V, E^{+}, E^{-})$ be the \emph{interaction graph}, $\delta(v_{i}, v_{j})$ and
 $\delta^{-} (v_{i}, v_{j})$ the sum of the edges and negative edges , respectively,
 associated to controversial contents between vertices $v_{i} $ and $v_{j} $.
 
@@ -1091,6 +1091,41 @@ is the set of edges induced on $G_P$ by $U \subseteq V$, finding $U$ maximizing
 \begin{equation}
 	\xi(U) = \frac{|E_{P} [U]|}{|U|}
 \end{equation}
+
+\subsubsection{The \acrlong{TPA} Graph}%
+\label{ssub:the_tpa_graph}
+
+Differently from the previous method, in this case edges are aggregated
+separately for each thread.
+
+\bigskip
+
+More specifically, given an \emph{interaction graph} $G = (V, E^{+}, E^{-})$ ,
+let $\delta_{T}(v_{i}, v_{j})$ and
+$\delta^{-} _{T}(v_{i}, v_{j})$ the sum of the edges and negative edges , respectively,
+associated to thread $T$ between vertices $v_{i} $ and $v_{j} $, being $T \in
+	\mathcal{T}_{C}, C \in \mathcal{\hat{C}}$.
+
+The construction of the \acrfull{TPA} Graph $G_{TP} = (V_{TP}, E_{TP})$ goes as follows
+
+\begin{itemize}
+	\item for any vertex $v_{i} \in V$ add a corresponding vertex in $V_{P} $
+	\item for any thread $T \in
+		      \mathcal{T}_{C}, C \in \mathcal{\hat{C}}$ and pair of vertices
+	      $v_i, v_j$ in $G$ let $\eta_{T}(v_i,v_j)
+		      \coloneqq \frac{\delta^{-} _{T}(v_i,v_j)}{\delta _{T}(v_i,v_j)} $. If
+	      $\eta_{T}(v_i,v_j) \leq \alpha $ add a positive edge between $v_{i} $ and
+	      $v_{j} $ in $G_{TP} $, in the layer associated to thread $T$.
+	      % \item don't add any edge otherwise between $v_{i} $ and $v_{j} $
+\end{itemize}
+
+We can then solve on $G_{TP}$
+
+\begin{enumerate}
+	\item the Densest Subgraph Problem (or, equivalently, the
+	      \acrshort{DCS}-MM)
+	\item the \acrshort{O2BFF} Problem
+\end{enumerate}
 
 % \subsection{Validity of method}
 % \todo[inline]{How will you know if your results are valid?}
