@@ -10,258 +10,66 @@ approximating the problems are then proposed in
 \autoref{sec:solving_the_problem}; the definition of a generative model
 concludes the chapter (\autoref{sec:generative_model}).
 
-\section{The \acrlong{ECP}}%
-\label{sec:the_echo_chamber_problem}
+% \section{The \acrlong{ECP}}%
+% \label{sec:the_echo_chamber_problem}
 
-This section starts by outlining the graph on which the analysis is carried
-out (\autoref{sub:interaction-graph}), the process for building it
-(\autoref{sub:collection_and_preprocessing}) and finally defines the
-\acrlong{ECP} and the \acrlong{D-ECP} (\autoref{sub:the_problem_definition} and
-\autoref{sub:the_densest_echo_chamber_problem}).
+% This section starts by outlining the graph on which the analysis is carried
+% out (\autoref{sub:interaction-graph}), the process for building it
+% (\autoref{sub:collection_and_preprocessing}) and finally defines the
+% \acrlong{ECP} and the \acrlong{D-ECP} (\autoref{sub:the_problem_definition} and
+% \autoref{sub:the_densest_echo_chamber_problem}).
 
-\subsection{The Interaction Graph}
-\label{sub:interaction-graph}
-
-The \emph{Interaction Graph} $G$ is the graph which encodes the informations
-regarding the interactions between the users.
-
-In this graph each users is associated to a vertex $v \in V$ and each edge to
-an interaction between the $2$ corresponding users it links. For this reason we
-will sometime refer to vertices as users in the rest of the document.
-
-$G = (V, E^{+}, E^{-})  $ is a
-signed and weighted graph, the weights being in the interval $[-1, +1]$,
-corresponding to positive and negative interactions, meaning that for smaller
-the value of the weight the interaction will more "negative".
-
-The \emph{Interaction Graph} is also directed, so that an edge from vertex $v_{i}
-$ to vertex $v_{j} $ corresponds to a reply from user $v_{i} $ to $v_{j} $.
-
-Let a content $C$ be any kind of resource that triggers a discussion in one or
-more threads $T$. The set of threads associated to $C$ is denoted as
-$\mathcal{T}_{C} $. A content is usually represented by a newspaper article and
-it is identified by its url, e.g.
-
-	{\footnotesize
-		\begin{center}
-			\url{https://www.nytimes.com/2021/03/04/us/richard-barnett-pelosi-tantrum.html}
-		\end{center}
-	}
-
-A corresponding thread may then be, for example, a user posting and commenting
-the same url on its Twitter account (see \autoref{fig:twitter-thread}), thus
-generating a discussion.
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.6\linewidth]{tex/img/twitter_thread.png}
-	\caption[Thread-content distinction example from Twitter]{An thread associated to the mentioned New York Times article}%
-	\label{fig:twitter-thread}
-\end{figure}
-
-The \emph{Interaction Graph} is a \emph{multiplex graph}, each layer being
-represented by a thread $T$ whose edges are the interactions happening in it.
-Note also that for this reason each of the layers can contain more than one
-edge between $2$ users, as each pair of users can reply to each other more than
-once.
-
-We will also use $\mathcal{C} $ for denoting the set of contents.
-
-An example of \emph{Interaction Graph} can be seen in
-\autoref{fig:interaction-graph-example}.
-
-\begin{figure}
-	\begin{center}
-		\begin{subfigure}[b]{0.3\textwidth}
-			\centering
-			\tikzfig{tex/tikz/graph_thread1}
-			\caption{$T_{1} \in \mathcal{T}_{C_{1}} $}
-			\label{fig:tex/tikz/graph_thread1.tikz}
-		\end{subfigure}
-		\begin{subfigure}[b]{0.3\textwidth}
-			\centering
-			\tikzfig{tex/tikz/graph_thread2}
-			\caption{$T_{2} \in \mathcal{T}_{C_{1}} $}
-			\label{fig:tex/tikz/graph_thread2.tikz}
-		\end{subfigure}
-		\begin{subfigure}[b]{0.3\textwidth}
-			\centering
-			\tikzfig{tex/tikz/graph_thread3}
-			\caption{$T_{3} \in \mathcal{T}_{C_{2}} $}
-			\label{fig:tex/tikz/graph_thread3.tikz}
-		\end{subfigure}
-	\end{center}
-	\caption[Example \emph{Interaction Graph}]{An example of \emph{Interaction Graph}, green and red edges
-		representing positive and negative interactions, respectively. It
-		contains $3$ threads and $2$ contents, the first $2$ layers each being
-		associated to a thread of content $C_{1} $, the last layer to a thread
-		of content $C_{2} $}
-	\label{fig:interaction-graph-example}
-\end{figure}
-
-\subsection{Collection and preprocessing}%
-\label{sub:collection_and_preprocessing}
-
-Datasets are built mainly upon $2$ social medias: Twitter and Reddit; the data
-collection process, consequently, slightly differ between them.
-
-\paragraph{Twitter}%
-\label{par:twitter-data}
-
-Twitter's \emph{Interaction Graphs} are mainly built starting from the tweets
-of some important social accounts associated to well-known news source, like The
-New York Times or Fox News, that tipically post links to their articles:
-these profiles are taken as the source of the contents $\mathcal{C} $ of the graph.
-
-Each time another user tweets the same url (\autoref{fig:twitter-thread}) then
-it will correspond to another thread related to the same content, and all the
-replies it receives will be part of this new thread.
-
-Twitter data is retrieved with the help of Tweepy \cite{tweepy}, a Python
-library for accessing the Twitter API, which has been patched for using some
-features available only in the beta of the new Twitter API (v2).
-
-\paragraph{Reddit}%
-\label{par:reddit}
-
-Differently from Twitter, Reddit focuses on subreddits, which are pages
-collecting posts from different users about a specific topic (e.g. r/politics,
-r/economics, $\dots$). This means that
-in the datasets built from this social media the contents $\mathcal{C} $ is the
-set of posts of these pages, which, differently from Twitter, most likely
-come from different sources.
-
-This posts are in turn crossposted, i.e. reposted on other subreddits. Each of
-these \emph{crosspost} will eventually correspond to another thread.
-
-The PRAW library is used for retrieving the data \cite{praw}.
-
-\paragraph{Edge weights assignment}%
-\label{par:assigning_edge_weights}
-
-Once the threads interactions are retrieved they are passed to a state of the
-art sentiment analyzer which labels them. More specifically the model used is
-RoBERTa which has been adapted and retrained for dealing with Twitter
-data \cite{Barbieri2020}. The model is made available by the Transformers
-python library \cite{wolf-etal-2020-transformers}.
-
-\bigskip
-
-Finally, complying with the current privacy legislation, all the data related
-to the user is pseudo-anonymized (accounts identifier are replaced by random
-ones) while no data is publicly available.
-
-\subsection{The problem definition}%
-\label{sub:the_problem_definition}
-
-The main goal of the research is finding echo chambers in social medias, more
-specifically on the \emph{Interaction Graph} as defined in
-\autoref{sub:interaction-graph}.
-
-Our definition is based on the idea that echo chambers can be identified by
-looking at contents which is generally highly debated (we will call
-this type of content \emph{controversial}) but which is discussed with little
-or no animosity in small subgraphs. This subgraphs are the \emph{Echo
-	Chambers}.
-
-\bigskip
-
-Given an \emph{Interaction Graph} $G = (V, E^{+}, E^{-})$ on some contents
-$\mathcal{C} $ and threads, let $\eta(T)$ the number of negative edges over the
-total number of edges in the layer associated to thread $T$. Similarly,
-let $\eta(C)$ be the fraction of negative edges in all threads associated to
-content $C$.
-
-\begin{definition}[Controversial thread]
-	Let $\alpha \in [0,1]$. A thread (or content) is \emph{controversial} if
-	$\eta(T) > \alpha$ (or, similarly, $\eta(C) > \alpha $). Conversely, a
-	thread (or content) is \emph{non-controversial} if $\eta(T) \leq \alpha$
-	($\eta(C) \leq \alpha$).
-\end{definition}
-
-Intutively, \emph{controversial} threads contain many negative
-interactions. We denote as $\hat{\mathcal{C} } \subseteq \mathcal{C} $ the
-set of \emph{controversial} contents.
-
-\medskip
-
-\emph{Echo Chambers} correspond to \emph{non-controversial} smaller subgraphs
-(i.e. with few negative edges) discussing a
-\emph{controversial} content.
-
-More formally, let $T[U]$ the subgraph induced in the layer associated to
-thread $T$ by the vertices $U$; let $|T^{+} [U]|$ and $|T^{-} [U]|$ its number
-of positive and negative edges, respectively.
-
-We define $\mathcal{S}_C (U)$ as the set of \emph{non-controversial} threads
-induced by $U$, for \textit{controversial} contents, i.e.
-	{\small
-		\begin{equation}
-			\mathcal{S} _{C} (U) = \{ T[U] \; s.t. \; T[U] \; non \;
-			controversial, T \in \mathcal{T} _{C}, C
-			\in \hat{\mathcal{C}}, U \subseteq V\}
-		\end{equation}
-	}
-
-Thus $\mathcal{S} _C (U)$ will contain threads which are \emph{globally} non
-controversial but it is defined only for contents that are \emph{globally}
-controversial.
-
-\medskip
-
-We know define the Echo Chamber Score of a set of vertices $U$.
-
-\begin{definition}[Echo Chamber Score]
-	Let $U \subseteq V$ be a subset of vertices. Its Echo Chamber Score is
-
-	\begin{equation}
-		\label{eq:echo-chamber-score}
-		\xi(U) = \sum^{}_{\mathcal{C} \in \mathcal{\hat{C}}} \sum^{}_{T[U] \in
-		\mathcal{S} _{C} (U)} (|T^{+} [U]| - |T ^{-} [U]|)
-	\end{equation}
-\end{definition}
-
-We can now define the \acrfull{ECP}.
-
-\begin{problem}[\acrfull{ECP}]
-Given an \emph{Interaction Graph} $G$ and $\alpha \in [0, 1]$ find a set of vertices $U \subseteq
-	V$ maximizing the Echo Chamber Score (\autoref{eq:echo-chamber-score}).
-\end{problem}
-
-We will denote with $\hat{U}$ the set of users maximizing
-\autoref{eq:echo-chamber-score} and with $\xi(G)$ its corresponding score, i.e.
-
-\begin{align*}
-	\hat{U} & \coloneqq \argmax_{U \subseteq V} \xi(U) & \xi(G) & \coloneqq
-	\xi(\hat{U})
-\end{align*}
-
-\subsection{The Densest Echo Chamber Problem}%
-\label{sub:the_densest_echo_chamber_problem}
-
-The \acrshort{ECP} doesn't take into account the number of users producing a
-certain score; this means that the set $U$ may involve disconnected and sparse
-subgraphs, depending on the structure of the graph $G$.
-
-For this reason it is interesting also to study another variant of the
-\acrshort{ECP}, the \acrlong{D-ECP}, which we now define.
-
-\begin{definition}[Echo Chamber Score]
-	Let $U \subseteq V$ be a subset of vertices. Its Densest Echo Chamber Score is
-
-	\begin{equation}
-		\label{eq:densest-echo-chamber-score}
-		\xi(U) = \sum^{}_{\mathcal{C} \in \mathcal{\hat{C}}} \sum^{}_{T[U] \in
-		\mathcal{S} _{C} (U)} \frac{(|T^{+} [U]| - |T ^{-} [U]|)}{|U|}
-	\end{equation}
-\end{definition}
-
-Similarly to the \acrshort{ECP} we can now define the corresponding problem
-
-\begin{problem}[\acrfull{D-ECP}]
-Given an \emph{Interaction Graph} $G$ and $\alpha \in [0, 1]$ find a set of vertices $U \subseteq
-	V$ maximizing the Densest Echo Chamber Score (\autoref{eq:densest-echo-chamber-score}).
-\end{problem}
+% \subsection{Collection and preprocessing}%
+% \label{sub:collection_and_preprocessing}
+%
+% Datasets are built mainly upon $2$ social medias: Twitter and Reddit; the data
+% collection process, consequently, slightly differ between them.
+%
+% \paragraph{Twitter}%
+% \label{par:twitter-data}
+%
+% Twitter's \emph{Interaction Graphs} are mainly built starting from the tweets
+% of some important social accounts associated to well-known news source, like The
+% New York Times or Fox News, that tipically post links to their articles:
+% these profiles are taken as the source of the contents $\mathcal{C} $ of the graph.
+%
+% Each time another user tweets the same url (\autoref{fig:twitter-thread}) then
+% it will correspond to another thread related to the same content, and all the
+% replies it receives will be part of this new thread.
+%
+% Twitter data is retrieved with the help of Tweepy \cite{tweepy}, a Python
+% library for accessing the Twitter API, which has been patched for using some
+% features available only in the beta of the new Twitter API (v2).
+%
+% \paragraph{Reddit}%
+% \label{par:reddit}
+%
+% Differently from Twitter, Reddit focuses on subreddits, which are pages
+% collecting posts from different users about a specific topic (e.g. r/politics,
+% r/economics, $\dots$). This means that
+% in the datasets built from this social media the contents $\mathcal{C} $ is the
+% set of posts of these pages, which, differently from Twitter, most likely
+% come from different sources.
+%
+% This posts are in turn crossposted, i.e. reposted on other subreddits. Each of
+% these \emph{crosspost} will eventually correspond to another thread.
+%
+% The PRAW library is used for retrieving the data \cite{praw}.
+%
+% \paragraph{Edge weights assignment}%
+% \label{par:assigning_edge_weights}
+%
+% Once the threads interactions are retrieved they are passed to a state of the
+% art sentiment analyzer which labels them. More specifically the model used is
+% RoBERTa which has been adapted and retrained for dealing with Twitter
+% data \cite{Barbieri2020}. The model is made available by the Transformers
+% python library \cite{wolf-etal-2020-transformers}.
+%
+% \bigskip
+%
+% Finally, complying with the current privacy legislation, all the data related
+% to the user is pseudo-anonymized (accounts identifier are replaced by random
+% ones) while no data is publicly available.
 
 \section{Problems complexity and approximability}%
 \label{sec:problem_complexity_and_approximability}
@@ -731,12 +539,10 @@ For simplifying notation we define $E_{k} \coloneqq E(T_{k}), T_{k} \in
 	a_{ij}^{k} \leq b_{i} \quad\quad \forall ij \in E_k \\
 	\label{eq:d-ecp-a-ij-l-bj}
 	a_{ij}^{k} \leq b_{j} \quad\quad \forall ij \in E_k \\
-	\label{eq:d-ecp-a-ij-l-zk}
-	a_{ij}^{k} \leq z_k  \quad\quad \forall ij \in E_k \\
 	\label{eq:d-ecp-a-ij-g-ijk}
-	a _{ij} ^{k} \geq - 2 + b_i + b_j + z_k \quad\quad \forall ij \in E_k \\
+	a _{ij} ^{k} \geq - 1 + b_i + b_j \quad\quad \forall ij \in E_k \\
 	\label{eq:d-ecp-alpha-constraint}
-	\sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
+	-N_{k} z_k \leq \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
 	a_{ij} ^{k}  \leq 0 \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
 	\hat{\mathcal{C}} \\
 	\label{eq:d-ecp-edge-charikar1}
@@ -745,14 +551,14 @@ For simplifying notation we define $E_{k} \coloneqq E(T_{k}), T_{k} \in
 	x _{ij} ^{k} \leq y_j \quad\quad \forall ij \in E_k \\
 	\label{eq:d-ecp-vertex-charikar1}
 	\sum^{}_{i \in V} y_i \leq 1 \\
-	\label{eq:d-ecp-}
+	\label{eq:d-ecp-vertex-l-b}
 	y_i \leq b_i \quad\quad \forall i \in V \\
-	\label{eq:d-ecp-}
+	\label{eq:d-ecp-vertex-g-bi-yj}
 	y_i \geq -1 + b_i + y_j \quad\quad \forall i,j \in V \\
 	\label{eq:d-ecp-}
-	x_{ij}^{k} \geq -1 + a_{ij} ^{k} + y_i \quad \forall ij E_k \\
+	x_{ij}^{k} \geq -2 + a_{ij} ^{k} + z_k + y_i \quad \forall ij \in E_k \\
 	\label{eq:d-ecp-}
-	x_{ij}^{k} \geq -1 + a_{ij} ^{k} + y_j \quad \forall ij \in E_k \\
+	x_{ij}^{k} \geq -2 + a_{ij} ^{k} + z_k + y_j \quad \forall ij \in E_k \\
 	\label{eq:d-ecp-}
 	x_{ij} ^{k} \leq a_{ij} ^{k} \quad\quad \forall ij \in E_k \\
 	\label{eq:d-ecp-a-ij}
@@ -767,12 +573,11 @@ For simplifying notation we define $E_{k} \coloneqq E(T_{k}), T_{k} \in
 	0 \leq z _{k} \leq 1 \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
 	\hat{\mathcal{C}}
 \end{gather}
-
 \begin{itemize}
 	\item $y_i$ and $b_i$ variables are associated to vertices. $b_i$ are used
 	      to identify nodes which are in $U$, similarly to
 	      \autoref{sub:a_mip_model_for_the_ecp}. Thus we define $U \coloneqq \{ v_i
-		      \; s.t. \; b_i = 1\}$.
+		      \; s.t. \; y_i \neq 0\}$.
 
 	      $y_i$ variables, similarly to
 	      \autoref{eq:charikar-model-densest-subgraph}, are needed for
@@ -780,6 +585,8 @@ For simplifying notation we define $E_{k} \coloneqq E(T_{k}), T_{k} \in
 	      by forcing the edges of the node $v_{i} $ to take a value lower that
 	      $y_i$ (\autoref{eq:d-ecp-edge-charikar1} and
 	      \autoref{eq:d-ecp-edge-charikar2}).
+	      Also, thanks to \autoref{eq:d-ecp-vertex-g-bi-yj} all the $y_i$ will either take
+	      value $0$ or equal to $y_j \neq 0$.
 	\item $x_{ij}^{k}  $ and $a_{ij}^{k}  $ are associated to edges: the
 	      first one will assume the value of the edge contribution to the score (in
 	      our case $0$ or $1/|U|$) while the second is a binary variable taking
@@ -792,6 +599,8 @@ In Equations~\ref{eq:d-ecp-a-ij-l-bi}-\ref{eq:d-ecp-alpha-constraint}
 we can easily recognize the same constraints as in the \acrshort{ECP}, while in
 Equations~\ref{eq:d-ecp-edge-charikar1}-\ref{eq:d-ecp-vertex-charikar1}
 Charikar's model for solving the Densest Subgraph \cite{charikar2000greedy}.
+
+
 
 \subsection{Approximation algorithms}%
 \label{sub:approximation_algorithms}

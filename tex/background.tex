@@ -6,51 +6,8 @@ will initially discuss graph and related problems (\autoref{sec:signed_graphs_an
 following used methodologies, as well as concepts of computational complexity
 (\autoref{sec:computational_complexity_and_approximability}) and \acrlong{LP} (\autoref{sec:linear_and_mixed_integer_programming}).
 
-\section{Signed graphs and density}%
+\section{Density in graphs}%
 \label{sec:signed_graphs_and_density}
-
-A \emph{graph} is a collection of \emph{vertices} or \emph{nodes} $V$ and
-\emph{edges} or \emph{links} $E$ between the nodes, representing relationships
-between entities; this structure turns out to be very useful in
-representing many interesting concepts from social sciences, biology, physics,
-chemistry and geography (\autoref{fig:tex/img/sample-graph})\cite{Newman2018}\cite{Menczer2020}.
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.6\linewidth]{tex/img/sample-graph.png}
-	\caption[Retweet network during 2010 midterm elections]{The retweet network of posts regarding US during 2010 midterm
-		elections. Red and blue nodes are associated with conservative and
-		progressive users, respectively \cite{Menczer2020}}%
-	\label{fig:tex/img/sample-graph}
-\end{figure}
-
-\paragraph{Different types of graphs}%
-\label{par:different_types_of_graphs}
-
-In its simplest form graph are \emph{undirected} and \emph{unweighted}. In an
-\emph{undirected} graph relationships are bi-directional, while in directed graph
-the order of nodes in a link reflects the
-direction (i.e. an edge $e_{ij} $ is different from an edge $e_{ji} $). A weighted
-graph instead associates a weight $\omega $ to each edge
-\cite{Menczer2020}\cite{AlbertLaszloNortheasternUniversity2016}.
-
-Sometimes also edges are allowed to be either positive or negative (for example when
-definying the relationships in a acquaintance network): these king of networks
-are usually called \emph{signed graphs} \cite{Newman2018}.
-
-\bigskip
-
-In the rest of the document we will abuse notation and refer to vertices both
-as $v_{i} \in V $ and $i \in V$; similarly we will refer to edges both as
-$e_{ij} \in E $ and as $ij \in E$.
-
-\bigskip
-
-Representing relationsips between entities which span over more than $2$
-dimensions requires the definition of an ever more complex structure, the
-\emph{multiplex graphs}, which is a collection of graphs (referred to as
-\emph{layers}) over the same set of vertices, where each layer could represent
-a different type of connection \cite{Newman2018}.
 
 \subsection{The Densest Subgraph Problem}%
 \label{sub:densest_subgraphs}
