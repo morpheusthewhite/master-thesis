@@ -260,7 +260,7 @@ problem the following constraints
 	\label{eq:ecp-a-domain-2}
 	0 \leq a_{ij}^{k} \leq 1 \quad\quad \forall ij \in E_k \\
 	\label{eq:ecp-z-domain-2}
-	0 \leq z _{k} \in  \{0, 1\} \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+	z _{k} \in  \{0, 1\} \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
 	\hat{\mathcal{C}}
 \end{gather}
 
@@ -288,10 +288,11 @@ For simplifying notation we define $E_{k} \coloneqq E(T_{k}), T_{k} \in
 	\mathcal{T}_{C}, C \in \mathcal{\hat{C}}$.
 
 \begin{equation}
+	\label{eq:d-ecp-objective}
 	\text{maximize} \; \sum_{ T_{k} \in \mathcal{T}_{C}, \; C \in
 		\mathcal{\hat{C}} } \big( \sum^{}_{ij \in E^{+} (T_{k})} x_{ij}
 		^{k} - \sum_{ij \in E^{-} (T_{k})} x_{ij} ^{k} \big)
-\end{equation}
+\end{equation} \begin{center} subject to \end{center}
 \begin{gather}
 	\label{eq:d-ecp-a-ij-l-bi}
 	a_{ij}^{k} \leq b_{i} \quad\quad \forall ij \in E_k \\
@@ -300,25 +301,28 @@ For simplifying notation we define $E_{k} \coloneqq E(T_{k}), T_{k} \in
 	\label{eq:d-ecp-a-ij-g-ijk}
 	a _{ij} ^{k} \geq - 1 + b_i + b_j \quad\quad \forall ij \in E_k \\
 	\label{eq:d-ecp-alpha-constraint}
-	-N_{k} z_k \leq \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
-	a_{ij} ^{k}  \leq 0 \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+	-N_{k} z_k < \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
+	a_{ij} ^{k}  \leq M_k (1 - z_k) \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
 	\hat{\mathcal{C}} \\
 	\label{eq:d-ecp-edge-charikar1}
 	x _{ij}^{k}  \leq y_i \quad\quad \forall ij \in E_{k} \\
 	\label{eq:d-ecp-edge-charikar2}
 	x _{ij} ^{k} \leq y_j \quad\quad \forall ij \in E_k \\
 	\label{eq:d-ecp-vertex-charikar1}
-	\sum^{}_{i \in V} y_i \leq 1 \\
+	\sum^{}_{i \in V} y_i = 1 \\
 	\label{eq:d-ecp-vertex-l-b}
 	y_i \leq b_i \quad\quad \forall i \in V \\
 	\label{eq:d-ecp-vertex-g-bi-yj}
 	y_i \geq -1 + b_i + y_j \quad\quad \forall i,j \in V \\
-	\label{eq:d-ecp-}
+	\label{eq:d-ecp-x-l-sum1}
 	x_{ij}^{k} \geq -2 + a_{ij} ^{k} + z_k + y_i \quad \forall ij \in E_k \\
-	\label{eq:d-ecp-}
+	\label{eq:d-ecp-x-l-sum2}
 	x_{ij}^{k} \geq -2 + a_{ij} ^{k} + z_k + y_j \quad \forall ij \in E_k \\
-	\label{eq:d-ecp-}
+	\label{eq:d-ecp-x-l-a}
 	x_{ij} ^{k} \leq a_{ij} ^{k} \quad\quad \forall ij \in E_k \\
+	\label{eq:d-ecp-x-l-z}
+	x_{ij} ^{k} \leq z_k \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+	\hat{\mathcal{C}}  \\
 	\label{eq:d-ecp-a-ij}
 	a _{ij} ^{k}  \in \{0, 1\} \quad\quad \forall ij \in E_k\\
 	\label{eq:d-ecp-b-i}
@@ -328,37 +332,233 @@ For simplifying notation we define $E_{k} \coloneqq E(T_{k}), T_{k} \in
 	\label{eq:d-ecp-x-ij}
 	x _{ij} ^{k}  \geq 0 \quad\quad \forall ij \in E_k\\
 	\label{eq:d-ecp-z-k}
-	0 \leq z _{k} \leq 1 \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+	z _{k} \in \{0, 1\} \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
 	\hat{\mathcal{C}}
 \end{gather}
-\begin{itemize}
-	\item $y_i$ and $b_i$ variables are associated to vertices. $b_i$ are used
-	      to identify nodes which are in $U$, similarly to
-	      \autoref{sub:a_mip_model_for_the_ecp}. Thus we define $U \coloneqq \{ v_i
-		      \; s.t. \; y_i \neq 0\}$.
 
-	      $y_i$ variables, similarly to
-	      \autoref{eq:charikar-model-densest-subgraph}, are needed for
-	      computing the density value, the objective function,
-	      by forcing the edges of the node $v_{i} $ to take a value lower that
-	      $y_i$ (\autoref{eq:d-ecp-edge-charikar1} and
-	      \autoref{eq:d-ecp-edge-charikar2}).
-	      Also, thanks to \autoref{eq:d-ecp-vertex-g-bi-yj} all the $y_i$ will either take
-	      value $0$ or equal to $y_j \neq 0$.
-	\item $x_{ij}^{k}  $ and $a_{ij}^{k}  $ are associated to edges: the
-	      first one will assume the value of the edge contribution to the score (in
-	      our case $0$ or $1/|U|$) while the second is a binary variable taking
-	      value $1$ if the edge is contributing to the score, $0$ otherwise.
-	\item $z_k$ are the exact analogous of its homonym in
-	      \autoref{sub:a_mip_model_for_the_ecp}.
-\end{itemize}
+Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(1 -
+	\alpha ) |E^{-}_k|$, respectively.
 
-In Equations~\ref{eq:d-ecp-a-ij-l-bi}-\ref{eq:d-ecp-alpha-constraint}
-we can easily recognize the same constraints as in the \acrshort{ECP}, while in
-Equations~\ref{eq:d-ecp-edge-charikar1}-\ref{eq:d-ecp-vertex-charikar1}
-Charikar's model for solving the Densest Subgraph \cite{charikar2000greedy}.
+\begin{theorem}
+	\label{th:d-ecp-mip}
+	Let $G = (V, E^{+}, E^{-})$ be an \emph{Interaction Graph} and $\alpha \in
+		[0, 1]$.
 
+	\begin{equation}
+		\max_{U \subseteq V} \psi(U) = \text{OPT(MIP)}
+	\end{equation}
 
+	where $OPT(MIP)$ denotes the optimal solution to
+	MIP~\ref{eq:d-ecp-objective}-\ref{eq:d-ecp-z-k}.
+\end{theorem}
+
+\begin{proof}
+	We will similarly to \autoref{th:ecp-mip} and proof the equality by $2$
+	inequalities: $RHS \geq LHS$ and then that $LHS \geq RHS$
+
+	\begin{claim}
+		For any $U \subseteq V$, the
+		MIP~\ref{eq:d-ecp-objective}-\ref{eq:d-ecp-z-k} gets value $\geq \psi(U)$.
+	\end{claim}
+
+	\begin{proof}
+		Let $c = 1 / |U|$. We construction a feasible solution for
+		MIP~\ref{eq:d-ecp-objective}-\ref{eq:d-ecp-z-k} as follows
+
+		\begin{gather}
+			\label{eq:ecpp-y}
+			y_i = \begin{cases}
+				c & \text{if } v_{i} \in U \\
+				0 & \text{otherwise}
+			\end{cases} \quad
+			b_i = \begin{cases}
+				1 & \text{if } v_{i} \in U \\
+				0 & \text{otherwise}
+			\end{cases} \\
+			\label{eq:ecpp-z}
+			z_k = \begin{cases}
+				1 & \text{if } T_{k} \in S_{C}(U), \; C \in \mathcal{\hat{C}} \\
+				0 & \text{otherwise}
+			\end{cases} \\
+			\label{eq:ecpp-x}
+			a_{ij}^{k} = \begin{cases}
+				1 & \text{if } e_{ij} \in E_{k}[U], \; T_{k} \in \mathcal{T} _C, \; C \in
+				\mathcal{\hat{C}}                                                         \\
+				0 & \text{otherwise}
+			\end{cases} \\
+			x_{ij}^{k} = \begin{cases}
+				c & \text{if } e_{ij} \in E_{k}[U], \; T_{k} \in S_C(U), \; C \in
+				\mathcal{\hat{C}}                                                 \\
+				0 & \text{otherwise}
+			\end{cases}
+		\end{gather}
+
+		Equations~\ref{eq:d-ecp-a-ij-l-bi}-\ref{eq:d-ecp-a-ij-g-ijk} are easily
+		satisfied since $a_{ij}^{k} = 1 \iff b_i = 1 \land b_j = 1$, meaning
+		that it is induced $\iff v_i, v_j \in U$; the same idea applies to
+		Equations~\ref{eq:d-ecp-edge-charikar1}-\ref{eq:d-ecp-edge-charikar2}.
+		Equations~\ref{eq:d-ecp-vertex-l-b} and
+		\ref{eq:d-ecp-x-l-a}-\ref{eq:d-ecp-x-l-z} hold since
+		$S_C(U) \subseteq \mathcal{T}_C $. It also easy to see that
+		\autoref{eq:d-ecp-vertex-g-bi-yj} is satisfied since we defined $y_i$
+		and $b_i$ s.t. $b_i = 1 \iff y_i = c$. Furthermore, since $y_i = c \iff
+			y_i \in U$ then $ \sum^{}_{i \in V} y_i = \sum^{}_{i \in U} c = 1$
+		and \autoref{eq:d-ecp-vertex-charikar1} is also satisfied.
+
+		Let us know consider $T_k \in S_C(U) \implies z_k = 1$. Then, by definition
+
+		\begin{gather}
+			\eta(T_k[U]) \leq \alpha \implies
+			\frac{|E^{-}_{k}[U]|}{|E_{k}[U]|} \leq \alpha \\
+			|E^{-}_{k}[U]| - \alpha (|E_{k}[U]|) \leq 0 \\
+		\end{gather}
+
+		Thus the second inequality of \autoref{eq:d-ecp-alpha-constraint} true;
+		it is easy also to see that the first one is also satisfied since
+
+		\begin{multline}
+			\sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
+			a_{ij} ^{k} = |E^{-}_{k}[U]| - \alpha \cdot |E_{k}[U]| = \\
+			(1- \alpha)|E^{-}_{k}[U]| - \alpha \cdot |E^{+}_{k}[U]| \geq -
+			\alpha \cdot |E^{+}_{k}[U]| > N_k
+		\end{multline}
+
+		Equations~\ref{eq:d-ecp-x-l-sum1}-\ref{eq:d-ecp-x-l-sum2} are true
+		since in this case ($z_k = 1$) because by definition $a_{ij}^{k} = 1
+			\iff x_{ij}^{k} = c$. If instead $T_k \not\in S_c$ and $z_k = 0$ we
+		have that
+
+		\begin{gather}
+			\eta(T_k[U]) > \alpha \implies
+			\frac{|E^{-}_{k}[U]|}{|E_{k}[U]|} > \alpha \\
+			|E^{-}_{k}[U]| - \alpha (|E_{k}[U]|) > 0 \\
+		\end{gather}
+
+		consequently the first inequality of
+		\autoref{eq:d-ecp-alpha-constraint} is satisfied. Also
+
+		\begin{multline}
+			\sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
+			a_{ij} ^{k} = |E^{-}_{k}[U]| - \alpha \cdot |E_{k}[U]| = \\
+			(1- \alpha)|E^{-}_{k}[U]| - \alpha \cdot |E^{+}_{k}[U]| \leq
+			(1 -\alpha) \cdot |E^{-}_{k}[U]| \leq M_k
+		\end{multline}
+
+		Thus also the second inequality is true. Also
+		Equations~\ref{eq:d-ecp-x-l-sum1}-\ref{eq:d-ecp-x-l-sum2} are trivially
+		satisfied.
+
+		\bigskip
+		Consequently an edge contributing to $\psi(U)$ will also count in the
+		objective function by $c$. So, for a given thread $T_k \in S_C, C \in \mathcal{\hat{C}}$
+
+		\begin{multline*}
+			\sum^{}_{ij \in E^{+} (T_{k})} x_{ij} ^{k} - \sum_{ij \in E^{-}
+				(T_{k})} x_{ij} ^{k} = \sum^{}_{ij \in E^{+}_k[U] } c - \sum_{ij \in E^{-}
+			_k[U]} c = \\ c (|E^{+}_{k}[U]| - |E^{-}_{k}[U]|) =
+			\frac{|E^{+}_{k}[U]| - |E^{-}_{k}[U]|}{|U|}
+		\end{multline*}
+
+		Thus for each thread we have the same contribution to both $\psi(U)$
+		and the objective function of
+		MIP~\ref{eq:d-ecp-objective}-\ref{eq:d-ecp-z-k} and so the sum through
+		all the threads will correspond as well.
+	\end{proof}
+
+	\begin{claim}
+		Given a feasible solution of
+		MIP~\ref{eq:d-ecp-objective}-\ref{eq:d-ecp-z-k} with value $v$ we can
+		construct $U \; s.t. \; \psi(U) \geq v$.
+	\end{claim}
+
+	\begin{proof}
+
+		Let us define $U \coloneqq \{ v_i \; s.t. \; y_i \neq 0\}$; consider
+		$v_i$ s.t. $y_i \neq 0$ (if no such vertex exists then the proof is
+		trivial) and let $c \coloneqq y_i$. By
+		Equations~\ref{eq:d-ecp-vertex-g-bi-yj} and \ref{eq:d-ecp-vertex-l-b}
+		we have that
+		\begin{equation}
+			\label{eq:d-ecpp-y-in}
+			\forall v_j \in V, \; y_j \in \{ 0, c\}
+		\end{equation}
+		and also
+		\begin{equation}
+			\forall i, j \in V, \; b_i = 1 \land b_j = 1 \implies y_i = y_j = c
+		\end{equation}
+
+		Due to Equations~\ref{eq:d-ecp-a-ij-l-bi}-\ref{eq:d-ecp-a-ij-g-ijk} we
+		have that
+		\begin{equation}
+			\label{eq:d-ecpp-a-iff}
+			a_{ij}^{k} = 1 \iff b_i = 1 \land b_j = 1
+		\end{equation}
+
+		Now consider some $x_{ij}^{k} > 0 $. By \autoref{eq:d-ecp-x-l-a}
+		$x_{ij}^{k} > 0 \implies a _{ij}^{k} = 1$ and, thanks to
+		\autoref{eq:d-ecp-x-l-z}, $x_{ij}^{k} > 0 \implies z_k = 1$. Thus, combining
+		this to the results in \autoref{eq:d-ecpp-y-in} and
+		\autoref{eq:d-ecpp-a-iff}
+
+		% todo: clarify these equations
+		\begin{gather}
+			\label{eq:d-ecpp-x-impl}
+			x_{ij}^{k} > 0 \implies a_{ij}^{k} = 1 \land z_k =1 \\
+			\label{eq:d-ecpp-z-impl}
+			z_k = 1 \implies x_{i'j'}^{k} = c, \; \forall i', j' \in U
+		\end{gather}
+
+		This means that if $\exists \; x_{ij}^{k} > 0$ then all the variables
+		$x_{i'j'}^{k}$ associated to edges induced by $U$ have value $c$.
+		% , i.e.
+		% for all threads $T_k$
+		%
+		% \begin{equation}
+		%     \{ e_{ij} \; s.t. \; x_{ij}^{k} > 0 \} = E_k
+		% \end{equation}
+		Also, since we have that $z_k = 1$ \autoref{eq:d-ecp-alpha-constraint}
+		will correspond to
+
+		\begin{equation}
+			\sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
+			a_{ij} ^{k} \leq 0
+		\end{equation}
+		We showed in \autoref{eq:d-ecpp-x-impl} that $a_{ij}^{k} = 1 \land z_k
+			= 1 \iff x_{ij}^{k} > 0 $, so the edges contributing to the objective
+		function are part of a \emph{non-controversial} subgraph, i.e. $T_k \in
+			S_C(U), C \in \mathcal{\hat{C}}$, so it will contribute to $\psi(U)$.
+
+		Now suppose $\exists \; T_k \in S_C(U), \; C \in \mathcal{\hat{C}},
+			\; z_k = 0$. By definition of $S_C(U)$ we have that
+
+		\begin{equation}
+			\eta(T_k[U]) \leq \alpha  \implies \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
+			a_{ij} ^{k} \leq 0
+		\end{equation}
+
+		because $a_{ij}^{k} = 1$ for all edges induced by $U$. But, if $z_k =
+			0$ then constraint \ref{eq:d-ecp-alpha-constraint} is violated
+		$\implies $ \emph{contradiction}. So no such $T_k$ exists and $T_k
+			\in S_C(U) \iff z_k = 1$.
+
+		This means that a thread contributing to the objective function of
+		MIP~\ref{eq:d-ecp-objective}-\ref{eq:d-ecp-z-k} also counts towards
+		$\psi(U)$. Due to \autoref{eq:d-ecpp-z-impl} we can then write, for
+		$T_k \in S_C(U)$
+
+		\begin{multline*}
+			\sum^{}_{ij \in E^{+} (T_{k})} x_{ij} ^{k} - \sum_{ij \in E^{-}
+				(T_{k})} x_{ij} ^{k} = \sum^{}_{ij \in E^{+}_k[U] } c - \sum_{ij \in E^{-}
+			_k[U]} c = \\ c (|E^{+}_{k}[U]| - |E^{-}_{k}[U]|) =
+			\frac{|E^{+}_{k}[U]| - |E^{-}_{k}[U]|}{|U|}
+		\end{multline*}
+	\end{proof}
+
+	This concludes the proof of the theorem.
+
+\end{proof}
+
+\clearpage
 
 \section{Approximation algorithms}%
 \label{sub:approximation_algorithms}
