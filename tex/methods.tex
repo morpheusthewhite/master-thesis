@@ -118,69 +118,125 @@ for values of $\alpha \leq 0.5$.
 	\hat{\mathcal{C}}
 \end{gather}
 
-The \acrshort{MIP} model introduces variables $x$, $y$ and $z$.
-\begin{itemize}
-	\item $y$ variables are associated to vertices
-	      (\autoref{eq:ecp-vertex-def1}). Intutively $y_i = 1$ means that the
-	      vertex $v_{i} $ is part of the set $U \subseteq V$ considered for the
-	      score. Let $U \coloneqq \{ v_{i} \; s.t. \; y_{i} = 1, \;
-		      v_{i} \in V \}$.
-	\item $x$ variables are associated to edges (\autoref{eq:ecp-edge-def1}).
-	      A value of $x_{ij}^{k} = 1$ should be interpreted as the fact that
-	      the edge $e_{ij} \in E_k$ is contributing to the score,
-	      i.e. $T_k \in \mathcal{S}_{C} (U)$.
-	\item $z$ variables are associated to threads
-	      (\autoref{eq:ecp-thread-def1}). A value of $1$ in this case
-	      is associated to \emph{non-controversial} threads.
-\end{itemize}
+We will know show that the \acrshort{ECP} can be solved through
+MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
 
-Let us consider Equations \ref{eq:ecp-v1}-\ref{eq:ecp-t1}. Due to them an
-edge $e_{ij} \in E_k $ implies that
-both vertices $v_{i} $ and $v_{j} $ are in $U$ and the thread is not controversial.
+\begin{theorem}
+	\label{th:ecp-mip}
+	Let $G = (V, E^{+}, E^{-})$ be an \emph{Interaction Graph} and $\alpha \in
+		[0, 0.5]$.
 
-Viceversa \autoref{eq:ecp-e1} makes sure that, if both the incident vertices
-are in $U$ and $z_{k} = 1$, then the edge contributes to the score.
+	\begin{equation}
+		\max_{U \subseteq V} \xi(U) = \text{OPT(MIP)}
+	\end{equation}
 
-Let us now consider a thread $T_k \in \mathcal{S}_{C} $.
+	where $OPT(MIP)$ denotes the optimal solution to
+	MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
+\end{theorem}
 
-Due to \autoref{eq:ecp-t1} and \autoref{eq:ecp-e1} all and only the edges
-induced by $U$ have value $z_{k} $, i.e. $x_{ij}^{k} = z_k \; \forall v_{i}, v_{j}
-	\in U$.
+\begin{proof}
+	We will show the equality by first proving that $RHS \geq LHS$ and then
+	that $LHS \geq RHS$.
 
-These variables will contribute to the objective function by
+	\begin{claim}
+		For any $U \subseteq V$, the
+		MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1} gets value $\geq \xi(U)$.
+	\end{claim}
 
-\begin{equation}
-	\label{eq:ecp-thread-contribution}
-	\sum^{}_{ij \in E^{+}_k } x_{ij} ^{k} - \sum_{ij \in E^{-} _k}
-	x_{ij} ^{k} = \sum^{}_{ij \in E^{+} _k} z_k - \sum_{ij \in E^{-} _k}
-	z_k = z_k (|E^{+} _k| - |E^{-} _k|)
-\end{equation}
+	\begin{proof}
+		Let $E_k[U]$ the set of edges induced by $U$ in thread $T_k$. We construct a solution as follows
 
-Let's suppose $T_k$ \emph{non-controversial}. Then by definition we have
-$\eta(T_k) \leq \alpha $ and so
+		\begin{gather}
+			\label{eq:ecpp-y}
+			y_i = \begin{cases}
+				1 & \text{if } v_{i} \in U \\
+				0 & \text{otherwise}
+			\end{cases} \\
+			\label{eq:ecpp-z}
+			z_k = \begin{cases}
+				1 & \text{if } T_{k} \in S_{C}(U), \; C \in \mathcal{\hat{C}} \\
+				0 & \text{otherwise}
+			\end{cases} \\
+			\label{eq:ecpp-x}
+			x_{ij}^{k} = \begin{cases}
+				1 & \text{if } e_{ij} \in E_{k}[U], \; T_{k} \in S_C(U), \; C \in
+				\mathcal{\hat{C}}                                                 \\
+				0 & \text{otherwise}
+			\end{cases}
+		\end{gather}
 
-\begin{align}
-	\eta(T_k)                                  & \leq \alpha        \\
-	\frac{|E^{-} _k|}{|E^{-} _k| + |E^{+} _k|} & \leq \alpha        \\
-	{|E^{-} _k|}                               & \leq \alpha(|E^{-}
-	_k| + |E^{+} _k|)                                               \\
-	\alpha {|E^{+} _k|}                        & \geq (1 -
-	\alpha ) |E^{-} _k|                                             \\
-	\frac{{|E^{+} _k|}}{|E^{-} _k|}
-	                                           & \geq \frac{(1 -
-		\alpha )}{\alpha } \geq 1
-\end{align}
+		To satisfy Equations~\ref{eq:ecp-v1}-\ref{eq:ecp-e1} we need that
+		\begin{equation}
+			\label{eq:ecpp-x-iff}
+			x_{ij}^{k} = 1 \iff y_i = 1 \land y_j = 1 \land z_k = 1
+		\end{equation}
 
-Where the last inequality holds since $\alpha \in [0, 0.5]$. So $|E^{+} _k| \geq
-	|E^{-} _k|$. Thus the contribution of the thread will be maximized by
-choosing $z_k = 1$ (\autoref{eq:ecp-thread-contribution}).
-\autoref{eq:ecp-alpha-constraint1} can be easily seen to be satisfied since the
-thread is \emph{non-controversial}.
+		Which is always true since we defined $x_{ij}^{k}$ to be $1$ only if it
+		is associated to an edge induced in a $T_k \in S_{C}(U), \; C \in
+			\mathcal{\hat{C}} $.
 
-Let us now suppose that $T_k \not\in \mathcal{S}_{C}(U)  $ . In this case setting $z_k$ to a value
-different from $0$ will violate constraint~\ref{eq:ecp-alpha-constraint1}.
+		Let us now consider a thread $T_k \in S_C(U)$; this means that
 
-\bigskip
+		\begin{equation}
+			\eta(T[U]) \leq \alpha \implies \frac{|E^{-}_{k}[U]|}{|E_{k}[U]|} \leq
+			\alpha \implies |E^{-}_{k}[U]| - \alpha |E_{k}[U]| \leq 0
+		\end{equation}
+
+		so \autoref{eq:ecp-alpha-constraint1} is satisfied. It is easy to see that
+		if $T_k \not\in S_C(U)$ then $x_{ij}^{k} = 0 \; \forall ij \in E_{k}$ and
+		the constraint is also satisfied.
+
+		Finally, any edge contributing to $\xi(U)$ will also
+		equally contribute to the objective function.
+	\end{proof}
+
+	\begin{claim}
+		Given a feasible solution of
+		MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1} with value $v$ we can
+		construct $U \; s.t. \; \xi(U) \geq v$.
+	\end{claim}
+
+	\begin{proof}
+		We define $U \coloneqq \{ v_{i} \; s.t. \; y_i = 1\}$. Again, by
+		Equations~\ref{eq:ecp-v1}-\ref{eq:ecp-e1} we have
+		\autoref{eq:ecpp-x-iff}, so
+
+		\begin{equation}
+			z_k = 1 \iff x_{i'j'}^{k} = 1 \; \forall i'j'
+			\in E_k[U]
+		\end{equation}
+
+		Let us know consider $T_k \; s.t. z_k = 1$ and suppose $T_k \not\in
+			S_C(U), \; C \in \mathcal{\hat{C}}$. Thus $\eta(T_k[U]) \geq \alpha$,
+		i.e.
+
+		\begin{equation}
+			\frac{|E^{-}_{k}[U]|}{|E_{k}[U]|} > \alpha \implies |E^{-}_{k}[U]| -
+			\alpha |E_{k}[U]| > 0
+		\end{equation}
+
+		which violates \autoref{eq:ecp-alpha-constraint1}. So $z_k \implies T_k
+			\in S_C(U), \; C \in \mathcal{\hat{C}}$, so $T_k[U]$ contributes to
+		$\xi(U)$. So any edge contributing to the objective function equally
+		contributes to $\xi(U)$. Now suppose $\exists \; T_k \in S_C(U) \; s.t.
+			\; z_k = 0 \implies x_{ij}^{k} = 0$. Since $\alpha \leq 0.5$
+
+		\begin{gather*}
+			\eta(T_k[U]) \leq \alpha \implies \frac{|E^{-}_{k}[U]|}{|E_{k}[U]|}
+			\leq 0.5 \\
+			|E^{-}_{k}[U]| \leq 0.5 \cdot (|E^{+}_{k}[U]| + |E^{-}_{k}[U]|) \\
+			0.5 \cdot |E^{+}_{k}[U]| - 0.5 |E^{-}_{k}[U]| \geq 0
+			\cdot |E^{+}_{k}[U]| - |E^{-}_{k}[U]| \geq 0
+		\end{gather*}
+
+		Consequently $T_k$ will contribute positely to $\xi(U)$, so $\xi(U)
+			\geq v$.
+	\end{proof}
+
+	This concludes the proof for \autoref{th:ecp-mip}.
+\end{proof}
+
+\clearpage
 
 Let us now consider $\alpha \in (0.5, 1]$. With the current formulation if, for
 a thread $T_k$, we have that $0.5 < \eta(T_k) \leq \alpha $ then the model will
@@ -560,8 +616,8 @@ in this situation the algorithm is able to reconstruct the exact solution of the
 	\label{fig:rounding-original2}
 \end{figure}
 
-\section{Solvable variants of the problem}%
-\label{sub:solvable_variants_of_the_problem}
+\section{Alternative formulations}%
+\label{sec:alternative-formulations}
 
 Due to the intrinsic complexity of the problems
 (\autoref{sec:problem_complexity_and_approximability}) we define variants of
