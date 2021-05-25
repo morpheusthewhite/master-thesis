@@ -1,14 +1,14 @@
-\chapter{Methods}
-\label{ch:methods}
+\chapter{Solving the \acrshort{ECP} and \acrshort{D-ECP}}
+\label{ch:solving}
 
-This chapter focuses on describing the main topic of the
-research: the problems are motivated and defined in
-\autoref{sec:the_echo_chamber_problem}, and their complexity is then analyzed
-in \autoref{sec:problem_complexity_and_approximability}, while proposing some
-alternative problem definitions. Algorithms and models for solving and
-approximating the problems are then proposed in
-\autoref{sec:solving_the_problem}; the definition of a generative model
-concludes the chapter (\autoref{sec:generative_model}).
+% This chapter focuses on describing the main topic of the
+% research: the problems are motivated and defined in
+% \autoref{sec:the_echo_chamber_problem}, and their complexity is then analyzed
+% in \autoref{sec:problem_complexity_and_approximability}, while proposing some
+% alternative problem definitions. Algorithms and models for solving and
+% approximating the problems are then proposed in
+% \autoref{sec:solving_the_problem}; the definition of a generative model
+% concludes the chapter (\autoref{sec:generative_model}).
 
 % \section{The \acrlong{ECP}}%
 % \label{sec:the_echo_chamber_problem}
@@ -19,60 +19,9 @@ concludes the chapter (\autoref{sec:generative_model}).
 % \acrlong{ECP} and the \acrlong{D-ECP} (\autoref{sub:the_problem_definition} and
 % \autoref{sub:the_densest_echo_chamber_problem}).
 
-% \subsection{Collection and preprocessing}%
-% \label{sub:collection_and_preprocessing}
-%
-% Datasets are built mainly upon $2$ social medias: Twitter and Reddit; the data
-% collection process, consequently, slightly differ between them.
-%
-% \paragraph{Twitter}%
-% \label{par:twitter-data}
-%
-% Twitter's \emph{Interaction Graphs} are mainly built starting from the tweets
-% of some important social accounts associated to well-known news source, like The
-% New York Times or Fox News, that tipically post links to their articles:
-% these profiles are taken as the source of the contents $\mathcal{C} $ of the graph.
-%
-% Each time another user tweets the same url (\autoref{fig:twitter-thread}) then
-% it will correspond to another thread related to the same content, and all the
-% replies it receives will be part of this new thread.
-%
-% Twitter data is retrieved with the help of Tweepy \cite{tweepy}, a Python
-% library for accessing the Twitter API, which has been patched for using some
-% features available only in the beta of the new Twitter API (v2).
-%
-% \paragraph{Reddit}%
-% \label{par:reddit}
-%
-% Differently from Twitter, Reddit focuses on subreddits, which are pages
-% collecting posts from different users about a specific topic (e.g. r/politics,
-% r/economics, $\dots$). This means that
-% in the datasets built from this social media the contents $\mathcal{C} $ is the
-% set of posts of these pages, which, differently from Twitter, most likely
-% come from different sources.
-%
-% This posts are in turn crossposted, i.e. reposted on other subreddits. Each of
-% these \emph{crosspost} will eventually correspond to another thread.
-%
-% The PRAW library is used for retrieving the data \cite{praw}.
-%
-% \paragraph{Edge weights assignment}%
-% \label{par:assigning_edge_weights}
-%
-% Once the threads interactions are retrieved they are passed to a state of the
-% art sentiment analyzer which labels them. More specifically the model used is
-% RoBERTa which has been adapted and retrained for dealing with Twitter
-% data \cite{Barbieri2020}. The model is made available by the Transformers
-% python library \cite{wolf-etal-2020-transformers}.
-%
-% \bigskip
-%
-% Finally, complying with the current privacy legislation, all the data related
-% to the user is pseudo-anonymized (accounts identifier are replaced by random
-% ones) while no data is publicly available.
 
-\section{An exact solution for the problems}%
-\label{sec:solving_the_problem}
+\section{Exact solutions}%
+\label{sec:exact-solutions}
 
 Now we present some techniques for calculating exactly and approximating both
 the \acrshort{ECP} and the \acrshort{D-ECP}.
