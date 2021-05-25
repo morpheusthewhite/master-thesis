@@ -505,7 +505,9 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 			\label{eq:d-ecpp-x-impl}
 			x_{ij}^{k} > 0 \implies a_{ij}^{k} = 1 \land z_k =1 \\
 			\label{eq:d-ecpp-z-impl}
-			z_k = 1 \implies x_{i'j'}^{k} = c, \; \forall i', j' \in U
+			z_k = 1 \implies x_{i'j'}^{k} = c, \; \forall i', j' \in U \\
+			\label{eq:d-ecpp-za-impl}
+			z_k = 1 \land a_{ij}^{k} = 1 \implies x_{ij}^{k} = c
 		\end{gather}
 
 		This means that if $\exists \; x_{ij}^{k} > 0$ then all the variables
@@ -517,7 +519,7 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 			\sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
 			a_{ij} ^{k} \leq 0
 		\end{equation}
-		We showed in \autoref{eq:d-ecpp-x-impl} that $a_{ij}^{k} = 1 \land z_k
+		We showed in Equations~\ref{eq:d-ecpp-x-impl} and \autoref{eq:d-ecpp-za-impl} that $a_{ij}^{k} = 1 \land z_k
 			= 1 \iff x_{ij}^{k} > 0 $, so the edges contributing to the objective
 		function are part of a \emph{non-controversial} subgraph, i.e. $T_k \in
 			S_C(U), C \in \mathcal{\hat{C}}$, so it will contribute to $\psi(U)$.
@@ -546,6 +548,10 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 			_k[U]} c = \\ c (|E^{+}_{k}[U]| - |E^{-}_{k}[U]|) =
 			\frac{|E^{+}_{k}[U]| - |E^{-}_{k}[U]|}{|U|}
 		\end{multline*}
+
+		So each threads equally contributes to $\psi(U)$ and the objective
+		function of MIP~\ref{eq:d-ecp-objective}-\ref{eq:d-ecp-z-k} and
+		$\psi(U) \geq v$.
 	\end{proof}
 
 	This concludes the proof of the theorem.
