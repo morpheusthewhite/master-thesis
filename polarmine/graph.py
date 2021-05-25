@@ -2089,7 +2089,19 @@ class PolarizationGraph:
             subgraph_vertices_assignment = vertices_assignment[vertices]
             majority_class = np.bincount(subgraph_vertices_assignment).argmax()
 
-            vertices_predicted[vertices] = majority_class
+            # filter out vertices which were already predicted as part of an
+            # echo chamber
+            vertex_already_predicted = vertices_predicted > -1
+
+            # assign a label only to vertices which weren't part of another
+            # echo chamber
+            current_vertex_prediction = np.zeros_like(vertices_predicted)
+            current_vertex_prediction[vertices] = majority_class + 1
+            current_vertex_prediction = current_vertex_prediction * (
+                1 - vertex_already_predicted
+            )
+
+            vertices_predicted += current_vertex_prediction
 
             induced_edges_property = self.is_induced_edge(
                 set(vertices), set(nc_threads)
