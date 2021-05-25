@@ -2066,15 +2066,15 @@ class PolarizationGraph:
         num_threads = self.num_threads()
 
         for i in range(n_clusters):
-            if CLUSTERING_APPROXIMATION:
+            if method == CLUSTERING_APPROXIMATION:
                 score, vertices, _ = self.score_relaxation_algorithm(alpha)
                 score, nc_threads = self.score_from_vertices_index(
                     vertices, alpha
                 )
-            elif CLUSTERING_NC_SUBGRAPH:
+            elif method == CLUSTERING_NC_SUBGRAPH:
                 _, vertices = self.score_densest_nc_subgraph(alpha, False)
                 nc_threads = []
-            elif CLUSTERING_02_BFF:
+            elif method == CLUSTERING_02_BFF:
                 _, vertices = self.o2_bff_dcs_am(
                     alpha, np.ceil(num_threads / 2)
                 )
