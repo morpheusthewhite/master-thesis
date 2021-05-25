@@ -18,6 +18,12 @@ MODEL = "cardiffnlp/twitter-roberta-base-sentiment"
 VERTEX_SIZE_SHOW = 50
 
 
+CLUSTERING_APPROXIMATION = "appr"
+CLUSTERING_EXACT = "exact"
+CLUSTERING_NC_SUBGRAPH = "densest_nc_subgraph"
+CLUSTERING_02_BFF = "densest_nc_subgraph"
+
+
 class PolarizationGraph:
 
     """A graph class providing methods for polarization analysis """
@@ -1996,7 +2002,7 @@ class PolarizationGraph:
         vertices_assignment: list[int],
         n_clusters: int,
         alpha: float,
-        approximation: bool = True,
+        method: str = CLUSTERING_APPROXIMATION,
     ):
         current_edge_filter, _ = self.graph.get_edge_filter()
         if current_edge_filter is None:
@@ -2014,11 +2020,19 @@ class PolarizationGraph:
         iterations_vertices = []
 
         for i in range(n_clusters):
-            if approximation:
+            if method == CLUSTERING_APPROXIMATION:
                 score, vertices, _ = self.score_relaxation_algorithm(alpha)
                 score, nc_threads = self.score_from_vertices_index(
                     vertices, alpha
                 )
+            elif method == CLUSTERING_NC_SUBGRAPH:
+                _, vertices = self.score_densest_nc_subgraph(alpha, False)
+                nc_threads = []
+            elif method == CLUSTERING_02_BFF:
+                _, vertices = self.o2_bff_dcs_am(
+                    alpha, np.ceil(num_threads / 2)
+                )
+                nc_threads = []
             else:
                 score, vertices, _, nc_threads = self.score_mip(alpha)
 
@@ -2027,7 +2041,11 @@ class PolarizationGraph:
             if len(vertices) == 0:
                 break
 
-            vertices_predicted[vertices] = i
+            # compute jaccard coefficient for the current classification
+            subgraph_vertices_assignment = vertices_assignment[vertices]
+            majority_class = np.bincount(subgraph_vertices_assignment).argmax()
+
+            vertices_predicted[vertices] = majority_class
 
             induced_edges_property = self.is_induced_edge(
                 set(vertices), set(nc_threads)
@@ -2036,24 +2054,16 @@ class PolarizationGraph:
             # exclude induced vertices, i.e. keep edges that are not induced
             # and unfilter previously
             current_edge_filter.a = np.logical_and(
-                current_edge_filter.a, np.logical_not(induced_edges_property.a)
+                current_edge_filter.a,
+                np.logical_not(induced_edges_property.a),
             )
             self.graph.set_edge_filter(current_edge_filter)
 
-            # compute jaccard coefficient for the current classification
-            subgraph_vertices_assignment = vertices_assignment[vertices]
-
-            # majority class in the returned vertices
-            majority_class = np.bincount(subgraph_vertices_assignment).argmax()
-
-            # vertices that really belong to the majority class
             class_assignment = (vertices_assignment == majority_class).astype(
                 np.int32
             )
             class_prediction = np.zeros_like(class_assignment)
-            # set to one vertices that are returned
             class_prediction[vertices] = 1
-
             iteration_score = metrics.jaccard_score(
                 class_assignment, class_prediction
             )

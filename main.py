@@ -260,7 +260,9 @@ def score_clustering(
         jaccard_iterations,
         precision_iterations,
         iteration_vertices,
-    ) = graph.clustering_accuracy(graph.labels.a, 2, alpha)
+    ) = graph.clustering_accuracy(
+        graph.labels.a, 2, alpha, approximation=False
+    )
 
     print(f"Adjusted RAND score: {adj_rand_score}", file=clustering_txt_file)
     print(f"RAND score: {rand_score}", file=clustering_txt_file)
