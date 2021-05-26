@@ -1,12 +1,12 @@
 \chapter{Introduction}
 \label{ch:introduction}
 
-Social networks are nowadays largely used by people, allowing users to
-interact and discuss the most different topics, but at the same time in these
-platforms the polarization between users is constantly growing and several
-studies have been conducted about it
+Social networks are nowadays widely used by people, allowing users to
+discuss the most different topics and interact with each other. At the same time in these
+platforms we are observing an increasing polarization between the users;
+this inspired several studies which have been conducted about the topic
 \cite{Garimella2018}\cite{Guerra2013}\cite{conover2011political}\cite{gruzd2014investigating},
-some of which focused on the recent debate about COVID-19
+the most recent ones focusing on COVID-19
 \cite{Jiang2021}\cite{green2020elusive}\cite{jiang2020political}\cite{lang2021maskon}
 and vaccination \cite{Cossard2020}.
 
@@ -21,17 +21,17 @@ indicated by the members' predeliberation  tendency. `[L]ike polarized
 molecules, group members become even more aligned in the direction they were
 already tending.'\cite{turner1987rediscovering}''
 
-In this document we aim at finding a method for finding Echo Chambers, by
+In this research we aim at finding a method for detecting Echo Chambers, by
 analyzing data retrieved from social medias like Twitter and Reddit: we define
 the \acrfull{ECP} and the \acrfull{D-ECP} and propose techniques for solving
 and approximating them.
 
-Both these $2$ problems are defined on a signed graph, i.e. distinguishing
+These $2$ problems are defined on a signed graph which distinguishes
 between \emph{friendly} and \emph{hostyle} interactions between the users.
 Differently from previous studies of polarization on signed graph
 \cite{xiao2020searching}, we define
 and incorporate in our problems the ideas of \emph{contents} (the piece of
-information which is discussed) and \emph{threads} (the local community
+information which is discussed) and \emph{threads} (the "locality"
 discussing a content).
 
 \section{Background}
@@ -63,7 +63,7 @@ graph instead associates a weight $\omega $ to each edge
 \cite{Menczer2020}\cite{AlbertLaszloNortheasternUniversity2016}.
 
 Sometimes also edges are allowed to be either positive or negative (for example when
-definying the relationships in a acquaintance network): these king of networks
+definying the relationships in a acquaintance network): these kind of networks
 are usually called \emph{signed graphs} \cite{Newman2018}.
 
 \bigskip
@@ -86,17 +86,17 @@ a different type of connection \cite{Newman2018}.
 \subsection{The Interaction Graph}
 \label{sub:interaction-graph}
 
-The \emph{Interaction Graph} $G$ is the graph which encodes the informations
-regarding the interactions between the users.
+The \emph{Interaction Graph} $G$ is the graph we utilize to encode the
+information regarding the interactions between the users.
 
 In this graph each users is associated to a vertex $v \in V$ and each edge to
-an interaction between the $2$ corresponding users it links. For this reason we
+an interaction between the $2$ incident users it links. For this reason we
 will sometime refer to vertices as users in the rest of the document.
 
 $G = (V, E^{+}, E^{-})  $ is a
 signed and weighted graph, the weights being in the interval $[-1, +1]$,
 corresponding to positive and negative interactions, meaning that for smaller
-the value of the weight the interaction will more "negative".
+values of the weight the interaction will more "negative".
 
 The \emph{Interaction Graph} is also directed, so that an edge from vertex $v_{i}
 $ to vertex $v_{j} $ corresponds to a reply from user $v_{i} $ to $v_{j} $.
@@ -112,9 +112,9 @@ it is identified by its url, e.g.
 		\end{center}
 	}
 
-A corresponding thread may then be, for example, a user posting and commenting
-the same url on its Twitter account (see \autoref{fig:twitter-thread}), thus
-generating a discussion.
+A corresponding thread then may be, for example, the one generate by a user
+posting and commenting the same url on its Twitter account (see
+\autoref{fig:twitter-thread}), thus generating a discussion.
 
 \begin{figure}
 	\centering
@@ -127,7 +127,7 @@ The \emph{Interaction Graph} is a \emph{multiplex graph}, each layer being
 represented by a thread $T$ whose edges are the interactions happening in it.
 Note also that for this reason each of the layers can contain more than one
 edge between $2$ users, as each pair of users can reply to each other more than
-once.
+one time.
 
 We will also use $\mathcal{C} $ for denoting the set of contents.
 
@@ -173,15 +173,15 @@ specifically on the \emph{Interaction Graph} as defined in
 Our definition is based on the idea that echo chambers can be identified by
 looking at contents which is generally highly debated (we will call
 this type of content \emph{controversial}) but which is discussed with little
-or no animosity in small subgraphs. This subgraphs are the \emph{Echo
+or no animosity in some subgraphs. This subgraphs are the \emph{Echo
 	Chambers}.
 
 \bigskip
 
 Given an \emph{Interaction Graph} $G = (V, E^{+}, E^{-})$ on some contents
-$\mathcal{C} $ and threads, let $\eta(T)$ the number of negative edges over the
-total number of edges in the layer associated to thread $T$. Similarly,
-let $\eta(C)$ be the fraction of negative edges in all threads associated to
+$\mathcal{C} $ and threads, let $\eta(T)$ be the ratio between the number of
+negative edges and the total number of edges in the layer associated to thread
+$T$. Similarly, let $\eta(C)$ be the same ratio in all threads associated to
 content $C$.
 
 \begin{definition}[Controversial thread]
@@ -197,11 +197,11 @@ set of \emph{controversial} contents.
 
 \medskip
 
-\emph{Echo Chambers} correspond to \emph{non-controversial} smaller subgraphs
+\emph{Echo Chambers} correspond to \emph{non-controversial} subgraphs
 (i.e. with few negative edges) discussing a
 \emph{controversial} content.
 
-More formally, let $T[U]$ the subgraph induced in the layer associated to
+More formally, let $T[U]$ be the subgraph induced in the layer associated to
 thread $T$ by the vertices $U$; let $|T^{+} [U]|$ and $|T^{-} [U]|$ its number
 of positive and negative edges, respectively.
 
@@ -252,7 +252,7 @@ We will denote with $\hat{U}$ the set of users maximizing
 \label{sub:the_densest_echo_chamber_problem}
 
 The \acrshort{ECP} doesn't take into account the number of users producing a
-certain score; this means that the set $U$ may involve disconnected and sparse
+certain score; this means that the set $U$ may involve also very sparse
 subgraphs, depending on the structure of the graph $G$.
 
 For this reason it is interesting also to study another variant of the
@@ -278,19 +278,13 @@ Given an \emph{Interaction Graph} $G$ and $\alpha \in [0, 1]$ find a set of vert
 \section{Goals}
 \label{sec:goals}
 
-In this document we address the following research questions:
+This work addresses the following research questions:
 
 \begin{enumerate}
-	\item Are the \acrlong{ECP} and the \acrlong{D-ECP} approximable? How can
-	      they be solved?
-	\item Are these problems capable of finding echo chambers inside social
-	      medias?
+	\item How can we solve the \acrlong{ECP} and the \acrlong{D-ECP}?
+	\item Are they solvable or approximable in polynomial time?
+	\item Are these definitions capable of finding echo chambers?
 \end{enumerate}
-
-% \section{Research metodology}%
-% \label{sec:research_metodology}
-%
-% % todo
 
 \section{Structure of the thesis}
 \label{sec:structure-thesis}
@@ -301,23 +295,23 @@ The thesis is structured as follows
 	\item \autoref{ch:background} presents previous works and concepts
 	      needed for the development of the methods presented in
 	      the following chapters
-	\item \autoref{ch:complexity} provides proof regarding the complexity
+	\item \autoref{ch:complexity} provides proofs regarding the approximability
 	      of the problems
 	\item \autoref{ch:solving} defines and prove methods for solving
-	      exactly and approximating the problems
+	      and approximating the problems
 	\item \autoref{ch:resultsAndAnalysis} focuses on analyzing the
 	      data, how it is retrieved and preprocessed, and discussing the results
-	      obtained by applying the presented methods
+	      obtained by applying the introduced methods
 	\item \autoref{ch:conclusionsAndFutureWork} presents the positive effects
-	      and the drawbacks of the results as well and possible future
-	      developments in the field
+	      and the drawbacks of the results as well as possible future
+	      developments and improvements
 \end{enumerate}
 
 \section{About the thesis}
 \label{sec:about-thesis}
 
-The code which was used to obtain the results presented in the rest of the
-document is available at the following GitHub url
+The Python code used to obtain the results presented in the rest of the
+document is available at the following url
 
 \begin{center}
 	\url{https://github.com/morpheusthewhite/master-thesis}
