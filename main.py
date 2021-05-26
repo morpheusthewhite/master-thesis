@@ -8,7 +8,11 @@ import time
 import numpy as np
 from typing import Optional
 
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import (
+    PolarizationGraph,
+    CLUSTERING_EXACT,
+    CLUSTERING_APPROXIMATION,
+)
 from polarmine.utils import plot_degree_distribution, print_top_k
 from polarmine.collectors.reddit_collector import RedditCollector
 from polarmine.collectors.twitter_collector import TwitterCollector
@@ -261,7 +265,7 @@ def score_clustering(
         precision_iterations,
         iteration_vertices,
     ) = graph.clustering_accuracy(
-        graph.labels.a, 2, alpha, approximation=False
+        graph.labels.a, 2, alpha, method=CLUSTERING_APPROXIMATION
     )
 
     print(f"Adjusted RAND score: {adj_rand_score}", file=clustering_txt_file)
