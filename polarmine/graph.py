@@ -1611,6 +1611,7 @@ class PolarizationGraph:
         edges_np = edges_np[edges_np[:, 2] != 0]
 
         # sort edges by weight in descending order
+        np.random.shuffle(edges_np)
         edges_sorted = edges_np[np.flip(np.argsort(edges_np[:, 2]))]
 
         score_max = 0
@@ -1622,7 +1623,6 @@ class PolarizationGraph:
 
         # graph used for detecting connected components
         components_graph = gt.Graph(directed=False)
-        components_graph.add_edge_list(edges_np[:, :2])
         components_graph.set_fast_edge_removal(True)
 
         old_num_components = -1
@@ -2025,6 +2025,11 @@ class PolarizationGraph:
                 None,
                 node_is_active,
             )
+
+    def get_positive_edges(self):
+        edges = self.graph.get_edges([self.weights])
+        positive_edges = edges[edges[:, 2] >= 0]
+        return positive_edges
 
     def is_induced_edge(self, vertices: set, threads: set):
         is_induced_property = self.graph.new_edge_property("bool")
