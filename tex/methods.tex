@@ -1,4 +1,4 @@
-\chapter{Solving the \acrshort{ECP} and \acrshort{D-ECP}}
+\chapter{Solving the \acrshort{ECP} and the \acrshort{D-ECP}}
 \label{ch:solving}
 
 % This chapter focuses on describing the main topic of the
@@ -103,13 +103,13 @@ MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
 			\end{cases} \\
 			\label{eq:ecpp-z}
 			z_k = \begin{cases}
-				1 & \text{if } T_{k} \in S_{C}(U), \; C \in \mathcal{\hat{C}} \\
+				1 & \text{if } T_{k} \in \mathcal{S}_C(U), \; C \in \mathcal{\hat{C}} \\
 				0 & \text{otherwise}
 			\end{cases} \\
 			\label{eq:ecpp-x}
 			x_{ij}^{k} = \begin{cases}
-				1 & \text{if } e_{ij} \in E_{k}[U], \; T_{k} \in S_C(U), \; C \in
-				\mathcal{\hat{C}}                                                 \\
+				1 & \text{if } e_{ij} \in E_{k}[U], \; T_{k} \in \mathcal{S}_C(U), \; C \in
+				\mathcal{\hat{C}}                                                           \\
 				0 & \text{otherwise}
 			\end{cases}
 		\end{gather}
@@ -121,10 +121,10 @@ MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
 		\end{equation}
 
 		Which is always true since we defined $x_{ij}^{k}$ to be $1$ only if it
-		is associated to an edge induced in a $T_k \in S_{C}(U), \; C \in
+		is associated to an edge induced in a $T_k \in \mathcal{S}_C(U), \; C \in
 			\mathcal{\hat{C}} $.
 
-		Let us now consider a thread $T_k \in S_C(U)$; this means that
+		Let us now consider a thread $T_k \in \mathcal{S}_C(U)$; this means that
 
 		\begin{equation}
 			\eta(T[U]) \leq \alpha \implies \frac{|E^{-}_{k}[U]|}{|E_{k}[U]|} \leq
@@ -132,7 +132,7 @@ MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
 		\end{equation}
 
 		so \autoref{eq:ecp-alpha-constraint1} is satisfied. It is easy to see that
-		if $T_k \not\in S_C(U)$ then $x_{ij}^{k} = 0 \; \forall ij \in E_{k}$ and
+		if $T_k \not\in \mathcal{S}_C(U)$ then $x_{ij}^{k} = 0 \; \forall ij \in E_{k}$ and
 		the constraint is also satisfied.
 
 		Finally, any edge contributing to $\xi(U)$ will also
@@ -156,7 +156,7 @@ MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
 		\end{equation}
 
 		Let us know consider $T_k \; s.t. z_k = 1$ and suppose $T_k \not\in
-			S_C(U), \; C \in \mathcal{\hat{C}}$. Thus $\eta(T_k[U]) \geq \alpha$,
+			\mathcal{S}_C(U), \; C \in \mathcal{\hat{C}}$. Thus $\eta(T_k[U]) \geq \alpha$,
 		i.e.
 
 		\begin{equation}
@@ -165,9 +165,9 @@ MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
 		\end{equation}
 
 		which violates \autoref{eq:ecp-alpha-constraint1}. So $z_k \implies T_k
-			\in S_C(U), \; C \in \mathcal{\hat{C}}$, so $T_k[U]$ contributes to
+			\in \mathcal{S}_C(U), \; C \in \mathcal{\hat{C}}$, so $T_k[U]$ contributes to
 		$\xi(U)$. So any edge contributing to the objective function equally
-		contributes to $\xi(U)$. Now suppose $\exists \; T_k \in S_C(U) \; s.t.
+		contributes to $\xi(U)$. Now suppose $\exists \; T_k \in \mathcal{S}_C(U) \; s.t.
 			\; z_k = 0 \implies x_{ij}^{k} = 0$. Since $\alpha \leq 0.5$
 
 		\begin{gather*}
@@ -326,7 +326,7 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 			\end{cases} \\
 			\label{eq:ecpp-z}
 			z_k = \begin{cases}
-				1 & \text{if } T_{k} \in S_{C}(U), \; C \in \mathcal{\hat{C}} \\
+				1 & \text{if } T_{k} \in \mathcal{S}_C(U), \; C \in \mathcal{\hat{C}} \\
 				0 & \text{otherwise}
 			\end{cases} \\
 			\label{eq:ecpp-x}
@@ -336,8 +336,8 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 				0 & \text{otherwise}
 			\end{cases} \\
 			x_{ij}^{k} = \begin{cases}
-				c & \text{if } e_{ij} \in E_{k}[U], \; T_{k} \in S_C(U), \; C \in
-				\mathcal{\hat{C}}                                                 \\
+				c & \text{if } e_{ij} \in E_{k}[U], \; T_{k} \in \mathcal{S}_C(U), \; C \in
+				\mathcal{\hat{C}}                                                           \\
 				0 & \text{otherwise}
 			\end{cases}
 		\end{gather}
@@ -348,13 +348,13 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 		Equations~\ref{eq:d-ecp-edge-charikar1}-\ref{eq:d-ecp-edge-charikar2}.
 		Equations~\ref{eq:d-ecp-vertex-l-b} and
 		\ref{eq:d-ecp-x-l-a}-\ref{eq:d-ecp-x-l-z} hold since
-		$S_C(U) \subseteq \mathcal{T}_C $. It also easy to see that
+		$\mathcal{S}_C(U) \subseteq \mathcal{T}_C $. It also easy to see that
 		\autoref{eq:d-ecp-vertex-g-bi-yj} is satisfied since we defined $y_i$
 		and $b_i$ s.t. $b_i = 1 \iff y_i = c$. Furthermore, since $y_i = c \iff
 			y_i \in U$ then $ \sum^{}_{i \in V} y_i = \sum^{}_{i \in U} c = 1$
 		and \autoref{eq:d-ecp-vertex-charikar1} is also satisfied.
 
-		Let us know consider $T_k \in S_C(U) \implies z_k = 1$. Then, by definition
+		Let us know consider $T_k \in \mathcal{S}_C(U) \implies z_k = 1$. Then, by definition
 
 		\begin{gather}
 			\eta(T_k[U]) \leq \alpha \implies
@@ -399,7 +399,7 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 
 		\bigskip
 		Consequently an edge contributing to $\psi(U)$ will also count in the
-		objective function by $c$. So, for a given thread $T_k \in S_C, C \in \mathcal{\hat{C}}$
+		objective function by $c$. So, for a given thread $T_k \in \mathcal{S}_C, C \in \mathcal{\hat{C}}$
 
 		\begin{multline*}
 			\sum^{}_{ij \in E^{+} (T_{k})} x_{ij} ^{k} - \sum_{ij \in E^{-}
@@ -471,10 +471,10 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 		We showed in Equations~\ref{eq:d-ecpp-x-impl} and \autoref{eq:d-ecpp-za-impl} that $a_{ij}^{k} = 1 \land z_k
 			= 1 \iff x_{ij}^{k} > 0 $, so the edges contributing to the objective
 		function are part of a \emph{non-controversial} subgraph, i.e. $T_k \in
-			S_C(U), C \in \mathcal{\hat{C}}$, so it will contribute to $\psi(U)$.
+			\mathcal{S}_C(U), C \in \mathcal{\hat{C}}$, so it will contribute to $\psi(U)$.
 
-		Now suppose $\exists \; T_k \in S_C(U), \; C \in \mathcal{\hat{C}},
-			\; z_k = 0$. By definition of $S_C(U)$ we have that
+		Now suppose $\exists \; T_k \in \mathcal{S}_C(U), \; C \in \mathcal{\hat{C}},
+			\; z_k = 0$. By definition of $\mathcal{S}_C(U)$ we have that
 
 		\begin{equation}
 			\eta(T_k[U]) \leq \alpha  \implies \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
@@ -484,12 +484,12 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 		because $a_{ij}^{k} = 1$ for all edges induced by $U$. But, if $z_k =
 			0$ then constraint \ref{eq:d-ecp-alpha-constraint} is violated
 		$\implies $ \emph{contradiction}. So no such $T_k$ exists and $T_k
-			\in S_C(U) \iff z_k = 1$.
+			\in \mathcal{S}_C(U) \iff z_k = 1$.
 
 		This means that a thread contributing to the objective function of
 		MIP~\ref{eq:d-ecp-objective}-\ref{eq:d-ecp-z-k} also counts towards
 		$\psi(U)$. Due to \autoref{eq:d-ecpp-z-impl} we can then write, for
-		$T_k \in S_C(U)$
+		$T_k \in \mathcal{S}_C(U)$
 
 		\begin{multline*}
 			\sum^{}_{ij \in E^{+} (T_{k})} x_{ij} ^{k} - \sum_{ij \in E^{-}
