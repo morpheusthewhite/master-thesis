@@ -88,6 +88,7 @@ MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
 	that $LHS \geq RHS$.
 
 	\begin{claim}
+		\label{th:claim-v-b-xi}
 		For any $U \subseteq V$, the
 		MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1} gets value $\geq \xi(U)$.
 	\end{claim}
@@ -140,6 +141,7 @@ MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
 	\end{proof}
 
 	\begin{claim}
+		\label{th:claim-xi-b-v}
 		Given a feasible solution of
 		MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1} with value $v$ we can
 		construct $U \; s.t. \; \xi(U) \geq v$.
@@ -151,6 +153,7 @@ MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
 		\autoref{eq:ecpp-x-iff}, so
 
 		\begin{equation}
+			\label{eq:ecpp-z-iff-xij}
 			z_k = 1 \iff x_{i'j'}^{k} = 1 \; \forall i'j'
 			\in E_k[U]
 		\end{equation}
@@ -187,45 +190,135 @@ MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
 
 \clearpage
 
-Let us now consider $\alpha \in (0.5, 1]$. With the current formulation if, for
-a thread $T_k$, we have that $0.5 < \eta(T_k) \leq \alpha $ then the model will
-prefer a solution in which all the edges $e_{ij} \in E_k$ are set to $0$, which
-still satisfies all the constraints, even if the induced subgraph in the thread
-is \emph{non-controversial} (and so contributes to the score and $x_{ij}^{k}  $
-need to be set to 1). For this reason we need to introduce to the previous
-problem the following constraints
+Solving the problem for $\alpha \in [0, 1]$ requires the definition of
+additional variables and constraints
 
+\begin{equation}
+	\label{eq:ecp-exact2}
+	\text{maximize} \; \sum_{ T_{k} \in \mathcal{T}_{C}, \; C \in
+		\mathcal{\hat{C}} } \big( \sum^{}_{ij \in E^{+} (T_{k})} x_{ij}
+		^{k} - \sum_{ij \in E^{-} (T_{k})} x_{ij} ^{k} \big)
+\end{equation} \begin{center} subject to \end{center}
 \begin{gather}
+	\label{eq:ecp-v12}
+	x _{ij}^{k}  \leq y_i \quad\quad \forall ij \in E_k  \\
+	\label{eq:ecp-v22}
+	x _{ij}^{k}  \leq y_j \quad\quad \forall ij \in E_k \\
+	\label{eq:ecp-t2}
+	x _{ij}^{k}  \leq z_k \quad\quad \forall ij \in E_k \\
+	\label{eq:ecp-e2}
+	x _{ij} ^{k} \geq - 2 + y_i + y_j + z_k \quad\quad \forall ij \in E_k \\
 	\label{eq:ecp-a-alpha-constraint}
-	\sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
-	a_{ij} ^{k} \geq - N_{k} z_{k}  \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
-	\hat{\mathcal{C}} \\
-	\label{eq:ecp-a-ij-g-i-j}
+	-N_k z_k < \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
+	a_{ij} ^{k} \leq - M_{k} (1 - z_{k})  \quad\quad \forall T_{k} \in
+	\mathcal{T} _{C}, C \in \mathcal{\hat{C}} \\
+	\label{eq:ecp-a-ij-g-i-j2}
 	a_{ij}^{k} \geq -1 + y_i + y_j \quad\quad \forall ij \in E_k \\
-	\label{eq:ecp-a-ij-l-i}
+	\label{eq:ecp-a-ij-l-i2}
 	a_{ij}^{k} \leq y_i\quad\quad \forall ij \in E_k \\
-	\label{eq:ecp-a-ij-l-j}
+	\label{eq:ecp-a-ij-l-j2}
 	a_{ij}^{k} \leq y_j \quad\quad \forall ij \in E_k \\
 	\label{eq:ecp-a-domain-2}
 	0 \leq a_{ij}^{k} \leq 1 \quad\quad \forall ij \in E_k \\
+	\label{eq:ecp-vertex-def2}
+	y _{i} \in  \{0, 1\} \quad\quad \forall i \in V \\
+	\label{eq:ecp-edge-def2}
+	0 \leq x _{ij} ^{k}  \leq 1 \quad\quad \forall ij \in E_k \\
 	\label{eq:ecp-z-domain-2}
 	z _{k} \in  \{0, 1\} \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
 	\hat{\mathcal{C}}
 \end{gather}
 
-Where \autoref{eq:ecp-z-domain-2} replaces \autoref{eq:ecp-thread-def1} and
-$N_k \coloneqq \alpha |E^{+}_k| $ is a positive constant (its value correspond
-to the minimum possible value achievable by the LHS to make the constraint as
-tight as possible).
+Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(1 -
+	\alpha ) |E^{-}_k|$, respectively.
 
-Variables $a_{ij}^{k}  $, associated to edges, are set to $1$ iff the
-corresponding vertices are in $U$
-(Equations~\ref{eq:ecp-a-ij-g-i-j}-\ref{eq:ecp-a-ij-l-j}). Consequently, if the
-subgraph induced is not controversial then by definition the LHS of
-\autoref{eq:ecp-a-alpha-constraint} will be smaller than $0$, forcing $z_k$ to
-be 1, thus bounding the corresponding $x_{ij} ^{k} $ to be $1$ due to
-\autoref{eq:ecp-e1}.
+\begin{theorem}
+	\label{th:ecp-mip}
+	Let $G = (V, E^{+}, E^{-})$ be an \emph{Interaction Graph} and $\alpha \in
+		[0, 1]$.
 
+	\begin{equation}
+		\max_{U \subseteq V} \xi(U) = \text{OPT(MIP)}
+	\end{equation}
+
+	where $OPT(MIP)$ denotes the optimal solution to
+	MIP~\ref{eq:ecp-exact2}-\ref{eq:ecp-z-domain-2}.
+\end{theorem}
+\begin{proof}
+	\begin{claim}
+		\label{th:claim-v-b-xi2}
+		For any $U \subseteq V$, the
+		MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1} gets value $\geq \xi(U)$.
+	\end{claim}
+
+	It easy to see that by choosing $x_{ij}^{k}, \; y_i, \; z_k$ as before and
+	\begin{equation*}
+		a_{ij}^{k} = \begin{cases}
+			1 & \text{if } e_{ij} \in E_k[U] \\
+			0 & \text{otherwise}
+		\end{cases}
+	\end{equation*}
+	all the constraints of the new formulation are satisfied and
+	Claim~\ref{th:claim-v-b-xi} is consequently proved for
+	MIP~\ref{eq:ecp-exact2}-\ref{eq:ecp-z-domain-2}.
+
+	We will instead focus of proving the analogous of Claim~\ref{th:claim-xi-b-v}.
+	\begin{claim}
+		\label{th:claim-xi-b-v2}
+		Given a feasible solution of
+		MIP~\ref{eq:ecp-exact2}-\ref{eq:ecp-z-domain-2} with value $v$ we can
+		construct $U \; s.t. \; \xi(U) \geq v$ for any $\alpha$.
+	\end{claim}
+
+	\begin{proof}
+		Let $U \coloneqq \{ v_i \; s.t. \; y_i = 1\} $. We won't prove
+		some results in Claim~\ref{th:claim-xi-b-v} which still hold.
+
+		Due to Equations~\ref{eq:ecp-a-ij-g-i-j2}-\ref{eq:ecp-a-ij-l-j2} we
+		have that
+		\begin{equation}
+			a_{ij}^{k} = 1 \iff y_i = 1 \land y_j = 1
+		\end{equation}
+		i.e. all and only the edges induced by $U$ will have the corresponding
+		$a_{ij}^{k} = 1$.
+
+		Consider now a thread $T_k \in \mathcal{S}_C(U)$. By definition we
+		have that
+		\begin{gather*}
+			\eta(T_k) \leq \alpha \\
+			\frac{|E^{-}_{k}[U]|}{|E_{k}[U]|} \leq \alpha \\
+			|E^{-}_{k}[U]| - \alpha \cdot |E_{k}[U]| \leq 0
+		\end{gather*}
+		thus, because of \autoref{eq:ecp-a-alpha-constraint} $z_k = 1$. This
+		means that the constraint resolves to
+		\begin{equation*}
+			-\alpha |E_{k}[U]| < \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)} a_{ij} ^{k}
+		\end{equation*}
+		which is satisfied since
+		\begin{multline}
+			\sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
+			a_{ij} ^{k} = |E^{-}_{k}[U]| - \alpha \cdot |E_{k}[U]| = \\
+			(1- \alpha)|E^{-}_{k}[U]| - \alpha \cdot |E^{+}_{k}[U]| \geq -
+			\alpha \cdot |E^{+}_{k}[U]| > N_k
+		\end{multline}
+
+		Consequently, because of \autoref{eq:ecpp-z-iff-xij}, we have that
+		\begin{equation}
+			T_k \in \mathcal{S}_C(U) \iff x_{ij}^{k} = 1 \; \forall \;i, j, \in U
+		\end{equation}
+		meaning that $T_k$ \emph{non controversial} will equally contribute to
+		$\xi$ and $v$.
+		Now consider $T_k$ \emph{controversial}. In order for $v$ to be a
+		feasible solution $z_k = 0$ (to satisfy
+		\autoref{eq:ecp-a-alpha-constraint}, as the sum between the $2$
+		inequalities is $> 0$), thus $x_{ij}^{k} = 0 \; \forall \;i, j, \in V$
+		and the contribution of $T_k$ is again the same in $\xi$ and $v$ and,
+		in general $\xi(U) = v$, proving the claim.
+	\end{proof}
+
+	Due to Claims~\ref{th:claim-v-b-xi2} and \ref{th:claim-xi-b-v2} the theorem
+	is proved.
+\end{proof}
 
 \subsection{A MIP model for the \acrshort{D-ECP}}%
 \label{sub:a_mip_model_for_the_d_ecp}
