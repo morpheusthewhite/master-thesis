@@ -36,6 +36,11 @@ FLAIR_DICT = {
     "sikh": 8,
 }
 
+CLUSTERING_APPROXIMATION = "appr"
+CLUSTERING_EXACT = "exact"
+CLUSTERING_NC_SUBGRAPH = "densest_nc_subgraph"
+CLUSTERING_02_BFF = "o2_bff"
+
 
 class PolarizationGraph:
 
