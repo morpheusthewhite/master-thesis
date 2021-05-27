@@ -2,7 +2,7 @@
 \label{ch:background}
 
 This chapter provides the background knowledge relevant for the thesis work. It
-will initially discuss graph and related problems (\autoref{sec:signed_graphs_and_density}) which are significant in the
+will initially discuss graph density problems (\autoref{sec:signed_graphs_and_density}) which are significant in the
 following used methodologies, as well as concepts of computational complexity
 (\autoref{sec:computational_complexity_and_approximability}) and \acrlong{LP} (\autoref{sec:linear_and_mixed_integer_programming}).
 
@@ -13,7 +13,8 @@ following used methodologies, as well as concepts of computational complexity
 \label{sub:densest_subgraphs}
 
 Finding dense subgraphs is a problem which has received a lot of attention and
-has been studied a lot, and different definitions have been adopted
+different definitions of density have been used, each corresponding to
+different problems
 \cite{charikar2000greedy}\cite{asahiro1995finding}\cite{asahiro2000greedily}
 \cite{feige1997densest}.
 
@@ -85,11 +86,10 @@ solving the Densest Subgraph problem which gives a $2$-approximation for
 $f(G)$.
 
 The algorithm starts by defining a set of vertices $S$ which is initialized
-with $V$ and, along the iteration, it removes from $S$ the vertex $v_i$ which
-has the lowest degree in the subgraph induced by $S$ until $S$ is empty. Then
-it returns the $S$ which, along the iterations, was associated with the highest
-density $f(S)$.
-
+with $V$ and, through the iterations, it removes from $S$ the vertex $v_i$
+which has the lowest degree in the subgraph induced by $S$, until $S$ is empty.
+Then it returns the $S$ which, during the process, was associated with the
+highest density $f(S)$.
 
 
 \subsection{The Densest Common Subgraph Problem}%
@@ -125,7 +125,8 @@ and \cite{semertzidis2019finding} that also introduced new variants.
 \end{figure}
 
 Let $\mathcal{G} = (G_1, G_2, \dots, G_T) $ be a sequence of graphs on the same
-set of vertices $V$ (an example is shown in Figure~X), %TODO $S \subseteq V$ a
+set of vertices $V$ (an example is shown in
+\autoref{fig:graph_sequence_example}), $S \subseteq V$ a
 subset of the nodes, $G_i[S]$ the subgraph induced by $S$ in $G_i$,
 $\text{deg}_{G_i[S]} (v_{j} )$ the degree of $v_{j} \in S$ in $G_i[S]$ and
 $\text{min-deg}(G_i[S])$ the minimum induced degree, i.e.
@@ -136,7 +137,8 @@ Solving the \acrlong{DCS} Problem means finding a subset
 of the vertices $S \subseteq V$ that maximizes some aggregate density function
 over the graph sequence.
 
-According to the aggregate function there are different variants
+According to the choice of the aggregate function there are different variants
+of the problem
 
 \begin{itemize}
 	\item \acrshort{DCS}-MM maximizes the Minimum of the Minimum degrees along
@@ -145,7 +147,7 @@ According to the aggregate function there are different variants
 		      \label{eq:dcs-mm}
 		      \min_{i \in [T]} \text{min-deg} (G_i[S])
 	      \end{equation}
-	      A non trivial solution means finding a set of nodes which are linked
+	      A non-trivial solution means finding a set of nodes which are linked
 	      in all the graphs $G_i \in \mathcal{G} $.
 	      In \cite{semertzidis2019finding} it is shown a simple greedy approach
 	      for finding the solution in polinomial time.
@@ -164,7 +166,7 @@ According to the aggregate function there are different variants
 	      Semertzidis, Pitoura, Terzi, Tsaparas in
 	      \cite{semertzidis2019finding} provide some
 	      approximation algorithms with guaranteed bounds;
-	      \cite{charikar2018finding} also proves its
+	      in \cite{charikar2018finding} also they prove its
 	      inapproximability to within a $\mathcal{O}(2 ^{\log^{1-\epsilon} n} )
 	      $ factor unless $\mathcal{NP} \subseteq \mathbf{DTIME} (n
 		      ^{\text{poly}\log n} ) $, $\forall \epsilon > 0$
@@ -183,10 +185,10 @@ According to the aggregate function there are different variants
 	      \end{equation}
 
 	      which will push the algorithms to find a set of vertices which are
-	      generally (i.e. in at least some of the graphs in the sequence)
+	      generally (i.e. in at least some graphs in the sequence)
 	      connected to each other.
 
-	      Charikar, Naamad and Yu proved in \cite{charikar2018finding} a
+	      Charikar, Naamad and Yu proved in \cite{charikar2018finding}
 	      its inapproximability within $n^{1-\epsilon} $ unless
 	      $\mathcal{P} = \mathcal{NP}  $, $\forall \epsilon > 0$
 	      \footnote{By reducing from the
@@ -202,8 +204,8 @@ According to the aggregate function there are different variants
 		      (v_{j} )}{|S|}
 	      \end{equation}
 
-	      this puts less restrictions that the previous variants on the
-	      solutions, requiring only an high average degree on the union of the
+	      which puts fewer restrictions that the previous variants on the
+	      solutions, requiring only a high average degree on the union of the
 	      graphs.
 
 	      This problem can be solved optimally in polynomial time as it can be
@@ -213,9 +215,9 @@ According to the aggregate function there are different variants
 	      \autoref{par:an_approximate_algorithm_for_the_densest_subgraph_problem}
 	      provides a 2-approximation for the optimal solution.
 
-	      More specifically, solving this problem is equivalent to solve the
-	      \acrfull{DCS} on the average graph $\hat{H}_{\mathcal{G} }  $, which
-	      is defined as a weighted graph whose weight of each edge is the
+	      More specifically, solving this problem is the equivalent of solving
+	      the \acrfull{DCS} on the average graph $\hat{H}_{\mathcal{G} }  $,
+	      which is defined as a weighted graph whose weight of each edge is the
 	      fraction of graphs in the sequence $\mathcal{G} $ where the edge is
 	      present \cite{semertzidis2019finding}.
 \end{itemize}
@@ -271,7 +273,7 @@ other nodes (\autoref{alg:score_a}).
 		\bigskip
 		\ForEach{$(u, v) \in \hat{E}$}{
 			remove $v$ from $\mathcal{F}[d_{v} ] $ \;
-			remove $(u, v)$ from $\hat{E}$ and update degree of $v$ \;
+			remove $(u, v)$ from $\hat{E}$ and update $d_v$ \;
 			add $v$ to $\mathcal{F}[d_{v} ] $ \;
 		}
 
@@ -289,7 +291,7 @@ the sum of the weights of the edges of the node, i.e. $ \sum^{}_{(v_{i} , v_{j}
 
 Let us also define $\textsc{FindBff}_{a} $, a greedy approach for finding
 the subgraph with the highest density $f$ (which corresponds to
-\autoref{eq:dcs-am} in our case, but it can replaced by any of the other
+\autoref{eq:dcs-am} in our case, but it can be replaced by any of the other
 density aggregation functions). This function repeatedly calls
 $\textsc{ScoreAndUpdate}$ to remove the node with the lowest degree and efficiently update
 the graph. When the graph is empty it returns the subset of nodes
@@ -317,10 +319,10 @@ increase the score, and an \emph{incremental} one in which the set of $k$
 graphs $\mathcal{L}_{k} $ is selected along the $k$ iterations, starting with a
 pair and adding snapshots $G \in \mathcal{G} $ one by one.
 
-Furthermore they identify $2$ possible approaches for each of them. We will
+Furthermore, they identify $2$ possible approaches for each of them. We will
 focus on the \acrfull{INCO}.
 
-The algorithms starts by solving the \acrshort{BFF} problem on each of the
+The algorithm starts by solving the \acrshort{BFF} problem on each of the
 graphs $G_{i} $ in $\mathcal{G} $ and finding the corresponding set of vertices
 $S_{i} $ of the solution. Then $\mathcal{L}_{2}  $ is chosen as the pair of graphs which
 have the most similar set of vertices in the respective solutions, where the
@@ -329,7 +331,7 @@ similarity is measured through the Jaccard coefficient.
 The \acrshort{BFF} problem is now solved on $\mathcal{L} _{2} $ to obtain a set
 of vertices which is compared against the other $S_i$ previously computed to
 find the most similar one, as before, and the process continues until
-$\mathcal{L}_{k} $ is constructed (\autoref{alg:inc_o_a}). Finally the
+$\mathcal{L}_{k} $ is constructed (\autoref{alg:inc_o_a}). Finally, the
 $\textsc{FindBff}_{a} $ is called on $\mathcal{L}_{k}  $ and the resulting set of
 vertices is returned along with $\mathcal{L}_{k}  $.
 
@@ -364,7 +366,7 @@ vertices is returned along with $\mathcal{L}_{k}  $.
 \label{sec:computational_complexity_and_approximability}
 
 Complexity Theory deals with the study of the intrinsic complexity of
-computational tasks; more specifically it mainly aims at determining the
+computational tasks; more specifically it aims at determining the
 complexity of any given task. It also elaborates on the relationships between
 the complexity of different problems, for example proving that 2 problems are
 computationally equivalent\cite{9780521884730}, through a notion called
@@ -380,14 +382,14 @@ According to their complexity, problems can be divided in different groups
 \label{par:p}
 is the set of problems which can be solved in polynomial time in the size $n$ of
 the problem, i.e. $n^{O(1)} $. In this set there are problems such as Linear
-Programming Models \cite{KHACHIYAN198053}\cite{Karmarkar1984}, finding whether
+Programming Models \cite{KHACHIYAN198053}\cite{Karmarkar1984} and finding whether
 or not a graph is connected \cite{9780521884730}.
 
 \paragraph{$\mathcal{NP} $}%
 \label{par:np} is the set of problems whose solution can be verified in
 polynomial time in the size $n$ of the problem, i.e. $n^{O(1)} $.
 
-According to these definition it is easy to see that $\mathcal{P} \subseteq
+According to these definitions it is easy to see that $\mathcal{P} \subseteq
 	\mathcal{NP} $. A common $\mathcal{NP} $ problem is factoring, i.e. finding a
 prime factor $p$ of a number $N$ in a given interval \cite{SanjeevArora2017}.
 
@@ -402,14 +404,14 @@ subgraph), as shown is a famous paper by Karp \cite{Miller1972} (see also
 \begin{figure}[]
 	\centering
 	\includegraphics[width=0.8\linewidth]{tex/img/post_vaccine_social_scheduling.png}
-	\caption[$\mathcal{NP}$-Hardness in post-covid times]{\emph{As if this problems weren't $\mathcal{NP} $-Hard enough}.
+	\caption[$\mathcal{NP}$-Hardness in post-covid times]{\emph{As if these problems weren't $\mathcal{NP} $-Hard enough}.
 		Post-vaccine social scheduling may be $\mathcal{NP} $-Hard \cite{Munroe}}%
 	\label{fig:tex/img/post_vaccine_social_scheduling}
 \end{figure}
 
 \paragraph{$\mathcal{NP} $-Complete}%
-\label{par:_np_hard} is the set of problems in $\mathcal{NP} $-Hard that are
-also in $\mathcal{NP} $. Intuitively these correspond the most difficult
+\label{par:_np_hard} is the set of $\mathcal{NP} $-Hard problems that are
+also in $\mathcal{NP} $. Intuitively these correspond to the most difficult
 problems to solve in $\mathcal{NP} $. The number of problems which are known to
 be in this set is in the order of a thousand \cite{SanjeevArora2017}.
 
@@ -422,10 +424,10 @@ $\mathcal{P} \neq \mathcal{NP} $, and also our daily experience tell us that
 often it is easier to check the correctness of a solution of a problem than
 finding it \cite{9780521884730}: in many cases coming up with the correct
 answer requires searching over an exponentially large set
-\cite{SanjeevArora2017}. Nonetheless no mathematical proof of this notion has
+\cite{SanjeevArora2017}. Nonetheless, no mathematical proof of this notion has
 been found and, in fact, in the last decades there has been little or no progress towards it \cite{Erickson2019}.
 
-If, it is mostly accepted, $\mathcal{P} \neq \mathcal{NP} $ this would produce
+If, as it is mostly accepted, $\mathcal{P} \neq \mathcal{NP} $ then we have
 a situation as depicted in \autoref{fig:tex/img/complexity-diagram}:
 there are problems for which we are not able to find the solution
 efficiently (i.e. in polynomial time). On the other side this allows the
@@ -453,7 +455,7 @@ relies \cite{9780521884730}.
 
 Optimization problems are defined from a problem instance $x$, a set of
 feasible solutions $S$ and a cost function that takes as input the problem
-instance $x$ a feasible solution $s \in S$, denoted as cost$_{O} (x, s) $.
+instance $x$ and a feasible solution $s \in S$, denoted as cost$_{O} (x, s) $.
 Given a minimization (maximization) problem the optimal solution is defined as
 the $s$ minimizing (maximizing) the value of cost$_{O} (x, s)$, and we denote
 by opt$_{O} (x) $ this value\cite{Trevisan2004}.
@@ -471,7 +473,7 @@ If $\mathcal{P} \neq \mathcal{NP} $ for many optimization problems there is no
 algorithm for finding the optimal solution in polynomial time
 \cite{Trevisan2004}. This is again a fundamental limitation about what we can
 compute which then requires the definition of some alternative approaches, like
-the definition of \emph{approximation algorithm}
+\emph{approximation algorithm}
 which are able to be computed in polynomial time
 a solution which lies in a given factor from the optimal
 one\cite{Vazirani2002}.
@@ -496,7 +498,7 @@ optimal solution found by the approximation algorithm \cite{Trevisan2004}.
 Problems approximability varies widely: while for some of them exists
 constant factor approximations, for some others even a remotely approximate
 solution cannot be found \cite{Ausiello2005} (some examples are listed in
-\autoref{tab:inapproximability-examples} ).
+\autoref{tab:inapproximability-examples}).
 
 % todo: reference to the papers proving each result instead of the hub
 \begin{table}
@@ -526,7 +528,7 @@ solution cannot be found \cite{Ausiello2005} (some examples are listed in
 
 \emph{Approximation preserving reductions} are a fundamental notion for proving
 a partial order among optimization problems \cite{Ausiello2005}. An
-\emph{Approximation preserving reductions} must have
+\emph{Approximation preserving reduction} must have
 the following properties (when reducing from a problem $A$ to a problem $B$)
 \cite{DemaineFall2014}:
 
@@ -633,8 +635,8 @@ In general is possible to formulate any \acrshort{LP} problem as follows (called
 
 
 The $x_i$ are known also as \emph{decision variables}; a choice of $ \mathbf{x}
-$ if called \emph{solution} and \emph{feasible solution} if it satisfies the
-constraints, \emph{optimum} if it maximizes the \emph{objective function}
+$ is called \emph{solution} and \emph{feasible solution} if it satisfies the
+constraints, \emph{optimum} if it \emph{feasible} and maximizes the \emph{objective function}
 \cite{Vanderbei2008}.
 
 \subsection{Solving an LP problem}%
@@ -665,8 +667,10 @@ specifically, we look for $m$ variables, called \emph{basic variables}, whose
 value we choose in order to satisfy the $m$ equality constraints (while the
 remaining variables, the \emph{nonbasic} ones, are set to 0); if no such
 feasible solution exists then the problem is \emph{unfeasible}. Let $\mathcal{B}
-$ be the set of \emph{basic variables} and $\mathcal{N} $ the set of
-\emph{nonbasic variables} \cite{Vanderbei2008}\cite{Bertsimas1997}. Then the
+$ be the set of \emph{basic variables}, $\mathcal{N} $ the set of
+\emph{nonbasic variables} \cite{Vanderbei2008}\cite{Bertsimas1997} and
+$\bar{\zeta}$ the value of the objective function associated to this feasible
+solution. Then the
 problem can be reformulated as follows
 
 \begin{alignat}{2}
@@ -698,7 +702,7 @@ there are 2 different cases \cite{Vanderbei2008}
 	      \emph{unbounded}, i.e. it can achieve any arbitrarily large value.
 \end{itemize}
 
-The process is illustrated in \autoref{fig:tex/img/simplex}.
+The process is illustrated with an example in \autoref{fig:tex/img/simplex}.
 
 \begin{figure}
 	\centering
@@ -714,7 +718,7 @@ The process is illustrated in \autoref{fig:tex/img/simplex}.
 
 Many problems involve not only continous variables but also variable that take binary or
 integer values: these are known as \acrfull{MIP} problems. Furthermore, some of
-these problems are linear in the constraints and objective function and are
+these problems are linear in the constraints and in the objective function and are
 known as \acrfull{MILP} problems
 \cite{Edgar2001}\cite{Wolsey1998}.
 
@@ -736,7 +740,7 @@ A generic \acrshort{MILP} can be expressed as \cite{Conforti2016}
 	\end{aligned}
 \end{alignat}
 
-For convenience we will refer to \acrshort{MILP} problems as \acrshort{MIP} in
+For convenience, we will refer to \acrshort{MILP} problems as \acrshort{MIP} in
 the rest of the document.
 
 The \emph{relaxation} of a \acrshort{MIP} problem is defined as the same
@@ -746,22 +750,22 @@ Solving a \acrshort{MILP} is a difficult task in general, differently from the
 \acrshort{LP} problems. It has been shown also that \acrshort{MIP} is
 $\mathcal{NP}$-\textbf{Hard}
 \cite{Kannan1978}\cite{Liberti2019}\cite{Schrijver1998}. This is why the \emph{relaxation} is often considered
-to get an approximation of the exact solution and it is much easier
+for getting an approximation of the exact solution and it is much easier
 \cite{Conforti2016}.
 
 \subsection{Solving a MIP}%
 \label{sub:solving_a_mip}
 
-One approach that has been proven successfull for solving \acrshort{MIP} is th
-e Branch-and-Bound, which is guaranteed to find an optimal solution
+One approach that has been proven successfull for solving \acrshort{MIP} is the
+Branch-and-Bound, which is guaranteed to find an optimal solution
 \cite{Conforti2016}\cite{Edgar2001}.
 
 Given a problem $P$ the process starts by solving the \emph{relaxation} of $P$
 and finding its optimal solution $(\tilde{x}, \tilde{y})$.
 Let $S$ and  $\tilde{S}$ be the set of feasible solutions
-for the original problem $A$ and its relaxation, respectively. By definition
+for the original problem $A$ and its relaxation, respectively. By definition,
 we have that $S \subseteq \tilde{S} $.
-Therefore \cite{Edgar2001}
+Therefore, \cite{Edgar2001}
 \begin{itemize}
 	\item If the relaxation problem is not feasible so will also the original
 	      problem
@@ -780,11 +784,11 @@ objective function $z_{j} $ \cite{Edgar2001}\cite{Conforti2016}.
 
 \begin{itemize}
 	\item If either of the subproblems is not feasible or its value $z_{j} $ is
-	      lower then the best one found so far then it does not to be
+	      lower than the best one found so far then it does not to be
 	      considered further. This is called \emph{pruning}.
 	\item otherwise if $y_{j} $ are all integer values then $\zeta = z_{j} $
 	\item otherwise we subdivide again in $2$ subproblems as done above.
 \end{itemize}
 
-When there are no remaining subproblems to consider the Branch-and-Bound method
+When there are no remaining subproblems to consider then Branch-and-Bound method
 terminates \cite{Edgar2001}.
