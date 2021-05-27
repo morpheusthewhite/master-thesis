@@ -1,0 +1,15 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=node] (0) at (-2.75, 2.25) {$0.66$};
+		\node [style=node] (1) at (3.5, 2.25) {$0.66$};
+		\node [style=node] (2) at (3, -1.75) {$0.66$};
+		\node [style=node] (3) at (-2, -1.25) {$0.66$};
+		\node [style=node] (4) at (0.25, 4.75) {$0.66$};
+		\node [style=node] (5) at (6.5, -3.25) {$1.0$};
+		\node [style=node] (6) at (4.25, -4.5) {$1.0$};
+		\node [style=none] (16) at (6, -5) {$1.0$};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=oriented positive] (5) to (6);
+	\end{pgfonlayer}
+\end{tikzpicture}

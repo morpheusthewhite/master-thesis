@@ -1,0 +1,26 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=node] (0) at (-2.75, 2.25) {$0.66$};
+		\node [style=node] (1) at (3.5, 2.25) {$0.66$};
+		\node [style=node] (2) at (3, -1.75) {$0.66$};
+		\node [style=node] (3) at (-2, -1.25) {$0.66$};
+		\node [style=node] (4) at (0.25, 4.75) {$0.66$};
+		\node [style=node] (5) at (6.5, -3.25) {$1.0$};
+		\node [style=node] (6) at (4.25, -4.5) {$1.0$};
+		\node [style=none] (7) at (0.25, 1.25) {$0.66$};
+		\node [style=none] (8) at (4.5, 0) {$0.66$};
+		\node [style=none] (13) at (-2, 4.25) {$0.66$};
+		\node [style=none] (14) at (2.5, 4) {$0$};
+		\node [style=none] (15) at (-3.25, 0.25) {$0$};
+		\node [style=none] (16) at (0.25, -2) {$0$};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=oriented positive] (0) to (4);
+		\draw [style=oriented positive] (1) to (2);
+		\draw [style=oriented positive] (3) to (1);
+		\draw [style=oriented negative] (3) to (0);
+		\draw [style=oriented negative] (4) to (1);
+		\draw [style=oriented negative] (3) to (2);
+		\draw [style=oriented positive] (5) to (6);
+	\end{pgfonlayer}
+\end{tikzpicture}

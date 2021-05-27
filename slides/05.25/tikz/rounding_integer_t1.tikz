@@ -1,0 +1,19 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=node] (1) at (2.25, 2) {$v_3$};
+		\node [style=node] (2) at (2, -1) {$v_5$};
+		\node [style=node] (5) at (4.75, -2) {$v_6$};
+		\node [style=node] (6) at (2.5, -3.25) {$v_7$};
+		\node [style=inactive node] (8) at (-1, -0.25) {};
+		\node [style=inactive node] (9) at (0.25, 3.5) {};
+		\node [style=inactive node] (10) at (-1.5, 2) {};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=oriented positive] (1) to (2);
+		\draw [style=inactive edge] (8) to (1);
+		\draw [style=inactive edge] (8) to (10);
+		\draw [style=inactive edge] (8) to (2);
+		\draw [style=inactive edge] (10) to (9);
+		\draw [style=inactive edge] (9) to (1);
+	\end{pgfonlayer}
+\end{tikzpicture}
