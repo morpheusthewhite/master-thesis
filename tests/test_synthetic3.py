@@ -52,12 +52,24 @@ def test_synthetic(results_outfile, n_iterations: int = 5):
 
     # noise standard deviations:
     noise_values = np.arange(0, 1.1, 0.1)
-    noise_sign = np.array(
+
+    # probability of having an edge between different communities
+    edge_p = 0.25
+    noise_multiplier = np.array(
         [
-            [-1, 1, 1, 1],
-            [1, -1, 1, 1],
-            [1, 1, -1, 1],
-            [1, 1, 1, -1],
+            [-1, edge_p, edge_p, edge_p],
+            [edge_p, -1, edge_p, edge_p],
+            [edge_p, edge_p, -1, edge_p],
+            [edge_p, edge_p, edge_p, -1],
+        ]
+    )
+    # probabilities of having an edge (positive or negative)
+    edge_probabities = np.array(
+        [
+            [1, edge_p, edge_p, edge_p],
+            [edge_p, 1, edge_p, edge_p],
+            [edge_p, edge_p, 1, edge_p],
+            [edge_p, edge_p, edge_p, 1],
         ]
     )
 
@@ -71,7 +83,7 @@ def test_synthetic(results_outfile, n_iterations: int = 5):
 
     for noise_value in noise_values:
         # generate and add noise to omega
-        noise = noise_value * noise_sign
+        noise = noise_value * noise_multiplier
         omega_positive = omega_positive_no_noise + noise
 
         omega_positive_pdf = os.path.join(
@@ -81,7 +93,7 @@ def test_synthetic(results_outfile, n_iterations: int = 5):
         plt.savefig(omega_positive_pdf)
         plt.clf()
 
-        omega_negative = np.ones_like(omega_positive) - omega_positive
+        omega_negative = edge_probabities - omega_positive
         omega_negative_pdf = os.path.join(
             OUTDIR, f"model2_omega_negative_noise_{noise_value}.pdf"
         )
@@ -116,7 +128,11 @@ def test_synthetic(results_outfile, n_iterations: int = 5):
                 iterations_score,
                 duration,
             ) = evaluate_graph(
-                graph, alpha, n_communities, communities, CLUSTERING_EXACT
+                graph,
+                alpha,
+                n_communities,
+                communities,
+                CLUSTERING_APPROXIMATION,
             )
 
             scores[k] = score
