@@ -4,6 +4,9 @@
 \section{Data collection and generation}%
 \label{sec:data_collection_and_generation}
 
+We now discuss how the real-world data is retrieved and preprocessed as well as
+presenting some techniques for generatic synthetic data.
+
 \subsection{Collection and preprocessing}%
 \label{sub:collection_and_preprocessing}
 
@@ -59,8 +62,95 @@ ones) while no data is publicly available.
 \subsection{Synthetic data}%
 \label{sub:synthetic_data}
 
+Here we propose $2$ possible methods for generating data, the Signed SBM and
+the Information spread Model.
+
+\subsubsection{Signed SBM}%
+\label{ssub:signed_sbm}
+
+This model is very similar to the Stochastic Block Model (SBM), a model
+commonly used for generating random graphs having some community structures
+\cite{Newman2018}.
+
+The Signed SBM is based on the following parameters
+\begin{itemize}
+	\item $b_{i} $, the group assignment of each vertex $i$
+	\item $\omega ^{+} _{rs} $ and $\omega ^{-} _{rs} $, the probabilities
+	      of positive and negative edges, respectively, between users in
+	      group $r$ and $s$. Vertices have also a probability of not having an
+	      edge, which is equal to $1 - \omega ^{-} _{rs} - \omega ^{+} _{rs} $.
+	      For this reason it is clearly needed that $\omega ^{+} _{rs} + \omega ^{-} _{rs} \leq 1$.
+	\item $\theta \leq 1$, controlling the reduction of probability of interacting
+	      between \emph{inactive} communities
+\end{itemize}
+
+Therefore, generating a thread layer\footnote{in this model we will generate contents univocally associated to threads} for the \emph{Interaction Graph} involves the following process
+\begin{enumerate}
+	\item Sample $n'$ among the $n$ communities. These are the
+	      \emph{active} communities in the discussion of the thread
+	\item For each node pairing $i, j$ consider their corresponding groups $r$ and
+	      $s$ and draw from one of the following categorical distribution to decide to add
+	      a positive, negative or no edge.
+	      \begin{itemize}
+		      \item If both communities $r$ and $s$ are \emph{active}
+		            \begin{equation*}
+			            (\omega _{rs} ^{+}, \omega _{rs} ^{-}, 1 - \omega _{rs} ^{+} - \omega _{rs} ^{-})
+		            \end{equation*}
+		      \item otherwise
+		            \begin{equation*}
+			            (\theta \omega _{rs} ^{+}, \theta \omega _{rs} ^{-}, 1 - \theta (\omega _{rs} ^{+} + \omega _{rs} ^{-}))
+		            \end{equation*}
+
+	      \end{itemize}
+
+\end{enumerate}
+
+\subsubsection{Information spread model}%
+\label{ssub:information_spread_model}
+
+Here we describe the Information spread model, which aims at simulating the
+process of informations flowing between different users of a social media.
+
+Like in the Signed SBM, each node has a group assignment and there are probabilities of
+positive and negative edges $\omega _{rs}^{+}  $ and $\omega _{rs}^{+}  $,
+respectively, with $\omega ^{-} _{rs} + \omega ^{+} _{rs}
+	\leq 1$. Additionally, we have the following new parameters
+
+\begin{itemize}
+	\item ${\phi_{rs} }$, the parameters of a standard SBM
+	\item $\beta _a$, the probability that a node is initially activated
+	\item $\beta _n$, the probability the an inactive node is activated
+	      from a friend
+\end{itemize}
+
+\bigskip
+Generate the \emph{follow} graph $G_{f}$ from a SBM with parameters $\{ \phi
+	_{rs}  \}$; we will refer to neighbours in this graph as \emph{friends}.
+The generation of a thread for the \emph{Interaction Graph} goes as follows
+
+\begin{enumerate}
+	\item Activate vertices with probability $\beta_{a}  $
+	\item Any of these active nodes activates its inactive friends with
+	      probability $\beta_n$
+	      % \item Let $a_{i} $ be the number of \emph{active} neighbours of node
+	      %     $i$ in $G$ and $m_{i} $ the number of neighbours of node $i$ in
+	      %     $G$. Any node inactive from the previous step is activated with
+	      %     probability $ \frac{a_i}{m_i} \beta _{n} $
+	\item Similarly to before, if $2$ nodes are both active nodes they will interact according to the categorical distribution
+	      \begin{equation*}
+		      (\omega _{rs}
+		      ^{+}, \omega _{rs} ^{-}, 1 - \omega _{rs} ^{+} - \omega _{rs} ^{-})
+	      \end{equation*}
+
+	      otherwise according to
+	      \begin{equation*}
+		      (\theta \omega _{rs} ^{+}, \theta \omega _{rs} ^{-}, 1
+		      - \theta (\omega _{rs} ^{+} + \omega _{rs} ^{-}))
+	      \end{equation*}
+\end{enumerate}
+
 \section{Major results}
 
-\section{Validity and reliability Analysis}
+\section{Validity and reliability analysis}
 
 \section{Discussion}
