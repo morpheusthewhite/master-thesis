@@ -168,7 +168,7 @@ accounts \footnotemark (\autoref{fig:eta-content-thread}).
 \footnotetext{As explained above (\autoref{par:twitter-data}), we are referring
 	to the accounts that are used to retrieve the contents of the graph}
 
-% todo correct CNN image
+% todo correct CNN image and discussion of these results
 
 \begin{figure}
 	\begin{center}
@@ -215,10 +215,18 @@ accounts \footnotemark (\autoref{fig:eta-content-thread}).
 	\end{center}
 \end{figure}
 
+\bigskip
 For verifying the reliability of the definition of \emph{controversial} content
 we also looked at the fraction of negative edges for different datasets, each
 associated to a different kind of content, which we report in
 \autoref{tab:eta-subreddits}.
+
+This results show an intuitive associations between the fraction of negative edges in the
+graph and the topic discussed: politics contents
+(r/politics and r/asktrumpsupporters) are generally the ones generating greater
+controversy, and so do also related discussions (r/economics and r/climate) and
+football. Subreddits in which discussion over technologies and sciences
+predominate generally have less negative interactions between the users.
 
 \begin{table}
 	\centering
@@ -247,9 +255,10 @@ associated to a different kind of content, which we report in
 	}
 \end{table}
 
+\bigskip
 Furthermore, we verified the association between a content $C$ and its
-$\eta(C)$ by studying how its sum of the edge relates to the number of
-interactions happening for $C$ (see \autoref{fig:edge-sum-n-interactions}).
+$\eta(C)$ by studying how its sum of weights of the edges relates to the number
+of interactions happening for $C$ itself (see \autoref{fig:edge-sum-n-interactions}).
 
 \begin{figure}
 	\begin{center}
@@ -284,6 +293,34 @@ interactions happening for $C$ (see \autoref{fig:edge-sum-n-interactions}).
 	\label{fig:edge-sum-n-interactions}
 \end{figure}
 
+This plots confirm the previous observation and, more specifically, show that
+the sum of the weights of the edges (which is easy to see it is closely related
+to the $\eta(C)$ of $C$) for contents related to the same topic is distributed in a pattern which is very close to that of a line with rare or no outliers.
+This is even more clearly visible when plotting the histogram of $\eta(C)$ for the contents in the dataset
+(\autoref{fig:eta-distribution-content}), with most of the contents having a
+$\eta(C)$ which is very similar to the fraction of negative edges in the graph.
+
+\begin{figure}
+	\begin{center}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/cats200/neg-fraction-content-hist.pdf}
+			\caption{r/cats}
+			\label{fig:tex/out/cats200/neg-fraction-content-hist.pdf}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/asktrumpsupporters200/neg-fraction-content-hist.pdf}
+			\caption{r/asktrumpsupporters}
+			\label{fig:asktrump-hist-eta}
+		\end{subfigure}
+	\end{center}
+	\caption{$\eta(C)$ distribution for $2$ of the datasets shown in
+		\autoref{fig:edge-sum-n-interactions}}
+	\label{fig:eta-distribution-content}
+\end{figure}
+
+
 \subsection{Algorithms implementation efficiency}%
 \label{sub:algorithm_efficiency}
 
@@ -305,12 +342,12 @@ interactions happening for $C$ (see \autoref{fig:edge-sum-n-interactions}).
 
 % report some real world echo chambers
 
+\subsection{The r/asktrumpsupporters case}%
+\label{sub:the_r_asktrumpsupporters_case}
+
+
 \section{Validity and reliability analysis}
+\label{sec:reliability_analysis}
 
 % todo: talk about the limitations of the thread-content model in the reddit
 % environment (see slides of 02.08)
-
-\section{Discussion}
-
-\subsection{The r/asktrumpsupporters case}%
-\label{sub:the_r_asktrumpsupporters_case}
