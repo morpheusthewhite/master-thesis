@@ -151,6 +151,166 @@ The generation of a thread for the \emph{Interaction Graph} goes as follows
 
 \section{Major results}
 
+The following presented results have been obtained from a Python
+implementation of the methods decribed in the previous chapters. The library used
+for handling and manipulating graphs is graph-tool, which has been chosen
+because of its efficiency \cite{peixoto_graph-tool_2014}.
+
+\subsection{General Real-world data analysis}%
+\label{sub:validity_problem_definition}
+
+We did a shallow analysis of the data to verify the validity of the problem. We
+initially analyzed the $\eta(C)$, more specifically its distribution, and
+compared it with the distribution of the $\eta(T)$. We report these results for
+$2$ datasets, one built over @nytimes and another over @foxnews Twitter
+accounts \footnotemark (\autoref{fig:eta-content-thread}).
+
+\footnotetext{As explained above (\autoref{par:twitter-data}), we are referring
+	to the accounts that are used to retrieve the contents of the graph}
+
+% todo correct CNN image
+
+\begin{figure}
+	\begin{center}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/nytimes700/neg-fraction-content-hist.pdf}
+			\caption{$\eta(C)$ of @nytimes}
+			\label{fig:nytimes-content-eta}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/nytimes700/neg-fraction-thread-hist.pdf}
+			\caption{$\eta(T)$ for @nytimes}
+			\label{fig:nytimes-thread-eta}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/foxnews2000/neg-fraction-content-hist.pdf}
+			\caption{$\eta(C)$ of @foxnews}
+			\label{fig:foxnews-content-eta}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/foxnews2000/neg-fraction-thread-hist.pdf}
+			\caption{$\eta(T)$ for @foxnews}
+			\label{fig:foxnews-thread-eta}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			% \includegraphics[width=\textwidth]{tex/out/CNN700/neg-fraction-content-hist.pdf}
+			\includegraphics[width=\textwidth]{tex/out/foxnews2000/neg-fraction-content-hist.pdf}
+			\caption{$\eta(C)$ of @CNN}
+			\label{fig:CNN-content-eta}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			% \includegraphics[width=\textwidth]{tex/out/CNN700/neg-fraction-thread-hist.pdf}
+			\includegraphics[width=\textwidth]{tex/out/foxnews2000/neg-fraction-content-hist.pdf}
+			\caption{$\eta(T)$ for @CNN}
+			\label{fig:CNN-thread-eta}
+		\end{subfigure}
+		\caption{$\eta(C)$ and $\eta(T)$ distribution for many datasets}
+		\label{fig:eta-content-thread}
+	\end{center}
+\end{figure}
+
+For verifying the reliability of the definition of \emph{controversial} content
+we also looked at the fraction of negative edges for different datasets, each
+associated to a different kind of content, which we report in
+\autoref{tab:eta-subreddits}.
+
+\begin{table}
+	\centering
+	\caption[Fraction of negative edges in different subreddits]{Fraction of negative edges for datasets build on different
+		subreddits, each for $200$ contents}
+	\label{tab:eta-subreddits}
+	{\small
+		\begin{tabular}{c | p{6cm} | c}
+			r/cats               & Pictures and videos about cats                & \num{0.16922540125610608} \\
+			\hline
+			r/Covid19            & Scientific discussion of the pandemic         & \num{0.2981398553220806}  \\
+			\hline
+			r/programming        & Computer Programming discussions              & \num{0.30264993026499304} \\
+			\hline
+			r/climate            & News about climate and related politics       & \num{0.391787072243346}   \\
+			\hline
+			r/Football           & News, Rumours, Analysis about \mbox{football} & \num{0.41103067250904934} \\
+			\hline
+			r/Economics          & News and discussion about economics           & \num{0.41730200715730514} \\
+			\hline
+			r/Politics           & News and discussion about U.S. politics       & \num{0.5112245929821013}  \\
+			\hline
+			r/AskTrumpSupporters & {Q\&A between Trump supporters and non
+			supporters}          & \num{0.5329949238578681}                                                  \\
+		\end{tabular}
+	}
+\end{table}
+
+Furthermore, we verified the association between a content $C$ and its
+$\eta(C)$ by studying how its sum of the edge relates to the number of
+interactions happening for $C$ (see \autoref{fig:edge-sum-n-interactions}).
+
+\begin{figure}
+	\begin{center}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/cats200/edge-sum-n-interactions.pdf}
+			\caption{r/cats}
+			\label{fig:tex/out/cats200/edge-sum-n-interactions.pdf}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/covid19200/edge-sum-n-interactions.pdf}
+			\caption{r/covid19}
+			\label{fig:tex/out/covid19200/edge-sum-n-interactions.pdf}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/politics200/edge-sum-n-interactions.pdf}
+			\caption{r/politics}
+			\label{fig:tex/out/cats200/edge-sum-n-interactions.pdf}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/asktrumpsupporters200/edge-sum-n-interactions.pdf}
+			\caption{r/asktrumpsupporters}
+			\label{fig:tex/out/covid19200/edge-sum-n-interactions.pdf}
+		\end{subfigure}
+	\end{center}
+	\caption[Sum edges over number of interactions for many datasets]{Plots of
+		sum of the edges weights over the number of interaction for contents
+		from different datasets/subreddits}
+	\label{fig:edge-sum-n-interactions}
+\end{figure}
+
+\subsection{Algorithms implementation efficiency}%
+\label{sub:algorithm_efficiency}
+
+% todo:
+% - time limitations of exact algorithms
+% - describe beta algorithm and effect of beta, real world data
+% - time efficiency of the greedy algorithms, real world data
+
+\subsection{The tests on synthetic data}%
+\label{sub:testing_on_synthetic_data}
+
+% - describe methods used and compare them
+% - describe rounding algorithm: when does it fail?
+% - observation on the results (how does it depend on the number of threads and
+%   on the number of nodes in each community?
+
+\subsection{Detecting real-world echo chambers}%
+\label{sub:detecting_real_echo_chambers}
+
+% report some real world echo chambers
+
 \section{Validity and reliability analysis}
 
+% todo: talk about the limitations of the thread-content model in the reddit
+% environment (see slides of 02.08)
+
 \section{Discussion}
+
+\subsection{The r/asktrumpsupporters case}%
+\label{sub:the_r_asktrumpsupporters_case}
