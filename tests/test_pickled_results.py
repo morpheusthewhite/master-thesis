@@ -2,6 +2,7 @@ import pickle
 import argparse
 import sys
 import os
+from pprint import pprint
 
 from polarmine.graph import PolarizationGraph
 from polarmine.utils import plot_degree_distribution, print_top_k
@@ -75,26 +76,30 @@ def analyze(
     graph = PolarizationGraph.from_file(graph_filename)
     graph.remove_self_loops()
 
-    #  if stats_filename is not None:
-    #      stats_file = open(stats_filename, 'r')
-    #  else:
-    #      stats_file = sys.stdout
-
     if save_path is not None:
         if not os.path.exists(save_path):
             os.mkdir(save_path)
 
+        # text file for saving statistics of the result
         outfilename = os.path.join(save_path, "results_stats.txt")
         outfile = open(outfilename, "w")
 
+        # pdf files for saving graph pictures
         graph_pdf_filename_echo_chambers = os.path.join(
             save_path, "graph_echo_chambers.pdf"
         )
         graph_pdf_filename_full = os.path.join(save_path, "graph_full.pdf")
+
+        # txt file for saving discussions in Echo Chambers
+        discussion_filename = os.path.join(save_path, "discussion.txt")
+        discussion_file = open(discussion_filename, "w")
     else:
         outfile = sys.stdout
+
         graph_pdf_filename_echo_chambers = None
         graph_pdf_filename_full = None
+
+        discussion_file = sys.stdout
 
     if alpha == -1:
         alpha = graph.alpha_median()
@@ -116,6 +121,17 @@ def analyze(
 
         users = scores[score_key][1]
         graph.select_echo_chamber(alpha, users)
+
+        # save to file the discussion in each Echo Chamber
+        components = graph.components()
+        for i in range(1, len(components)):
+
+            component = components[i]
+            discussion = graph.get_echo_chamber_discussion(component)
+
+            if len(discussion) > 1:
+                print("-" * 10, file=discussion_file)
+                pprint(discussion, stream=discussion_file)
 
         print(
             f"Number of vertices in the results: {graph.num_vertices()}",
@@ -178,6 +194,7 @@ def analyze(
         if save_path is not None:
             graph.draw(show_vertices=users, output=graph_pdf_filename_full)
             outfile.close()
+            discussion_file.close()
 
 
 if __name__ == "__main__":
