@@ -9,7 +9,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 
 \begin{theorem}
 	\label{th:approximability}
-	Echo Chamber Problem (ECP) has no $n^{1-\epsilon} $-approximation algorithm for
+	\acrfull{ECP} has no $n^{1-\epsilon} $-approximation algorithm for
 	any $\epsilon$ unless $\mathcal{P} = \mathcal{NP}  $
 \end{theorem}
 
@@ -28,9 +28,9 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 		\item for each vertex $v_{i}  \in V_{1} $ we add a vertex in $G_{2} $
 		\item for each edge $e_{ij}  \in
 			      E_{1} $ we add $\lambda n_{1} $ negative edges between $v_{i} $ and $v_{j} $
-		\item add a vertex $v_r$ and a positive edge between it and any other
+		\item we add a vertex $v_r$ and a positive edge between it and any other
 		      vertex that we already inserted in $G_2$
-		\item add a vertex $v_x$ and $\lambda n_{1} $ negative edges between $v_x$
+		\item we add a vertex $v_x$ and $\lambda n_{1} $ negative edges between $v_x$
 		      and $v_{r} $
 	\end{itemize}
 
@@ -54,21 +54,21 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 				\label{fig:g2_example}
 			\end{subfigure}
 		\end{center}
-		\caption[Example reduction from MIP to \acrshort{ECP}]{Example construction of the interaction graph $G_{2} $ from
-			$G_{1} $, for $\alpha = \frac{1}{2} $}
+		\caption[Example reduction from MIS to \acrshort{ECP}]{Example construction of the interaction graph $G_{2} $ from
+			$G_{1} $, for $\alpha = \frac{1}{3} $}
 		\label{fig:construction}
 	\end{figure}
 
 	\begin{claim}
 		\label{th:claim-controversial}
-		Content $C$ is controversial.
+		Content $C$ is \emph{controversial}.
 	\end{claim}
 	\begin{proof}
 		Let $m_{2}^{-} $ and $m_{2}^{+} $ be the number of negative and
 		positive edges in $G_2$, respectively.
 
 		By construction $m_{2}^{+} = n_{1} $ and $m_{2}^{-} \geq \lambda n_{1}
-		$. Also, for $a, b, c \in \mathbb{R}^{+}$ it holds that $\frac{a +
+		$ (the negative edges between $v_r$ and $v_x$). Also, for $a, b, c \in \mathbb{R}^{+}$ it holds that $\frac{a +
 				b}{a + b + c} \geq \frac{a}{a + c} $. Consequently
 
 		\begin{align}
@@ -78,11 +78,11 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 		\end{align}
 	\end{proof}
 
-	So content C is controversial. This reduces the Echo Chamber Problem on $G_2$ to the maximization of
+	So content $C$ is \emph{controversial}. This reduces the \acrlong{ECP} on $G_2$ to the maximization of
 
 	\begin{equation}
 		\label{eq:score}
-		\xi(U) = \sum^{}_{T \in \mathcal{S}_C(U) } | T[U] |
+		\xi(U) = \sum^{}_{T \in \mathcal{S}_C(U) } (| T[U]^{+} | - | T[U]^{-} |)
 	\end{equation}
 
 	\begin{claim}
@@ -95,14 +95,14 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 	\begin{proof}
 		Let $I \subseteq V_{1} $ be an independent set of $G_1$ of size $|I| >
 			1$. Consider the associated solution in $G_2$ in which $U = I
-			\cup \{v_{r} \}$. By construction it will contain $|I|$ positive
-		edges, so $T$ will not be controversial and also
+			\cup \{v_{r} \}$. By construction, it will contain only $|I|$ positive
+		edges, so $T[U] \in \mathcal{S}_C(U)$ and also
 
 		\begin{equation}
-			OPT(ECP) \geq \xi(U) = |T[U]| = |I| \implies OPT(ECP) \geq OPT(MIS)
+			OPT(ECP) \geq \xi(U) = |T^{+}[U]| = |I| \implies OPT(ECP) \geq OPT(MIS)
 		\end{equation}
 
-		Now let $S \subseteq V_2$ be a solution of the Echo Chamber problem on
+		Now let $S \subseteq V_2$ be a solution of the \acrshort{ECP} on
 		$G_2$, and suppose $\xi(S) > 0$. It is easy to see that $v_{r} \in S$
 		and that $v_{x} \not\in S $. Let $J \coloneqq S \setminus \{v_r\}$.
 
@@ -115,13 +115,13 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 			}{\lambda + 1} > \alpha
 		\end{equation}
 
-		This means that $T[S]$ is controversial $\implies \xi(S) = 0
-			\implies contradiction$. Consequently $J$
-		contains vertices which are independent in $G_1$. Therefore $T[S]$ contains
+		This means that $T[S]$ is \emph{controversial} $\implies \xi(S) = 0
+			\implies contradiction$ and, consequently, $J$
+		contains vertices which are independent in $G_1$. Therefore, $T[S]$ contains
 		only positive edges; more specifically
 
 		\begin{equation}
-			\xi(S) = |T[S]| = |S| - 1 = |S \setminus \{v_r\}| = |J|
+			\xi(S) = |T^{+}[S]| = |S| - 1 = |S \setminus \{v_r\}| = |J|
 		\end{equation}
 
 		Thus
@@ -130,9 +130,9 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 			OPT(MIS) \geq |J| \implies OPT(MIS) \geq OPT(ECP)
 		\end{equation}
 
-		So the optimal value of the constructed instance of Echo Chamber Problem
+		So the optimal value of the constructed instance of \acrshort{ECP}
 		exactly equals that of the \textsc{Maximum Independent Set} instance, so it
-		has an hardness factor at least as large as that of MIS.
+		has a hardness factor at least as large as that of MIS.
 	\end{proof}
 
 	This concludes the proof of \autoref{th:approximability}.
@@ -143,12 +143,12 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 
 \begin{theorem}
 	\label{th:approximability-densest}
-	Densest Echo Chamber Problem (D-ECP) has no $n^{1-\epsilon} $-approximation algorithm for
+	\acrfull{D-ECP} has no $n^{1-\epsilon} $-approximation algorithm for
 	any $\epsilon$ unless $\mathcal{P} = \mathcal{NP}  $
 \end{theorem}
 
 \begin{proof}
-	We again show this by presenting a direct reduction from \textsc{Maximum
+	We again show this results by presenting a direct reduction from \textsc{Maximum
 		Independent Set}.
 
 	\bigskip
@@ -163,9 +163,9 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 			      E_{1} $ we add $\lambda (n_{1}+1)^{2}  $ negative edges between $v_{i} $ and $v_{j} $
 		\item for each edge $e_{ij} \in V_1 \times V_1, e_{ij} \not\in
 			      E_{1} $ we add $2$ positive edges between $v_{i} $ and $v_{j} $
-		\item add a vertex $v_r$ and $2$ positive edges between it and any other
+		\item we add a vertex $v_r$ and $2$ positive edges between it and any other
 		      vertex that we already inserted in $G_2$
-		\item add a vertex $v_x$ and $\lambda n_{1}^{2}  $ negative edges between $v_x$
+		\item we add a vertex $v_x$ and $\lambda n_{1}^{2}  $ negative edges between $v_x$
 		      and $v_{r} $
 	\end{itemize}
 
@@ -190,20 +190,20 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 				\label{fig:g2_example}
 			\end{subfigure}
 		\end{center}
-		\caption[Example reduction from MIP to \acrshort{D-ECP}]{Example construction of the interaction graph $G_{2} $ from
+		\caption[Example reduction from MIS to \acrshort{D-ECP}]{Example construction of the interaction graph $G_{2} $ from
 			$G_{1} $}
 		\label{fig:construction-densest}
 	\end{figure}
 
 	\begin{claim}
 		\label{th:claim-controversial-densest}
-		Content $C$ is controversial.
+		Content $C$ is \emph{controversial}.
 	\end{claim}
 	\begin{proof}
 		% Let $m_{2}^{-} $ and $m_{2}^{+} $ be the number of negative and
 		% positive edges in $G_2$, respectively.
 		%
-		By construction $m_{2}^{+} \leq n_{1}^{2}  $ and $m_{2}^{-} \geq
+		By construction $m_{2}^{+} \leq n_1 (n_1 -1 ) \leq n_{1}^{2}  $ and $m_{2}^{-} \geq
 			\lambda n_{1}^{2} $.
 		Thus
 
@@ -215,11 +215,11 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 		\end{align}
 	\end{proof}
 
-	So content C is controversial. This reduces the Densest Echo Chamber Problem on $G_2$ to the maximization of
+	So content $C$ is \emph{controversial}. This reduces the \acrlong{D-ECP} on $G_2$ to the maximization of
 
 	\begin{equation}
 		\label{eq:score-densest}
-		\psi(U) = \sum^{}_{T \in \mathcal{S}_C(U) } \frac{| T[U] |}{|U|}
+		\psi(U) = \sum^{}_{T \in \mathcal{S}_C(U) } \frac{| T^{+}[U] | - | T^{-}[U] |}{|U|}
 	\end{equation}
 
 	\begin{claim}
@@ -234,31 +234,28 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 			\coloneqq |I| > 1$. Consider the associated solution in $G_2$ in
 		which $U = I \cup \{v_{r} \}$.
 
-		By construction it will contain
+		By construction, it will contain only positive edges, more specifically
 		\begin{itemize}
-			\item $2 \cdot n_{I} $ positive edges between $v_{r} $ and $v_{i} \in I$
+			\item $2 \cdot n_{I} $ edges between $v_{r} $ and $v_{i} \in I$
 			\item $n_{I}(n_{I}  -1)$
-			      positive edges between vertices $v_{i} \in I$
+			      edges between vertices $v_{i} \in I$
 
 		\end{itemize}
-		$|I|$ positive
-		thus $T$ will not be controversial and also
+		thus $T[U] \in \mathcal{S}_C(U)$ and also
 
 		\begin{equation}
 			\label{eq:score-densest-mip}
-			\psi(U) = \frac{|T[U]|}{|U|}  = \frac{2n_{I}  +
+			\psi(U) = \frac{|T^{+}[U]| - |T^{-}[U]|}{|U|}  = \frac{2n_{I}  +
 				\cdot n_{I}(n_{I}  -1) }{n_{I} + 1} = \frac{n_{I}^{2} +
 				n_{I}}{n_{I} + 1} = n_{I}
 		\end{equation}
 
-		Consequently
-
+		Consequently,
 		\begin{equation}
 			OPT(D-ECP) \geq \psi(U) = |I| \implies OPT(D-ECP) \geq OPT(MIS)
 		\end{equation}
 
-		Now let $S \subseteq V_2$ be a solution of the Densest Echo Chamber
-		problem on $G_2$, and suppose $\psi(S) > 0$. It is easy to see that
+		Now let $S \subseteq V_2$ be a solution of the \acrshort{D-ECP} on $G_2$, and suppose $\psi(S) > 0$. It is easy to see that
 		$v_{r} \in S$ and that $v_{x} \not\in S $. Let $J \coloneqq S \setminus
 			\{v_r\}$.
 
@@ -267,30 +264,30 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 		$T[S]$, thus
 
 		\begin{equation}
-			\eta(T[S]) \geq \frac{\lambda (n_1+1)^2}{\lambda (n_1+1)^2 + n(n+1)} \geq
+			\eta(T[S]) \geq \frac{\lambda (n_1+1)^2}{\lambda (n_1+1)^2 +
+				n_j(n_j+1)} \geq
 			\frac{\lambda (n_1+1)^{2} }{\lambda (n_1+1)^2 + (n_1+1)^2} = \frac{\lambda }{\lambda +
 				1} > \alpha
 		\end{equation}
 
-		This means that $T[S]$ is controversial $\implies \psi(S) = 0
-			\implies contradiction$. Consequently $J$
-		contains vertices which are independent in $G_1$. Therefore $T[S]$ contains
+		where $n_{j} \coloneqq |J|$. This means that $T[S]$ is \emph{controversial} $\implies \psi(S) = 0
+			\implies contradiction$. Consequently, $J$
+		contains vertices which are independent in $G_1$. Therefore, $T[S]$ contains
 		only positive edges. As shown previously in
 		\autoref{eq:score-densest-mip}
 
 		\begin{equation}
-			\psi(S) = \frac{|T[S]|}{|S|} = |J|
+			\psi(S) = \frac{|T^{+}[S]|}{|S|} = |J|
 		\end{equation}
 
-		Thus
-
+		Thus,
 		\begin{equation}
 			OPT(MIS) \geq |J| \implies OPT(MIS) \geq OPT(D-ECP)
 		\end{equation}
 
-		So the optimal value of the constructed instance of Densest Echo Chamber Problem
+		So the optimal value of the constructed instance of \acrshort{D-ECP}
 		exactly equals that of the \textsc{Maximum Independent Set} instance, so it
-		has an hardness factor at least as large as that of MIS.
+		has a hardness factor at least as large as that of MIS.
 	\end{proof}
 
 	This concludes the proof of \autoref{th:approximability-densest}.
