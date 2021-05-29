@@ -1331,6 +1331,7 @@ class PolarizationGraph:
 
             model += neg_edges_sum - alpha * edges_sum <= 0
 
+        epsilon = 1e-30
         if alpha > 0.5:
             for thread, edges_var_tuple in thread_aij_edges_dict.items():
                 edges_negative_var, edges_var = edges_var_tuple
@@ -1341,8 +1342,13 @@ class PolarizationGraph:
                 edges_sum = pulp.lpSum(edges_var)
 
                 N_k = len(edges_var) - len(edges_negative_var)
+                M_k = len(edges_negative_var) * (1 - alpha)
+
+                model += neg_edges_sum - alpha * edges_sum + epsilon <= M_k * (
+                    1 - z_k
+                )
                 model += (
-                    neg_edges_sum - alpha * edges_sum
+                    neg_edges_sum - alpha * edges_sum + epsilon
                     >= -N_k * thread_k_vars[thread]
                 )
 
