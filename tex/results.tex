@@ -156,10 +156,10 @@ implementation of the methods decribed in the previous chapters. The library use
 for handling and manipulating graphs is graph-tool, which has been chosen
 because of its efficiency \cite{peixoto_graph-tool_2014}.
 
-\subsection{General Real-world data analysis}%
+\subsection{Initial Real-world data analysis}%
 \label{sub:validity_problem_definition}
 
-We did a shallow analysis of the data to verify the validity of the problem. We
+We did a initial analysis of the data to verify the validity of the problem. We
 initially analyzed the $\eta(C)$, more specifically its distribution, and
 compared it with the distribution of the $\eta(T)$. We report these results for
 $2$ datasets, one built over @nytimes and another over @foxnews Twitter
@@ -329,10 +329,81 @@ $\eta(C)$ which is very similar to the fraction of negative edges in the graph.
 % - describe beta algorithm and effect of beta, real world data
 % - time efficiency of the greedy algorithms, real world data
 
-\subsection{The tests on synthetic data}%
+\subsection{Tests on synthetic data}%
 \label{sub:testing_on_synthetic_data}
 
-% - describe methods used and compare them
+For studying how the model behaves in controlled situations we define a
+parametrized model based on the Information Spread model
+(\autoref{ssub:information_spread_model}).
+
+We choose $\beta _{a} = 1$, meaning that all nodes will be active in each
+thread/layer. This a
+simplifying assumption which allows us to have a better grasp of the results.
+Because of this choice the values $\beta _n = 1$, $\theta = 1$ and
+\begin{equation}
+	\phi_{rs}  =
+	\begin{cases}
+		1 \; & \text{if } r = s  \\
+		0 \; & \text{otherwise }
+	\end{cases}
+\end{equation}
+do not influence the structure of the model.
+
+We also choose $\omega ^{-} _{rs}$ and $\omega ^{+} _{rs} $ to be dependant on
+the \emph{noise} variable $x$
+\begin{equation}
+	\omega_{rs}^{+}   =
+	\begin{cases}
+		1 - x \;        & \text{if } r = s  \\
+		\frac{x}{4}  \; & \text{otherwise }
+	\end{cases}
+\end{equation}
+\begin{equation}
+	\omega_{rs}^{-}   =
+	\begin{cases}
+		x \;                & \text{if } r = s  \\
+		\frac{1 - x}{4}  \; & \text{otherwise }
+	\end{cases}
+\end{equation}
+
+In absence of noise ($x = 0$) we will generate threads whose communities are
+positive cliques and all the edges between vertices in different communities
+are negative.
+
+We will compare different techniques for reconstructing the communities (which,
+in this case, we will consider as corresponding to a community). The
+general approach involves calling an algorithm (generally any of the methods
+presented in \autoref{ch:solving}) returning a set of users $U
+	\subseteq V$ which will be labeled according to the majority of its members
+(by looking at the ground-truth assignment) and from the graph the edges
+contributing to $\xi(U)$ are removed.
+After repeating $n$ times this process, where
+$n$ is the number of communities in the model, we compare the
+compare the ground-truth and the predictions through the Jaccard coefficient and the Adjusted
+RAND index\footnotemark.
+
+\footnotetext{The Adjusted RAND index is a measure of similarity between
+	different clusterings. It is based on the RAND index, which compares
+	the number of agreeing pairs in the $2$ solutions; the Adjusted one corrects
+	the Rand Index "by chance", i.e. compares it to the expected index
+	(from a random assignment). For more details please
+	refer to \cite{CharuC.Aggarwal2013}}
+
+What we expect is that, as the value of $x$ increases, the produced threads
+will have generally more negative edges inside a community and more positive
+edges between different communities, making it more difficult for our
+algorithms to spot a set of vertices corresponding to a community.
+
+We compared the scores obtained with the \acrshort{MIP} for the \acrshort{ECP}
+(\autoref{sub:a_mip_model_for_the_ecp}), the Rounding algorithm
+(\autoref{ssub:rounding_algorithm}) and the $2$ alternative problems on the
+\acrshort{TPA} Graph (\autoref{ssub:the_tpa_graph}). Due to the presence of the
+\acrshort{MIP} model this group of experiments have been carried out on very
+small graphs. % todo specify how small
+
+We then focused on the performances of the Rounding Algorithm on bigger
+datasets.
+
 % - describe rounding algorithm: when does it fail?
 % - observation on the results (how does it depend on the number of threads and
 %   on the number of nodes in each community?
