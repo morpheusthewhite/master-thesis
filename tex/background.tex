@@ -326,8 +326,14 @@ The algorithm starts by solving the \acrshort{BFF} problem on each of the
 graphs $G_{i} $ in $\mathcal{G} $ and finding the corresponding set of vertices
 $S_{i} $ of the solution. Then $\mathcal{L}_{2}  $ is chosen as the pair of graphs which
 have the most similar set of vertices in the respective solutions, where the
-similarity is measured through the Jaccard coefficient.
+similarity is measured through the Jaccard coefficient \footnotemark.
 
+\footnotetext{Given $2$ sets $C_1$ and $C_2$ the Jaccard coefficient is equal
+	to \cite{CharuC.Aggarwal2013}
+	\begin{equation*}
+		Jaccard(C_1, C_2) = \frac{|C_1 \bigcap C_2|}{|C_1 \bigcup C_2|}
+	\end{equation*}
+}
 The \acrshort{BFF} problem is now solved on $\mathcal{L} _{2} $ to obtain a set
 of vertices which is compared against the other $S_i$ previously computed to
 find the most similar one, as before, and the process continues until
