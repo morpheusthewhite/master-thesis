@@ -1,8 +1,8 @@
+from typing import Optional, Set
 import graph_tool.all as gt
 import treelib
 import numpy as np
 import pulp
-from typing import Optional
 from transformers import AutoModelForSequenceClassification
 from transformers import AutoTokenizer
 from scipy.special import softmax
@@ -1439,12 +1439,21 @@ class PolarizationGraph:
             for index in self.graph.get_vertices()
         ]
 
-        model += pulp.lpSum(vertices_continous_variables) <= 1
+        model += pulp.lpSum(vertices_continous_variables) == 1
         # each continous variable must activate the corresponding binary one
         for vertex_continous_variable, vertex_binary_variable in zip(
             vertices_continous_variables, vertices_binary_variables
         ):
             model += vertex_continous_variable <= vertex_binary_variable
+
+            for vertex_continous_variable2 in vertices_continous_variables:
+                if vertex_continous_variable != vertex_continous_variable2:
+                    model += (
+                        vertex_continous_variable
+                        >= -1
+                        + vertex_binary_variable
+                        + vertex_continous_variable2
+                    )
 
         # thread: ([negative edges vars],[edges variables]) dictionary
         thread_edges_dict = {}
@@ -1465,6 +1474,7 @@ class PolarizationGraph:
                 source, target = tuple(edge)
                 source = int(source)
                 target = int(target)
+                weight = self.weights[edge]
 
                 thread = thread_obj.url
                 edge_binary_var = pulp.LpVariable(
@@ -1482,11 +1492,17 @@ class PolarizationGraph:
                 z_k = thread_k_vars.get(thread)
                 if z_k is None:
                     z_k = pulp.LpVariable(
-                        f"z_{hash(thread)}", lowBound=0, upBound=1
+                        f"z_{hash(thread)}",
+                        lowBound=0,
+                        upBound=1,
+                        cat=variables_cat,
                     )
                     thread_k_vars[thread] = z_k
 
-                objective += edge_continous_var
+                if weight >= 0:
+                    objective += edge_continous_var
+                else:
+                    objective -= edge_continous_var
 
                 model += (
                     edge_continous_var <= vertices_continous_variables[source]
@@ -1495,13 +1511,31 @@ class PolarizationGraph:
                     edge_continous_var <= vertices_continous_variables[target]
                 )
                 model += edge_continous_var <= edge_binary_var
-                model += edge_binary_var <= z_k
+                model += edge_continous_var <= z_k
+
+                model += edge_binary_var <= vertices_binary_variables[source]
+                model += edge_binary_var <= vertices_binary_variables[target]
+
                 model += (
                     edge_binary_var
-                    >= -2
+                    >= -1
                     + vertices_binary_variables[source]
                     + vertices_binary_variables[target]
+                )
+
+                model += (
+                    edge_continous_var
+                    >= -2
+                    + edge_binary_var
                     + z_k
+                    + vertices_continous_variables[source]
+                )
+                model += (
+                    edge_continous_var
+                    >= -2
+                    + edge_binary_var
+                    + z_k
+                    + vertices_continous_variables[target]
                 )
 
                 edges_negative_var, edges_var = thread_edges_dict.get(
@@ -1514,16 +1548,24 @@ class PolarizationGraph:
 
                 thread_edges_dict[thread] = (edges_negative_var, edges_var)
 
+        epsilon = 1e-30
         # add thread controversy constraints
-        for k, edges_var_tuple in enumerate(thread_edges_dict.values()):
+        for thread, edges_var_tuple in thread_edges_dict.items():
             edges_negative_var, edges_var = edges_var_tuple
+            z_k = thread_k_vars[thread]
 
             # sum of variables associated to negative edges of a single thread
             neg_edges_sum = pulp.lpSum(edges_negative_var)
             # sum of variables associated to edges of a single thread
             edges_sum = pulp.lpSum(edges_var)
 
-            model += neg_edges_sum - alpha * edges_sum <= 0
+            N_k = alpha * ((len(edges_var) - len(edges_negative_var)) + 1)
+            M_k = len(edges_negative_var) * (1 - alpha)
+
+            model += neg_edges_sum - alpha * edges_sum + epsilon <= M_k * (
+                1 - z_k
+            )
+            model += neg_edges_sum - alpha * edges_sum + epsilon >= -N_k * z_k
 
         model += objective
         model.solve()
