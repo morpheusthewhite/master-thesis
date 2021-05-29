@@ -79,8 +79,9 @@ def test_graph_score_mip_densest():
 
     alpha = 0.3
     score, users, _, _ = graph.score_mip_densest(alpha)
-    #  score_vertices, _ = graph.score_from_vertices_index(users, alpha)
-    #  assert score_vertices == score
+    score_vertices, _ = graph.score_from_vertices_index(users, alpha)
+    assert len(users) > 0
+    assert score_vertices / len(users) == score
 
 
 def test_graph_score_mip_relaxation():
