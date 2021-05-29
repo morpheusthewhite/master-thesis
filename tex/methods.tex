@@ -209,9 +209,10 @@ additional variables and constraints
 	\label{eq:ecp-e2}
 	x _{ij} ^{k} \geq - 2 + y_i + y_j + z_k \quad\quad \forall ij \in E_k \\
 	\label{eq:ecp-a-alpha-constraint}
-	-N_k z_k < \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
+	-N_k z_k < \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij
+		\in E(T_k)}
 	a_{ij} ^{k} \leq - M_{k} (1 - z_{k})  \quad\quad \forall T_{k} \in
-	\mathcal{T} _{C}, C \in \mathcal{\hat{C}} \\
+	\mathcal{T} _{C}, C \in \mathcal{\hat{C}} \footnotemark\\
 	\label{eq:ecp-a-ij-g-i-j2}
 	a_{ij}^{k} \geq -1 + y_i + y_j \quad\quad \forall ij \in E_k \\
 	\label{eq:ecp-a-ij-l-i2}
@@ -228,6 +229,19 @@ additional variables and constraints
 	z _{k} \in  \{0, 1\} \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
 	\hat{\mathcal{C}}
 \end{gather}
+
+\footnotetext{\label{fn:epsilon-constraint}A strict inequality is not allowed by the definition of
+	\acrshort{MIP} or \acrshort{LP}, but this constraint can easily be transformed in valid
+	and equivalent formulation by the mean of a small positive value $\epsilon > 0$, so that
+	it becomes
+	\begin{equation*}
+		-N_k z_k < \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij
+			\in E(T_k)}
+		a_{ij} ^{k} + \epsilon \leq - M_{k} (1 - z_{k})  \quad\quad \forall T_{k} \in
+		\mathcal{T} _{C}, C \in \mathcal{\hat{C}}
+	\end{equation*}
+	We will however use \autoref{eq:ecp-a-alpha-constraint} for simplifying notation
+}
 
 Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(1 -
 	\alpha ) |E^{-}_k|$, respectively.
@@ -345,7 +359,7 @@ For simplifying notation we define $E_{k} \coloneqq E(T_{k}), T_{k} \in
 	\label{eq:d-ecp-alpha-constraint}
 	-N_{k} z_k < \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
 	a_{ij} ^{k}  \leq M_k (1 - z_k) \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
-	\hat{\mathcal{C}} \\
+	\hat{\mathcal{C}}\footnotemark \\
 	\label{eq:d-ecp-edge-charikar1}
 	x _{ij}^{k}  \leq y_i \quad\quad \forall ij \in E_{k} \\
 	\label{eq:d-ecp-edge-charikar2}
@@ -377,6 +391,8 @@ For simplifying notation we define $E_{k} \coloneqq E(T_{k}), T_{k} \in
 	z _{k} \in \{0, 1\} \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
 	\hat{\mathcal{C}}
 \end{gather}
+
+\footnotetext{See footnote of \autoref{sub:a_mip_model_for_the_ecp}}
 
 Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(1 -
 	\alpha ) |E^{-}_k|$, respectively.
