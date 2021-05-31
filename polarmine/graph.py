@@ -371,6 +371,81 @@ class PolarizationGraph:
         components, _ = gt.label_components(self.graph, directed=False)
         return np.max(components.a) + 1
 
+    def __vertices_components__(self, vertices_index: list[int]) -> np.array:
+        components, _ = gt.label_components(self.graph, directed=False)
+        return components.a[vertices_index]
+
+    def largest_component_vertices(
+        self, vertices_index: list[int]
+    ) -> list[int]:
+        """Finds the largest components of the given vertices in the graph
+
+        Args:
+            vertices_index (list[int]): the list of the vertices index
+
+        Returns:
+            list[int]: the list of the vertices index in the largest component
+        """
+        vertices_component = self.__vertices_components__(vertices_index)
+        n_components = np.max(vertices_component) + 1
+
+        component_max = np.empty((1))
+
+        for i in range(n_components):
+            component = np.where(vertices_component == i)[0]
+
+            if component.shape[0] > component_max.shape[0]:
+                component_max = component
+
+        return np.array(vertices_index)[component_max]
+
+    def get_echo_chamber_discussion(
+        self, vertices_index: Set[int]
+    ) -> list[str]:
+        """Finds comments posted by users
+
+        Args:
+            vertices_index (Set[int]): the set of vertices associated to the users
+        """
+        comments = {}
+
+        for vertex_index in vertices_index:
+
+            vertex = self.graph.vertex(vertex_index)
+
+            for edge in vertex.out_edges():
+                edge_content = self.threads[edge].content
+
+                content_discussion = comments.get(edge_content, [])
+                content_discussion.append(
+                    [
+                        vertex_index,
+                        int(edge.target()),
+                        self.weights[edge],
+                        self.comments[edge],
+                    ]
+                )
+
+                comments[edge_content] = content_discussion
+
+        return comments
+
+    def components(self) -> list[list[int]]:
+        """components.
+
+        Returns:
+            list[list[int]]: of list of list, each with the vertex in the connected components
+        """
+        components, _ = gt.label_components(self.graph, directed=False)
+        n_components = np.max(components.a) + 1
+
+        components_list = []
+        for i in range(n_components):
+            component_indices = np.where(components.a == i)[0]
+            components_list.append(component_indices)
+
+        return components_list
+
     def num_components_from_vertices(self, vertices: list[int]):
         """Count the number of different components associated to the given
         vertices
@@ -2137,6 +2212,10 @@ class PolarizationGraph:
                 nc_threads = []
             else:
                 score, vertices, _, nc_threads = self.score_mip(alpha)
+                import pdb
+
+                pdb.set_trace()
+                vertices = self.largest_component_vertices(vertices)
 
             # handle the case in which there are no vertices in the result,
             # i.e. no echo chamber was found
