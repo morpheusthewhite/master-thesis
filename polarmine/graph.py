@@ -2141,9 +2141,6 @@ class PolarizationGraph:
                 )
             else:
                 score, vertices, _, nc_threads = self.score_mip(alpha)
-                import pdb
-
-                pdb.set_trace()
                 vertices = self.largest_component_vertices(vertices)
 
             # handle the case in which there are no vertices in the result,
