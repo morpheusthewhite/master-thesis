@@ -1335,21 +1335,21 @@ class PolarizationGraph:
         if alpha > 0.5:
             for thread, edges_var_tuple in thread_aij_edges_dict.items():
                 edges_negative_var, edges_var = edges_var_tuple
+                z_k = thread_k_vars[thread]
 
                 # sum of variables associated to negative edges of a single thread
                 neg_edges_sum = pulp.lpSum(edges_negative_var)
                 # sum of variables associated to edges of a single thread
                 edges_sum = pulp.lpSum(edges_var)
 
-                N_k = len(edges_var) - len(edges_negative_var)
-                M_k = len(edges_negative_var) * (1 - alpha)
+                N_k = (len(edges_var) - len(edges_negative_var) + 1) * alpha
+                M_k = (len(edges_negative_var) + 1) * (1 - alpha)
 
                 model += neg_edges_sum - alpha * edges_sum + epsilon <= M_k * (
                     1 - z_k
                 )
                 model += (
-                    neg_edges_sum - alpha * edges_sum + epsilon
-                    >= -N_k * thread_k_vars[thread]
+                    neg_edges_sum - alpha * edges_sum + epsilon >= -N_k * z_k
                 )
 
         # add constraint for setting to one only vertices where at least one
@@ -1555,8 +1555,8 @@ class PolarizationGraph:
             # sum of variables associated to edges of a single thread
             edges_sum = pulp.lpSum(edges_var)
 
-            N_k = alpha * ((len(edges_var) - len(edges_negative_var)) + 1)
-            M_k = len(edges_negative_var) * (1 - alpha)
+            N_k = (len(edges_var) - len(edges_negative_var) + 1) * alpha
+            M_k = (len(edges_negative_var) + 1) * (1 - alpha)
 
             model += neg_edges_sum - alpha * edges_sum + epsilon <= M_k * (
                 1 - z_k
