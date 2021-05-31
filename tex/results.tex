@@ -411,14 +411,36 @@ datasets.
 \subsection{Detecting real-world echo chambers}%
 \label{sub:detecting_real_echo_chambers}
 
-% report some real world echo chambers
+We analyzed the discussion occurring between the users returned by the
+rounding algorithm (\autoref{ssub:rounding_algorithm}) to find out if the
+problems is meaningful.
+
+More specifically, we focused on a dataset created over @nytimes containing 500
+contents. By looking at these discussions we were able to spot some small
+communities (separated components in the induced subgraph) which seem sharing
+the overall same opinion. We report some examples of rephrased messages posted
+by the involved users.
+
+% todo: report discussions
+
+Generally it is not easy to recognize these Echo Chambers for different reasons
+
+\begin{itemize}
+	\item the messages in this bubble are often very few, and they do not
+	      really help getting an idea (unless messages are very explicit in their
+	      meaning, which is not frequent at all) of which opinion the users have
+	\item sometimes the bubbles consist of users discussing very
+	      different contents (e.g. american politics and English Royal
+	      family gossip)
+	\item internet slang language is often difficult to interpret as
+	      referring to subcultures which are often not very well-known
+	\item some times these chambers contain noise in the form of messages
+	      written in languages different from english or messages consinting only
+	      of images/GIF
+\end{itemize}
 
 \subsection{The r/asktrumpsupporters case}%
 \label{sub:the_r_asktrumpsupporters_case}
-
-
-\section{Validity and reliability analysis}
-\label{sec:reliability_analysis}
 
 % todo: talk about the limitations of the thread-content model in the reddit
 % environment (see slides of 02.08)
