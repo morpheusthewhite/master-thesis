@@ -316,6 +316,34 @@ class PolarizationGraph:
         components, _ = gt.label_components(self.graph, directed=False)
         return np.max(components.a) + 1
 
+    def __vertices_components__(self, vertices_index: list[int]) -> np.array:
+        components, _ = gt.label_components(self.graph, directed=False)
+        return components.a[vertices_index]
+
+    def largest_component_vertices(
+        self, vertices_index: list[int]
+    ) -> list[int]:
+        """Finds the largest components of the given vertices in the graph
+
+        Args:
+            vertices_index (list[int]): the list of the vertices index
+
+        Returns:
+            list[int]: the list of the vertices index in the largest component
+        """
+        vertices_component = self.__vertices_components__(vertices_index)
+        n_components = np.max(vertices_component) + 1
+
+        component_max = np.empty((1))
+
+        for i in range(n_components):
+            component = np.where(vertices_component == i)[0]
+
+            if component.shape[0] > component_max.shape[0]:
+                component_max = component
+
+        return np.array(vertices_index)[component_max]
+
     def get_echo_chamber_discussion(
         self, vertices_index: Set[int]
     ) -> list[str]:
@@ -2134,6 +2162,10 @@ class PolarizationGraph:
                 nc_threads = []
             else:
                 score, vertices, _, nc_threads = self.score_mip(alpha)
+                import pdb
+
+                pdb.set_trace()
+                vertices = self.largest_component_vertices(vertices)
 
             if len(vertices) == 0:
                 break
