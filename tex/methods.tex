@@ -23,19 +23,19 @@
 \section{Exact solutions}%
 \label{sec:exact-solutions}
 
-Now we present some techniques for calculating exactly and approximating both
+We now present some techniques for calculating exactly and approximating both
 the \acrshort{ECP} and the \acrshort{D-ECP}.
 
 \subsection{A MIP model for the \acrshort{ECP}}%
 \label{sub:a_mip_model_for_the_ecp}
 
-Let $G$ be our \emph{Interaction Graph} for contents $\mathcal{C} $,
-controversial contents $\mathcal{\hat{C}} \subseteq \mathcal{C} $ and
-threads $T \in \mathcal{T}_{C}, \; C \in \mathcal{C} $. Let $E_k$ bet the set
+Let $G$ be our \emph{Interaction Graph} for contents $\mathcal{C} $ and
+threads $T \in \mathcal{T}_{C}, \; C \in \mathcal{C} $. Fix
+$\alpha \in [0, 1]$. Let $\mathcal{\hat{C}} \subseteq \mathcal{C} $ be the
+set of controversial contents and $E_k$ the set
 of all edges of thread $T_k$ associated to a controversial content, i.e. $T_{k}
 	\in \mathcal{T}_{C}, C \in \mathcal{\hat{C}}$; let also $E^{+}_k $
-and $E^{-}_k $ be the set its positive and negative edges, respectively. Fix $\alpha \in [0, 1]$.
-
+and $E^{-}_k $ be the set its positive and negative edges, respectively.
 The following \acrshort{MIP} model is able to solve the \acrshort{ECP} on $G$
 for values of $\alpha \leq 0.5$.
 
@@ -67,7 +67,7 @@ for values of $\alpha \leq 0.5$.
 	\hat{\mathcal{C}}
 \end{gather}
 
-We will know show that the \acrshort{ECP} can be solved through
+We will now show that the \acrshort{ECP} can be solved through
 MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
 
 \begin{theorem}
@@ -128,7 +128,7 @@ MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
 		Let us now consider a thread $T_k \in \mathcal{S}_C(U)$; this means that
 
 		\begin{equation}
-			\eta(T[U]) \leq \alpha \implies \frac{|E^{-}_{k}[U]|}{|E_{k}[U]|} \leq
+			\eta(T_k[U]) \leq \alpha \implies \frac{|E^{-}_{k}[U]|}{|E_{k}[U]|} \leq
 			\alpha \implies |E^{-}_{k}[U]| - \alpha |E_{k}[U]| \leq 0
 		\end{equation}
 
@@ -152,37 +152,42 @@ MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1}.
 		Equations~\ref{eq:ecp-v1}-\ref{eq:ecp-e1} we have
 		\autoref{eq:ecpp-x-iff}, so
 
-		\begin{equation}
+		\begin{gather}
+			x_{ij}^{k} = 1 \implies z_k = 1 \\
 			\label{eq:ecpp-z-iff-xij}
-			z_k = 1 \iff x_{i'j'}^{k} = 1 \; \forall i'j'
+			z_k = 1 \implies x_{i'j'}^{k} = 1 \; \forall i'j'
 			\in E_k[U]
-		\end{equation}
+		\end{gather}
 
-		Let us know consider $T_k \; s.t. z_k = 1$ and suppose $T_k \not\in
-			\mathcal{S}_C(U), \; C \in \mathcal{\hat{C}}$. Thus $\eta(T_k[U]) \geq \alpha$,
-		i.e.
+		Let us know consider $T_k \; s.t. \; z_k = 1$. Because of
+		\autoref{eq:ecp-alpha-constraint1} and \autoref{eq:ecpp-z-iff-xij} we have
 
 		\begin{equation}
-			\frac{|E^{-}_{k}[U]|}{|E_{k}[U]|} > \alpha \implies |E^{-}_{k}[U]| -
-			\alpha |E_{k}[U]| > 0
+			|E^{-}_{k}[U]| - \alpha |E_{k}[U]| \leq 0 \implies
+			\frac{|E^{-}_{k}[U]|}{|E_{k}[U]|} \leq \alpha
 		\end{equation}
+		i.e. $\eta(T_k[U]) \leq \alpha$. So $T_k \in
+			\mathcal{S}_C(U), \; C \in \mathcal{\hat{C}}$, i.e. $z_k = 1 \implies T_k
+			\in \mathcal{S}_C(U), \; C \in \mathcal{\hat{C}}$, thus $T_k[U]$ contributes to
+		$\xi(U)$; more specifically any edge contributing to the objective function equally
+		contributes to $\xi(U)$.
 
-		which violates \autoref{eq:ecp-alpha-constraint1}. So $z_k \implies T_k
-			\in \mathcal{S}_C(U), \; C \in \mathcal{\hat{C}}$, so $T_k[U]$ contributes to
-		$\xi(U)$. So any edge contributing to the objective function equally
-		contributes to $\xi(U)$. Now suppose $\exists \; T_k \in \mathcal{S}_C(U) \; s.t.
-			\; z_k = 0 \implies x_{ij}^{k} = 0$. Since $\alpha \leq 0.5$
+		Now suppose $\exists \; T_k \in \mathcal{S}_C(U) \; s.t.
+			\; z_k = 0 \implies x_{ij}^{k} = 0$. Since $\alpha \leq 0.5$,
 
 		\begin{gather*}
 			\eta(T_k[U]) \leq \alpha \implies \frac{|E^{-}_{k}[U]|}{|E_{k}[U]|}
 			\leq 0.5 \\
 			|E^{-}_{k}[U]| \leq 0.5 \cdot (|E^{+}_{k}[U]| + |E^{-}_{k}[U]|) \\
-			0.5 \cdot |E^{+}_{k}[U]| - 0.5 |E^{-}_{k}[U]| \geq 0
-			\cdot |E^{+}_{k}[U]| - |E^{-}_{k}[U]| \geq 0
+			0.5 \cdot |E^{+}_{k}[U]| - 0.5 \cdot |E^{-}_{k}[U]| \geq 0 \\
+			|E^{+}_{k}[U]| - |E^{-}_{k}[U]| \geq 0
 		\end{gather*}
+		Consequently $T_k$ will contribute positely to $\xi(U)$.
 
-		Consequently $T_k$ will contribute positely to $\xi(U)$, so $\xi(U)
-			\geq v$.
+		Also, any $T_k$ for which $0 < z_k < 1$ can be similarly shown to be
+		\emph{non-controversial}; furthermore its positive contribution in the
+		objective function will be $\leq$ to $T_k$ contribution in $\xi(U)$, so
+		$\xi(U) \geq v$.
 	\end{proof}
 
 	This concludes the proof for \autoref{th:ecp-mip}.
@@ -232,19 +237,19 @@ additional variables and constraints
 
 \footnotetext{\label{fn:epsilon-constraint}A strict inequality is not allowed by the definition of
 	\acrshort{MIP} or \acrshort{LP}, but this constraint can easily be transformed in valid
-	and equivalent formulation by the mean of a small positive value $\epsilon > 0$, so that
+	and equivalent formulation by the mean of a small $\epsilon > 0$, so that
 	it becomes
 	\begin{equation*}
 		-N_k z_k < \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij
 			\in E(T_k)}
-		a_{ij} ^{k} + \epsilon \leq - M_{k} (1 - z_{k})  \quad\quad \forall T_{k} \in
+		a_{ij} ^{k} - \epsilon \leq M_{k} (1 - z_{k})  \quad\quad \forall T_{k} \in
 		\mathcal{T} _{C}, C \in \mathcal{\hat{C}}
 	\end{equation*}
 	We will however use \autoref{eq:ecp-a-alpha-constraint} for simplifying notation
 }
 
 Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(1 -
-	\alpha ) |E^{-}_k|$, respectively.
+	\alpha ) (|E^{-}_k| + 1)$, respectively.
 
 \begin{theorem}
 	\label{th:ecp-mip}
@@ -265,7 +270,7 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 		MIP~\ref{eq:ecp-exact1}-\ref{eq:ecp-thread-def1} gets value $\geq \xi(U)$.
 	\end{claim}
 
-	It easy to see that by choosing $x_{ij}^{k}, \; y_i, \; z_k$ as before and
+	It is easy to see that by choosing $x_{ij}^{k}, \; y_i, \; z_k$ as before and
 	\begin{equation*}
 		a_{ij}^{k} = \begin{cases}
 			1 & \text{if } e_{ij} \in E_k[U] \\
@@ -276,7 +281,7 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 	Claim~\ref{th:claim-v-b-xi} is consequently proved for
 	MIP~\ref{eq:ecp-exact2}-\ref{eq:ecp-z-domain-2}.
 
-	We will instead focus of proving the analogous of Claim~\ref{th:claim-xi-b-v}.
+	We will instead focus of proving the analogous Claim of~\ref{th:claim-xi-b-v}.
 	\begin{claim}
 		\label{th:claim-xi-b-v2}
 		Given a feasible solution of
@@ -296,7 +301,7 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 		i.e. all and only the edges induced by $U$ will have the corresponding
 		$a_{ij}^{k} = 1$.
 
-		Consider now a thread $T_k \in \mathcal{S}_C(U)$. By definition we
+		Consider now a thread $T_k \in \mathcal{S}_C(U)$. By definition, we
 		have that
 		\begin{gather*}
 			\eta(T_k) \leq \alpha \\
@@ -306,21 +311,21 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 		thus, because of \autoref{eq:ecp-a-alpha-constraint} $z_k = 1$. This
 		means that the constraint resolves to
 		\begin{equation*}
-			-\alpha |E_{k}[U]| < \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)} a_{ij} ^{k}
+			-\alpha (|E^{+}_{k}[U]| + 1)< \sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)} a_{ij} ^{k}
 		\end{equation*}
 		which is satisfied since
 		\begin{multline}
 			\sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
 			a_{ij} ^{k} = |E^{-}_{k}[U]| - \alpha \cdot |E_{k}[U]| = \\
 			(1- \alpha)|E^{-}_{k}[U]| - \alpha \cdot |E^{+}_{k}[U]| \geq -
-			\alpha \cdot |E^{+}_{k}[U]| > N_k
+			\alpha \cdot |E^{+}_{k}[U]| > - N_k
 		\end{multline}
 
 		Consequently, because of \autoref{eq:ecpp-z-iff-xij}, we have that
 		\begin{equation}
 			T_k \in \mathcal{S}_C(U) \iff x_{ij}^{k} = 1 \; \forall \;i, j, \in U
 		\end{equation}
-		meaning that $T_k$ \emph{non controversial} will equally contribute to
+		meaning that $T_k$ \emph{non-controversial} will equally contribute to
 		$\xi$ and $v$.
 		Now consider $T_k$ \emph{controversial}. In order for $v$ to be a
 		feasible solution $z_k = 0$ (to satisfy
@@ -338,7 +343,7 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 \label{sub:a_mip_model_for_the_d_ecp}
 
 Similarly to the \acrshort{ECP}, here we propose a \acrshort{MIP} model for
-finding a solution for the \acrshort{D-ECP}, $\alpha \in [0, 0.5]$.
+finding a solution for the \acrshort{D-ECP}, $\alpha \in [0, 1]$.
 
 For simplifying notation we define $E_{k} \coloneqq E(T_{k}), T_{k} \in
 	\mathcal{T}_{C}, C \in \mathcal{\hat{C}}$.
@@ -395,7 +400,7 @@ For simplifying notation we define $E_{k} \coloneqq E(T_{k}), T_{k} \in
 \footnotetext{See footnote of \autoref{sub:a_mip_model_for_the_ecp}}
 
 Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(1 -
-	\alpha ) |E^{-}_k|$, respectively.
+	\alpha ) ( |E^{-}_k| + 1)$, respectively.
 
 \begin{theorem}
 	\label{th:d-ecp-mip}
@@ -411,7 +416,7 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 \end{theorem}
 
 \begin{proof}
-	We will similarly to \autoref{th:ecp-mip} and proof the equality by $2$
+	We will similarly to \autoref{th:ecp-mip} and proof this equality by $2$
 	inequalities: $RHS \geq LHS$ and then that $LHS \geq RHS$
 
 	\begin{claim}
@@ -420,7 +425,7 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 	\end{claim}
 
 	\begin{proof}
-		Let $c = 1 / |U|$. We construction a feasible solution for
+		Let $c = 1 / |U|$. We construct a feasible solution for
 		MIP~\ref{eq:d-ecp-objective}-\ref{eq:d-ecp-z-k} as follows
 
 		\begin{gather}
@@ -455,9 +460,9 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 		satisfied since $a_{ij}^{k} = 1 \iff b_i = 1 \land b_j = 1$, meaning
 		that it is induced $\iff v_i, v_j \in U$; the same idea applies to
 		Equations~\ref{eq:d-ecp-edge-charikar1}-\ref{eq:d-ecp-edge-charikar2}.
-		Equations~\ref{eq:d-ecp-vertex-l-b} and
+		Equation~\ref{eq:d-ecp-vertex-l-b} is trivial and
 		\ref{eq:d-ecp-x-l-a}-\ref{eq:d-ecp-x-l-z} hold since
-		$\mathcal{S}_C(U) \subseteq \mathcal{T}_C $. It also easy to see that
+		$\mathcal{S}_C(U) \subseteq \mathcal{T}_C $. It is also easy to see that
 		\autoref{eq:d-ecp-vertex-g-bi-yj} is satisfied since we defined $y_i$
 		and $b_i$ s.t. $b_i = 1 \iff y_i = c$. Furthermore, since $y_i = c \iff
 			y_i \in U$ then $ \sum^{}_{i \in V} y_i = \sum^{}_{i \in U} c = 1$
@@ -471,7 +476,7 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 			|E^{-}_{k}[U]| - \alpha (|E_{k}[U]|) \leq 0 \\
 		\end{gather}
 
-		Thus the second inequality of \autoref{eq:d-ecp-alpha-constraint} true;
+		Thus, the second inequality of \autoref{eq:d-ecp-alpha-constraint} is true;
 		it is easy also to see that the first one is also satisfied since
 
 		\begin{multline}
@@ -482,8 +487,8 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 		\end{multline}
 
 		Equations~\ref{eq:d-ecp-x-l-sum1}-\ref{eq:d-ecp-x-l-sum2} are true
-		since in this case ($z_k = 1$) because by definition $a_{ij}^{k} = 1
-			\iff x_{ij}^{k} = c$. If instead $T_k \not\in S_c$ and $z_k = 0$ we
+		since in this case ($z_k = 1$) by definition $a_{ij}^{k} = 1
+			\implies x_{ij}^{k} = c$. If instead $T_k \not\in S_c$ and $z_k = 0$ we
 		have that
 
 		\begin{gather}
@@ -492,17 +497,17 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 			|E^{-}_{k}[U]| - \alpha (|E_{k}[U]|) > 0 \\
 		\end{gather}
 
-		consequently the first inequality of
+		and consequently the first inequality of
 		\autoref{eq:d-ecp-alpha-constraint} is satisfied. Also
 
 		\begin{multline}
 			\sum^{}_{ij \in E^{-} (T_k)} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E(T_k)}
 			a_{ij} ^{k} = |E^{-}_{k}[U]| - \alpha \cdot |E_{k}[U]| = \\
 			(1- \alpha)|E^{-}_{k}[U]| - \alpha \cdot |E^{+}_{k}[U]| \leq
-			(1 -\alpha) \cdot |E^{-}_{k}[U]| \leq M_k
+			(1 -\alpha) \cdot |E^{-}_{k}[U]| < M_k
 		\end{multline}
 
-		Thus also the second inequality is true. Also
+		Thus, also the second inequality is true. Also,
 		Equations~\ref{eq:d-ecp-x-l-sum1}-\ref{eq:d-ecp-x-l-sum2} are trivially
 		satisfied.
 
@@ -517,7 +522,7 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 			\frac{|E^{+}_{k}[U]| - |E^{-}_{k}[U]|}{|U|}
 		\end{multline*}
 
-		Thus for each thread we have the same contribution to both $\psi(U)$
+		Thus, for each thread we have the same contribution to both $\psi(U)$
 		and the objective function of
 		MIP~\ref{eq:d-ecp-objective}-\ref{eq:d-ecp-z-k} and so the sum through
 		all the threads will correspond as well.
@@ -558,7 +563,6 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 		this to the results in \autoref{eq:d-ecpp-y-in} and
 		\autoref{eq:d-ecpp-a-iff}
 
-		% todo: clarify these equations
 		\begin{gather}
 			\label{eq:d-ecpp-x-impl}
 			x_{ij}^{k} > 0 \implies a_{ij}^{k} = 1 \land z_k =1 \\
@@ -619,7 +623,7 @@ Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(
 \section{Approximation algorithms}%
 \label{sub:approximation_algorithms}
 
-We now present some approximation algorithms for solving the defined scores.
+We now present some approximation algorithms for solving the defined problems.
 Let $\textsc{Score}_{\xi} (U)$ and $\textsc{Score}_{\psi} (U)$ be the functions computing the
 \emph{Echo Chamber Score} and \emph{Densest-Echo Chamber Score} of $U$,
 respectively. These subroutines iterate over the edges of the vertices in $U$,
@@ -627,7 +631,7 @@ ignoring those that are not induced by $U$, and counting for each thread $T \in
 	\mathcal{T}_{C}, C \in \mathcal{\hat{C}} $ the number of edges and negative edges
 to see which are \emph{controversial}, then calculating their contributions
 (\autoref{alg:score_xi} shows in detail $\textsc{Score}_\xi$;
-$\textsc{Score}_\psi$ can simply be computed as $\xi(U)/|U|$).
+$\textsc{Score}_\psi$ can simply be computed as $\textsc{Score}_\xi(U)/|U|$).
 
 \begin{algorithm}
 	\SetAlgoLined
@@ -651,11 +655,13 @@ $\textsc{Score}_\psi$ can simply be computed as $\xi(U)/|U|$).
 	}
 
 	$\xi(U) \leftarrow 0$ \;
-	$\eta(T) \leftarrow\frac{N^{-}(T)}{(N^{-}(T) + N^{+} (T))}$ \;
+	$\eta(T) \leftarrow\frac{N^{-}(T)}{(N^{-}(T) + N^{+} (T))} \; \forall $ threads $T
+		\in \mathcal{T}_{C}, C \in \mathcal{\hat{C}}   $  \;
 	\ForEach{$T\in \mathcal{T}_{C}, C \in \mathcal{\hat{C}}$ \textbf{if}
 		$ \eta(T) \leq \alpha $}{
 		$\xi(U) \leftarrow \xi(U) + N^{+}(T) - N^{-}(T)$
 	}
+	\Return $\xi(U)$ \;
 
 	\caption{The $\textsc{Score}_{\xi}  $ subroutine}
 	\label{alg:score_xi}
@@ -665,17 +671,17 @@ $\textsc{Score}_\psi$ can simply be computed as $\xi(U)/|U|$).
 \label{ssub:the_beta_approach}
 
 This algorithm (\autoref{alg:algorithm_beta}) construct a set of users $U$ by
-iteratively adding the node which increases the score the most or removing from
+iteratively adding the node which increases the most the score or removing from
 $U$ the one which contributes the least, stopping when the score cannot be
 increased by adding a node. Frequency of addition and removal are regulated
-through $\beta $ (for smaller values an higher density is to be expected,
+through $\beta $ (for smaller values a higher density is to be expected,
 generally).
 
 \begin{algorithm}
 	\SetAlgoLined
 	% \KwResult{Write here the result }
 	$U = \{$ random node $\}$\;
-	$\xi(U) = \textsc{Score}_{\xi}(U)$ \;
+	$\xi(U) = 0$ \;
 	\While{ $\exists \; v_{j} \; s.t. \; \textsc{Score}_{\xi} (U \bigcup \; \{
 			v_{j} \} )> \xi(U)$}{
 		$N(U) \leftarrow $ neighbours of vertices in $U$ in the graph $G$ \;
@@ -701,6 +707,7 @@ generally).
 		%     $U \leftarrow U \setminus \; \{ v \}$ \;
 		% }
 	}
+	\Return $\textsc{Score}_{\xi} (U)$ \;
 	\caption{$\beta$ algorithm}
 	\label{alg:algorithm_beta}
 \end{algorithm}
@@ -709,7 +716,7 @@ In addition, one may also want to ignore a node when it is removed for the
 next iterations, in order to avoid stucking the algorithm in repeatedly adding
 and taking out from $U$ the same vertex.
 
-The result is clearly dependant on the choice of the initial node: the process
+The result is clearly dependent on the choice of the initial node: the process
 should be repeated for different initial nodes; also, a variant
 of the algorithm prefers starting from the vertices with the highest fraction of positive edges.
 
@@ -719,7 +726,7 @@ sets of users that are connected in the original graph.
 \subsection{Peeling algorithm}%
 \label{ssub:peeling_algorithm}
 
-Inspired to the greedy algorithm proposed in \cite{charikar2000greedy}, this
+Inspired to the greedy algorithm proposed in \cite{charikar2000greedy}, these
 algorithms starts by considering as set of $U = V$, all the vertices,
 iteratively removing the worst nodes (\autoref{alg:algorithm_peeling})
 
@@ -730,26 +737,24 @@ iteratively removing the worst nodes (\autoref{alg:algorithm_peeling})
 	$S = \textsc{Score}_{\xi}(U)$ \;
 	\While{$U \neq \emptyset$ }{
 		$v = \arg\max_{v_{j} \in U }
-			\textsc{Score}_{\xi} (U \setminus \{ v_{j} \})$ \;
-		$U \leftarrow U \setminus \{ v \}$ \;
+			\textsc{Score}_{\xi} (U \setminus \{ v_{j} \})$ \; $U \leftarrow U \setminus \{ v \}$ \;
 
-		$S = \max(S, \textsc{Score}_{\xi} (U)) $ \;
+		$S_i = \textsc{Score}_{\xi} (U) $ \;
 	}
-	\Return $S$ \;
+	\Return $\arg\max_{i}S_i$ \;
 
 	\caption{Peeling algorithm}
 	\label{alg:algorithm_peeling}
 \end{algorithm}
 
-In the case in some iterations the algorithm is unable to choose due to the
-fact that one or more nodes produce the same score, then one of them is
+If many nodes produce the same score, then one of them is
 randomly selected (or, alternatevily, the one which has the highest fraction of
 negative edges).
 
 \subsection{Rounding algorithm}%
 \label{ssub:rounding_algorithm}
 
-This algorithm reconstruct a solution starting from the results of the
+This algorithm reconstructs a solution starting from the results of the
 relaxation of the exact models and is again inspired by the algorithm for
 Reconstructing the exact solution from the \acrshort{LP} model in
 \cite{charikar2000greedy}.
@@ -758,10 +763,10 @@ Let $r_{i}$ and $r_{ij} ^{k} $ be the value of $y_i$ and $x_{ij}^{k} $ in the
 solution of the relaxation, respectively.
 
 Let $\tilde{E}$ be the sequence of edges ordered in ascending order by $r_{ij}
-		^{k} $. The algorithm (\autoref{alg:algorithm_rounding}) goes by iterating over
-edges in $\tilde{E}$, adding them a \emph{dummy} graph $\hat{G}$, also eventually
-adding incident nodes if not already present. At each iterations it is computed
-the score of the vertices that were added to the graph $\hat{G}$ and the score
+		^{k} $. The algorithm (\autoref{alg:algorithm_rounding}) iterates over
+the edges in $\tilde{E}$, adding them to a \emph{dummy} graph $\hat{G}$, also eventually
+adding incident nodes if not already present. At each iteration it is computed
+the score of the vertices in the graph $\hat{G}$ and the score
 of the vertices of each component in the graph, keeping track of the best
 result.
 
@@ -790,7 +795,7 @@ result.
 	\label{alg:algorithm_rounding}
 \end{algorithm}
 
-The motivation for algorithm can be seen in
+The motivation for the algorithm can be seen in
 Figures~\ref{fig:rounding-original}-\ref{fig:rounding-relaxed}: the problem
 relaxation involves a solution whose value assigned to the edges can be used to
 find subgraphs with many positive edges by using each separate component as set
@@ -859,13 +864,14 @@ of users $U$.
 
 While one may think from these examples that the relaxation trivially assignes
 non-zero values only to positive edges, \autoref{fig:rounding-original2} shows
-a case in which a negative edge, $e_{31}$ gets the value of $1$; furthermore,
+a case in which a negative edge, $e_{31}$, gets the value of $1$; furthermore,
 in this situation the algorithm is able to reconstruct the exact solution of the problem.
 
 \begin{figure}
 	\centering
 	\tikzfig{tex/tikz/rounding_original2}
-	\caption[Example of rounding algorithm finding the exact solution]{Another \emph{Interaction graph} example, with a single thread. In
+	\caption[Example of rounding algorithm finding the exact solution]{Another
+		\emph{Interaction graph} example, with only one thread. In
 		this case the rounding algorithm is able to find the exact solution by
 		selecting all the nodes except for $v_4$. In the result of the
 		relaxation all the edges except for $e_{42}$ get the value of $1$}%
@@ -876,8 +882,8 @@ in this situation the algorithm is able to reconstruct the exact solution of the
 \label{sec:alternative-formulations}
 
 Due to the intrinsic complexity of the problems
-(\autoref{sec:problem_complexity_and_approximability}) we define variants of
-the problems, for some of which we are also able to find an exact solution.
+(\autoref{ch:complexity}) we define variants of
+the \acrshort{ECP} and \acrshort{D-ECP} problems, for some of which we are also able to find an exact solution.
 
 For these new problems we need to define new graphs, obtained by preprocessing
 the \emph{Interaction Graph}.
@@ -947,7 +953,7 @@ We can then solve on $G_{TP}$
 \begin{enumerate}
 	\item the Densest Subgraph Problem (or, equivalently, the
 	      \acrshort{DCS}-MM)
-	\item the \acrshort{O2BFF} Problem
+	\item the \acrshort{O2BFF} Problem, more specifically \acrshort{O2BFF}-AM
 \end{enumerate}
 
 % \subsection{Validity of method}
