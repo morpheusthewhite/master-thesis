@@ -1,4 +1,5 @@
 import os
+import time
 import math
 import treelib
 import tweepy
@@ -15,6 +16,25 @@ from polarmine.tweepy import APIv2
 
 QUOTE_MIN_REPLIES = 1
 TWEET_MIN_REPLIES = 1
+
+
+def safe(func):
+    def inner(*args, **kwargs):
+        passed = False
+        while not passed:
+            try:
+                ret = func(*args, **kwargs)
+                passed = True
+            except Exception:
+                time.sleep(1)
+        return ret
+
+    return inner
+
+
+@safe
+def safe_list(iterable):
+    return list(iterable)
 
 
 class TwitterCollector(Collector):
@@ -154,7 +174,7 @@ class TwitterCollector(Collector):
                 self.twitter.search, q=query, tweet_mode="extended"
             )
 
-            return cursor.items()
+            return iter(safe_list(cursor.items()))
         else:
             return iter([])
 
