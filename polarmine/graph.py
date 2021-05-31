@@ -2162,9 +2162,6 @@ class PolarizationGraph:
                 nc_threads = []
             else:
                 score, vertices, _, nc_threads = self.score_mip(alpha)
-                import pdb
-
-                pdb.set_trace()
                 vertices = self.largest_component_vertices(vertices)
 
             if len(vertices) == 0:
