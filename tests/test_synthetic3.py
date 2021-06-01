@@ -51,7 +51,7 @@ def test_synthetic(results_outfile, n_iterations: int = 5):
     #  n_nodes = [7, 6, 5, 4]
 
     # noise standard deviations:
-    noise_values = np.arange(0, 1.1, 0.1)
+    noise_values = np.arange(0, 0.6, 0.1)
 
     # probability of having an edge between different communities
     edge_p = 0.25
