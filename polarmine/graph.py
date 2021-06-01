@@ -331,6 +331,9 @@ class PolarizationGraph:
         Returns:
             list[int]: the list of the vertices index in the largest component
         """
+        if len(vertices_index) == 0:
+            return []
+
         vertices_component = self.__vertices_components__(vertices_index)
         n_components = np.max(vertices_component) + 1
 
