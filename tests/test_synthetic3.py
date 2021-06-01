@@ -163,8 +163,8 @@ def test_synthetic(results_outfile, n_iterations: int = 5):
         )
         results_outfile.flush()
 
-        noise_adj_rand_score.append(adjusted_rand_score)
-        noise_jaccard_score.append(jaccard_score)
+        noise_adj_rand_score.append(np.average(adjusted_rand_scores))
+        noise_jaccard_score.append(np.average(jaccard_score))
 
     noise_adj_rand_pdf = os.path.join(OUTDIR, "model2_noise_adj_rand.pdf")
     plt.plot(noise_values, noise_adj_rand_score)
