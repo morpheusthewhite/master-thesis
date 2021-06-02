@@ -207,15 +207,20 @@ because of its efficiency \cite{peixoto_graph-tool_2014}.
 \label{sub:validity_problem_definition}
 
 We did a initial analysis of the data to verify the validity of the problem. We
-initially analyzed the $\eta(C)$, more specifically its distribution, and
+initially studied the $\eta(C)$, more specifically its distribution, and
 compared it with the distribution of the $\eta(T)$. We report these results for
-$2$ datasets, one built over @nytimes and another over @foxnews Twitter
-accounts \footnotemark (\autoref{fig:eta-content-thread}).
+three datasets, a first built over @nytimes, a second over @foxnews
+and a third one over @bbc news Twitter accounts\footnotemark (\autoref{fig:eta-content-thread}).
 
 \footnotetext{As explained above (\autoref{par:twitter-data}), we are referring
 	to the accounts that are used to retrieve the contents of the graph}
 
-% todo correct CNN image and discussion of these results
+By looking at this histogram it is evident that when moving from
+contents to threads there is a significant increase in the percentage of
+threads with a very small $\eta$, meaning that contents which globally have
+a non negligible amount of negative edges produce also threads that have
+very few o no negative edges. These are the subgraphs in which we expect to find
+the echo chambers.
 
 \begin{figure}
 	\begin{center}
@@ -245,16 +250,14 @@ accounts \footnotemark (\autoref{fig:eta-content-thread}).
 		\end{subfigure}
 		\begin{subfigure}[b]{0.4\textwidth}
 			\centering
-			% \includegraphics[width=\textwidth]{tex/out/CNN700/neg-fraction-content-hist.pdf}
-			\includegraphics[width=\textwidth]{tex/out/foxnews2000/neg-fraction-content-hist.pdf}
-			\caption{$\eta(C)$ of @CNN}
+			\includegraphics[width=\textwidth]{tex/out/bbcnews500/neg-fraction-content-hist.pdf}
+			\caption{$\eta(C)$ of @bbcnews}
 			\label{fig:CNN-content-eta}
 		\end{subfigure}
 		\begin{subfigure}[b]{0.4\textwidth}
 			\centering
-			% \includegraphics[width=\textwidth]{tex/out/CNN700/neg-fraction-thread-hist.pdf}
-			\includegraphics[width=\textwidth]{tex/out/foxnews2000/neg-fraction-content-hist.pdf}
-			\caption{$\eta(T)$ for @CNN}
+			\includegraphics[width=\textwidth]{tex/out/bbcnews500/neg-fraction-thread-hist.pdf}
+			\caption{$\eta(T)$ for @bbcnews}
 			\label{fig:CNN-thread-eta}
 		\end{subfigure}
 		\caption{$\eta(C)$ and $\eta(T)$ distribution for many datasets}
@@ -558,11 +561,6 @@ We explain this with the following reasons:
 	      reasons we generally expect a less evident division in the opinions and
 	      less hostility in the comments.
 \end{itemize}
-
-% Conclusions: very few article are able to classify better than chance. This
-% is due to the nature of the subreddit, made for discussion. Also. the
-% nature of the post does not help. They are questions, not affirmation
-
 
 \section{Discussion}%
 \label{sec:discussion}
