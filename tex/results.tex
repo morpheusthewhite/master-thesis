@@ -29,7 +29,24 @@ Twitter data is retrieved with the help of Tweepy \cite{tweepy}, a Python
 library for accessing the Twitter API, which has been patched for using some
 features available only in the beta of the new Twitter API (v2).
 
-\paragraph{Reddit}%
+Furthermore, we construct a datasets in which users are labeled either as
+\emph{democrats} or \emph{republican}. This is done by looking at the people a
+certain user A follows: for each account B followed by A, if B is a political representative, then we can
+retrieve from Wikipedia the party to which he/she/they belongs to (see, for
+example, \autoref{fig:tex/img/wikipedia-elected}). Then, user A get assigned a
+label according to the party of the majority of the users B he/she/they
+follows.
+
+\autoref{fig:tex/img/wikipedia-elected}).
+\begin{figure}
+	\centering
+	\includegraphics[width=0.4\linewidth]{tex/img/wikipedia-elected.png}
+	\caption[Example Wikipedia entry]{Wikipedia entry associated to Alexandria Ocasio-Cortez, a member
+		of the U.S. House of Representatives}%
+	\label{fig:tex/img/wikipedia-elected}
+\end{figure}
+
+\paragraph{Reddit.}%
 \label{par:reddit}
 
 Differently from Twitter, Reddit focuses on subreddits, which are pages
