@@ -1,0 +1,24 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=node] (0) at (-4, 3.75) {$v_1$};
+		\node [style=node] (1) at (-3.25, 0.75) {$v_3$};
+		\node [style=node] (2) at (-0.75, 2.5) {$v_2$};
+		\node [style=node] (3) at (2.5, -2.25) {$v_6$};
+		\node [style=node] (4) at (2, 0.5) {$v_4$};
+		\node [style=node] (5) at (-0.5, -2) {$v_5$};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=oriented positive] (0) to (1);
+		\draw [style=oriented positive] (1) to (2);
+		\draw [style=oriented positive] (2) to (0);
+		\draw [style=oriented positive] (5) to (4);
+		\draw [style=oriented positive] (4) to (3);
+		\draw [style=oriented positive] (3) to (5);
+		\draw [style=oriented positive] (1) to (5);
+		\draw [style=oriented negative, bend right, looseness=1.25] (4) to (2);
+		\draw [style=oriented negative] (2) to (5);
+		\draw [style=oriented negative, bend left=45, looseness=1.25] (5) to (0);
+		\draw [style=oriented negative, bend right=60] (4) to (0);
+		\draw [style=oriented negative, bend right=300, looseness=1.25] (3) to (1);
+	\end{pgfonlayer}
+\end{tikzpicture}
