@@ -61,7 +61,7 @@ these \emph{crosspost} will eventually correspond to another thread.
 
 The PRAW library is used for retrieving the data \cite{praw}.
 
-\paragraph{Edge weights assignment}%
+\paragraph{Edge weights assignment.}%
 \label{par:assigning_edge_weights}
 
 Once the threads interactions are retrieved they are passed to a state of the
@@ -75,6 +75,36 @@ python library \cite{wolf-etal-2020-transformers}.
 Finally, complying with the current privacy legislation, all the data related
 to the user is pseudo-anonymized (accounts identifier are replaced by random
 ones) while no data is publicly available.
+
+\paragraph{Initial observations on the datasets.}%
+\label{par:some_observations_on_the_datasets}
+
+Reddit and Twitter are intrinsically different social medias. As mentioned
+before, Reddit focuses on subreddits, where all the discussion related to a
+certain topic find their place and all the users interested in the topic are
+part of it; we think that this contributes to create community of users which are much more
+active and likely to discuss among each other, as they end up looking at the
+same posts and discussions.
+
+Twitter, instead, is a much less "centralized" social media, where there a
+huge number of accounts with a lot of
+followers, thus producing sometimes different communities, even if they focus
+on the discuss very similar topics.
+
+The "centralization" in Reddit produces, in our data model, contents that are
+associated with few threads. We observed that even the most discussed articles
+on r/politics (a subreddit focusing on U.S.\ politics discussion) are
+\emph{crossposted} one to five times, see, for example,
+\autoref{fig:tex/img/reddit-crossposts}, while articles from the New York Times are
+often shared even 100 times).
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{tex/img/reddit-crossposts.png}
+	\caption{The \emph{crossposts} on one of the most discussed article of the
+		day on r/politics}%
+	\label{fig:tex/img/reddit-crossposts}
+\end{figure}
 
 \subsection{Synthetic data}%
 \label{sub:synthetic_data}
