@@ -74,7 +74,9 @@ def test_synthetic(results_outfile, n_iterations: int = 5):
     )
 
     noise_adj_rand_score = []
+    noise_adj_rand_score_dev = []
     noise_jaccard_score = []
+    noise_jaccard_score_dev = []
 
     scores = np.empty((n_iterations,))
     rand_scores = np.empty((n_iterations,))
@@ -164,17 +166,19 @@ def test_synthetic(results_outfile, n_iterations: int = 5):
         results_outfile.flush()
 
         noise_adj_rand_score.append(np.average(adjusted_rand_scores))
+        noise_adj_rand_score_dev.append(np.std(adjusted_rand_scores))
         noise_jaccard_score.append(np.average(jaccard_score))
+        noise_jaccard_score_dev.append(np.std(adjusted_rand_scores))
 
     noise_adj_rand_pdf = os.path.join(OUTDIR, "model2_noise_adj_rand.pdf")
-    plt.plot(noise_values, noise_adj_rand_score)
+    plt.errorbar(noise_values, noise_adj_rand_score, noise_adj_rand_score_dev)
     plt.xlabel("noise")
     plt.ylabel("Adjusted RAND")
     plt.savefig(noise_adj_rand_pdf)
     plt.clf()
 
     noise_jaccard_pdf = os.path.join(OUTDIR, "model2_noise_jaccard.pdf")
-    plt.plot(noise_values, noise_jaccard_score)
+    plt.errorbar(noise_values, noise_jaccard_score, noise_jaccard_score_dev)
     plt.xlabel("noise")
     plt.ylabel("Jaccard")
     plt.savefig(noise_jaccard_pdf)
