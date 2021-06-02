@@ -367,9 +367,9 @@ $\eta(C)$ which is very similar to the fraction of negative edges in the graph.
 	\label{fig:eta-distribution-content}
 \end{figure}
 
-
-\subsection{Algorithms implementation efficiency}%
-\label{sub:algorithm_efficiency}
+%
+% \subsection{Algorithms implementation efficiency}%
+% \label{sub:algorithm_efficiency}
 
 % todo:
 % - time limitations of exact algorithms
@@ -486,8 +486,83 @@ Generally it is not easy to recognize these Echo Chambers for different reasons
 	      of images/GIF
 \end{itemize}
 
-\subsection{The r/asktrumpsupporters case}%
-\label{sub:the_r_asktrumpsupporters_case}
+\section{The r/asktrumpsupporters case}%
+\label{sec:the_r_asktrumpsupporters_case}
 
-% todo: talk about the limitations of the thread-content model in the reddit
-% environment (see slides of 02.08)
+During the process of our research and study of the problem we also analyzed a
+very specific case, that of r/asktrumpsupporters. This subreddit is a "Q\&A
+subreddit to understand Trump supporters, their views, and the reasons behind
+those views. Debates are discouraged" (from its description).
+
+We found it particularly interesting as it provides an explicit labeling of the
+users who, before commenting in any of these posts, must "declare" their side
+by choosing a \emph{flair}, which is shown next to the username of the person
+commenting.  Three flairs are available: \emph{Trump Supporter}, \emph{Non
+	supporter} and \emph{Undecided}.
+
+We tried to understand if it is possible to infer the stance of the
+users by looking at how they react to contents. More specifically, in a highly
+polarized environment we expect that members in the same community of the user
+posting would react positely; conversely, members of the other communities
+would react mainly negatively.
+
+The community appears to be unbalanced, with $79\%$ and $19\%$ of the users choosing the
+\emph{Non Supporter} and \emph{Trump Supporter} flairs, respectively (the
+remaining $2\%$ says to be \emph{Undecided}).
+
+\bigskip
+
+For this analysis we add to our interaction graph another type of vertices, the
+\emph{content nodes} which we univocally associate to a content. In order to
+add links between users and contents, we consider the sequence of comments
+leading to a specific user comment and multiply the sign of the
+associated edges to calculate the sign of the content-user edge.
+
+For example, consider a user $v_i$
+replying positively to a post related to content $C$ and user $v_j$ replying
+negatively to $v_i$. We will add a positive edge between $v_i$ and $C$ and a
+negative edge between $v_j$ and $C$.
+
+We then assign to the users linked to a content the same label of the user who
+posted the content and the opposite one\footnotemark if the user is connected to the content
+by a positive and negative edge, respectively. Then, we measure the accuracy of
+this classification.
+
+\footnotetext{We ignore the \emph{Undecided} label}
+
+We show in \autoref{fig:tex/out/experimental200/experimental200-accuracy-hist}
+the histogram of the accuracy of classification of the contents in the dataset.
+We see that in very few cases it is possible to discriminate users better than
+by just using the majority label, while a big part of the contents achieve an
+accuracy between $0.5$ and $0.6$.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.6\linewidth]{tex/out/experimental200/experimental200-accuracy-hist.pdf}
+	\caption{Content accuracy in classifying r/asktrumpsupporters users}%
+	\label{fig:tex/out/experimental200/experimental200-accuracy-hist}
+\end{figure}
+
+We explain this with the following reasons:
+\begin{itemize}
+	\item Most of the posts of the subreddit are open questions, e.g.\ ``What
+	      do you think of ...' and, similarly ``What's your idea on...''. This
+	      means that our initial hypothesis that positive (i.e.\ friendly) and negative
+	      (i.e.\ hostile) answers can be used for inferring the positions of
+	      the users is not correct: for this type of posts most of the users
+	      will just answer with their opinion, without being either friendly of
+	      hostile, since the user posting is not really expressing his opinion
+	      in most of the times.
+	\item This community of users is not a reliable sample: people attending
+	      the subreddit are the part of users most open to discussion, for this
+	      reasons we generally expect a less evident division in the opinions and
+	      less hostility in the comments.
+\end{itemize}
+
+% Conclusions: very few article are able to classify better than chance. This
+% is due to the nature of the subreddit, made for discussion. Also. the
+% nature of the post does not help. They are questions, not affirmation
+
+
+\section{Discussion}%
+\label{sec:discussion}
