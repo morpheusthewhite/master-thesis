@@ -289,6 +289,8 @@ controversy, and so do also related discussions (r/economics and r/climate) and
 football. Subreddits in which discussion over technologies and sciences
 predominate generally have less negative interactions between the users.
 
+% todo: add missing results
+
 \begin{table}
 	\centering
 	\caption[Fraction of negative edges in different subreddits]{Fraction of negative edges for datasets build on different
@@ -585,7 +587,7 @@ accuracy between $0.5$ and $0.6$.
 We explain this with the following reasons:
 \begin{itemize}
 	\item Most of the posts of the subreddit are open questions, e.g.\ ``What
-	      do you think of ...' and, similarly ``What's your idea on...''. This
+	      do you think of ...' and, similarly, ``What's your idea on...''. This
 	      means that our initial hypothesis that positive (i.e.\ friendly) and negative
 	      (i.e.\ hostile) answers can be used for inferring the positions of
 	      the users is not correct: for this type of posts most of the users
@@ -598,5 +600,60 @@ We explain this with the following reasons:
 	      less hostility in the comments.
 \end{itemize}
 
-\section{Discussion}%
+\section{Further discussion on the results}%
 \label{sec:discussion}
+
+We focused our analysis and research on the rounding algorithm. We did this
+since we observed, when running the other approximation algorithms on datasets
+with $\leq 2000$ nodes, that its time performances were better than that of the
+other methods. We report in \autoref{tab:times-approximation} the execution
+times on some datasets.
+
+\begin{table}
+	\centering
+	\caption[Execution time of the approximation algorithms]{Execution time of
+		the approximation algorithms. $\alpha$ is chosen to be the median of the
+		$\eta(C)$ for each dataset.}
+	\label{tab:times-approximation}
+	\begin{tabular}{c|c|c|c}
+		Dataset         & Rounding & Peeling & $\beta$ \\
+		\hline
+		@EMA\_News      &          &         &         \\
+		@bbcsciencenews &          &         &         \\
+		@BBCSport       &          &         &         \\
+		@BBCNewsEnts    &          &         &         \\
+		@BBCTech        &          &         &         \\
+		r/cats          &          &         &         \\
+		r/covid19       &          &         &         \\
+	\end{tabular}
+\end{table}
+
+Similarly, due to evident complexity limitations we were able to execute the exact
+\acrshort{MIP} only on very small synthetic datasets, as shown in
+\autoref{sub:synthetic_data}.
+
+\bigskip
+
+Our rounding algorithm achieves good performances on data with
+polarized communities, showing also to be more and more robust as the
+available data increases: a larger number of nodes and threads, as we discussed
+in \autoref{sub:synthetic_data}, helps the algorithm selecting
+\emph{intra-community} edges, which allows it to correctly classify the nodes.
+
+Conversely, this algorithm was not able to produce a good clustering of the
+nodes in real-world data. We need to add to the discussed motivations in
+\autoref{sub:detecting_real_echo_chambers} another fundamental problem of the
+datasets built from social medias: its instrinsic sparsity. We observed,
+especially on Twitter, that even increasing the number of contents of the graph
+does not produce denser graph, as the average degree remains between one and
+two. This, as we have seen in the tests carried on synthetic data, is a limitation
+on the robustness of the results. Also, analyzing the denser part of the
+subgraph, a k-core, may affect the results since we expect that the echo chamber
+effect is especially visible in small and isolated components, maybe a small
+"bubble" of users sharing the same opinion, which may probably be excluded by
+the k-core selection.
+
+In conclusion, improved results could be achieved by enhancing the graph
+through additional information which could allow the algorithm to overcome
+these limitations and/or changing the problem formulation in order to take into
+account these structure of real-world data.
