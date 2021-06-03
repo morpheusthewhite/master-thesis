@@ -390,15 +390,7 @@
 \newcommand{\acknowlegmentssignature}{
 	\begin{flushleft}
 		Stockholm, \MONTH\enspace\the\year\\
-		\@authorsFirstname\space\@authorsLastname
-		\ifx\@secondAuthorsLastname\\@empty\relax
-		\else
-			\ifinswedish
-				\enspace och\enspace\@secondAuthorsFirstname\space\@secondAuthorsLastname \\
-			\else
-				\enspace and\enspace\@secondAuthorsFirstname\space\@secondAuthorsLastname \\
-			\fi
-		\fi
+		\@authorsFirstname\space\@authorsLastname\relax
 	\end{flushleft}
 	\cleardoublepage
 }
