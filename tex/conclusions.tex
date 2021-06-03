@@ -1,3 +1,28 @@
 \chapter{Conclusions and Future work}
 \label{ch:conclusionsAndFutureWork}
 
+In this research we proposed a new method for detecting polarization and echo
+chambers in social medias, the \acrshort{ECP} and \acrshort{D-ECP}. We
+initially showed that this problems cannot be approximated even within a
+non-trivial factor ($n^{1-\epsilon}$) and proposed methods for solving and
+approximating them, focusing on the rounding algorithm. We observed that it is
+able to find echo chambers in generated datasets but has limitations on
+real-world data. We motivate the poor performances on social media datasets
+with noise introduced by edge classification, sparseness of the data and the
+lack of benchmarks for measuring this new task which we resorted to evaluate with
+clustering. Nonetheless, our formulation paves the way for a richer and more
+expressive analysis of social media interactions, with the introduction
+of the concepts of contents and threads.
+
+Future works on the field should take into account these limitations which
+may require the enhancing the graph through additional information like the use
+of a \emph{follow} graph and/or
+changing the problem formulation in order to take into account the structure
+of real-world data and overcome the intrinsic complexity of the problem.
+
+Moreover, we proposed alternative formulations and approximation algorithms
+whose performance and results could be analyzed in future research to get a
+better grasp of the problem. Also, we leave open the matter regarding the
+choice of $\alpha$ and how it affects the results. Finally, we leave as future
+challenge the study of methods for approximating the \acrshort{D-ECP} as well
+as a comparison with the results obtained with the \acrshort{ECP}.
