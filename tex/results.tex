@@ -61,6 +61,17 @@ these \emph{crosspost} will eventually correspond to another thread.
 
 The PRAW library is used for retrieving the data \cite{praw}.
 
+We also analyzed a
+very specific case, that of r/asktrumpsupporters. This subreddit is a "Q\&A
+subreddit to understand Trump supporters, their views, and the reasons behind
+those views. Debates are discouraged" (from its description).
+
+We found it particularly interesting as it provides an explicit labeling of the
+users who, before commenting in any of these posts, must "declare" their side
+by choosing a \emph{flair}, which is shown next to the username of the person
+commenting.  Three flairs are available: \emph{Trump Supporter}, \emph{Non
+	supporter} and \emph{Undecided}.
+
 \paragraph{Edge weights assignment.}%
 \label{par:assigning_edge_weights}
 
@@ -421,16 +432,15 @@ positive cliques and all the edges between vertices in different communities
 are negative.
 
 We will compare different techniques for reconstructing the communities (which,
-in this case, we will consider as corresponding to a community). The
-general approach involves calling an algorithm (generally any of the methods
-presented in \autoref{ch:solving}) returning a set of users $U
-	\subseteq V$ which will be labeled according to the majority of its members
-(by looking at the ground-truth assignment) and from the graph the edges
-contributing to $\xi(U)$ are removed.
-After repeating $n$ times this process, where
-$n$ is the number of communities in the model, we compare the
-compare the ground-truth and the predictions through the Jaccard coefficient and the Adjusted
-RAND index\footnotemark.
+in this case, we will consider as corresponding to a community). The general
+approach involves calling an algorithm (generally any of the methods presented
+in \autoref{ch:solving}) returning a set of users $U \subseteq V$ which will be
+labeled according to the majority of its members (by looking at the
+ground-truth assignment) and from the graph the edges contributing to $\xi(U)$
+are removed.  After repeating $n$ times this process, where $n$ is the number
+of communities in the model, we compare the ground-truth labels and the
+predictions through the Jaccard coefficient and the Adjusted RAND
+index\footnotemark.
 
 \footnotetext{The Adjusted RAND index is a measure of similarity between
 	different clusterings. It is based on the RAND index, which compares
@@ -461,57 +471,83 @@ datasets.
 \subsection{Detecting real-world echo chambers}%
 \label{sub:detecting_real_echo_chambers}
 
-We analyzed the discussion occurring between the users returned by the
-rounding algorithm (\autoref{ssub:rounding_algorithm}) to find out if the
-problems is meaningful.
+We measured the performances of our algorithm on real-world data by trying to
+classify the nodes of labeled datasets, similarly to what has been done
+with synthetic data.
 
-More specifically, we focused on a dataset created over @nytimes containing 500
-contents. By looking at these discussions we were able to spot some small
-communities (separated components in the induced subgraph) which seem sharing
-the overall same opinion. We report some examples of rephrased messages posted
-by the involved users.
+More specifically, we focused on the r/arktrumpsupporters and
+@nytimes\footnotemark (where users have been labeled as explained in
+\autoref{sec:data_collection_and_generation}).
 
-% todo: report discussions
+Both of them are unbalanced datasets, with r/asktrumpsupporters having a $79\%$
+and $19\%$ of the users choosing the \emph{Non Supporter} and \emph{Trump
+	Supporter} flairs, respectively (the remaining $2\%$ says to be
+\emph{Undecided}) while $80\%$ of @nytimes users are labeled \emph{democrats}
+and $20\%$ as \emph{republican}.
 
-Generally it is not easy to recognize these Echo Chambers for different reasons
-
+By looking at the results obtained with the rounding algorithm, which we show in
+\autoref{tab:scores-datasets-labeled}, it is clear that the algorithm is not
+able to correctly classify the nodes. We motivate this with the following
+reasons:
 \begin{itemize}
-	\item the messages in this bubble are often very few, and they do not
-	      really help getting an idea (unless messages are very explicit in their
-	      meaning, which is not frequent at all) of which opinion the users have
-	\item sometimes the bubbles consist of users discussing very
-	      different contents (e.g. american politics and English Royal
-	      family gossip)
-	\item internet slang language is often difficult to interpret as
-	      referring to subcultures which are often not very well-known
-	\item some times these chambers contain noise in the form of messages
-	      written in languages different from english or messages consinting only
-	      of images/GIF
+	\item \textbf{Complexity of sentiment analysis of social media language.}
+	      Social medias often involve messages which are not easily classifiable
+	      as either friendly and hostyle, both because other sentiments may be
+	      part of the communication, or because persons use jargon. Also,
+	      additional noise is introduced by messages in other languages as well
+	      as messages involving medias like pictures and GIF.
+	\item \textbf{Non validity of the data model.} In trying to classify the
+	      nodes with our \acrshort{ECP} solver we are supposing that the data
+	      contains a clear separation of the users, in which one chamber
+	      corresponds to a single community. Furthermore, we are assuming that
+	      there are only two communities in the datasets we chose, which may also
+	      be a limiting assumption, since
+	      \begin{itemize}
+		      \item @nytimes may contain echo chambers related to different
+		            topics, as the set of contents does not only take into account
+		            U.S. political discussion.
+		      \item r/asktrumpsupporters may be a non-representative
+		            dataset of discussion of polarized communities (we will
+		            discuss this more in details in
+		            \autoref{sec:the_r_asktrumpsupporters_case})
+	      \end{itemize}
+	\item \textbf{Limitations of the rounding algorithm.} Since we are
+	      using an approximation algorithm we are not solving (exactly) the
+	      \acrshort{ECP}. the choise of this algorithm may introduce limitations
+	      such as the fact it is very likely that it returns a set of users which
+	      corresponds to a components,
+	      More specifically, it may not be able to find a set of users $U$ which
+	      are not connected (since at each iteration it uses a set of users
+	      connected by many positive edges, see
+	      \autoref{ssub:rounding_algorithm}).
 \end{itemize}
 
-\section{The r/asktrumpsupporters case}%
+\begin{table}
+	\centering
+	\caption{Classification scores on two labeled datasets}
+	\label{tab:scores-datasets-labeled}
+	\begin{tabular}{c|c|c}
+		dataset              & Adjusted RAND index       & Jaccard score            \\
+		\hline
+		r/asktrumpsupporters &                           &                          \\
+		@nytimes             & \num{0.02176064966494696} & \num{0.4200626959247649} \\
+	\end{tabular}
+\end{table}
+
+\footnotetext{For this dataset, in order to decrease the sparsity, we selected
+	the 4-core}
+
+\section{A study on r/asktrumpsupporters}%
 \label{sec:the_r_asktrumpsupporters_case}
 
-During the process of our research and study of the problem we also analyzed a
-very specific case, that of r/asktrumpsupporters. This subreddit is a "Q\&A
-subreddit to understand Trump supporters, their views, and the reasons behind
-those views. Debates are discouraged" (from its description).
-
-We found it particularly interesting as it provides an explicit labeling of the
-users who, before commenting in any of these posts, must "declare" their side
-by choosing a \emph{flair}, which is shown next to the username of the person
-commenting.  Three flairs are available: \emph{Trump Supporter}, \emph{Non
-	supporter} and \emph{Undecided}.
-
-We tried to understand if it is possible to infer the stance of the
-users by looking at how they react to contents. More specifically, in a highly
-polarized environment we expect that members in the same community of the user
-posting would react positely; conversely, members of the other communities
+During the research we studied the r/asktrumpsupporters subreddit in order to
+tried to understand if it is possible to infer the stance of the users by
+looking at how they react to contents. More specifically, in a highly polarized
+environment we expect that members in the same community \footnotemark of the
+user posting would react positely; conversely, members of the other communities
 would react mainly negatively.
 
-The community appears to be unbalanced, with $79\%$ and $19\%$ of the users choosing the
-\emph{Non Supporter} and \emph{Trump Supporter} flairs, respectively (the
-remaining $2\%$ says to be \emph{Undecided}).
+\footnotetext{In this case, we refer to community as the set of users with the same \emph{flair}}
 
 \bigskip
 
