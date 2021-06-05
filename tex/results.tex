@@ -4,45 +4,51 @@
 \section{Data collection and generation}%
 \label{sec:data_collection_and_generation}
 
-We now discuss how the real-world data is retrieved and preprocessed as well as
-presenting some techniques for generatic synthetic data.
+We now present how real-world data is retrieved and preprocessed and
+define techniques for generatic synthetic data.
 
 \subsection{Collection and preprocessing}%
 \label{sub:collection_and_preprocessing}
 
-Datasets are built mainly upon $2$ social medias: Twitter and Reddit; the data
-collection process, consequently, slightly differ between them.
+Datasets are built over two social medias: Twitter and Reddit; the data
+collection process, consequently, slightly differs between them.
 
 \paragraph{Twitter}%
 \label{par:twitter-data}
 
 Twitter's \emph{Interaction Graphs} are mainly built starting from the tweets
-of some important social accounts associated to well-known news source, like The
+of profiles associated to well-known news sources, like The
 New York Times or Fox News, that tipically post links to their articles:
-these profiles are taken as the source of the contents $\mathcal{C} $ of the graph.
+the set of shared URLs are the contents $\mathcal{C} $ of the corresponding interaction graph.
 
-Each time another user tweets the same url (\autoref{fig:twitter-thread}) then
-it will correspond to another thread related to the same content, and all the
+Each time another user tweets one of these URLs (as seen in
+\autoref{fig:twitter-thread}) he
+will create another thread related to the same content, and all the
 replies it receives will be part of this new thread.
 
 Twitter data is retrieved with the help of Tweepy \cite{tweepy}, a Python
 library for accessing the Twitter API, which has been patched for using some
-features available only in the beta of the new Twitter API (v2).
+features available only in the beta of the new v2 Twitter API.
 
-Furthermore, we construct a datasets in which users are labeled either as
-\emph{democrats} or \emph{republican}. This is done by looking at the people a
-certain user A follows: for each account B followed by A, if B is a political representative, then we can
-retrieve from Wikipedia the party to which he/she/they belongs to (see, for
-example, \autoref{fig:tex/img/wikipedia-elected}). Then, user A get assigned a
-label according to the party of the majority of the users B he/she/they
+In order to validate our methods, we also construct a datasets in which users are labeled either as
+\emph{democrats} or \emph{republican} \footnotemark. This is done by looking at the people a
+certain user $v_i$ follows: for each account $v_j$ followed by $v_i$, if $v_j$ is a political representative, then we can
+retrieve from Wikipedia the party to which he belongs to (see, for
+example, \autoref{fig:tex/img/wikipedia-elected}). Then, user $v_i$ get assigned a
+label according to the party of the majority of the users $v_j$ he
 follows.
+
+\footnotetext{We chose to use these two labels since the news sources we analyze for this purpose are based in U.S..
+	Also, we think political discussion are the main source of controversial
+	content and so it is the most interesting criteria according to which users
+	can be differentiated}
 
 \autoref{fig:tex/img/wikipedia-elected}).
 \begin{figure}
 	\centering
 	\includegraphics[width=0.4\linewidth]{tex/img/wikipedia-elected.png}
 	\caption[Example Wikipedia entry]{Wikipedia entry associated to Alexandria Ocasio-Cortez, a member
-		of the U.S. House of Representatives}%
+		of the U.S. House of Representatives.}%
 	\label{fig:tex/img/wikipedia-elected}
 \end{figure}
 
@@ -50,34 +56,32 @@ follows.
 \label{par:reddit}
 
 Differently from Twitter, Reddit focuses on subreddits, which are pages
-collecting posts from different users about a specific topic (e.g. r/politics,
+collecting posts of users about a specific topic (e.g. r/politics,
 r/economics, $\dots$). This means that
 in the datasets built from this social media the contents $\mathcal{C} $ is the
-set of posts of these pages, which, differently from Twitter, most likely
+set of URLs posted on these pages, which, differently from Twitter, most likely
 come from different sources.
 
 This posts are in turn crossposted, i.e. reposted on other subreddits. Each of
-these \emph{crosspost} will eventually correspond to another thread.
-
-The PRAW library is used for retrieving the data \cite{praw}.
+these \emph{crosspost} will correspond to another thread.
 
 We also analyzed a
 very specific case, that of r/asktrumpsupporters. This subreddit is a "Q\&A
 subreddit to understand Trump supporters, their views, and the reasons behind
-those views. Debates are discouraged" (from its description).
-
-We found it particularly interesting as it provides an explicit labeling of the
+those views. Debates are discouraged" (from its description). We found it particularly interesting as it provides an explicit labeling of the
 users who, before commenting in any of these posts, must "declare" their side
 by choosing a \emph{flair}, which is shown next to the username of the person
 commenting.  Three flairs are available: \emph{Trump Supporter}, \emph{Non
 	supporter} and \emph{Undecided}.
 
+The PRAW library is used for retrieving the data \cite{praw}.
+
 \paragraph{Edge weights assignment.}%
 \label{par:assigning_edge_weights}
 
 Once the threads interactions are retrieved they are passed to a state of the
-art sentiment analyzer which labels them. More specifically the model used is
-RoBERTa which has been adapted and retrained for dealing with Twitter
+art sentiment analyzer which labels them. More specifically, the model used is
+RoBERTa, adapted and retrained for dealing with Twitter
 data \cite{Barbieri2020}. The model is made available by the Transformers
 python library \cite{wolf-etal-2020-transformers}.
 
@@ -87,33 +91,32 @@ Finally, complying with the current privacy legislation, all the data related
 to the user is pseudo-anonymized (accounts identifier are replaced by random
 ones) while no data is publicly available.
 
-\paragraph{Initial observations on the datasets.}%
-\label{par:some_observations_on_the_datasets}
+\subsection{Initial observations on the datasets}%
+\label{sub:some_observations_on_the_datasets}
 
 Reddit and Twitter are intrinsically different social medias. As mentioned
-before, Reddit focuses on subreddits, where all the discussion related to a
-certain topic find their place and all the users interested in the topic are
-part of it; we think that this contributes to create community of users which are much more
+before, Reddit focuses on subreddits, where all the discussions related to a
+certain topic find their place and most of the users interested in the
+theme gather; we think that this contributes to create community of users which are much more
 active and likely to discuss among each other, as they end up looking at the
 same posts and discussions.
 
-Twitter, instead, is a much less "centralized" social media, where there a
-huge number of accounts with a lot of
-followers, thus producing sometimes different communities, even if they focus
-on the discuss very similar topics.
+Twitter, instead, is a much less "centralized" social media, where there a lot
+of accounts with many followers, which often produces disjoint communities,
+even if they discuss very similar topics.
 
-The "centralization" in Reddit produces, in our data model, contents that are
+The "centralization" of Reddit produces, in our data model, contents that are
 associated with few threads. We observed that even the most discussed articles
-on r/politics (a subreddit focusing on U.S.\ politics discussion) are
-\emph{crossposted} one to five times, see, for example,
-\autoref{fig:tex/img/reddit-crossposts}, while articles from the New York Times are
-often shared even 100 times).
+on r/politics (a subreddit focusing on U.S.\ politics discussions) are
+\emph{crossposted} one to five times (see, for example,
+\autoref{fig:tex/img/reddit-crossposts}), while articles of the New York Times are
+often shared even 100 times.
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.8\linewidth]{tex/img/reddit-crossposts.png}
 	\caption{The \emph{crossposts} on one of the most discussed article of the
-		day on r/politics}%
+		day on r/politics.}%
 	\label{fig:tex/img/reddit-crossposts}
 \end{figure}
 
@@ -130,36 +133,36 @@ This model is very similar to the Stochastic Block Model (SBM), a model
 commonly used for generating random graphs having some community structures
 \cite{Newman2018}.
 
-The Signed SBM is based on the following parameters
+The Signed SBM is based on the following parameters:
 \begin{itemize}
-	\item $b_{i} $, the group assignment of each vertex $i$
+	\item $b_{i} $, the group assignment of each vertex $i$.
 	\item $\omega ^{+} _{rs} $ and $\omega ^{-} _{rs} $, the probabilities
 	      of positive and negative edges, respectively, between users in
 	      group $r$ and $s$. Vertices have also a probability of not having an
 	      edge, which is equal to $1 - \omega ^{-} _{rs} - \omega ^{+} _{rs} $.
-	      For this reason it is clearly needed that $\omega ^{+} _{rs} + \omega ^{-} _{rs} \leq 1$.
-	\item $\theta \leq 1$, controlling the reduction of probability of interacting
+	      For this reason it is needed that $\omega ^{+} _{rs} + \omega ^{-} _{rs} \leq 1$.
+	\item $\theta \leq 1$, controlling the reduction of the probability of interacting
 	      between \emph{inactive} communities
 \end{itemize}
 
 Therefore, generating a thread layer\footnote{in this model we will generate contents univocally associated to threads} for the \emph{Interaction Graph} involves the following process
 \begin{enumerate}
 	\item Sample $n'$ among the $n$ communities. These are the
-	      \emph{active} communities in the discussion of the thread
-	\item For each node pairing $i, j$ consider their corresponding groups $r$ and
-	      $s$ and draw from one of the following categorical distribution to decide to add
-	      a positive, negative or no edge.
-	      \begin{itemize}
-		      \item If both communities $r$ and $s$ are \emph{active}
-		            \begin{equation*}
-			            (\omega _{rs} ^{+}, \omega _{rs} ^{-}, 1 - \omega _{rs} ^{+} - \omega _{rs} ^{-})
-		            \end{equation*}
-		      \item otherwise
-		            \begin{equation*}
-			            (\theta \omega _{rs} ^{+}, \theta \omega _{rs} ^{-}, 1 - \theta (\omega _{rs} ^{+} + \omega _{rs} ^{-}))
-		            \end{equation*}
-
-	      \end{itemize}
+	      \emph{active} communities in the thread.
+	\item For each node pair $i, j$ consider their corresponding groups $r$ and
+	      $s$ and, if both communities are \emph{active},
+	      draw from
+	      \begin{equation*}
+		      (\omega _{rs} ^{+}, \omega _{rs} ^{-}, 1 - \omega _{rs} ^{+} - \omega _{rs} ^{-})
+	      \end{equation*}
+	      in order to add a positive,
+	      negative or no edge.
+	      Otherwise, if at least one of the
+	      two communities is not \emph{active}, the distribution becomes
+	      \begin{equation*}
+		      (\theta \omega _{rs} ^{+}, \theta \omega _{rs} ^{-}, 1 - \theta
+		      (\omega _{rs} ^{+} + \omega _{rs} ^{-})).
+	      \end{equation*}
 
 \end{enumerate}
 
@@ -167,43 +170,45 @@ Therefore, generating a thread layer\footnote{in this model we will generate con
 \label{ssub:information_spread_model}
 
 Here we describe the Information spread model, which aims at simulating the
-process of informations flowing between different users of a social media.
+process of information flowing between different users of a social media.
 
-Like in the Signed SBM, each node has a group assignment and there are probabilities of
-positive and negative edges $\omega _{rs}^{+}  $ and $\omega _{rs}^{+}  $,
+Like in the Signed SBM, each node has a group assignment $b_i$ and
+each pair of gruops has probabilities of
+positive and negative edges ($\omega _{rs}^{+}  $ and $\omega _{rs}^{-}  $,
 respectively, with $\omega ^{-} _{rs} + \omega ^{+} _{rs}
-	\leq 1$. Additionally, we have the following new parameters
+	\leq 1$).
+Additionally, we have the following new parameters:
 
 \begin{itemize}
-	\item ${\phi_{rs} }$, the parameters of a standard SBM
-	\item $\beta _a$, the probability that a node is initially activated
+	\item $\{\phi_{rs} \}$, the parameters of a standard SBM. These are used for
+	      generating a graph $G_f$, which we will call the \emph{friend} graph,
+	      representing the friendship relationships between the users. We will
+	      refer to neighbours in this graph as \emph{friends}.
+	\item $\beta _a$, the probability that a node is initially activated.
 	\item $\beta _n$, the probability the an inactive node is activated
-	      from a friend
+	      from an \emph{active} friend.
 \end{itemize}
 
 \bigskip
-Generate the \emph{follow} graph $G_{f}$ from a SBM with parameters $\{ \phi
-	_{rs}  \}$; we will refer to neighbours in this graph as \emph{friends}.
-The generation of a thread for the \emph{Interaction Graph} goes as follows
+After generating $G_f$ from a SBM with parameters $\{\phi_{rs} \}$, the
+generation of each thread of the \emph{Interaction Graph} goes as
+follows:
 
 \begin{enumerate}
-	\item Activate vertices with probability $\beta_{a}  $
-	\item Any of these active nodes activates its inactive friends with
-	      probability $\beta_n$
-	      % \item Let $a_{i} $ be the number of \emph{active} neighbours of node
-	      %     $i$ in $G$ and $m_{i} $ the number of neighbours of node $i$ in
-	      %     $G$. Any node inactive from the previous step is activated with
-	      %     probability $ \frac{a_i}{m_i} \beta _{n} $
-	\item Similarly to before, if $2$ nodes are both active nodes they will interact according to the categorical distribution
+	\item Activate each vertex with probability $\beta_{a}  $.
+	\item Each of these active nodes activates its inactive friends with
+	      probability $\beta_n$.
+	\item Similarly to the Signed SBM, if two nodes are both active, draw
+	      from
 	      \begin{equation*}
-		      (\omega _{rs}
-		      ^{+}, \omega _{rs} ^{-}, 1 - \omega _{rs} ^{+} - \omega _{rs} ^{-})
+		      (\omega _{rs} ^{+}, \omega _{rs} ^{-}, 1 - \omega _{rs} ^{+} -
+		      \omega _{rs} ^{-})
 	      \end{equation*}
-
-	      otherwise according to
+	      for adding a positive, negative or no edge. If, instead, at least one
+	      of them is not active, draw from
 	      \begin{equation*}
 		      (\theta \omega _{rs} ^{+}, \theta \omega _{rs} ^{-}, 1
-		      - \theta (\omega _{rs} ^{+} + \omega _{rs} ^{-}))
+		      - \theta (\omega _{rs} ^{+} + \omega _{rs} ^{-})).
 	      \end{equation*}
 \end{enumerate}
 
@@ -271,7 +276,7 @@ the echo chambers.
 			\caption{$\eta(T)$ for @bbcnews}
 			\label{fig:CNN-thread-eta}
 		\end{subfigure}
-		\caption{$\eta(C)$ and $\eta(T)$ distribution for many datasets}
+		\caption{$\eta(C)$ and $\eta(T)$ distribution for many datasets.}
 		\label{fig:eta-content-thread}
 	\end{center}
 \end{figure}
@@ -294,7 +299,7 @@ predominate generally have less negative interactions between the users.
 \begin{table}
 	\centering
 	\caption[Fraction of negative edges in different subreddits]{Fraction of negative edges for datasets build on different
-		subreddits, each for $200$ contents}
+		subreddits, each for $200$ contents.}
 	\label{tab:eta-subreddits}
 	{\small
 		\begin{tabular}{c | p{6cm} | c}
@@ -352,7 +357,7 @@ of interactions happening for $C$ itself (see \autoref{fig:edge-sum-n-interactio
 	\end{center}
 	\caption[Sum edges over number of interactions for many datasets]{Plots of
 		sum of the edges weights over the number of interaction for contents
-		from different datasets/subreddits}
+		from different datasets/subreddits.}
 	\label{fig:edge-sum-n-interactions}
 \end{figure}
 
@@ -379,7 +384,7 @@ $\eta(C)$ which is very similar to the fraction of negative edges in the graph.
 		\end{subfigure}
 	\end{center}
 	\caption{$\eta(C)$ distribution for $2$ of the datasets shown in
-		\autoref{fig:edge-sum-n-interactions}}
+		\autoref{fig:edge-sum-n-interactions}.}
 	\label{fig:eta-distribution-content}
 \end{figure}
 
@@ -580,7 +585,7 @@ accuracy between $0.5$ and $0.6$.
 \begin{figure}
 	\centering
 	\includegraphics[width=0.6\linewidth]{tex/out/experimental200/experimental200-accuracy-hist.pdf}
-	\caption{Content accuracy in classifying r/asktrumpsupporters users}%
+	\caption{Content accuracy in classifying r/asktrumpsupporters users.}%
 	\label{fig:tex/out/experimental200/experimental200-accuracy-hist}
 \end{figure}
 
