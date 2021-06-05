@@ -222,21 +222,33 @@ because of its efficiency \cite{peixoto_graph-tool_2014}.
 \subsection{Initial Real-world data analysis}%
 \label{sub:validity_problem_definition}
 
-We did a initial analysis of the data to verify the validity of the problem. We
-initially studied the $\eta(C)$, more specifically its distribution, and
-compared it with the distribution of the $\eta(T)$. We report these results for
+We did a initial analysis of the data to verify the validity of the problem.
+
+We can gain some insights about the existance of echo chambers by comparing
+the distribution of $\eta(C)$ and $\eta(T)$ for different interaction graphs.
+% Threads with an high fraction of positive edges may correspond to echo
+% chambers, i.e. users that discuss a topic with no \emph{controversy}.
+% Consequently, if we find an increase in the relative number of threads with a
+% low $\eta(T)$ (with respect to content distribution) this may mean that this
+% effect is already visible.
+Intuitively, echo chambers may correspond to threads with an
+high fraction of positive edges. Consequently, we should expect an increase
+for low values of $\eta(T)$ with respect to the $\eta(C)$ distribution.
+
+We report these results for
 three datasets, a first built over @nytimes, a second over @foxnews
-and a third one over @bbc news Twitter accounts\footnotemark (\autoref{fig:eta-content-thread}).
+and a third one over @bbcnews Twitter accounts\footnotemark (\autoref{fig:eta-content-thread}).
 
 \footnotetext{As explained above (\autoref{par:twitter-data}), we are referring
 	to the accounts that are used to retrieve the contents of the graph}
 
-By looking at this histogram it is evident that when moving from
+By looking at these histograms it is evident, as we were expecting, that when
+moving from
 contents to threads there is a significant increase in the percentage of
-threads with a very small $\eta$, meaning that contents which globally have
+threads with a very small $\eta$, meaning that it is possible that contents which
+globally have
 a non negligible amount of negative edges produce also threads that have
-very few o no negative edges. These are the subgraphs in which we expect to find
-the echo chambers.
+very few or no negative edges. These are the subgraphs in which we expect to find the echo chambers.
 
 \begin{figure}
 	\begin{center}
@@ -284,17 +296,17 @@ the echo chambers.
 \bigskip
 For verifying the reliability of the definition of \emph{controversial} content
 we also looked at the fraction of negative edges for different datasets, each
-associated to a different kind of content, which we report in
+associated to contents of the same topic, which we report in
 \autoref{tab:eta-subreddits}.
 
 This results show an intuitive associations between the fraction of negative edges in the
-graph and the topic discussed: politics contents
-(r/politics and r/asktrumpsupporters) are generally the ones generating greater
-controversy, and so do also related discussions (r/economics and r/climate) and
-football. Subreddits in which discussion over technologies and sciences
+graph and the topic discussed:
+graphs dealing with well-known \emph{controversial} contents, like r/politics and
+r/asktrumpsupporters, are the one producing an higher fraction of negative
+edges. Also, as expected, they are followed by related topics
+(r/economics and r/climate) and football, while
+subreddits in which discussions over technologies and sciences
 predominate generally have less negative interactions between the users.
-
-% todo: add missing results
 
 \begin{table}
 	\centering
@@ -324,9 +336,9 @@ predominate generally have less negative interactions between the users.
 \end{table}
 
 \bigskip
-Furthermore, we verified the association between a content $C$ and its
-$\eta(C)$ by studying how its sum of weights of the edges relates to the number
-of interactions happening for $C$ itself (see \autoref{fig:edge-sum-n-interactions}).
+Furthermore, for each content $C$ in an interaction graph, we plotted the relationship between the sum of
+the weights of its edges and its
+$\eta(C)$ (see \autoref{fig:edge-sum-n-interactions}).
 
 \begin{figure}
 	\begin{center}
@@ -346,7 +358,7 @@ of interactions happening for $C$ itself (see \autoref{fig:edge-sum-n-interactio
 			\centering
 			\includegraphics[width=\textwidth]{tex/out/politics200/edge-sum-n-interactions.pdf}
 			\caption{r/politics}
-			\label{fig:tex/out/cats200/edge-sum-n-interactions.pdf}
+			\label{fig:tex/out/politics200/edge-sum-n-interactions.pdf}
 		\end{subfigure}
 		\begin{subfigure}[b]{0.4\textwidth}
 			\centering
@@ -361,12 +373,15 @@ of interactions happening for $C$ itself (see \autoref{fig:edge-sum-n-interactio
 	\label{fig:edge-sum-n-interactions}
 \end{figure}
 
-This plots confirm the previous observation and, more specifically, show that
-the sum of the weights of the edges (which is easy to see it is closely related
-to the $\eta(C)$ of $C$) for contents related to the same topic is distributed in a pattern which is very close to that of a line with rare or no outliers.
+These plots confirm the previous observation and, more specifically, show that
+the sum of the weights of the edges (which is closely related
+to the $\eta(C)$ of $C$), for contents related to the same topic, is distributed
+in a pattern which is very close to that of a line with rare or no outliers: as
+we would intuitively say, contents related to politics are generally
+controversial, and most of them have, as we can see in \autoref{fig:tex/out/politics200/edge-sum-n-interactions.pdf}, an high $\eta(C)$.
 This is even more clearly visible when plotting the histogram of $\eta(C)$ for the contents in the dataset
 (\autoref{fig:eta-distribution-content}), with most of the contents having a
-$\eta(C)$ which is very similar to the fraction of negative edges in the graph.
+$\eta(C)$ which is very close to the fraction of negative edges in the graph.
 
 \begin{figure}
 	\begin{center}
@@ -405,7 +420,7 @@ parametrized model based on the Information Spread model
 (\autoref{ssub:information_spread_model}).
 
 We choose $\beta _{a} = 1$, meaning that all nodes will be active in each
-thread/layer. This a
+thread. This a
 simplifying assumption which allows us to have a better grasp of the results.
 Because of this choice the values $\beta _n = 1$, $\theta = 1$ and
 \begin{equation}
@@ -418,7 +433,7 @@ Because of this choice the values $\beta _n = 1$, $\theta = 1$ and
 do not influence the structure of the model.
 
 We also choose $\omega ^{-} _{rs}$ and $\omega ^{+} _{rs} $ to be dependant on
-the \emph{noise} variable $x$
+a \emph{noise} variable $x$
 \begin{equation}
 	\omega_{rs}^{+}   =
 	\begin{cases}
@@ -438,13 +453,13 @@ In absence of noise ($x = 0$) we will generate threads whose communities are
 positive cliques and all the edges between vertices in different communities
 are negative.
 
-We will compare different techniques for reconstructing the communities (which,
+We will compare different techniques for finding echo chambers (which,
 in this case, we will consider as corresponding to a community). The general
 approach involves calling an algorithm (generally any of the methods presented
 in \autoref{ch:solving}) returning a set of users $U \subseteq V$ which will be
 labeled according to the majority of its members (by looking at the
-ground-truth assignment) and from the graph the edges contributing to $\xi(U)$
-are removed.  After repeating $n$ times this process, where $n$ is the number
+ground-truth assignment). Then, edges contributing to $\xi(U)$
+are removed from the graph.  After repeating $n$ times this process, where $n$ is the number
 of communities in the model, we compare the ground-truth labels and the
 predictions through the Jaccard coefficient and the Adjusted RAND
 index\footnotemark.
@@ -452,8 +467,8 @@ index\footnotemark.
 \footnotetext{The Adjusted RAND index is a measure of similarity between
 	different clusterings. It is based on the RAND index, which compares
 	the number of agreeing pairs in the $2$ solutions; the Adjusted one corrects
-	the Rand Index "by chance", i.e. compares it to the expected index
-	(from a random assignment). For more details please
+	the RAND Index "by chance", i.e. compares it to the expected index
+	(i.e.\ of a random assignment). For more details please
 	refer to \cite{CharuC.Aggarwal2013}}
 
 What we expect is that, as the value of $x$ increases, the produced threads
@@ -461,12 +476,14 @@ will have generally more negative edges inside a community and more positive
 edges between different communities, making it more difficult for our
 algorithms to spot a set of vertices corresponding to a community.
 
+% todo: add results and specify measures
+
 We compared the scores obtained with the \acrshort{MIP} for the \acrshort{ECP}
 (\autoref{sub:a_mip_model_for_the_ecp}), the Rounding algorithm
 (\autoref{ssub:rounding_algorithm}) and the $2$ alternative problems on the
 \acrshort{TPA} Graph (\autoref{ssub:the_tpa_graph}). Due to the presence of the
 \acrshort{MIP} model this group of experiments have been carried out on very
-small graphs. % todo specify how small
+small graphs.
 
 We then focused on the performances of the Rounding Algorithm on bigger
 datasets.
@@ -483,26 +500,28 @@ classify the nodes of labeled datasets, similarly to what has been done
 with synthetic data.
 
 More specifically, we focused on the r/arktrumpsupporters and
-@nytimes\footnotemark (where users have been labeled as explained in
-\autoref{sec:data_collection_and_generation}).
+@nytimes\footnotemark datasets (see
+\autoref{sec:data_collection_and_generation} for details on how labels are
+retrieved).
 
 Both of them are unbalanced datasets, with r/asktrumpsupporters having a $79\%$
 and $19\%$ of the users choosing the \emph{Non Supporter} and \emph{Trump
-	Supporter} flairs, respectively (the remaining $2\%$ says to be
-\emph{Undecided}) while $80\%$ of @nytimes users are labeled \emph{democrats}
+	Supporter} flairs, respectively (the remaining $2\%$ is
+\emph{Undecided}), while $80\%$ of @nytimes users are labeled \emph{democrats}
 and $20\%$ as \emph{republican}.
 
-By looking at the results obtained with the rounding algorithm, which we show in
+By looking at the poor results obtained with the rounding algorithm, which we show in
 \autoref{tab:scores-datasets-labeled}, it is clear that the algorithm is not
-able to correctly classify the nodes. We motivate this with the following
+able to correctly separate the communities. We motivate this with the following
 reasons:
 \begin{itemize}
 	\item \textbf{Complexity of sentiment analysis of social media language.}
 	      Social medias often involve messages which are not easily classifiable
-	      as either friendly and hostyle, both because other sentiments may be
-	      part of the communication, or because persons use jargon. Also,
-	      additional noise is introduced by messages in other languages as well
-	      as messages involving medias like pictures and GIF.
+	      as either friendly and hostyle, both because persons often use jargon
+	      and because sometimes messages are aided by pictures and GIF which
+	      are not analyzed by the Sentiment Analyzer.
+	      % additional noise is introduced by messages in other languages as well
+	      % as messages involving medias like pictures and GIF.
 	\item \textbf{Non validity of the data model.} In trying to classify the
 	      nodes with our \acrshort{ECP} solver we are supposing that the data
 	      contains a clear separation of the users, in which one chamber
@@ -520,13 +539,14 @@ reasons:
 	      \end{itemize}
 	\item \textbf{Limitations of the rounding algorithm.} Since we are
 	      using an approximation algorithm we are not solving (exactly) the
-	      \acrshort{ECP}. the choise of this algorithm may introduce limitations
-	      such as the fact it is very likely that it returns a set of users which
-	      corresponds to a components,
-	      More specifically, it may not be able to find a set of users $U$ which
-	      are not connected (since at each iteration it uses a set of users
-	      connected by many positive edges, see
-	      \autoref{ssub:rounding_algorithm}).
+	      \acrshort{ECP}: this may introduce limitations to the solutions which
+	      is used to cluster the nodes.
+
+	      More specifically, since at each iteration it uses a set of users
+	      connected by positive edges as possible solution (see
+	      \autoref{ssub:rounding_algorithm}) it is likely to return
+	      a set $U$ with just one connected component.
+
 \end{itemize}
 
 \begin{table}
@@ -534,10 +554,9 @@ reasons:
 	\caption{Classification scores on two labeled datasets}
 	\label{tab:scores-datasets-labeled}
 	\begin{tabular}{c|c|c}
-		dataset              & Adjusted RAND index       & Jaccard score            \\
-		\hline
-		r/asktrumpsupporters &                           &                          \\
-		@nytimes             & \num{0.02176064966494696} & \num{0.4200626959247649} \\
+		dataset                     & Adjusted RAND index       & Jaccard score             \\
+		\hline r/asktrumpsupporters & \num{0.09453599837921367} & \num{0.01607717041800643} \\
+		@nytimes                    & \num{0.02176064966494696} & \num{0.4200626959247649}  \\
 	\end{tabular}
 \end{table}
 
@@ -547,12 +566,12 @@ reasons:
 \section{A study on r/asktrumpsupporters}%
 \label{sec:the_r_asktrumpsupporters_case}
 
-During the research we studied the r/asktrumpsupporters subreddit in order to
-tried to understand if it is possible to infer the stance of the users by
+During the research we studied the r/asktrumpsupporters subreddit to
+understand if it is possible to infer the community\footnotemark of the users by
 looking at how they react to contents. More specifically, in a highly polarized
-environment we expect that members in the same community \footnotemark of the
-user posting would react positely; conversely, members of the other communities
-would react mainly negatively.
+environment we expect that members in the same community of the
+author have a positive stance towards the content; conversely, members of the
+other communities have a negative one.
 
 \footnotetext{In this case, we refer to community as the set of users with the same \emph{flair}}
 
@@ -569,9 +588,9 @@ replying positively to a post related to content $C$ and user $v_j$ replying
 negatively to $v_i$. We will add a positive edge between $v_i$ and $C$ and a
 negative edge between $v_j$ and $C$.
 
-We then assign to the users linked to a content the same label of the user who
-posted the content and the opposite one\footnotemark if the user is connected to the content
-by a positive and negative edge, respectively. Then, we measure the accuracy of
+We then assign to the users linked to a content the same label of the author of
+the post if the user is connected to the content
+by a positive edge, the opposite one\footnotemark otherwise. Then, we measure the accuracy of
 this classification.
 
 \footnotetext{We ignore the \emph{Undecided} label}
@@ -591,16 +610,16 @@ accuracy between $0.5$ and $0.6$.
 
 We explain this with the following reasons:
 \begin{itemize}
-	\item Most of the posts of the subreddit are open questions, e.g.\ ``What
+	\item The majority of the posts in the subreddit are open questions, e.g.\ ``What
 	      do you think of ...' and, similarly, ``What's your idea on...''. This
-	      means that our initial hypothesis that positive (i.e.\ friendly) and negative
-	      (i.e.\ hostile) answers can be used for inferring the positions of
+	      means that our initial hypothesis that positive and negative
+	      stances can be used for inferring the positions of
 	      the users is not correct: for this type of posts most of the users
 	      will just answer with their opinion, without being either friendly of
-	      hostile, since the user posting is not really expressing his opinion
+	      hostile, since the user posting does not express his opinion
 	      in most of the times.
 	\item This community of users is not a reliable sample: people attending
-	      the subreddit are the part of users most open to discussion, for this
+	      the subreddit are the part of communities most open to discussion, for this
 	      reasons we generally expect a less evident division in the opinions and
 	      less hostility in the comments.
 \end{itemize}
@@ -609,8 +628,8 @@ We explain this with the following reasons:
 \label{sec:discussion}
 
 We focused our analysis and research on the rounding algorithm. We did this
-since we observed, when running the other approximation algorithms on datasets
-with $\leq 2000$ nodes, that its time performances were better than that of the
+since we observed, when running the other approximation algorithms on smaller datasets
+(with less than $2000$ nodes), that its time performances were better than that of the
 other methods. We report in \autoref{tab:times-approximation} the execution
 times on some datasets.
 
@@ -655,5 +674,5 @@ two. This, as we have seen in the tests carried on synthetic data, is a limitati
 on the robustness of the results. Also, analyzing the denser part of the
 subgraph, a k-core, may affect the results since we expect that the echo chamber
 effect is especially visible in small and isolated components, maybe a small
-"bubble" of users sharing the same opinion, which may probably be excluded by
+"bubble" of users sharing the same opinion, which may get excluded by
 the k-core selection.
