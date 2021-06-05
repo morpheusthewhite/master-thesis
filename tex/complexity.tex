@@ -82,7 +82,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 
 	\begin{equation}
 		\label{eq:score}
-		\xi(U) = \sum^{}_{T \in \mathcal{S}_C(U) } (| T[U]^{+} | - | T[U]^{-} |)
+		\xi(U) = \sum^{}_{T \in \mathcal{S}(U) } (| T[U]^{+} | - | T[U]^{-} |)
 	\end{equation}
 
 	\begin{claim}
@@ -96,7 +96,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 		Let $I \subseteq V_{1} $ be an independent set of $G_1$ of size $|I| >
 			1$. Consider the associated solution in $G_2$ in which $U = I
 			\cup \{v_{r} \}$. By construction, it will contain only $|I|$ positive
-		edges, so $T[U] \in \mathcal{S}_C(U)$ and also
+		edges, so $T[U] \in \mathcal{S}(U)$ and also
 
 		\begin{equation}
 			OPT(ECP) \geq \xi(U) = |T^{+}[U]| = |I| \implies OPT(ECP) \geq OPT(MIS)
@@ -219,7 +219,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 
 	\begin{equation}
 		\label{eq:score-densest}
-		\psi(U) = \sum^{}_{T \in \mathcal{S}_C(U) } \frac{| T^{+}[U] | - | T^{-}[U] |}{|U|}
+		\psi(U) = \sum^{}_{T \in \mathcal{S}(U) } \frac{| T^{+}[U] | - | T^{-}[U] |}{|U|}
 	\end{equation}
 
 	\begin{claim}
@@ -241,7 +241,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 			      edges between vertices $v_{i} \in I$
 
 		\end{itemize}
-		thus $T[U] \in \mathcal{S}_C(U)$ and also
+		thus $T[U] \in \mathcal{S}(U)$ and also
 
 		\begin{equation}
 			\label{eq:score-densest-mip}
