@@ -5,7 +5,7 @@
 \label{sec:data_collection_and_generation}
 
 We now present how real-world data is retrieved and preprocessed and
-define techniques for generatic synthetic data.
+define techniques for generating synthetic data.
 
 \subsection{Collection and preprocessing}%
 \label{sub:collection_and_preprocessing}
@@ -13,24 +13,20 @@ define techniques for generatic synthetic data.
 Datasets are built over two social medias: Twitter and Reddit; the data
 collection process, consequently, slightly differs between them.
 
-\paragraph{Twitter}%
+\paragraph{Twitter.}%
 \label{par:twitter-data}
 
-Twitter's \emph{Interaction Graphs} are mainly built starting from the tweets
+Interaction graphs from Twitter are mainly built starting from the tweets
 of profiles associated to well-known news sources, like The
-New York Times or Fox News, that tipically post links to their articles:
+New York Times or Fox News, that typically post links to their articles:
 the set of shared URLs are the contents $\mathcal{C} $ of the corresponding interaction graph.
 
-Each time another user tweets one of these URLs (as seen in
+Each time another user tweets one of these URLs (as in
 \autoref{fig:twitter-thread}) he
 will create another thread related to the same content, and all the
 replies it receives will be part of this new thread.
 
-Twitter data is retrieved with the help of Tweepy \cite{tweepy}, a Python
-library for accessing the Twitter API, which has been patched for using some
-features available only in the beta of the new v2 Twitter API.
-
-In order to validate our methods, we also construct a datasets in which users are labeled either as
+In order to validate our methods, we also construct datasets in which users are labeled either as
 \emph{democrats} or \emph{republican} \footnotemark. This is done by looking at the people a
 certain user $v_i$ follows: for each account $v_j$ followed by $v_i$, if $v_j$ is a political representative, then we can
 retrieve from Wikipedia the party to which he belongs to (see, for
@@ -38,12 +34,15 @@ example, \autoref{fig:tex/img/wikipedia-elected}). Then, user $v_i$ get assigned
 label according to the party of the majority of the users $v_j$ he
 follows.
 
-\footnotetext{We chose to use these two labels since the news sources we analyze for this purpose are based in U.S..
+Twitter data is retrieved with the help of Tweepy \cite{tweepy}, a Python
+library for accessing the Twitter API, which has been patched for using some
+features available only in the beta of the new v2 Twitter API.
+
+\footnotetext{We choose these two labels since the news sources we analyze for this purpose are based in U.S.
 	Also, we think political discussion are the main source of controversial
 	content and so it is the most interesting criteria according to which users
 	can be differentiated}
 
-\autoref{fig:tex/img/wikipedia-elected}).
 \begin{figure}
 	\centering
 	\includegraphics[width=0.4\linewidth]{tex/img/wikipedia-elected.png}
@@ -56,40 +55,40 @@ follows.
 \label{par:reddit}
 
 Differently from Twitter, Reddit focuses on subreddits, which are pages
-collecting posts of users about a specific topic (e.g. r/politics,
+collecting posts of users about a specific topic (e.g.\ r/politics,
 r/economics, $\dots$). This means that
 in the datasets built from this social media the contents $\mathcal{C} $ is the
 set of URLs posted on these pages, which, differently from Twitter, most likely
 come from different sources.
 
-This posts are in turn crossposted, i.e. reposted on other subreddits. Each of
+These posts are in turn \emph{crossposted}, i.e.\ reposted on other subreddits. Each of
 these \emph{crosspost} will correspond to another thread.
 
 We also analyzed a
 very specific case, that of r/asktrumpsupporters. This subreddit is a "Q\&A
 subreddit to understand Trump supporters, their views, and the reasons behind
-those views. Debates are discouraged" (from its description). We found it particularly interesting as it provides an explicit labeling of the
+those views. Debates are discouraged" (from its description). We found it interesting as it provides an explicit labeling of the
 users who, before commenting in any of these posts, must "declare" their side
 by choosing a \emph{flair}, which is shown next to the username of the person
 commenting.  Three flairs are available: \emph{Trump Supporter}, \emph{Non
 	supporter} and \emph{Undecided}.
 
-The PRAW library is used for retrieving the data \cite{praw}.
+The PRAW library is used for retrieving Reddit data \cite{praw}.
 
 \paragraph{Edge weights assignment.}%
 \label{par:assigning_edge_weights}
 
-Once the threads interactions are retrieved they are passed to a state of the
-art sentiment analyzer which labels them. More specifically, the model used is
+Once the threads interactions are retrieved, they are passed to a state-of-the-art
+sentiment analyzer which labels them. More specifically, the model used is
 RoBERTa, adapted and retrained for dealing with Twitter
 data \cite{Barbieri2020}. The model is made available by the Transformers
 python library \cite{wolf-etal-2020-transformers}.
 
-\bigskip
-
-Finally, complying with the current privacy legislation, all the data related
-to the user is pseudo-anonymized (accounts identifier are replaced by random
-ones) while no data is publicly available.
+% \bigskip
+%
+% Finally, complying with the current privacy legislation, all the data related
+% to the user is pseudo-anonymized (accounts identifier are replaced by random
+% ones) while no data is publicly available.
 
 \subsection{Initial observations on the datasets}%
 \label{sub:some_observations_on_the_datasets}
@@ -109,7 +108,7 @@ The "centralization" of Reddit produces, in our data model, contents that are
 associated with few threads. We observed that even the most discussed articles
 on r/politics (a subreddit focusing on U.S.\ politics discussions) are
 \emph{crossposted} one to five times (see, for example,
-\autoref{fig:tex/img/reddit-crossposts}), while articles of the New York Times are
+\autoref{fig:tex/img/reddit-crossposts}), while on Twitter articles of the New York Times are
 often shared even 100 times.
 
 \begin{figure}
@@ -123,7 +122,7 @@ often shared even 100 times.
 \subsection{Synthetic data}%
 \label{sub:synthetic_data}
 
-Here we propose $2$ possible methods for generating data, the Signed SBM and
+Here we propose two possible methods for generating data, the Signed SBM and
 the Information spread Model.
 
 \subsubsection{Signed SBM}%
@@ -141,14 +140,19 @@ The Signed SBM is based on the following parameters:
 	      group $r$ and $s$. Vertices have also a probability of not having an
 	      edge, which is equal to $1 - \omega ^{-} _{rs} - \omega ^{+} _{rs} $.
 	      For this reason it is needed that $\omega ^{+} _{rs} + \omega ^{-} _{rs} \leq 1$.
-	\item $\theta \leq 1$, controlling the reduction of the probability of interacting
-	      between \emph{inactive} communities
+	\item $\theta \in [0, 1]$, controlling the reduction of the probability of interacting
+	      between \emph{inactive} communities: for the generation of each
+	      thread we will distinguish between \emph{active} and \emph{inactive}
+	      communities, having different probabilities of interacting.
 \end{itemize}
 
-Therefore, generating a thread layer\footnote{in this model we will generate contents univocally associated to threads} for the \emph{Interaction Graph} involves the following process
+Therefore, generating a thread layer\footnote{in this model we will generate
+	contents univocally associated to threads} for an interaction graph
+involves the following steps:
 \begin{enumerate}
-	\item Sample $n'$ among the $n$ communities. These are the
-	      \emph{active} communities in the thread.
+	\item Sample some of the communities. These are the
+	      \emph{active} communities in the thread. The remaining communities
+	      are \emph{inactive}.
 	\item For each node pair $i, j$ consider their corresponding groups $r$ and
 	      $s$ and, if both communities are \emph{active},
 	      draw from
@@ -173,7 +177,7 @@ Here we describe the Information spread model, which aims at simulating the
 process of information flowing between different users of a social media.
 
 Like in the Signed SBM, each node has a group assignment $b_i$ and
-each pair of gruops has probabilities of
+each pair of groups has probabilities of
 positive and negative edges ($\omega _{rs}^{+}  $ and $\omega _{rs}^{-}  $,
 respectively, with $\omega ^{-} _{rs} + \omega ^{+} _{rs}
 	\leq 1$).
@@ -183,20 +187,23 @@ Additionally, we have the following new parameters:
 	\item $\{\phi_{rs} \}$, the parameters of a standard SBM. These are used for
 	      generating a graph $G_f$, which we will call the \emph{friend} graph,
 	      representing the friendship relationships between the users. We will
-	      refer to neighbours in this graph as \emph{friends}.
-	\item $\beta _a$, the probability that a node is initially activated.
-	\item $\beta _n$, the probability the an inactive node is activated
+	      refer to neighbors in this graph as \emph{friends}.
+	\item $\beta _a$, the probability that a node is initially activated: we
+	      will distinguish between \emph{active} and \emph{inactive} nodes, that will have
+	      different probabilities of interacting.
+	\item $\beta _n$, the probability an \emph{inactive} node is activated
 	      from an \emph{active} friend.
 \end{itemize}
 
 \bigskip
-After generating $G_f$ from a SBM with parameters $\{\phi_{rs} \}$, the
-generation of each thread of the \emph{Interaction Graph} goes as
+After generating $G_f$ from an SBM with parameters $\{\phi_{rs} \}$, the
+generation of each thread of an \emph{interaction graph} goes as
 follows:
 
 \begin{enumerate}
+	\item Initialize all nodes as \emph{inactive}.
 	\item Activate each vertex with probability $\beta_{a}  $.
-	\item Each of these active nodes activates its inactive friends with
+	\item Active nodes activate their inactive friends with
 	      probability $\beta_n$.
 	\item Similarly to the Signed SBM, if two nodes are both active, draw
 	      from
@@ -215,7 +222,7 @@ follows:
 \section{Major results}
 
 The following presented results have been obtained from a Python
-implementation of the methods decribed in the previous chapters. The library used
+implementation of the methods described in the previous chapters. The library used
 for handling and manipulating graphs is graph-tool, which has been chosen
 because of its efficiency \cite{peixoto_graph-tool_2014}.
 
@@ -224,7 +231,7 @@ because of its efficiency \cite{peixoto_graph-tool_2014}.
 
 We did a initial analysis of the data to verify the validity of the problem.
 
-We can gain some insights about the existance of echo chambers by comparing
+We can gain some insights about the existence of echo chambers by comparing
 the distribution of $\eta(C)$ and $\eta(T)$ for different interaction graphs.
 % Threads with an high fraction of positive edges may correspond to echo
 % chambers, i.e. users that discuss a topic with no \emph{controversy}.
@@ -627,28 +634,33 @@ We explain this with the following reasons:
 \section{Further discussion on the results}%
 \label{sec:discussion}
 
+% todo
+
 We focused our analysis and research on the rounding algorithm. We did this
 since we observed, when running the other approximation algorithms on smaller datasets
-(with less than $2000$ nodes), that its time performances were better than that of the
-other methods. We report in \autoref{tab:times-approximation} the execution
+(with less than $3000$ nodes), that its time performances were generally better
+than that of the peeling algorithm (\autoref{sub:approximation_algorithms}) and it is
+more expressive than the $\beta$ approach (\autoref{sub:approximation_algorithms}).
+We report in \autoref{tab:times-approximation} the execution
 times on some datasets.
 
+% todo
 \begin{table}
 	\centering
 	\caption[Execution time of the approximation algorithms]{Execution time of
 		the approximation algorithms. $\alpha$ is chosen to be the median of the
 		$\eta(C)$ for each dataset.}
 	\label{tab:times-approximation}
-	\begin{tabular}{c|c|c|c}
-		Dataset         & Rounding & Peeling & $\beta$ \\
+	\begin{tabular}{c|c|c|c|c|c}
+		Dataset         & |V|  & |E|  & Rounding                 & Peeling                  & $\beta$                  \\
 		\hline
-		@EMA\_News      &          &         &         \\
-		@bbcsciencenews &          &         &         \\
-		@BBCSport       &          &         &         \\
-		@BBCNewsEnts    &          &         &         \\
-		@BBCTech        &          &         &         \\
-		r/cats          &          &         &         \\
-		r/covid19       &          &         &         \\
+		@EMA\_News      & 1226 & 1842 & \num{0.9331817626953125} & \num{24.05003571510315}  & \num{36.05760359764099}  \\
+		@bbcsciencenews & 447  & 388  & \num{4.916658878326416}  & \num{175.36006140708923} & \num{0.7964000701904297} \\
+		% @BBCSport       & 2140 & 3100 &                          &                          &                          \\
+		@BBCNewsEnts    & 220  & 183  & \num{4.617515325546265}  & \num{138.2591540813446}  & \num{0.4381392002105713} \\
+		@BBCTech        & 793  & 719  & \num{86.20259594917297}  & \num{2798.376838684082}  & \num{0.9822568893432617} \\
+		r/cats          & 2493 & 4028 & \num{5.439620494842529}  & \num{140844.752099514}   & \num{0.7333328723907471} \\
+		% r/covid19                &                          &                         &                          &         &         \\
 	\end{tabular}
 \end{table}
 
