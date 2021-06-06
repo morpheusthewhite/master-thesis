@@ -13,7 +13,7 @@ following used methodologies.
 Complexity Theory deals with the study of the intrinsic complexity of
 computational problems. It also elaborates on the relationships between
 the complexity of different problems, for example proving that two problems are
-computationally equivalent\cite{9780521884730}, through a notion called
+computationally equivalent \cite{9780521884730}, through a notion called
 \emph{reduction}.
 
 \subsection{Optimization Problems and $\mathcal{NPO} $}%
@@ -48,7 +48,7 @@ compute which then requires the definition of some alternative approaches, like
 \emph{approximation algorithms}
 which in polynomial time
 compute a solution which lies in a given factor from the optimal
-one\cite{Vazirani2002}.
+one \cite{Vazirani2002}.
 
 \paragraph{Approximation.}%
 \label{par:r_approximations}
@@ -119,7 +119,7 @@ The process is illustrated in \autoref{fig:tex/img/reduction_scheme}.
 \begin{figure}
 	\centering
 	\includegraphics[width=0.6\linewidth]{tex/img/reduction_scheme.png}
-	\caption[Reduction process]{The reduction scheme \cite{Crescenzi1997ASG}}%
+	\caption[Reduction process]{The reduction scheme \cite{Crescenzi1997ASG}.}%
 	\label{fig:tex/img/reduction_scheme}
 \end{figure}
 
@@ -130,7 +130,8 @@ focus only on one type.
 \begin{figure}[b]
 	\centering
 	\includegraphics[width=0.4\linewidth]{tex/img/approximation_preserving_reductions.png}
-	\caption[Taxonomy of approximation preserving reductions]{Taxonomy of approximation preserving reductions \cite{Crescenzi1997ASG}}%
+	\caption[Taxonomy of approximation preserving reductions]{Taxonomy of
+		approximation preserving reductions \cite{Crescenzi1997ASG}.}%
 	\label{fig:tex/img/approximation_preserving_reductions}
 \end{figure}
 
@@ -154,7 +155,7 @@ $S$ reductions are the strongest type of \emph{approximation preserving
 \acrfull{LP} is a widely used optimization technique and one of the most
 effective; the term refers to problems in which both the constraints and \emph{objective
 	function} are linear
-\cite{Edgar2001,Vanderbei2008,Dantzig1998,Martin1998}.
+\cite{Edgar2001,Vanderbei2008,Dantzig1998,Martin1998}. \acrshort{LP}s are solvable in polynomial time \cite{KHACHIYAN198053,Karmarkar1984}.
 
 \subsection{The structure of \acrshort{LP}s}%
 \label{sub:the_structure_of_a_linear_programming_model}
@@ -253,18 +254,18 @@ solution: if $c_{j} \geq 0$ for all $j \in \mathcal{N} $, then the value of the
 objective function cannot be increased and we found an optimum. If, instead,
 there is at least one $c_{j}
 	> 0$ then we can increase the value of $\zeta$ by increasing $x_{j} $; now
-there are 2 different cases \cite{Vanderbei2008}:
+there are two different cases \cite{Vanderbei2008}:
 \begin{itemize}
 	\item As $x_{j} $ increases there is at least a variable $\tilde{x}_{j} $
 	      whose value needs to decrease to satisfy equality constraints. The first
-	      of these variables $\tilde{x}_{j} $ reaching to $0$ moves from
+	      of these variables $\tilde{x}_{j} $ reaching $0$ moves from
 	      $\mathcal{B} $ to $\mathcal{N} $, while
 	      $x_{j} $ moves from $\mathcal{N} $ to $\mathcal{B} $. The problem is reformulated again as in
 	      \autoref{eq:standard-form-simplex-new} and the process is repeated
 	      \cite{Vanderbei2008}.
 	\item If no such $\tilde{x}_{j} $ variable exists then the value of $x_{j}
 	      $ can be increased indefinitely and the problem is said to be
-	      \emph{unbounded}, i.e. it can achieve any arbitrarily large value.
+	      \emph{unbounded}, i.e.\ it can achieve any arbitrarily large value.
 \end{itemize}
 
 The process is illustrated with an example in \autoref{fig:tex/img/simplex}.
@@ -274,7 +275,7 @@ The process is illustrated with an example in \autoref{fig:tex/img/simplex}.
 	\includegraphics[width=0.4\linewidth]{tex/img/simplex.png}
 	\caption[Simplex method progress]{An example of the progress of the \emph{simplex method}: the
 		process moves along the vertices of the polygon defined by the
-		contraints while improving the value of the solution. Picture taken
+		constraints while improving the value of the solution. Picture taken
 		from \cite{BerndGaertner2006}.}%
 	\label{fig:tex/img/simplex}
 \end{figure}
@@ -282,7 +283,7 @@ The process is illustrated with an example in \autoref{fig:tex/img/simplex}.
 \subsection{Mixed Integer Programming}%
 \label{sub:mixed_integer_programming}
 
-Many problems involve not only continous variables but also variables that take binary or
+Many problems involve not only continuous variables but also variables that take binary or
 integer values: these are known as \acrfull{MIP} problems. Furthermore, some of
 these problems are linear in the constraints and in the objective function and are
 known as \acrfull{MILP} problems
@@ -322,14 +323,14 @@ polynomial time \cite{Conforti2016}.
 \subsection{Solving a MIP}%
 \label{sub:solving_a_mip}
 
-One approach that has been proven successfull for solving \acrshort{MIP} is the
+One approach that has been proven successful for solving \acrshort{MIP} is the
 Branch-and-Bound, which is guaranteed to find an optimal solution
 \cite{Conforti2016,Edgar2001}.
 
-Given a problem $P$ the process starts by solving the \emph{relaxation} of $P$
+Given a problem $P$, the process starts by solving the \emph{relaxation} of $P$
 and finding its optimal solution $(\tilde{x}, \tilde{y})$.
 Let $S$ and  $\tilde{S}$ be the set of feasible solutions
-for the original problem $P$ and its relaxation, respectively. By definition,
+for the original problem and its relaxation, respectively. By definition,
 we have that $S \subseteq \tilde{S} $.
 Therefore, \cite{Edgar2001}
 \begin{itemize}
@@ -341,7 +342,7 @@ Therefore, \cite{Edgar2001}
 	      initializing the value of the best solution so far, $\zeta$, with
 	      $-\infty$.  Then we choose one of the fractional variables that are
 	      required to be integral in the original problem, say $y_j$ with
-	      value $f$, and create $2$ subproblems, respectively adding the
+	      value $f$, and create two subproblems, respectively adding the
 	      constraint $y_{j} \leq \lfloor f \rfloor$ and $y_{j} \geq \lceil f
 		      \rceil$. This step is called \emph{branching}. We now consider the
 	      solution of each subproblem $(x_j, y_j)$ with value of the objective
@@ -413,18 +414,17 @@ can be found in \autoref{sec:linear_and_mixed_integer_programming})
 	\text{maximize}   &       & \sum_{ij \in E} x_{ij}                                          \\
 	\text{subject to} & \quad & x_{ij}                  & \leq y_{i} & \quad \forall ij & \in E \\
 	                  &       & x_{ij}                  & \leq y_{j} & \quad \forall ij & \in E \\
-	                  &       & \sum^{}_{i \in V} y_{i} & \leq 1     &                          \\
 	\label{eq:charikar-sum}
+	                  &       & \sum^{}_{i \in V} y_{i} & \leq 1     &                          \\
 	                  &       & y_{i}                   & \geq 0     & \quad \forall i  & \in V \\
 	                  &       & x_{ij}                  & \geq 0     & \quad \forall ij & \in E \\
 \end{alignat}
 
-% todo
-Intuitively, the problem associates $y_i > 0$ to vertices in $S \subseteq V$
-and $x_{ij} > 0$ to edges induced by $S$. The concept of "density" is
-introduced by \autoref{eq:charikar-sum}, due to which the value that each
-vertex can get is limited by 1, so that by selecting a larger value of vertices
-each of them will get a smaller value.
+Intuitively, the problem associates non-zero $y_i$ to vertices in $S \subseteq V$
+and non-zero $x_{ij}$ to edges induced by $S$. The concept of "density" is
+introduced by \autoref{eq:charikar-sum}, which distributes a fixed quantity
+(one in this case) to the vertices, such that the value $y_i$ of each vertex
+generally decreases (and consequently also that of the $x_{ij}$) as the number of non-zero $y_i$ increases.
 
 Let $S(r) \coloneqq \{v_{i} : y_{i} \geq r\} $ and $E(r) \coloneqq \{e_{ij} :
 	x_{ij} \geq r\} $. It is easy to see that, given the model as defined
@@ -478,7 +478,7 @@ and \cite{semertzidis2019finding} that also introduced new variants.
 		\end{subfigure}
 	\end{center}
 	\caption[Example sequence graph]{An example of a graph sequence
-		$\mathcal{G} = (G_1, G_2, G_3) $ over $4$ vertices.}
+		$\mathcal{G} = (G_1, G_2, G_3) $ over four vertices.}
 	\label{fig:graph_sequence_example}
 \end{figure}
 
@@ -502,7 +502,7 @@ graph $G$, i.e.\
 \end{equation*}
 
 Also, let $h$ be a function aggregating the value of the density of
-each snaphot of the graph sequence, i.e.\
+each snapshot of the graph sequence, i.e.\
 
 \begin{equation*}
 	h: \{ g(S, G_1), \; g(S, G_2), \; \dots, \; g(S, G_T)\} \rightarrow
@@ -551,7 +551,7 @@ of the problem
 		      ^{\text{poly}\log n} ) $, $\epsilon > 0$
 	      \footnote{They show this results through a reduction from
 	      $\textsc{MinRep}$, which has been shown to have the mentioned
-	      inapproximability \cite{charikar2018finding}\cite{kortsarz2001hardness}.
+	      inapproximability \cite{charikar2018finding,kortsarz2001hardness}.
 
 	      $ \mathbf{DTIME}(f(n)) $ refers to the class of problems that
 	      have time complexity $f(n)$ \cite{9780521884730}.
@@ -628,7 +628,7 @@ with the lowest degree in a graph while properly updating the degree of the
 other nodes (\autoref{alg:score_a}).
 
 Note that we refer to the degree $d$ of a vertex $v_{i} $ in a weighted graph as
-the sum of the weights of the edges of the node, i.e. $ d_{v_i} = \sum^{}_{(v_{i} , v_{j}
+the sum of the weights of the edges of the node, i.e.\ $ d_{v_i} = \sum^{}_{(v_{i} , v_{j}
 	) \in E} w_{ij}  $.
 
 \begin{algorithm}
@@ -692,7 +692,7 @@ that obtained the highest density score~$f$ (\autoref{alg:findbff_a}).
 \end{algorithm}
 
 Semertzidis, Pitoura, Terzi, Tsaparas in \cite{semertzidis2019finding} present
-$2$ different approaches for approximating \acrshort{O2BFF}-AM: an \emph{iterative} one
+two different approaches for approximating \acrshort{O2BFF}-AM: an \emph{iterative} one
 which starts with a set $\mathcal{L} _{k} \in \mathcal{G} $ of $k$ graphs and improves it to
 increase the score, and an \emph{incremental} one in which the set of $k$
 graphs $\mathcal{L}_{k} $ is selected along the $k$ iterations, starting with a
@@ -707,7 +707,7 @@ $S_{i} $ of the solution. Then $\mathcal{L}_{2}  $ is chosen as the pair of grap
 have the most similar set of vertices in the respective solutions, where the
 similarity is measured through the Jaccard coefficient \footnotemark.
 
-\footnotetext{Given $2$ sets $C_1$ and $C_2$ the Jaccard coefficient is equal
+\footnotetext{Given two sets $C_1$ and $C_2$ the Jaccard coefficient is equal
 	to \cite{CharuC.Aggarwal2013}
 	\begin{equation*}
 		Jaccard(C_1, C_2) = \frac{|C_1 \bigcap C_2|}{|C_1 \bigcup C_2|}
