@@ -410,15 +410,6 @@ $\eta(C)$ which is very close to the fraction of negative edges in the graph.
 	\label{fig:eta-distribution-content}
 \end{figure}
 
-%
-% \subsection{Algorithms implementation efficiency}%
-% \label{sub:algorithm_efficiency}
-
-% todo:
-% - time limitations of exact algorithms
-% - describe beta algorithm and effect of beta, real world data
-% - time efficiency of the greedy algorithms, real world data
-
 \subsection{Tests on synthetic data}%
 \label{sub:testing_on_synthetic_data}
 
@@ -433,27 +424,28 @@ Because of this choice the values $\beta _n = 1$, $\theta = 1$ and
 \begin{equation}
 	\phi_{rs}  =
 	\begin{cases}
-		1 \; & \text{if } r = s  \\
-		0 \; & \text{otherwise }
-	\end{cases}
+		1, \; & \text{if } r = s, \\
+		0, \; & \text{otherwise }
+	\end{cases} \quad\quad \forall r,s \; groups
 \end{equation}
-do not influence the structure of the model.
+does not influence the structure of the model.
 
 We also choose $\omega ^{-} _{rs}$ and $\omega ^{+} _{rs} $ to be dependant on
-a \emph{noise} variable $x$
+a \emph{noise} variable $x$. More specifically, we choose
 \begin{equation}
 	\omega_{rs}^{+}   =
 	\begin{cases}
-		1 - x \;        & \text{if } r = s  \\
-		\frac{x}{4}  \; & \text{otherwise }
-	\end{cases}
+		1 - x, \;        & \text{if } r = s, \\
+		\frac{x}{4},  \; & \text{otherwise,}
+	\end{cases} \quad\quad \forall r,s \; groups
 \end{equation}
+and
 \begin{equation}
 	\omega_{rs}^{-}   =
 	\begin{cases}
-		x \;                & \text{if } r = s  \\
-		\frac{1 - x}{4}  \; & \text{otherwise }
-	\end{cases}
+		x, \;                & \text{if } r = s, \\
+		\frac{1 - x}{4},  \; & \text{otherwise,}
+	\end{cases} \quad\quad \forall r,s \; groups.
 \end{equation}
 
 In absence of noise ($x = 0$) we will generate threads whose communities are
@@ -475,29 +467,156 @@ index\footnotemark.
 	different clusterings. It is based on the RAND index, which compares
 	the number of agreeing pairs in the $2$ solutions; the Adjusted one corrects
 	the RAND Index "by chance", i.e. compares it to the expected index
-	(i.e.\ of a random assignment). For more details please
+	(i.e.\ of a random assignment). For more details we
 	refer to \cite{CharuC.Aggarwal2013}}
 
 What we expect is that, as the value of $x$ increases, the produced threads
 will have generally more negative edges inside a community and more positive
 edges between different communities, making it more difficult for our
-algorithms to spot a set of vertices corresponding to a community.
+algorithms to find the set of vertices corresponding to one of the communities.
 
 % todo: add results and specify measures
+\begin{figure}
+	\begin{center}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/synthetic_exact/model2_noise_adj_rand.pdf}
+			\caption{Adjusted RAND index, MIP}
+			\label{fig:tex/out/synthetic_exact/model2_noise_adj_rand.pdf}
+		\end{subfigure}
+		\quad
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/synthetic_exact/model2_noise_jaccard.pdf}
+			\caption{Jaccard Score, MIP}
+			\label{fig:tex/out/synthetic_exact/_noise_jaccard.pdf}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/synthetic_12t/model2_noise_adj_rand.pdf}
+			\caption{Adjusted RAND index, \mbox{rounding algorithm}}
+			\label{fig:tex/out/synthetic_exact/model2_noise_adj_rand.pdf}
+		\end{subfigure}
+		\quad
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/synthetic_12t/model2_noise_jaccard.pdf}
+			\caption{Jaccard Score, \mbox{rounding algorithm}}
+			\label{fig:tex/out/synthetic_exact/_noise_jaccard.pdf}
+		\end{subfigure}
+	\end{center}
+	\caption{Clustering scores on a generated graph with four communities, each
+		of six nodes, with 12 threads}
+	\label{fig:clustering-mip-rounding}
+\end{figure}
 
 We compared the scores obtained with the \acrshort{MIP} for the \acrshort{ECP}
-(\autoref{sub:a_mip_model_for_the_ecp}), the Rounding algorithm
-(\autoref{ssub:rounding_algorithm}) and the $2$ alternative problems on the
-\acrshort{TPA} Graph (\autoref{ssub:the_tpa_graph}). Due to the presence of the
-\acrshort{MIP} model this group of experiments have been carried out on very
-small graphs.
+(\autoref{sub:a_mip_model_for_the_ecp}) and the Rounding algorithm. Due to the presence of the
+\acrshort{MIP} model these experiments have been carried out on very
+small graphs, with four communities, each with six nodes. The interaction graph
+contains 12 threads and we chose $\alpha = 0.2$.
 
-We then focused on the performances of the Rounding Algorithm on bigger
-datasets.
+The performances of the two approaches are shown in
+\autoref{fig:clustering-mip-rounding}. We can see that the MIP model is able to
+reconstruct the communities almost perfectly for values of $x \in \{0, 0.1,
+	0.2\}$ and also achieves good results for $x = 0.3$, while the rounding
+algorithm performances degradates already for $x \geq 0.2$.
 
-% - describe rounding algorithm: when does it fail?
-% - observation on the results (how does it depend on the number of threads and
-%   on the number of nodes in each community?
+MIP formulation is generally better at finding the communities since, if
+the noise $x$ is not too large, the best score is still achieved
+by selecting mostly nodes in the same community (choosing nodes from other
+communities will generally produce much more negative edges in the subgraph).
+Conversely, the rounding algorithm is more affected than MIP by noise.
+
+Consider, for example, the graph in
+\autoref{fig:rounding-interaction-graph-example} for $\alpha = 0.1$:
+the MIP model will find one of the two communities as optimal solution.
+Now, consider the rounding algorithm (\autoref{sub:approximation_algorithms});
+the relaxation of the MIP will assign to all and only the positive edges value
+$0.66$ (while the negative ones get value $0$). This means that the algorithm
+will iterate initially on the positive ones, choosing randomly among them (since they have the same value).
+We illustrate in \autoref{fig:rounding-run-unlucky} one possible iteration: in
+this case the algorithm will not be able to reconstruct one of the communities
+exactly since the considered edge will not allow the heuristic to have a single component of
+$\hat{G}$ associated to one of the communities.
+Conversely, in \autoref{fig:rounding-run-lucky} we can see a "luckier"
+iteration in which instead it founds one of the communities.
+
+More generally, we can say that the rounding algorithm is less robust than the MIP
+to noise, especially in the \emph{inter-community} edges, as it
+depends on the probability of picking this \emph{inter-community} edges (the
+lower it is, the higher the chances of a correct clustering).
+
+Consequently we can expect than if we decrease the number of these positive
+intra-community edges with respect to the number of edges inside the
+communities, the algorithm is more likely to reconstruct correctly the Echo
+Chambers.
+
+\begin{figure}
+	\begin{center}
+		\begin{subfigure}{0.3\textwidth}
+			\centering
+			\tikzfig{tex/tikz/rounding_original}
+			\caption{An example of interaction graph $G$}
+			\label{fig:rounding-interaction-graph-example}
+		\end{subfigure}
+		\quad
+		\begin{subfigure}{0.3\textwidth}
+			\centering
+			\tikzfig{tex/tikz/rounding_exec}
+			\caption{A possible state of $\hat{G}$ when running the rounding
+				algorithm}
+			\label{fig:rounding-run-unlucky}
+		\end{subfigure}
+		\quad
+		\begin{subfigure}{0.3\textwidth}
+			\centering
+			\tikzfig{tex/tikz/rounding_exec_lucky}
+			\caption{Another possible state of $\hat{G}$ when running the
+				rounding algorithm}
+			\label{fig:rounding-run-lucky}
+		\end{subfigure}
+	\end{center}
+	\caption[An interaction graph with a single thread and content and two
+		possible iterations of the rounding algorithm]{An interaction graph with a
+		single thread and content and two possible iterations of the rounding
+		algorithm. For $\alpha = 0.1$ we will have that its content is
+		controversial and the exact solution involves all and only nodes in one of
+		the two communities. The two communities are represented by $\{ v_1, v_2,
+			v_3\}$ and $\{ v_4, v_5, v_6\}$, respectively.}
+\end{figure}
+
+This can be for example achieved by increasing the number of threads
+in an interaction graph. We repeatedly tried to change the number of threads
+while mantaining the same set of parameters as before and we show the results
+in \autoref{fig:clustering-threads}, obtaining better clustering
+performances as the number of threads increases, especially for values of
+$x \in \{ 0.0, 0.1 \}$.
+
+\begin{figure}
+	\begin{center}
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/synthetic_8t/model2_noise_adj_rand.pdf}
+			\caption{8 threads}
+			\label{fig:tex/out/synthetic_8t/model2_noise_adj_rand.pdf}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/synthetic_12t/model2_noise_adj_rand.pdf}
+			\caption{12 threads}
+			\label{fig:tex/out/synthetic_8t/model2_noise_adj_rand.pdf}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/synthetic_20t/model2_noise_adj_rand.pdf}
+			\caption{20 threads}
+			\label{fig:tex/out/synthetic_8t/model2_noise_adj_rand.pdf}
+		\end{subfigure}
+	\end{center}
+	\caption{Adjusted RAND indices for graphs with different number of threads.}
+	\label{fig:clustering-threads}
+\end{figure}
 
 \subsection{Detecting real-world echo chambers}%
 \label{sub:detecting_real_echo_chambers}
@@ -634,8 +753,6 @@ We explain this with the following reasons:
 \section{Further discussion on the results}%
 \label{sec:discussion}
 
-% todo
-
 We focused our analysis and research on the rounding algorithm. We did this
 since we observed, when running the other approximation algorithms on smaller datasets
 (with less than $3000$ nodes), that its time performances were generally better
@@ -664,15 +781,14 @@ times on some datasets.
 	\end{tabular}
 \end{table}
 
-Similarly, due to evident complexity limitations we were able to execute the exact
-\acrshort{MIP} only on very small synthetic datasets, as shown in
-\autoref{sub:synthetic_data}.
-
+% Similarly, due to evident complexity limitations we were able to execute the exact
+% \acrshort{MIP} only on very small synthetic datasets, as shown in
+% \autoref{sub:synthetic_data}.
 \bigskip
 
 Our rounding algorithm achieves good performances on data with
 polarized communities, showing also to be more and more robust as the
-available data increases: a larger number of nodes and threads, as we discussed
+available data increases: a larger number of threads, as we discussed
 in \autoref{sub:synthetic_data}, helps the algorithm selecting
 \emph{intra-community} edges, which allows it to correctly classify the nodes.
 
