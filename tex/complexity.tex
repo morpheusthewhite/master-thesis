@@ -1,4 +1,4 @@
-\chapter{Problems complexity and approximability}%
+\chapter{Problem complexity and approximability}%
 \label{ch:complexity}
 
 We will now prove the inapproximability of the \acrshort{ECP} and
@@ -9,8 +9,8 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 
 \begin{theorem}
 	\label{th:approximability}
-	\acrfull{ECP} has no $n^{1-\epsilon} $-approximation algorithm for
-	any $\epsilon$ unless $\mathcal{P} = \mathcal{NP}  $
+	The \acrfull{ECP} has no $n^{1-\epsilon} $-approximation algorithm for
+	any $\epsilon > 0$ unless $\mathcal{P} = \mathcal{NP}  $.
 \end{theorem}
 
 \begin{proof}
@@ -19,26 +19,31 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 	factor (\autoref{tab:inapproximability-examples}).
 
 	\bigskip
-	Let $G_{1}  = (V_{1} ,E_{1} )$ be an undirected and unweighted graph and
-	$\lambda > \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N} $ and $n_{1} \coloneqq |V_{1}| $.
-	We construct the \emph{Interaction Graph} ${G}_{2}  = (V_{2} , E^{+}_{2} , E
-			^{-}_{2} ) $ as follows
+	Let $G_{1}  = (V_{1} ,E_{1} )$ be an undirected and unweighted graph for
+	which we want to solve MIS.
+
+	We show how to construct an interaction graph \mbox{${G}_{2}~=~(V_{2} , E^{+}_{2} , E
+				^{-}_{2} ) $} as instance for \acrshort{ECP} with parameter
+	$\alpha $. Let $\lambda > \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N} $ and $n_{1} \coloneqq |V_{1}| $.
+	$G_2$ is constructed as follows:
 
 	\begin{itemize}
-		\item for each vertex $v_{i}  \in V_{1} $ we add a vertex in $G_{2} $
+		\item for each vertex $v_{i}  \in V_{1} $ we add a vertex in $G_{2} $,
 		\item for each edge $e_{ij}  \in
-			      E_{1} $ we add $\lambda n_{1} $ negative edges between $v_{i} $ and $v_{j} $
-		\item we add a vertex $v_r$ and a positive edge between it and any other
-		      vertex that we already inserted in $G_2$
+			      E_{1} $ we add $\lambda n_{1} $ negative edges between $v_{i}
+		      $ and $v_{j} $,
+		\item we add a vertex $v_r$ and a positive edge between $v_r$ and any other
+		      vertex $v_i \in V_2$ that we already inserted in $G_2$,
 		\item we add a vertex $v_x$ and $\lambda n_{1} $ negative edges between $v_x$
-		      and $v_{r} $
+		      and $v_{r} $.
 	\end{itemize}
 
 	Furthermore, all the edges in $G_{2} $ are associated to the same content
 	$C$ and the same thread $T \in \mathcal{T}_{C}  $.
-	An illustration of the conversion can be found in \autoref{fig:construction}.
+	Thus, our \acrshort{ECP} instance contains only a single thread and a
+	single content.  An illustration of the reduction can be found in \autoref{fig:construction}.
 
-	\begin{figure}[b]
+	\begin{figure}
 		\begin{center}
 			\begin{subfigure}{0.4\textwidth}
 				\centering
@@ -55,84 +60,106 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 			\end{subfigure}
 		\end{center}
 		\caption[Example reduction from MIS to \acrshort{ECP}]{Example construction of the interaction graph $G_{2} $ from
-			$G_{1} $, for $\alpha = \frac{1}{3} $}
+			$G_{1} $, for $\alpha = \frac{1}{3} $.}
 		\label{fig:construction}
 	\end{figure}
 
 	\begin{claim}
 		\label{th:claim-controversial}
-		Content $C$ is \emph{controversial}.
+		Content $C$ is \emph{controversial}, i.e.\ $\eta(C) > \alpha $.
 	\end{claim}
 	\begin{proof}
 		Let $m_{2}^{-} $ and $m_{2}^{+} $ be the number of negative and
 		positive edges in $G_2$, respectively.
 
-		By construction $m_{2}^{+} = n_{1} $ and $m_{2}^{-} \geq \lambda n_{1}
-		$ (the negative edges between $v_r$ and $v_x$). Also, for $a, b, c \in \mathbb{R}^{+}$ it holds that $\frac{a +
-				b}{a + b + c} \geq \frac{a}{a + c} $. Consequently
+		By construction in $G_2$ there is exactly one
+		positive edge between $v_r$ and each vertex $v_i$ from $ G_1$, i.e.\
+		$m_{2}^{+} = n_{1} $. Also,
+		$m_{2}^{-} \geq \lambda n_{1} $ since $G_2$ contains at least the $\lambda
+			n_1$ negative edges between $v_r$ and $v_x$. Consequently, given that for $a, b, c \in \mathbb{R}^{+}$ it holds that $\frac{a +
+				b}{a + b + c} \geq \frac{a}{a + c} $, we have
 
 		\begin{align}
 			\eta(C) = \frac{m_{2}^{-} }{m_{2}^{-} +
 				m_{2}^{+} } \geq \frac{\lambda n_{1}}{\lambda n_{1}
-				+ n_{1} } = \frac{\lambda }{\lambda + 1} > \alpha
+				+ n_{1} } = \frac{\lambda }{\lambda + 1} > \alpha.
 		\end{align}
 	\end{proof}
 
-	So content $C$ is \emph{controversial}. This reduces the \acrlong{ECP} on $G_2$ to the maximization of
+	Thus, the content $C$ is \emph{controversial}. Since our instance contains
+	a single content, this reduces the \acrshort{ECP} on $G_2$ to the maximization of
 
 	\begin{equation}
 		\label{eq:score}
-		\xi(U) = \sum^{}_{T \in \mathcal{S}(U) } (| T[U]^{+} | - | T[U]^{-} |)
+		\xi(U) = \sum^{}_{T \in \mathcal{S}(U) } (| T[U]^{+} | - | T[U]^{-} |).
 	\end{equation}
+
+	\bigskip
 
 	\begin{claim}
 		\label{th:opt-equality}
+		Let $\operatorname{OPT}(\operatorname{ECP})$ and
+		$\operatorname{OPT}(\operatorname{MIS})$ be the maximum Echo Chamber score on
+		$G_2$ and the size of the MIS on $G_1$, respectively.
+		We have that
 		\begin{equation}
-			OPT(ECP) = OPT(MIS)
+			\operatorname{OPT}(\operatorname{ECP}) = \operatorname{OPT}(\operatorname{MIS})
 		\end{equation}
 	\end{claim}
 
 	\begin{proof}
 		Let $I \subseteq V_{1} $ be an independent set of $G_1$ of size $|I| >
-			1$. Consider the associated solution in $G_2$ in which $U = I
-			\cup \{v_{r} \}$. By construction, it will contain only $|I|$ positive
+			1$. Consider the associated solution in $G_2$ in which $U = I \cup
+			\{v_{r} \}$. By construction, $T[U]$ only contains $|I|$ positive
 		edges, so $T[U] \in \mathcal{S}(U)$ and also
 
 		\begin{equation}
-			OPT(ECP) \geq \xi(U) = |T^{+}[U]| = |I| \implies OPT(ECP) \geq OPT(MIS)
+			\operatorname{OPT}(\operatorname{ECP}) \geq \xi(U) = |T^{+}[U]| =
+			|I| \implies \operatorname{OPT}(\operatorname{ECP}) \geq
+			\operatorname{OPT}(\operatorname{MIS}).
 		\end{equation}
 
-		Now let $S \subseteq V_2$ be a solution of the \acrshort{ECP} on
-		$G_2$, and suppose $\xi(S) > 0$. It is easy to see that $v_{r} \in S$
-		and that $v_{x} \not\in S $. Let $J \coloneqq S \setminus \{v_r\}$.
+		Now let $S \subseteq V_2$ be a solution of the \acrshort{ECP} on $G_2$,
+		and suppose $\xi(S) > 0$. We will have that $v_{r} \in S$ and that
+		$v_{x} \not\in S $. Let $J \coloneqq S \setminus \{v_r\}$.
 
-		Suppose that $2$ vertices $v_{i} $, $v_{j} \in J$ are linked in
-		$G_1$. By construction there are at least $\lambda n_1$ negative edges
-		in $T[S]$, thus
+		Next, we argue that $J$ is an independent set for $G_1$. We prove this by
+		contradiction. Suppose that two vertices $v_{i} $, $v_{j} \in J$ are
+		linked in $G_1$. By construction there are at least $\lambda n_1$
+		negative edges in $T[S]$, thus
 
 		\begin{equation}
 			\eta(T[S]) \geq \frac{\lambda n_1}{\lambda n_1 + |S-1|} \geq \frac{\lambda n_1}{\lambda n_1 + n_1} = \frac{\lambda
-			}{\lambda + 1} > \alpha
+			}{\lambda + 1} > \alpha.
 		\end{equation}
+		This means that $T[S]$ is \emph{controversial} and $T \not\in
+			\mathcal{S}(S) $; therefore, the sum in \autoref{eq:score} resolves to
+		zero, which is a \emph{contradiction}.
 
-		This means that $T[S]$ is \emph{controversial} $\implies \xi(S) = 0
-			\implies contradiction$ and, consequently, $J$
-		contains vertices which are independent in $G_1$. Therefore, $T[S]$ contains
-		only positive edges; more specifically
+		Consequently, $J$ contains vertices which are independent in $G_1$.
+		Therefore, $T[S]$ contains only positive edges; more specifically,
 
 		\begin{equation}
-			\xi(S) = |T^{+}[S]| = |S| - 1 = |S \setminus \{v_r\}| = |J|
+			\xi(S) = |T^{+}[S]| = |S| - 1 = |S \setminus \{v_r\}| = |J|.
 		\end{equation}
 
 		Thus
 
 		\begin{equation}
-			OPT(MIS) \geq |J| \implies OPT(MIS) \geq OPT(ECP)
+			\operatorname{OPT}(\operatorname{MIS}) \geq |J| \implies
+			\operatorname{OPT}(\operatorname{MIS}) \geq
+			\operatorname{OPT}(\operatorname{ECP}).
 		\end{equation}
 
 		So the optimal value of the constructed instance of \acrshort{ECP}
-		exactly equals that of the \textsc{Maximum Independent Set} instance, so it
-		has a hardness factor at least as large as that of MIS.
+		exactly equals that of the \textsc{Maximum Independent Set} instance.
+
+		So, if we were able to approximate \acrshort{ECP} within
+		$n^{1-\epsilon}, \; \epsilon > 0$ we would be also able to approximate MIS within the
+		same factor, which is not possible unless $\mathcal{P} = \mathcal{NP}
+		$, given also that our reduction is done in polynomial time.
+
+		This means \acrshort{ECP} has a hardness factor at least as large as that of MIS.
 	\end{proof}
 
 	This concludes the proof of \autoref{th:approximability}.
@@ -143,35 +170,44 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 
 \begin{theorem}
 	\label{th:approximability-densest}
-	\acrfull{D-ECP} has no $n^{1-\epsilon} $-approximation algorithm for
-	any $\epsilon$ unless $\mathcal{P} = \mathcal{NP}  $
+	The \acrfull{D-ECP} has no $n^{1-\epsilon} $-approximation algorithm for
+	any $\epsilon > 0$ unless $\mathcal{P} = \mathcal{NP}  $.
 \end{theorem}
 
 \begin{proof}
-	We again show this results by presenting a direct reduction from \textsc{Maximum
-		Independent Set}.
+	We again show this result by presenting a direct reduction from \textsc{Maximum
+		Independent Set}. Differently from before, we will need to create an
+	instance of the \acrshort{D-ECP} with a positive clique over
+	independent vertices of the original graph (in order to match the values of
+	the two problems).
 
 	\bigskip
-	Let $G_{1}  = (V_{1} ,E_{1} )$ be an undirected and unweighted graph and
-	$\lambda > \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N} $ and $n_{1} \coloneqq |V_{1}| $.
-	We construct the \emph{interaction} graph ${G}_{2}  = (V_{2} , E^{+}_{2} , E
-			^{-}_{2} ) $ as follows
+	Let $G_{1}  = (V_{1} ,E_{1} )$ be an undirected and unweighted graph for
+	which we want to solve MIS.
+
+	We show how to construct an interaction graph \mbox{${G}_{2}~=~(V_{2} , E^{+}_{2} , E
+				^{-}_{2} ) $} as instance for \acrshort{D-ECP} with parameter
+	$\alpha $. Let $\lambda > \frac{\alpha }{1 - \alpha }$, $\lambda \in \mathbb{N} $ and $n_{1} \coloneqq |V_{1}| $.
+	$G_2$ is constructed as follows:
 
 	\begin{itemize}
-		\item for each vertex $v_{i}  \in V_{1} $ we add a vertex in $G_{2} $
+		\item for each vertex $v_{i}  \in V_{1} $ we add a vertex in $G_{2} $,
 		\item for each edge $e_{ij}  \in
-			      E_{1} $ we add $\lambda (n_{1}+1)^{2}  $ negative edges between $v_{i} $ and $v_{j} $
-		\item for each edge $e_{ij} \in V_1 \times V_1, e_{ij} \not\in
-			      E_{1} $ we add $2$ positive edges between $v_{i} $ and $v_{j} $
-		\item we add a vertex $v_r$ and $2$ positive edges between it and any other
-		      vertex that we already inserted in $G_2$
+			      E_{1} $ we add $\lambda (n_{1}+1)^{2}  $ negative edges
+		      between $v_{i} $ and $v_{j} $,
+		\item for each edge $e_{ij} \in V_1 \times V_1 \setminus
+			      E_{1} $ we add $2$ positive edges between $v_{i} $ and $v_{j}
+		      $,
+		\item we add a vertex $v_r$ and $2$ positive edges between $v_r$ and any other
+		      vertex $v_i \in V_2$ that we already inserted in $G_2$,
 		\item we add a vertex $v_x$ and $\lambda n_{1}^{2}  $ negative edges between $v_x$
-		      and $v_{r} $
+		      and $v_{r} $.
 	\end{itemize}
 
 	Furthermore, all the edges in $G_{2} $ are associated to the same content
-	$C$ and the same thread $T \in \mathcal{T}_{C}  $.
-	An illustration of the conversion can be found in
+	$C$ and the same thread $T \in \mathcal{T}_{C}  $. Thus, our \acrshort{D-ECP} instance contains only a single thread and a
+	single content.
+	An illustration of the reduction can be found in
 	\autoref{fig:construction-densest}.
 
 	\begin{figure}
@@ -197,97 +233,124 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 
 	\begin{claim}
 		\label{th:claim-controversial-densest}
-		Content $C$ is \emph{controversial}.
+		The content $C$ is \emph{controversial}, i.e.\ $\eta(C) > \alpha $.
 	\end{claim}
 	\begin{proof}
-		% Let $m_{2}^{-} $ and $m_{2}^{+} $ be the number of negative and
-		% positive edges in $G_2$, respectively.
-		%
-		By construction $m_{2}^{+} \leq n_1 (n_1 -1 ) \leq n_{1}^{2}  $ and $m_{2}^{-} \geq
-			\lambda n_{1}^{2} $.
-		Thus
+		By construction $G_2$ will contains at most two edges between each
+		pair of vertices from $G_1$, i.e.\ $m_{2}^{+} \leq n_1 (n_1 -1 ) <
+			n_{1}^{2}  $. Also, $m_{2}^{-} \geq
+			\lambda n_{1}^{2} $ since $G_2$ contains at least the $\lambda
+			n_1^2$ negative edges we added between $v_r$ and $v_x$.
+		Thus, given that for $a, b, c \in \mathbb{R}^{+}$ it holds that $\frac{a +
+				b}{a + b + c} \geq \frac{a}{a + c} $, we have that
 
-		\begin{align}
+		\begin{equation}
 			\eta(C) = \frac{m_{2}^{-} }{m_{2}^{-} +
 				m_{2}^{+} } \geq \frac{\lambda n_{1} ^{2} }{\lambda n_{1}^{2}
 				+ n_{1}^{2}  } = \frac{\lambda }{\lambda + 1}
-			> \alpha
-		\end{align}
+			> \alpha.
+		\end{equation}
 	\end{proof}
 
-	So content $C$ is \emph{controversial}. This reduces the \acrlong{D-ECP} on $G_2$ to the maximization of
+	Thus, the content $C$ is \emph{controversial}. Since our instance contains
+	a single content, this reduces the \acrshort{D-ECP} on $G_2$ to the maximization of
 
 	\begin{equation}
 		\label{eq:score-densest}
-		\psi(U) = \sum^{}_{T \in \mathcal{S}(U) } \frac{| T^{+}[U] | - | T^{-}[U] |}{|U|}
+		\psi(U) = \sum^{}_{T \in \mathcal{S}(U) } \frac{| T^{+}[U] | - |
+			T^{-}[U] |}{|U|}.
 	\end{equation}
 
 	\begin{claim}
 		\label{th:opt-equality-densest}
+		Let $\operatorname{OPT}(\operatorname{ECP})$ and
+		$\operatorname{OPT}(\operatorname{MIS})$ be the maximum Echo Chamber score on
+		$G_2$ and the size of the MIS on $G_1$, respectively.
+		We have that
 		\begin{equation}
-			OPT(D-ECP) = OPT(MIS)
+			\operatorname{OPT}(\operatorname{D-ECP}) =
+			\operatorname{OPT}(\operatorname{MIS}).
 		\end{equation}
 	\end{claim}
 
 	\begin{proof}
 		Let $I \subseteq V_{1} $ be an independent set of $G_1$ of size $n_{I}
-			\coloneqq |I| > 1$. Consider the associated solution in $G_2$ in
+			\coloneqq |I| > 1$ (unless $G_1$ is a clique we can always trivially find an indipendent set of
+		size two by choosing two vertices that are not
+		connected by an edge). Consider the associated solution in $G_2$ in
 		which $U = I \cup \{v_{r} \}$.
 
-		By construction, it will contain only positive edges, more specifically
+		By construction, $T[U]$ only contains positive edges, more
+		specifically:
 		\begin{itemize}
-			\item $2 \cdot n_{I} $ edges between $v_{r} $ and $v_{i} \in I$
+			\item $2 \cdot n_{I} $ positive edges between $v_{r} $ and $v_{i}
+				      \in I$,
 			\item $n_{I}(n_{I}  -1)$
-			      edges between vertices $v_{i} \in I$
+			      edges between vertices $v_{i} \in I$.
 
 		\end{itemize}
-		thus $T[U] \in \mathcal{S}(U)$ and also
+		Thus $T[U] \in \mathcal{S}(U)$ and also
 
 		\begin{equation}
 			\label{eq:score-densest-mip}
 			\psi(U) = \frac{|T^{+}[U]| - |T^{-}[U]|}{|U|}  = \frac{2n_{I}  +
-				\cdot n_{I}(n_{I}  -1) }{n_{I} + 1} = \frac{n_{I}^{2} +
-				n_{I}}{n_{I} + 1} = n_{I}
+				n_{I}(n_{I}  -1) }{n_{I} + 1} = \frac{n_{I}^{2} +
+				n_{I}}{n_{I} + 1} = n_{I}.
 		\end{equation}
 
 		Consequently,
 		\begin{equation}
-			OPT(D-ECP) \geq \psi(U) = |I| \implies OPT(D-ECP) \geq OPT(MIS)
+			\operatorname{OPT}(\operatorname{D-ECP}) \geq \psi(U) = |I|
+			\implies \operatorname{OPT}(\operatorname{D-ECP}) \geq
+			\operatorname{OPT}(\operatorname{MIS}).
 		\end{equation}
 
-		Now let $S \subseteq V_2$ be a solution of the \acrshort{D-ECP} on $G_2$, and suppose $\psi(S) > 0$. It is easy to see that
+		Now let $S \subseteq V_2$ be a solution of the \acrshort{D-ECP} on
+		$G_2$, and suppose $\psi(S) > 0$ (we can always choose $S = \{ v_r \}
+			\cup \{ v_i\}$ with $v_i$ vertex from $G_1$, which will produce
+		$\psi(S) = 1$). We will have that
 		$v_{r} \in S$ and that $v_{x} \not\in S $. Let $J \coloneqq S \setminus
-			\{v_r\}$.
+			\{v_r\}$ be the corresponding solution for MIS.
 
-		Suppose that $2$ vertices $v_{i} $, $v_{j} \in J$ are linked in $G_1$.
+		Next, we argue that $S$ is an independent set for $G_1$. We prove this by
+		contradiction. Suppose
+		that two vertices $v_{i} $, $v_{j} \in J$ are linked in $G_1$.
 		By construction there are at least $\lambda (n_1 + 1)^{2} $ negative edges in
 		$T[S]$, thus
 
-		\begin{equation}
-			\eta(T[S]) \geq \frac{\lambda (n_1+1)^2}{\lambda (n_1+1)^2 +
-				n_j(n_j+1)} \geq
-			\frac{\lambda (n_1+1)^{2} }{\lambda (n_1+1)^2 + (n_1+1)^2} = \frac{\lambda }{\lambda +
-				1} > \alpha
-		\end{equation}
+		\begin{align*}
+			\eta(T[S]) & = \frac{|T^{-}[S]|}{|T^{-}[S]| + |T^{+}[S]|}      \\
+			           & \geq \frac{\lambda (n_1+1)^2}{\lambda (n_1+1)^2 +
+				n_j(n_j+1)}
+			\\ & \geq \frac{\lambda (n_1+1)^{2} }{\lambda (n_1+1)^2 + (n_1+1)^2}
+			\\ & = \frac{\lambda }{\lambda + 1}
+			\\ & > \alpha
+		\end{align*}
+		where $n_{j} \coloneqq |J|$.
 
-		where $n_{j} \coloneqq |J|$. This means that $T[S]$ is \emph{controversial} $\implies \psi(S) = 0
-			\implies contradiction$. Consequently, $J$
-		contains vertices which are independent in $G_1$. Therefore, $T[S]$ contains
-		only positive edges. As shown previously in
-		\autoref{eq:score-densest-mip}
+
+		This means that $T[S]$ is \emph{controversial} and $T \not\in
+			\mathcal{S}(S) $; therefore, the sum in \autoref{eq:score-densest} resolves to
+		zero, which is a \emph{contradiction}.
+
+		Consequently, $J$ contains vertices which are independent in $G_1$.
+		Therefore, $T[S]$ contains only positive edges. Similarly to
+		\autoref{eq:score-densest-mip},
 
 		\begin{equation}
-			\psi(S) = \frac{|T^{+}[S]|}{|S|} = |J|
+			\psi(S) = \frac{|T^{+}[S]|}{|S|} = |J|.
 		\end{equation}
 
 		Thus,
 		\begin{equation}
-			OPT(MIS) \geq |J| \implies OPT(MIS) \geq OPT(D-ECP)
+			\operatorname{OPT}(\operatorname{MIS}) \geq |J| \implies
+			\operatorname{OPT}(\operatorname{MIS}) \geq
+			\operatorname{OPT}(\operatorname{D-ECP})
 		\end{equation}
 
 		So the optimal value of the constructed instance of \acrshort{D-ECP}
-		exactly equals that of the \textsc{Maximum Independent Set} instance, so it
-		has a hardness factor at least as large as that of MIS.
+		exactly equals that of the \textsc{Maximum Independent Set} instance.
+		As motivated before (\autoref{sub:ecp-hardness}), it will have a hardness factor at least as large as that of MIS.
 	\end{proof}
 
 	This concludes the proof of \autoref{th:approximability-densest}.
