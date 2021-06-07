@@ -218,7 +218,7 @@ constraints, \emph{optimum} if it \emph{feasible} and maximizes the \emph{object
 An option for solving an \acrshort{LP} is called the \emph{simplex
 	method} which has two different phases.
 
-Starting from the \emph{standard form} (\autoref{eq:standard-form})
+Starting from the \emph{standard form} \eqref{eq:standard-form}
 \emph{slack} variables $x_{n+1}, \dots, $ $x_{n+m} $ are introduced, allowing to express the problem as follows
 \cite{Vanderbei2008,Edgar2001}:
 
@@ -261,7 +261,7 @@ there are two different cases \cite{Vanderbei2008}:
 	      of these variables $\tilde{x}_{j} $ reaching $0$ moves from
 	      $\mathcal{B} $ to $\mathcal{N} $, while
 	      $x_{j} $ moves from $\mathcal{N} $ to $\mathcal{B} $. The problem is reformulated again as in
-	      \autoref{eq:standard-form-simplex-new} and the process is repeated
+	      \eqref{eq:standard-form-simplex-new} and the process is repeated
 	      \cite{Vanderbei2008}.
 	\item If no such $\tilde{x}_{j} $ variable exists then the value of $x_{j}
 	      $ can be increased indefinitely and the problem is said to be
@@ -422,7 +422,7 @@ can be found in \autoref{sec:linear_and_mixed_integer_programming})
 
 Intuitively, the problem associates non-zero $y_i$ to vertices in $S \subseteq V$
 and non-zero $x_{ij}$ to edges induced by $S$. The concept of "density" is
-introduced by \autoref{eq:charikar-sum}, which distributes a fixed quantity
+introduced by \eqref{eq:charikar-sum}, which distributes a fixed quantity
 (one in this case) to the vertices, such that the value $y_i$ of each vertex
 generally decreases (and consequently also that of the $x_{ij}$) as the number of non-zero $y_i$ increases.
 
@@ -669,7 +669,7 @@ the sum of the weights of the edges of the node, i.e.\ $ d_{v_i} = \sum^{}_{(v_{
 
 Let us also define $\textsc{FindBff}_{a} $, a greedy approach for finding
 the subgraph with the highest density $f$ (which corresponds to
-\autoref{eq:dcs-am} in our case, but it can be replaced by any of the other
+\eqref{eq:dcs-am} in our case, but it can be replaced by any of the other
 density aggregation functions). This function repeatedly calls
 $\textsc{ScoreAndUpdate}$ to remove the node with the lowest degree and
 efficiently update
