@@ -1,69 +1,60 @@
 \begin{abstract}
 	\markboth{\abstractname}{}
-	\todo[inline]{The first abstract should be in the language of the thesis.}
-	\todo[inline, backgroundcolor=aqua]{Abstract fungerar på svenska också.}
 
-	\todo[inline]{Keep in mind that most of your potential readers are only going to read your title and abstract. This is why it is important that the abstract give them enough information that they can decide is this document relevant to them or not. Otherwise the likely default choice is to ignore the rest of your document.\\
-		A abstract should stand on its own, i.e., no citations, cross references to the body of the document, acronyms must be spelled out, …\\
-		Write this early and revise as necessary. This will help keep you focused on what you are trying to do.}
+	Social medias are becoming more and more popular and used to discuss a
+	wide range of topics. On these platforms we are often experiencing
+	polarization between the users, producing a clear separation between
+	groups with different opinions. Echo Chambers are closely related to this
+	phenomenon: an Echo Chamber is a group of users with the same alignment
+	that reinforce their ideas.
 
-	Write an abstract\todo{Use about 1/2 A4-page (250 and 350 words).}  with the following components:
-	\begin{itemize}
-		\item What is the topic area? (optional) Introduces the subject area for the project.
-		\item Short problem statement
-		\item Why was this problem worth a Master’s thesis project? (i.e., why is the problem both significant and of a suitable degree of difficulty for a Master’s thesis project? Why has no one else solved it yet?)
-		\item How did you solve the problem? What was your method/insight?
-		\item Results/Conclusions/Consequences/Impact: What are your key results/conclusions? What will others do based upon your results? What can be done now that you have finished - that could not be done before your thesis project was completed?\todo[inline]{The presentation of the results should be the main part of the abstract.}
-	\end{itemize}
+	The growing complexity and quantity of online interactions require us to
+	find new technique for detecting polarization and Echo Chambers. In this
+	work we propose the \acrfull{ECP} and the \acrfull{D-ECP}, new formulations
+	that take into account the concepts of \emph{contents} and \emph{threads}
+	in finding polarization.
+
+	Our idea is that Echo Chambers corresponds to groups of users discussing a content
+	which is globally \emph{controversial}, i.e.\ triggers many negative
+	interactions between the users, with no \emph{controversy}, i.e.\ with
+	mainly positive interactions.
+
+	We will show that these problems are hard to approximate within a
+	non-trivial factor and propose \acrfull{MIP} models for solving and
+	heuristic for approximating them. Finally, we will focus on one of these
+	methods and show that it is able to find Echo Chambers in synthetic data
+	but has some limitations when applied to real-world data.
+
+	Our work sheds light on a more expressive view of the problem and its
+	complexity, giving future research a new starting point for detecting
+	polarization in social media and presenting some limiting problematics
+	of the process.
 
 	\ifinswedish
 		\subsection*{Nyckelord}
 		5-6 nyckelord\todo{Nyckelord som beskriver innehållet i uppsatsrapporten}
 	\else
 		\subsection*{Keywords}
-		5-6 keywords
+		Controversy, Polarization, Echo Chambers, Social
+		Networks, Signed Graphs
 	\fi
-	\todo[inline]{Choosing good keywords can help others to locate your paper, thesis, dissertation, … and related work.}
-	Choose the most specific keyword from those used in your domain, see for example:
-	ACM's Computing Classification System (2012) or
-	(2014) IEEE Taxonomy.
-
-	Mechanics:
-	\begin{itemize}
-		\item The first letter of a keyword should be set with a capital letter and proper names should be capitalized as usual.
-		\item Spell out acronyms and abbreviations.
-		\item Avoid "stop words" - as they generally carry little or no information.
-		\item List your keywords separated by commas (",").
-	\end{itemize}
-	Since you should have both English and Swedish keywords - you might think of ordering them in corresponding order (i.e., so that the nth word in each list correspond) - thus it would be easier to mechanically find matching keywords.
-
 
 \end{abstract}
 \cleardoublepage
 
-\ifinswedish
-	\selectlanguage{english}
-\else
-	\selectlanguage{swedish}
-\fi
-\begin{abstract}
-	\markboth{\abstractname}{}
-	\todo[inline]{All theses at KTH are required to have an abstract in both English and Swedish.\\
-		If you are writing your thesis in English, you can leave this until the final version. If you are writing your thesis in Swedish then this should be done first – and you should revise as necessary along the way.\\
-		If you are writing your thesis in English, then this section can be a summary targeted at a more general reader. However, if you are writing your thesis in Swedish, then the reverse is true – your abstract should be for your target audience, while an English summary can be written targeted at a more general audience.\\
-		This means that the English abstract and Swedish sammnfattning
-		or Swedish abstract and English summary need not be literal translations of each other.\\
-
-		The abstract in the language used for the thesis should be the first abstract, while the Summary/Sammanfattning in the other language can follow.\\
-
-		Exchange students many want to include one or more abstracts in the language(s) used in their home institutions to avoid the neeed to write another thesis when returing to their home institution.
-	}
-
-	\subsection*{Nyckelord}
-	5-6 nyckelord\todo{Nyckelord som beskriver innehållet i uppsatsrapporten}
-
-
-\end{abstract}
+% \ifinswedish
+%     \selectlanguage{english}
+% \else
+%     \selectlanguage{swedish}
+% \fi
+% \begin{abstract}
+%     \markboth{\abstractname}{}
+%     % todo
+%
+%     \subsection*{Nyckelord}
+%     % todo
+%
+% \end{abstract}
 
 % \cleardoublepage
 % \selectlanguage{italian} \todo[inline]{Use the relevant language for abstracts for your home university.\\
@@ -71,13 +62,6 @@
 %     babel. The following languages represent the languages that have been used in
 %     theses at KTH in 2018-2019, except for one in Chinese.
 % }
-% \begin{abstract}
-%     \markboth{\abstractname}{}
-%     Résumé en français
-%
-%     \subsection*{Mots clés}
-%     5-6 mots-clés
-% \end{abstract}
 \cleardoublepage
 % set to the language of the body of the thesis
 \ifinswedish
