@@ -40,7 +40,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 
 	Furthermore, all the edges in $G_{2} $ are associated to the same content
 	$C$ and the same thread $T \in \mathcal{T}_{C}  $.
-	Thus, our \acrshort{ECP} instance contains only a single thread and a
+	Thus, our \acrshort{ECP} instance only contains a single thread and a
 	single content.  An illustration of the reduction can be found in \autoref{fig:construction}.
 
 	\begin{figure}
@@ -75,7 +75,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 		By construction in $G_2$ there is exactly one
 		positive edge between $v_r$ and each vertex $v_i$ from $ G_1$, i.e.\
 		$m_{2}^{+} = n_{1} $. Also,
-		$m_{2}^{-} \geq \lambda n_{1} $ since $G_2$ contains at least the $\lambda
+		$m_{2}^{-} \geq \lambda n_{1} $, since $G_2$ contains at least the $\lambda
 			n_1$ negative edges between $v_r$ and $v_x$. Consequently, given that for $a, b, c \in \mathbb{R}^{+}$ it holds that $\frac{a +
 				b}{a + b + c} \geq \frac{a}{a + c} $, we have
 
@@ -86,12 +86,12 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 		\end{align}
 	\end{proof}
 
-	Thus, the content $C$ is \emph{controversial}. Since our instance contains
+	Thus, the content $C$ is \emph{controversial}. Since our instance only contains
 	a single content, this reduces the \acrshort{ECP} on $G_2$ to the maximization of
 
 	\begin{equation}
 		\label{eq:score}
-		\xi(U) = \sum^{}_{T \in \mathcal{S}(U) } (| T[U]^{+} | - | T[U]^{-} |).
+		\xi(U) = \sum^{}_{T \in \mathcal{S}_C(U) } (| T[U]^{+} | - | T[U]^{-} |).
 	\end{equation}
 
 	\bigskip
@@ -111,7 +111,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 		Let $I \subseteq V_{1} $ be an independent set of $G_1$ of size $|I| >
 			1$. Consider the associated solution in $G_2$ in which $U = I \cup
 			\{v_{r} \}$. By construction, $T[U]$ only contains $|I|$ positive
-		edges, so $T[U] \in \mathcal{S}(U)$ and also
+		edges, so $T[U] \in \mathcal{S}_C(U)$ and also
 
 		\begin{equation}
 			\operatorname{OPT}(\operatorname{ECP}) \geq \xi(U) = |T^{+}[U]| =
@@ -133,7 +133,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 			}{\lambda + 1} > \alpha.
 		\end{equation}
 		This means that $T[S]$ is \emph{controversial} and $T \not\in
-			\mathcal{S}(S) $; therefore, the sum in \eqref{eq:score} resolves to
+			\mathcal{S}_C(S) $; therefore, the sum in \eqref{eq:score} resolves to
 		zero, which is a \emph{contradiction}.
 
 		Consequently, $J$ contains vertices which are independent in $G_1$.
@@ -154,13 +154,13 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 		So the optimal value of the constructed instance of \acrshort{ECP}
 		exactly equals that of the \textsc{Maximum Independent Set} instance.
 
-		So, if we were able to approximate \acrshort{ECP} within
-		$n^{1-\epsilon}, \; \epsilon > 0$ we would be also able to approximate MIS within the
-		same factor, which is not possible unless $\mathcal{P} = \mathcal{NP}
-		$, given also that our reduction is done in polynomial time.
-
-		This means \acrshort{ECP} has a hardness factor at least as large as that of MIS.
 	\end{proof}
+	So, if we were able to approximate \acrshort{ECP} within
+	$n^{1-\epsilon}, \; \epsilon > 0$ we would be also able to approximate MIS within the
+	same factor, which is not possible unless $\mathcal{P} = \mathcal{NP}
+	$, given also that our reduction takes polynomial time.
+
+	This means \acrshort{ECP} has a hardness factor at least as large as that of MIS.
 
 	This concludes the proof of \autoref{th:approximability}.
 \end{proof}
@@ -178,8 +178,9 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 	We again show this result by presenting a direct reduction from \textsc{Maximum
 		Independent Set}. Differently from before, we will need to create an
 	instance of the \acrshort{D-ECP} with a positive clique over
-	independent vertices of the original graph (in order to match the values of
-	the two problems).
+	independent vertices of the original graph.
+	% (in order to match the values of
+	%     the two problems)
 
 	\bigskip
 	Let $G_{1}  = (V_{1} ,E_{1} )$ be an undirected and unweighted graph for
@@ -205,7 +206,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 	\end{itemize}
 
 	Furthermore, all the edges in $G_{2} $ are associated to the same content
-	$C$ and the same thread $T \in \mathcal{T}_{C}  $. Thus, our \acrshort{D-ECP} instance contains only a single thread and a
+	$C$ and the same thread $T \in \mathcal{T}_{C}  $. Thus, our \acrshort{D-ECP} instance only contains a single thread and a
 	single content.
 	An illustration of the reduction can be found in
 	\autoref{fig:construction-densest}.
@@ -227,7 +228,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 			\end{subfigure}
 		\end{center}
 		\caption[Example reduction from MIS to \acrshort{D-ECP}]{Example construction of the interaction graph $G_{2} $ from
-			$G_{1} $}
+			$G_{1}. $}
 		\label{fig:construction-densest}
 	\end{figure}
 
@@ -236,18 +237,19 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 		The content $C$ is \emph{controversial}, i.e.\ $\eta(C) > \alpha $.
 	\end{claim}
 	\begin{proof}
-		By construction $G_2$ will contains at most two edges between each
-		pair of vertices from $G_1$, i.e.\ $m_{2}^{+} \leq n_1 (n_1 -1 ) <
-			n_{1}^{2}  $. Also, $m_{2}^{-} \geq
-			\lambda n_{1}^{2} $ since $G_2$ contains at least the $\lambda
+		By construction $G_2$ will contain at most two positive edges between each
+		pair of vertices from $G_1$ and $v_r$, i.e.\ $m_{2}^{+} \leq n_1 (n_1 +1 ) <
+			(n_{1} + 1)^{2}  $. Also, $m_{2}^{-} \geq
+			\lambda (n_{1} + 1)^{2} $ since $G_2$ contains at least the $\lambda
 			n_1^2$ negative edges we added between $v_r$ and $v_x$.
 		Thus, given that for $a, b, c \in \mathbb{R}^{+}$ it holds that $\frac{a +
 				b}{a + b + c} \geq \frac{a}{a + c} $, we have that
 
 		\begin{equation}
 			\eta(C) = \frac{m_{2}^{-} }{m_{2}^{-} +
-				m_{2}^{+} } \geq \frac{\lambda n_{1} ^{2} }{\lambda n_{1}^{2}
-				+ n_{1}^{2}  } = \frac{\lambda }{\lambda + 1}
+				m_{2}^{+} } \geq \frac{\lambda (n_{1} + 1) ^{2} }{\lambda
+				(n_{1} + 1)^{2}
+				+ (n_{1} + 1)^{2}  } = \frac{\lambda }{\lambda + 1}
 			> \alpha.
 		\end{equation}
 	\end{proof}
@@ -257,7 +259,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 
 	\begin{equation}
 		\label{eq:score-densest}
-		\psi(U) = \sum^{}_{T \in \mathcal{S}(U) } \frac{| T^{+}[U] | - |
+		\psi(U) = \sum^{}_{T \in \mathcal{S}_C(U) } \frac{| T^{+}[U] | - |
 			T^{-}[U] |}{|U|}.
 	\end{equation}
 
@@ -289,7 +291,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 			      edges between vertices $v_{i} \in I$.
 
 		\end{itemize}
-		Thus $T[U] \in \mathcal{S}(U)$ and also
+		Thus $T[U] \in \mathcal{S}_C(U)$ and also
 
 		\begin{equation}
 			\label{eq:score-densest-mip}
@@ -330,7 +332,7 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 
 
 		This means that $T[S]$ is \emph{controversial} and $T \not\in
-			\mathcal{S}(S) $; therefore, the sum in \eqref{eq:score-densest} resolves to
+			\mathcal{S}_C(S) $; therefore, the sum in \eqref{eq:score-densest} resolves to
 		zero, which is a \emph{contradiction}.
 
 		Consequently, $J$ contains vertices which are independent in $G_1$.
@@ -348,10 +350,10 @@ We will now prove the inapproximability of the \acrshort{ECP} and
 			\operatorname{OPT}(\operatorname{D-ECP})
 		\end{equation}
 
-		So the optimal value of the constructed instance of \acrshort{D-ECP}
-		exactly equals that of the \textsc{Maximum Independent Set} instance.
-		As motivated before (\autoref{sub:ecp-hardness}), it will have a hardness factor at least as large as that of MIS.
 	\end{proof}
+	So the optimal value of the constructed instance of \acrshort{D-ECP}
+	exactly equals that of the \textsc{Maximum Independent Set} instance.
+	As motivated before (\autoref{sub:ecp-hardness}), it will have a hardness factor at least as large as that of MIS.
 
 	This concludes the proof of \autoref{th:approximability-densest}.
 \end{proof}
