@@ -270,16 +270,15 @@ More formally, for a set of vertices $U \subseteq V$, let $T[U]$ be the subgraph
 thread $T$; let $|T^{+} [U]|$ and $|T^{-} [U]|$ be its number
 of positive and negative edges, respectively.
 
-We define $\mathcal{S} (U)$ as the set of \emph{non-controversial} threads
-induced by $U$, for \textit{controversial} contents, i.e.
+We define $\mathcal{S}_C (U)$ as the set of \emph{non-controversial} threads
+induced by $U$, for \textit{controversial} contents $C \in \mathcal{\hat{C}}$, i.e.
 	{\small
 		\begin{equation}
-			\mathcal{S} (U) = \{ T[U] \; s.t. \; T[U] \; non\text{-}controversial, T \in \mathcal{T} _{C}, C
-			\in \hat{\mathcal{C}}, U \subseteq V\}.
+			\mathcal{S}_C (U) = \{ T[U] \; s.t. \; T[U] \; non\text{-}controversial, T \in \mathcal{T} _{C}, U \subseteq V\}.
 		\end{equation}
 	}
 
-Thus, $\mathcal{S} (U)$ will contain threads which are \emph{locally}
+Thus, $\mathcal{S}_C (U)$ will contain threads which are \emph{locally}
 non-controversial but it is defined only for contents that are \emph{globally}
 controversial.
 
