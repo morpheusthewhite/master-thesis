@@ -21,6 +21,5 @@
 		\draw [style=oriented negative] (3) to (0);
 		\draw [style=oriented negative] (4) to (1);
 		\draw [style=oriented negative] (3) to (2);
-		\draw [style=oriented positive] (5) to (6);
 	\end{pgfonlayer}
 \end{tikzpicture}
