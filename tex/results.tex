@@ -1,4 +1,4 @@
-\chapter{Experiments and Discussions}
+\chapter{Experiments and Discussion}
 \label{ch:resultsAndAnalysis}
 
 In this chapter we present how data is retrieved from social media,
@@ -9,163 +9,13 @@ results we obtain by running the methods presented in
 \section{Data collection and generation}%
 \label{sec:data_collection_and_generation}
 
-We now present how real-world data is retrieved and preprocessed and
-define techniques for generating synthetic data.
-
-\subsection{Collection and preprocessing}%
-\label{sub:collection_and_preprocessing}
-
-Datasets are built over two social medias:
-Twitter\footnote{\url{twitter.com}} and Reddit\footnote{\url{www.reddit.com}}; the data
-collection process, consequently, slightly differs between them.
-
-\paragraph{Twitter.}%
-\label{par:twitter-data}
-
-Interaction graphs from Twitter are mainly built starting from the tweets
-of profiles associated to well-known news sources, like The
-New York Times or Fox News, that typically post links to their articles:
-the set of shared URLs are the contents $\mathcal{C} $ of the corresponding interaction graph.
-
-% Each time a user tweets one of these URLs (as in
-% \autoref{fig:twitter-thread}) this
-% will create another thread related to the same content, and all the
-% replies it receives will be part of this new thread. More specifically,
-% consider
-
-Each content $C \in \mathcal{C}$ will be represented just by its URL,
-e.g.
-
-	{\footnotesize
-		\begin{center}
-			\url{https://www.nytimes.com/2021/03/04/us/richard-barnett-pelosi-tantrum.html}.
-		\end{center}
-	}
-
-Then, in order to find all threads related to $C$, we search twitter for
-its URL to obtain the tweets containing it. Each of these tweets
-will correspond to a different thread.
-
-\medskip
-
-In order to validate our methods, we also construct datasets in which users are labeled either as
-\emph{democrat} or \emph{republican} \footnotemark. This is done by looking at the people a
-certain user $v_i$ follows: for each account $v_j$ followed by $v_i$, if $v_j$ is a political representative, then we can
-retrieve from Wikipedia the party to which $v_j$ belongs to (see, for
-example, \autoref{fig:tex/img/wikipedia-elected}). Then, user $v_i$ is assigned a
-label according to the party of the majority of the users $v_j$ this
-follows.
-
-Twitter data is retrieved with the help of Tweepy \cite{tweepy}, a Python
-library for accessing the Twitter API, which has been patched for using some
-features available only in the beta of the new v2 Twitter API.
-
-\footnotetext{We choose these two labels since the news sources we analyze for this purpose are based in U.S.
-	Also, we think political discussion are a main source of controversial
-	content and so it is an interesting criteria according to which users
-	can be differentiated.}
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.4\linewidth]{tex/img/wikipedia-elected.png}
-	\caption[Example Wikipedia entry]{Wikipedia entry associated to Alexandria Ocasio-Cortez, a member
-		of the U.S. House of Representatives.}%
-	\label{fig:tex/img/wikipedia-elected}
-\end{figure}
-
-\paragraph{Reddit.}%
-\label{par:reddit}
-
-Differently from Twitter, Reddit focuses on subreddits, which are pages
-collecting posts of users about a specific topic (e.g.\ r/politics,
-r/economics, $\dots$). This means that
-in the datasets built from this social media the contents $\mathcal{C} $ is the
-set of URLs posted on these pages, which, differently from how we fetch data
-from Twitter, most likely
-come from different sources.
-
-These posts are in turn \emph{crossposted}, i.e.\ reposted on other subreddits. Each of
-these \emph{crossposts} will correspond to another thread.
-
-We also analyzed a
-very specific case, that of r/asktrumpsupporters. This subreddit is a "Q\&A
-subreddit to understand Trump supporters, their views, and the reasons behind
-those views. Debates are discouraged" (from its description). We found it interesting as it provides an explicit labeling of the
-users who, before commenting in any of these posts, must "declare" their side
-by choosing a \emph{flair}, which is shown next to the username of the person
-commenting.  Three flairs are available: \emph{Trump Supporter}, \emph{Non
-	supporter} and \emph{Undecided}.
-
-The PRAW library is used for retrieving Reddit data \cite{praw}.
-
-\paragraph{Edge weights assignment.}%
-\label{par:assigning_edge_weights}
-
-Once the threads interactions are retrieved, they are passed to a state-of-the-art
-sentiment analyzer which labels them. More specifically, the model used is
-RoBERTa, adapted and retrained for dealing with Twitter
-data \cite{Barbieri2020}. The model is made available by the Transformers
-python library \cite{wolf-etal-2020-transformers}.
-
-The model, given a string of text, returns a probability distribution
-
-\begin{equation*}
-	(p_{neg}, p_{neu}, p_{pos})
-\end{equation*}
-
-whose parameters represent the probabilities of negative,
-neutral and positive sentiment. Let
-\begin{align}
-	\label{eq:}
-	p_n & \coloneqq p_{neg}, & p_p & \coloneqq p_{pos} + p_{neu}.
-\end{align}
-If $p_p > p_n $ we assign the edge label $p_p$, otherwise $-p_n$.
-
-% \bigskip
-%
-% Finally, complying with the current privacy legislation, all the data related
-% to the user is pseudo-anonymized (accounts identifier are replaced by random
-% ones) while no data is publicly available.
-
-\paragraph{Initial observations on the datasets.}
-\label{sub:some_observations_on_the_datasets}
-Reddit and Twitter are intrinsically different social medias. As mentioned
-before, Reddit focuses on subreddits, where all the discussions related to a
-certain topic find their place and most of the users interested in the
-theme gather. We think that this contributes to create community of users which are more
-active and more likely to discuss among each other, as they end up looking at the
-same posts and discussions.
-
-Twitter, instead, is a much less "centralized" social media where there a lot
-of \emph{hubs} (users with many followers) that discuss very similar topics but
-have disjoint communities.
-Think, as an example, to the Twitter accounts of Biden and Trump (the
-candidates for the last U.S. presidential elections). We expect that
-most of the followers of the first one do not follow the latter, and
-viceversa, even if both of them discuss U.S. politics. This means that many
-users, even if they are interested in the same theme (U.S. politics in our example)
-will rarely interact between each other.
-
-The "centralization" of Reddit produces, in our data model, contents that are
-associated with few threads. We observed that even the most discussed articles
-on r/politics (a subreddit focusing on U.S.\ politics discussions) are
-\emph{crossposted} only one to five times (see, for example,
-\autoref{fig:tex/img/reddit-crossposts}), while on Twitter articles of the New York Times are
-often shared even 100 times.
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.8\linewidth]{tex/img/reddit-crossposts.png}
-	\caption{The \emph{crossposts} on one of the most discussed article of the
-		day on r/politics.}%
-	\label{fig:tex/img/reddit-crossposts}
-\end{figure}
+We now define techniques for generating synthetic data and present how real-world data is retrieved and preprocessed.
 
 \subsection{Synthetic data}%
 \label{sub:synthetic_data}
 
 Here we propose two possible methods for generating data, the Signed SBM and
-the Information spread Model. Given $\tau \in \mathbb{N}$, both of these methods randomly generate
+the Information spread model. Given $\tau \in \mathbb{N}$, both of these methods randomly generate
 interaction graphs with $\tau$ threads/layers.
 Depending on the method, they will require more parameters.
 
@@ -189,7 +39,7 @@ The Signed SBM is based on the following parameters:
 	      between \emph{inactive} communities: for the generation of each
 	      thread we will distinguish between \emph{active} and \emph{inactive}
 	      communities, having different probabilities of interacting.
-	\item $\hat{k} \in \mathbb{N}$, the number communities active in
+	\item $\hat{k} \in \mathbb{N}$, the number of communities active in
 	      a thread.
 \end{itemize}
 
@@ -272,17 +122,231 @@ follows:
 	\item Similarly to the Signed SBM, if two nodes are both active, draw
 	      from
 	      \begin{equation*}
-		      (\omega _{rs} ^{+}, \omega _{rs} ^{-}, 1 - \omega _{rs} ^{+} -
+		      \Omega = (\omega _{rs} ^{+}, \omega _{rs} ^{-}, 1 - \omega _{rs} ^{+} -
 		      \omega _{rs} ^{-})
 	      \end{equation*}
 	      for adding a positive, negative or no edge. If, instead, at least one
 	      of them is not active, draw from
 	      \begin{equation*}
-		      (\theta \omega _{rs} ^{+}, \theta \omega _{rs} ^{-}, 1
+		      \Omega = (\theta \omega _{rs} ^{+}, \theta \omega _{rs} ^{-}, 1
 		      - \theta (\omega _{rs} ^{+} + \omega _{rs} ^{-})).
 	      \end{equation*}
 \end{enumerate}
 
+\subsection{Collection and preprocessing}%
+\label{sub:collection_and_preprocessing}
+
+Datasets are built over two social medias:
+Twitter\footnote{\url{twitter.com}} and Reddit\footnote{\url{www.reddit.com}}; the data
+collection process, consequently, slightly differs between them.
+
+\paragraph{Twitter.}%
+\label{par:twitter-data}
+
+Interaction graphs from Twitter are mainly built starting from the tweets
+of profiles associated to well-known news sources, like The
+New York Times or Fox News, that typically post links to their articles:
+the set of shared URLs are the contents $\mathcal{C} $ of the corresponding interaction graph.
+
+% Each time a user tweets one of these URLs (as in
+% \autoref{fig:twitter-thread}) this
+% will create another thread related to the same content, and all the
+% replies it receives will be part of this new thread. More specifically,
+% consider
+
+Each content $C \in \mathcal{C}$ will be represented just by its URL,
+e.g.
+
+	{\footnotesize
+		\begin{center}
+			\url{https://www.nytimes.com/2021/03/04/us/richard-barnett-pelosi-tantrum.html}.
+		\end{center}
+	}
+
+Then, in order to find all threads related to $C$, we search Twitter for
+the content URL to obtain the tweets containing it. Each of these tweets
+will correspond to a different thread.
+
+\medskip
+
+In order to validate our methods, we also construct datasets in which users are labeled either as
+\emph{democrat} or \emph{republican} \footnotemark. This is done by looking at the people a
+certain user $v_i$ follows: for each account $v_j$ followed by $v_i$, if $v_j$ is a political representative, then we can
+retrieve from Wikipedia the party to which $v_j$ belongs to (see, for
+example, \autoref{fig:tex/img/wikipedia-elected}). Then, user $v_i$ is assigned a
+label according to the party of the majority of the users $v_j$ this
+follows.
+
+Twitter data is retrieved with the help of Tweepy \cite{tweepy}, a Python
+library for accessing the Twitter API, which has been patched for using some
+features available only in the beta of the new v2 Twitter API.
+
+\footnotetext{We choose these two labels since the news sources we analyze for this purpose are based in U.S.
+	Also, we think political discussion are a main source of controversial
+	content and so it is an interesting criterion according to which users
+	can be differentiated.}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.4\linewidth]{tex/img/wikipedia-elected.png}
+	\caption[Example Wikipedia entry]{Wikipedia entry associated to Alexandria Ocasio-Cortez, a member
+		of the U.S. House of Representatives.}%
+	\label{fig:tex/img/wikipedia-elected}
+\end{figure}
+
+\paragraph{Reddit.}%
+\label{par:reddit}
+
+Differently from Twitter, Reddit focuses on subreddits, which are pages
+collecting posts of users about a specific topic (e.g.\ r/politics,
+r/economics, $\dots$). This means that
+in the datasets built from this social media the contents $\mathcal{C} $ is the
+set of URLs posted on these pages, which, differently from how we fetch data
+from Twitter, most likely
+come from different sources.
+
+These posts are in turn \emph{crossposted}, i.e.\ reposted on other subreddits. Each of
+these \emph{crossposts} will correspond to another thread.
+
+We also analyzed a
+very specific case, that of r/asktrumpsupporters. This subreddit is a "Q\&A
+subreddit to understand Trump supporters, their views, and the reasons behind
+those views. Debates are discouraged" (from its description). We found it interesting as it provides an explicit labeling of the
+users who, before commenting in any of these posts, must "declare" their side
+by choosing a \emph{flair}, which is shown next to the username of the person
+commenting.  Three flairs are available: \emph{Trump Supporter}, \emph{Non
+	supporter} and \emph{Undecided}.
+
+The PRAW library is used for retrieving Reddit data \cite{praw}.
+
+\paragraph{Edge weights assignment.}%
+\label{par:assigning_edge_weights}
+
+Once the threads interactions are retrieved, they are passed to a state-of-the-art
+sentiment analyzer which labels them. More specifically, the model used is
+RoBERTa, adapted and retrained for dealing with Twitter
+data \cite{Barbieri2020}. The model is made available by the Transformers
+python library \cite{wolf-etal-2020-transformers}.
+
+The model, given a string of text, returns a probability distribution
+
+\begin{equation*}
+	(p_{neg}, p_{neu}, p_{pos})
+\end{equation*}
+
+whose parameters represent the probabilities of negative,
+neutral and positive sentiment. Let
+\begin{align}
+	\label{eq:}
+	p_n & \coloneqq p_{neg}, & p_p & \coloneqq p_{pos} + p_{neu}.
+\end{align}
+If $p_p > p_n $ we assign the edge weight $p_p$, otherwise $-p_n$.
+
+% \bigskip
+%
+% Finally, complying with the current privacy legislation, all the data related
+% to the user is pseudo-anonymized (accounts identifier are replaced by random
+% ones) while no data is publicly available.
+
+\paragraph{Initial observations on the datasets.}
+\label{sub:some_observations_on_the_datasets}
+Reddit and Twitter are intrinsically different social medias. As mentioned
+before, Reddit focuses on subreddits, where all the discussions related to a
+certain topic find their place and most of the users interested in the
+theme gather. We think that this contributes to create community of users which are more
+active and more likely to discuss among each other, as they end up looking at the
+same posts and discussions.
+
+Twitter, instead, is a much less "centralized" social media where there a lot
+of \emph{hubs} (users with many followers) that discuss very similar topics but
+have disjoint communities.
+Think, as an example, to the Twitter accounts of Joe Biden and Donald Trump. We expect that
+most of the followers of the first one are not followers of the latter, and
+viceversa, even if both of them discuss U.S. politics. This means that many
+users, even if they are interested in the same theme (U.S. politics in our example)
+will rarely interact between each other.
+
+The "centralization" of Reddit produces, in our data model, contents that are
+associated with few threads. We observed that even the most discussed articles
+on r/politics (a subreddit focusing on U.S.\ politics discussions) are
+\emph{crossposted} only one to five times (see, for example,
+\autoref{fig:tex/img/reddit-crossposts}), while on Twitter articles of the New York Times are
+often shared even 100 times.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{tex/img/reddit-crossposts.png}
+	\caption{The \emph{crossposts} on one of the most discussed article of the
+		day on r/politics.}%
+	\label{fig:tex/img/reddit-crossposts}
+\end{figure}
+
+\subsection{A study on r/asktrumpsupporters}%
+\label{sec:the_r_asktrumpsupporters_case}
+
+During the research we studied the r/asktrumpsupporters subreddit to
+understand if it is possible to infer the community\footnotemark of the users by
+looking at how they react to contents. More specifically, in a highly polarized
+environment we expect that members in the same community of the
+author have a positive stance towards the content; conversely, members of the
+other communities have a negative one.
+
+\footnotetext{In this case, we refer to community as the set of users with the same \emph{flair}}
+
+\bigskip
+
+For this analysis we add to our interaction graph another type of vertices, the
+\emph{content nodes} which we uniquely associate to a content. More formally,
+for each content $C \in \mathcal{C} $, we add a vertex $v_C$. In order to
+add links between users and contents, we consider the sequence of comments
+leading to a specific user comment and multiply the sign of the
+associated edges to calculate the sign of the content-user edge.
+
+For example, consider a user $v_i$
+replying positively to a post related to content $C$ and user $v_j$ replying
+negatively to $v_i$. We will add a positive edge between $v_i$ and $v_C$ and a
+negative edge between $v_j$ and $v_C$.
+
+We then assign to the users linked to a content the same label of the author of
+the post if the user is connected to the content
+by a positive edge and the opposite one\footnotemark otherwise. Then, we measure the accuracy of
+this classification.
+
+\footnotetext{We ignore the \emph{Undecided} label}
+
+We show in \autoref{fig:tex/out/experimental200/experimental200-accuracy-hist}
+the histogram of the accuracy of classification of the contents in the dataset.
+We see that in very few cases it is possible to discriminate users better than
+by just using the majority label ($79\%$), while a big part of the contents
+achieve an accuracy between $0.5$ and $0.6$.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.6\linewidth]{tex/out/experimental200/experimental200-accuracy-hist.pdf}
+	\caption[Distribution of accuracy of classification of r/asktrumpsupporters users for the
+		different contents]{This plot shows how the accuracy of the classification
+		process explained in \autoref{sec:the_r_asktrumpsupporters_case} is
+		distributed for the different contents $C \in \mathcal{C} $. The graph
+		used for the analysis contains $1850$ user vertices and
+		$16470$ edges between them. Furthermore, there are $71$ content nodes
+		and $5773$ content-user edges.}%
+	\label{fig:tex/out/experimental200/experimental200-accuracy-hist}
+\end{figure}
+
+We explain this with the following reasons:
+\begin{itemize}
+	\item The majority of the posts in the subreddit are open questions, e.g.\ ``What
+	      do you think of ...' and, similarly, ``What's your idea on...''. This
+	      means that our initial hypothesis that positive and negative
+	      stances can be used for inferring the positions of
+	      the users is not correct: for this type of posts, and thus most of the users
+	      will just answer with their opinion, without being either friendly or
+	      hostile.
+	\item This community of users is not a representative sample: people attending
+	      the subreddit are open to discuss with people of different opinion
+	      and for this reason we generally expect less hostility in the
+	      comments.
+\end{itemize}
 \section{Experiments}
 
 The following presented results have been obtained from a Python
@@ -290,7 +354,7 @@ implementation of the methods described in the previous chapters. The library us
 for handling and manipulating graphs is graph-tool, which has been chosen
 because of its efficiency \cite{peixoto_graph-tool_2014}.
 
-\subsection{Initial Real-world data analysis}%
+\subsection{Initial real-world data analysis}%
 \label{sub:validity_problem_definition}
 
 We did an initial analysis of the data to understand basic properties of the
@@ -304,8 +368,10 @@ the distribution of $\eta(C)$ and $\eta(T)$ for different interaction graphs.
 % low $\eta(T)$ (with respect to content distribution) this may mean that this
 % effect is already visible.
 Intuitively, echo chambers may correspond to threads with a
-high fraction of positive edges. Consequently, we should expect an increase
-for low values of $\eta(T)$ with respect to the $\eta(C)$ distribution.
+high fraction of positive edges. Consequently, given a certain $\eta(C)$
+distribution for the interaction graph, in presence of Echo Chambers we expect
+an increase for low values of $\eta(T)$, when compared to the distribution of
+$\eta(C)$.
 
 We report these results for
 three datasets, a first built over @nytimes, a second over @foxnews
@@ -433,7 +499,7 @@ Furthermore, for each content $C$ in an interaction graph, we plotted in
 interactions and the sum of the weights of its edges.
 
 This relationship is closely related to the $\eta(C)$ of a content: let $E(C)$
-be the edges associated to content $C \in \mathcal{C} $. We have that
+be the set of edges associated to content $C \in \mathcal{C} $. We have that
 \begin{align*}
 	\sum^{}_{e_{ij} \in E(C)} w_{ij} & = \sum^{}_{e_{ij} \in E^+(C)} |w_{ij}|
 	- \sum^{}_{e_{ij} \in E^-(C)} |w_{ij}|                                      \\
@@ -489,7 +555,7 @@ different contents $C$, thus the points create a line whose angular coefficient
 is exactly \eqref{eq:angular-coeff-eta}.
 
 Consequently, as we would intuitively say, contents related
-to politics are generally controversial, and most of them have, as we can see
+to politics are generally controversial, and most of them, as we can see
 in \autoref{fig:tex/out/politics200/edge-sum-n-interactions.pdf}, have a high
 $\eta(C)$.
 
@@ -561,8 +627,9 @@ positive cliques and all the edges between vertices in different communities
 (which will be present with probability $1/4$) are negative.
 
 We will compare different techniques for finding echo chambers (which,
-in this case, we will consider as corresponding to a community). The general
-approach involves calling an algorithm (generally any of the methods presented
+in this case, we will consider as corresponding to a community).
+
+The approach, described in detail in \autoref{alg:clustering_process}, involves calling an algorithm (generally any of the methods presented
 in \autoref{ch:solving}) returning a set of users $U \subseteq V$ which will be
 labeled according to the majority of its members (by looking at the
 ground-truth assignment).
@@ -575,6 +642,41 @@ After repeating $k$ times this process, where $k$ is the number
 of communities in the model, we compare the ground-truth labels and the
 predictions through the Jaccard coefficient and the Adjusted RAND
 index\footnotemark.
+
+\begin{algorithm}
+	\KwIn{$G = (V, E) \leftarrow $ interaction graph, $\alpha \in [0, 1]$,
+		$\mathcal{L} $ ground truth labels of $V$, $\mathcal{I} $ possible
+		labels}
+	\KwOut{Jaccard and Adjusted RAND index}
+	\SetAlgoLined
+
+	// Initialize predicted labels $\mathcal{P} $ with $-1$ (no label)\;
+	$\mathcal{P}[v] \leftarrow -1$ for all $v \in V$ \;
+
+	\ForEach{ $i \in \mathcal{I} $ }{
+		$U \leftarrow $ solve \acrshort{ECP} on $G$ \;
+		// Remove edges contributing to $\xi(U)$ \;
+		$E \leftarrow E \setminus \{ e_{ij} \in E_k, T_k \in \mathcal{S}_C(U),
+			C \in \mathcal{\hat{C}}\}$ \;
+
+		$l \leftarrow $ majority label of users $U$ in $\mathcal{L} $ \;
+		// Do not label again labeled nodes \;
+		$U' \leftarrow U \setminus \{ v \in U \; s.t. \; \mathcal{P}[v] \neq -1
+			\}$ \;
+		$\mathcal{P}[v] = l $ for all $v \in U'$ \;
+	}
+
+	// Compute Jaccard for each label and take the average \;
+	$J[l] \leftarrow Jaccard( \{ v \in V \; s.t. \; \mathcal{P}[v] = l \}, \; \{ v \in
+		V\; s.t. \; \mathcal{L}[v] = l \})  $ for each $l \in \mathcal{I} $ \;
+	Jaccard score $\leftarrow \sum^{}_{l \in \mathcal{I} } J[l] / |\mathcal{I}|  $ \;
+	Adjusted RAND index $\leftarrow $ Adjusted RAND($\mathcal{P} $, $\mathcal{L} $)
+	\;
+
+	\Return Jaccard score, Adjusted RAND index\;
+	\caption{Clustering process}
+	\label{alg:clustering_process}
+\end{algorithm}
 
 \footnotetext{The Adjusted RAND index is a measure of similarity between
 	different clusterings. It is based on the RAND index, which compares
@@ -591,16 +693,29 @@ Chambers.
 
 \begin{figure}
 	\begin{center}
-		\begin{subfigure}[t]{0.4\textwidth}
+		\begin{subfigure}[b]{0.4\textwidth}
 			\centering
 			\includegraphics[width=\textwidth]{tex/out/synthetic_exact/model2_noise_adj_rand.pdf}
 			\caption{Adjusted RAND index, MIP}
 			\label{fig:tex/out/synthetic_exact/model2_noise_adj_rand.pdf}
 		\end{subfigure}
 		\quad
-		\begin{subfigure}[t]{0.4\textwidth}
+		\begin{subfigure}[b]{0.4\textwidth}
 			\centering
 			\includegraphics[width=\textwidth]{tex/out/synthetic_exact/model2_noise_jaccard.pdf}
+			\caption{Jaccard Score, MIP}
+			\label{fig:tex/out/synthetic_exact/_noise_jaccard.pdf}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/synthetic_12t/model2_noise_adj_rand.pdf}
+			\caption{Adjusted RAND index, \mbox{rounding algorithm}}
+			\label{fig:tex/out/synthetic_exact/model2_noise_adj_rand.pdf}
+		\end{subfigure}
+		\quad
+		\begin{subfigure}[b]{0.4\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{tex/out/synthetic_12t/model2_noise_jaccard.pdf}
 			\caption{Jaccard Score, \mbox{rounding algorithm}}
 			\label{fig:tex/out/synthetic_exact/_noise_jaccard.pdf}
 		\end{subfigure}
@@ -624,39 +739,36 @@ Note that since we choose $\alpha = 0.2$ our analysis is partially limited for $
 	> 0.2$ since we may produce graphs that have a fraction of negative
 \emph{intra-community} edges
 higher than $\alpha $, although it is smaller than the fraction of negative
-\emph{inter-community} edges. Nonetheless we may be able to reconstruct at least
+\emph{inter-community} edges. Nonetheless, we may be able to reconstruct at least
 partially the communities.
 
 The performances of the two approaches are shown in
 \autoref{fig:clustering-mip-rounding}. We can see that the MIP model
 \begin{itemize}
-	\item Reconstructs the communities perfectly for values of $x \in \{0,
+	\item Reconstructs perfectly the communities for values of $x \in \{0,
 		      0.1\}$.
 	\item Predicts almost perfectly the labels for $x= 0.2$.
 	\item Reconstructs partially the communities for $x = 0.3$, achieving both
-	      a Jaccard coefficient and a Adjusted RAND Index around $0.7$.
+	      a Jaccard coefficient and an Adjusted RAND Index around $0.7$.
 	\item Fails to find the original groups of users for $x \geq 0.4$.
 \end{itemize}
-is able to
-, while the rounding
-algorithm performances degradates already for $x \geq 0.2$.
 
 The MIP formulation is generally better at finding the communities since, if
 the noise $x$ is not too large, the best score is still achieved
 by selecting mostly nodes in the same community (choosing nodes from other
-communities will generally produce much more negative edges in the subgraph).
+communities will generally add many more negative edges to the subgraph).
 
-Conversely, the rounding algorithm is more affected by noise than MIP. More,
-specifically:
+Conversely, the rounding algorithm is more affected by noise than MIP. More
+specifically, the rounding algorithm:
 \begin{itemize}
 	\item Reconstructs the communities perfectly for values of $x = 0$.
 	\item Partially recognizes the communities for $x= 0.1$, obtaining a
-	      Jaccard coefficient and Adjusted RAND Index of $0.8$.
+	      Jaccard coefficient and Adjusted RAND Index around $0.8$.
 	\item Finds few users belonging to the same community for $x = 0.2$, with
 	      scores around $0.6$.
 	\item Fails to find the original groups of users for $x \geq 0.3$.
 \end{itemize}
-We illustrate this with one example. Consider the graph in
+We illustrate its limitations with one example. Consider the graph in
 \autoref{fig:rounding-interaction-graph-example} for $\alpha = 0.1$:
 the MIP model will find one of the two communities as optimal solution.
 Now consider the rounding algorithm (\autoref{sub:approximation_algorithms}):
@@ -677,7 +789,7 @@ positive \emph{inter-community} edges, as we saw in the example of
 
 This is due to the fact that it may need to pick among positive edges with the
 same value (in the solution of the relaxation) during its execution: if the picked edge connects different communities, this will most
-likely prevent the algorithm from keeping a community as separate component in
+likely prevent the algorithm from having communities as separate component in
 the dummy graph $\hat{G}$ (\autoref{sub:approximation_algorithms}).
 
 % This is due to the fact that the rounding algorithm performances depends on the
@@ -733,7 +845,7 @@ $x \in \{ 0.0, 0.1 \}$.
 			v_3\}$ and $\{ v_4, v_5, v_6\}$, respectively. Negative and
 		positive edges are coloured in red and green, respectively.
 		For $\alpha = 0.1$ we will have that its content is
-		controversial and the exact solution returns one of
+		controversial and the exact solution returns either one of
 		the two communities. The rounding algorithm may fail to reconstruct
 		communities if the edge between the communities ($e_{35}$) is added early in
 		the iterations (\autoref{fig:rounding-run-unlucky}).}
@@ -777,12 +889,12 @@ that for these datasets we have retrieved a label for each user.
 
 We will refer to a group of users with the same label as \emph{community}.
 
-More specifically, we focused on the r/asktrumpsupporters and
-@nytimes datasets. In the first case users label themself either as Trump Supporters ($19\%$), Non
+We ran the experiments on the r/asktrumpsupporters and
+@nytimes datasets. In the first case users label themselves either as Trump Supporters ($19\%$), Non
 Supporters ($79\%$) or Undecided ($2\%$). This last group of users was ignored
 in the analysis, i.e.\ these vertices were removed from the graph.
 
-In the @nytimes users are labeled either as democrats ($80\%$) or republican
+In the @nytimes dataset users are labeled either as democrats ($80\%$) or republican
 ($20\%$). In this case, in order to decrease the sparsity, we selected the
 $4$-core.
 
@@ -792,7 +904,7 @@ $4$-core.
 % \emph{Undecided}), while  of @nytimes users are labeled \emph{democrats}
 % and  as \emph{republican}.
 
-We cluster the nodes as explained in \autoref{sub:testing_on_synthetic_data}
+We cluster the nodes as shown in \autoref{alg:clustering_process}
 and choose $\alpha $ as the median of the $\eta(C), C \in \mathcal{C} $. We run
 the rounding algorithm to find the Echo Chambers. By
 looking at the poor results, which we show in
@@ -809,9 +921,9 @@ reasons:
 	      \begin{itemize}
 		      \item @nytimes may contain echo chambers related to different
 		            topics, as the set of contents does not only take into account
-		            U.S. political discussion.
+		            U.S. political discussions.
 		      \item r/asktrumpsupporters may be a non-representative
-		            dataset of discussion of polarized communities (we will
+		            dataset of discussion of polarized communities (we
 		            discuss this more in details in
 		            \autoref{sec:the_r_asktrumpsupporters_case}).
 	      \end{itemize}
@@ -823,101 +935,51 @@ reasons:
 	      % additional noise is introduced by messages in other languages as well
 	      % as messages involving medias like pictures and GIF.
 	\item \textbf{Limitations of the rounding algorithm.} Since we are
-	      using an approximation algorithm we are not solving (exactly) the
+	      using an approximation algorithm we are not solving exactly the
 	      \acrshort{ECP}: this may introduce limitations to the solutions which
-	      is used to cluster the nodes.
-
-	      More specifically, since at each iteration it uses a set of users
+	      is used to cluster the nodes. More specifically, since at each iteration it uses a set of users
 	      connected by positive edges as possible solution (see
-	      \autoref{ssub:rounding_algorithm}) it is likely to return
+	      \autoref{ssub:rounding_algorithm}), it is likely to return
 	      a set $U$ with just one connected component.
+	\item \textbf{Sparsity of the data}. We can see from
+	      \autoref{tab:scores-datasets-labeled} that the two datasets are
+	      sparse.
+	      This, as we discussed in \autoref{sub:testing_on_synthetic_data}, is
+	      important factor in achieving good performances, especially for the
+	      rounding algorithm.
+	      More generally, this is a limitation of real-world data:
+	      we observed, especially on Twitter, that even increasing the number of
+	      contents does not produce denser graphs, as the average degree remains
+	      between one and two.
+	      Furthermore, analyzing the $k$-core, a denser part of the graph, may
+	      affect the results since we expect that the echo chamber effect is
+	      especially visible in small and isolated components, maybe a small
+	      "bubble" of users sharing the same opinion, which may get excluded by
+	      the $k$-core selection.
 
 \end{itemize}
 
 \begin{table}
 	\centering
-	\caption{Classification scores on two labeled datasets obtained with the
-	rounding algorithm. $\alpha $ is chosen as the median $\eta(C)$, $C \in
-		\mathcal{C} $. For the @nytimes dataset we report the statistics
-	related to its $4$-core. $|{T}|$ indicates the number of threads}
+	\caption{Classification scores obtained with the
+		rounding algorithm on two labeled datasets. $\alpha $ is chosen as the
+		median $\eta(C)$, $C \in
+			\mathcal{C} $. For the @nytimes dataset we report the statistics
+		related to its $4$-core. $|\{T\}|$ indicates the number of threads.}
 	\label{tab:scores-datasets-labeled}
 	{\small
 		\begin{tabular}{|ccccc p{1.8cm} c|}
 			\toprule
-			Dataset                     & $|V|$         & $|E|$                     & $|\mathcal{C}| $          &
-			$|{T}| $                    & Adjusted RAND & Jaccard                                                                                                            \\
+			Dataset              & $|V|$         & $|E|$                     & $|\mathcal{C}| $          &
+			$|\{T\}| $           & Adjusted RAND & Jaccard                                                                                                            \\
 			\midrule
-			\hline r/asktrumpsupporters & 11640         & 83038                     & 357
-			                            & 357           & \num{0.09453599837921367} & \num{0.01607717041800643}                                                              \\
-			@nytimes                    & 1074          & 4921                      & 139                       & 254 & \num{0.02176064966494696} & \num{0.4200626959247649} \\
+			r/asktrumpsupporters & 11640         & 83038                     & 357
+			                     & 357           & \num{0.09453599837921367} & \num{0.01607717041800643}                                                              \\
+			@nytimes             & 1074          & 4921                      & 139                       & 254 & \num{0.02176064966494696} & \num{0.4200626959247649} \\
 			\bottomrule
 		\end{tabular}
 	}
 \end{table}
-
-\section{A study on r/asktrumpsupporters}%
-\label{sec:the_r_asktrumpsupporters_case}
-
-During the research we studied the r/asktrumpsupporters subreddit to
-understand if it is possible to infer the community\footnotemark of the users by
-looking at how they react to contents. More specifically, in a highly polarized
-environment we expect that members in the same community of the
-author have a positive stance towards the content; conversely, members of the
-other communities have a negative one.
-
-\footnotetext{In this case, we refer to community as the set of users with the same \emph{flair}}
-
-\bigskip
-
-For this analysis we add to our interaction graph another type of vertices, the
-\emph{content nodes} which we uniquely associate to a content. More formally,
-for each content $C \in \mathcal{C} $, we add a vertex $v_C$. In order to
-add links between users and contents, we consider the sequence of comments
-leading to a specific user comment and multiply the sign of the
-associated edges to calculate the sign of the content-user edge.
-
-For example, consider a user $v_i$
-replying positively to a post related to content $C$ and user $v_j$ replying
-negatively to $v_i$. We will add a positive edge between $v_i$ and $v_C$ and a
-negative edge between $v_j$ and $v_C$.
-
-We then assign to the users linked to a content the same label of the author of
-the post if the user is connected to the content
-by a positive edge and the opposite one\footnotemark otherwise. Then, we measure the accuracy of
-this classification.
-
-\footnotetext{We ignore the \emph{Undecided} label}
-
-We show in \autoref{fig:tex/out/experimental200/experimental200-accuracy-hist}
-the histogram of the accuracy of classification of the contents in the dataset.
-We see that in very few cases it is possible to discriminate users better than
-by just using the majority label ($79\%$), while a big part of the contents
-achieve an accuracy between $0.5$ and $0.6$.
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.6\linewidth]{tex/out/experimental200/experimental200-accuracy-hist.pdf}
-	\caption[Distribution of accuracy of classification of r/asktrumpsupporters users for the
-		different contents]{This plot shows how the accuracy of the classification
-		process explained in \autoref{sec:the_r_asktrumpsupporters_case} is
-		distributed for the different contents $C \in \mathcal{C} $.}%
-	\label{fig:tex/out/experimental200/experimental200-accuracy-hist}
-\end{figure}
-
-We explain this with the following reasons:
-\begin{itemize}
-	\item The majority of the posts in the subreddit are open questions, e.g.\ ``What
-	      do you think of ...' and, similarly, ``What's your idea on...''. This
-	      means that our initial hypothesis that positive and negative
-	      stances can be used for inferring the positions of
-	      the users is not correct: for this type of posts, and thus most of the users
-	      will just answer with their opinion, without being either friendly or
-	      hostile.
-	\item This community of users is not a representative sample: people attending
-	      the subreddit are open to discuss with people of different opinion
-	      and for this reason we generally expect less hostility in the
-	      comments.
-\end{itemize}
 
 \section{Further discussion of the results}%
 \label{sec:discussion}
@@ -965,16 +1027,5 @@ polarized communities, showing also to be more robust as the
 available data increases: a larger number of threads, as we discussed
 in \autoref{sub:testing_on_synthetic_data}, helps the algorithm selecting
 \emph{intra-community} edges, which allows it to correctly classify the nodes.
-
 Conversely, the rounding algorithm was not able to produce a good clustering of the
-nodes in real-world data. We need to add to the discussed motivations in
-\autoref{sub:detecting_real_echo_chambers} another fundamental problem of the
-datasets built from social medias: its intrinsic sparsity. We observed,
-especially on Twitter, that even increasing the number of contents
-does not produce denser graphs, as the average degree remains between one and
-two. This, as we have seen in the tests carried on synthetic data, is a limitation
-on the robustness of the results. Also, analyzing the denser part of the
-subgraph, a $k$-core, may affect the results since we expect that the echo chamber
-effect is especially visible in small and isolated components, maybe a small
-"bubble" of users sharing the same opinion, which may get excluded by
-the $k$-core selection.
+nodes in real-world data.
