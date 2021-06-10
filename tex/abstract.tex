@@ -32,29 +32,47 @@
 
 	\ifinswedish
 		\subsection*{Nyckelord}
-		5-6 nyckelord\todo{Nyckelord som beskriver innehållet i uppsatsrapporten}
+		% 5-6 nyckelord\todo{Nyckelord som beskriver innehållet i uppsatsrapporten}
 	\else
 		\subsection*{Keywords}
-		Polarization, Echo Chambers, Social
-		Networks, Signed Graphs, Contents
+		Polarization, Echo Chambers, Social Networks, Signed Graphs, Contents
 	\fi
 
 \end{abstract}
 \cleardoublepage
 
-% \ifinswedish
-%     \selectlanguage{english}
-% \else
-%     \selectlanguage{swedish}
-% \fi
-% \begin{abstract}
-%     \markboth{\abstractname}{}
-%     % todo
-%
-%     \subsection*{Nyckelord}
-%     % todo
-%
-% \end{abstract}
+\ifinswedish
+	\selectlanguage{english}
+\else
+	\selectlanguage{swedish}
+\fi
+\begin{abstract}
+	\markboth{\abstractname}{}
+	Sociala medier blir alltmer populära och används för att diskutera många
+	olika ämnen. På dessa plattformar upplever vi ofta en polarisering mellan
+	användarna, vilket skapar en tydlig separation mellan grupper med olika
+	åsikter. Ekokammare är nära relaterade till detta fenomen: en ekokammare är
+	en grupp användare med samma åsikter som förstärker deras idéer.  Den
+	ökande komplexiteten och kvantiteten av interaktioner på nätet kräver att
+	vi hittar nya tekniker för att upptäcka ekokammare. I det här arbetet
+	föreslår vi Echo Chamber Problem (ECP) och Densest Echo Chamber Problem
+	(D-ECP), nya formuleringar som tar hänsyn till begreppen innehåll (den
+	information som diskuteras) och tråd (den "lokalitet" som diskuterar
+	innehållet) för att hitta polarisering. Vår idé är att ekokammare motsvarar
+	grupper av användare som diskuterar ett innehåll som är kontroversiellt,
+	dvs. som globalt sett utlöser många fientliga interaktioner, utan
+	kontroverser, dvs. med huvudsakligen vänliga interaktioner inom
+	ekokammaren. Vi kommer att visa att de problem som vi föreslår är svåra att
+	approximera inom någon icke-trivial faktor och föreslå modeller och
+	heuristik för att lösa dem med hjälp av Mixed Integer Programming (MIP).
+	Slutligen kommer vi att fokusera på en av dessa metoder och visa att den
+	kan hitta ekokammare i syntetiska data, men att den har vissa begränsningar
+	när den tillämpas på verkliga data.
+
+	\subsection*{Nyckelord}
+	Polarisering, Ekokammare, Sociala Nätverk, Signerade Grafer, Innehåll
+
+\end{abstract}
 
 % \cleardoublepage
 % \selectlanguage{italian} \todo[inline]{Use the relevant language for abstracts for your home university.\\
