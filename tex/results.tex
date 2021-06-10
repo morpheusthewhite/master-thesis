@@ -1,5 +1,10 @@
-\chapter{Results and Analysis}
+\chapter{Experiments and Discussions}
 \label{ch:resultsAndAnalysis}
+
+In this chapter we present how data is retrieved from social media,
+what are the models we use for generating synthetic data and discuss the
+results we obtain by running the methods presented in
+\autoref{ch:solving}.
 
 \section{Data collection and generation}%
 \label{sec:data_collection_and_generation}
@@ -10,7 +15,8 @@ define techniques for generating synthetic data.
 \subsection{Collection and preprocessing}%
 \label{sub:collection_and_preprocessing}
 
-Datasets are built over two social medias: Twitter and Reddit; the data
+Datasets are built over two social medias:
+Twitter\footnote{\url{twitter.com}} and Reddit\footnote{\url{www.reddit.com}}; the data
 collection process, consequently, slightly differs between them.
 
 \paragraph{Twitter.}%
@@ -21,17 +27,33 @@ of profiles associated to well-known news sources, like The
 New York Times or Fox News, that typically post links to their articles:
 the set of shared URLs are the contents $\mathcal{C} $ of the corresponding interaction graph.
 
-Each time another user tweets one of these URLs (as in
-\autoref{fig:twitter-thread}) he
-will create another thread related to the same content, and all the
-replies it receives will be part of this new thread.
+% Each time a user tweets one of these URLs (as in
+% \autoref{fig:twitter-thread}) this
+% will create another thread related to the same content, and all the
+% replies it receives will be part of this new thread. More specifically,
+% consider
+
+Each content $C \in \mathcal{C}$ will be represented just by its URL,
+e.g.
+
+	{\footnotesize
+		\begin{center}
+			\url{https://www.nytimes.com/2021/03/04/us/richard-barnett-pelosi-tantrum.html}.
+		\end{center}
+	}
+
+Then, in order to find all threads related to $C$, we search twitter for
+its URL to obtain the tweets containing it. Each of these tweets
+will correspond to a different thread.
+
+\medskip
 
 In order to validate our methods, we also construct datasets in which users are labeled either as
-\emph{democrats} or \emph{republican} \footnotemark. This is done by looking at the people a
+\emph{democrat} or \emph{republican} \footnotemark. This is done by looking at the people a
 certain user $v_i$ follows: for each account $v_j$ followed by $v_i$, if $v_j$ is a political representative, then we can
-retrieve from Wikipedia the party to which he belongs to (see, for
-example, \autoref{fig:tex/img/wikipedia-elected}). Then, user $v_i$ get assigned a
-label according to the party of the majority of the users $v_j$ he
+retrieve from Wikipedia the party to which $v_j$ belongs to (see, for
+example, \autoref{fig:tex/img/wikipedia-elected}). Then, user $v_i$ is assigned a
+label according to the party of the majority of the users $v_j$ this
 follows.
 
 Twitter data is retrieved with the help of Tweepy \cite{tweepy}, a Python
@@ -39,9 +61,9 @@ library for accessing the Twitter API, which has been patched for using some
 features available only in the beta of the new v2 Twitter API.
 
 \footnotetext{We choose these two labels since the news sources we analyze for this purpose are based in U.S.
-	Also, we think political discussion are the main source of controversial
-	content and so it is the most interesting criteria according to which users
-	can be differentiated}
+	Also, we think political discussion are a main source of controversial
+	content and so it is an interesting criteria according to which users
+	can be differentiated.}
 
 \begin{figure}
 	\centering
@@ -58,11 +80,12 @@ Differently from Twitter, Reddit focuses on subreddits, which are pages
 collecting posts of users about a specific topic (e.g.\ r/politics,
 r/economics, $\dots$). This means that
 in the datasets built from this social media the contents $\mathcal{C} $ is the
-set of URLs posted on these pages, which, differently from Twitter, most likely
+set of URLs posted on these pages, which, differently from how we fetch data
+from Twitter, most likely
 come from different sources.
 
 These posts are in turn \emph{crossposted}, i.e.\ reposted on other subreddits. Each of
-these \emph{crosspost} will correspond to another thread.
+these \emph{crossposts} will correspond to another thread.
 
 We also analyzed a
 very specific case, that of r/asktrumpsupporters. This subreddit is a "Q\&A
@@ -84,30 +107,49 @@ RoBERTa, adapted and retrained for dealing with Twitter
 data \cite{Barbieri2020}. The model is made available by the Transformers
 python library \cite{wolf-etal-2020-transformers}.
 
+The model, given a string of text, returns a probability distribution
+
+\begin{equation*}
+	(p_{neg}, p_{neu}, p_{pos})
+\end{equation*}
+
+whose parameters represent the probabilities of negative,
+neutral and positive sentiment. Let
+\begin{align}
+	\label{eq:}
+	p_n & \coloneqq p_{neg}, & p_p & \coloneqq p_{pos} + p_{neu}.
+\end{align}
+If $p_p > p_n $ we assign the edge label $p_p$, otherwise $-p_n$.
+
 % \bigskip
 %
 % Finally, complying with the current privacy legislation, all the data related
 % to the user is pseudo-anonymized (accounts identifier are replaced by random
 % ones) while no data is publicly available.
 
-\subsection{Initial observations on the datasets}%
+\paragraph{Initial observations on the datasets.}
 \label{sub:some_observations_on_the_datasets}
-
 Reddit and Twitter are intrinsically different social medias. As mentioned
 before, Reddit focuses on subreddits, where all the discussions related to a
 certain topic find their place and most of the users interested in the
-theme gather; we think that this contributes to create community of users which are much more
-active and likely to discuss among each other, as they end up looking at the
+theme gather. We think that this contributes to create community of users which are more
+active and more likely to discuss among each other, as they end up looking at the
 same posts and discussions.
 
-Twitter, instead, is a much less "centralized" social media, where there a lot
-of accounts with many followers, which often produces disjoint communities,
-even if they discuss very similar topics.
+Twitter, instead, is a much less "centralized" social media where there a lot
+of \emph{hubs} (users with many followers) that discuss very similar topics but
+have disjoint communities.
+Think, as an example, to the Twitter accounts of Biden and Trump (the
+candidates for the last U.S. presidential elections). We expect that
+most of the followers of the first one do not follow the latter, and
+viceversa, even if both of them discuss U.S. politics. This means that many
+users, even if they are interested in the same theme (U.S. politics in our example)
+will rarely interact between each other.
 
 The "centralization" of Reddit produces, in our data model, contents that are
 associated with few threads. We observed that even the most discussed articles
 on r/politics (a subreddit focusing on U.S.\ politics discussions) are
-\emph{crossposted} one to five times (see, for example,
+\emph{crossposted} only one to five times (see, for example,
 \autoref{fig:tex/img/reddit-crossposts}), while on Twitter articles of the New York Times are
 often shared even 100 times.
 
@@ -123,7 +165,9 @@ often shared even 100 times.
 \label{sub:synthetic_data}
 
 Here we propose two possible methods for generating data, the Signed SBM and
-the Information spread Model.
+the Information spread Model. Given $\tau \in \mathbb{N}$, both of these methods randomly generate
+interaction graphs with $\tau$ threads/layers.
+Depending on the method, they will require more parameters.
 
 \subsubsection{Signed SBM}%
 \label{ssub:signed_sbm}
@@ -134,8 +178,9 @@ commonly used for generating random graphs having some community structures
 
 The Signed SBM is based on the following parameters:
 \begin{itemize}
-	\item $b_{i} $, the group assignment of each vertex $i$.
-	\item $\omega ^{+} _{rs} $ and $\omega ^{-} _{rs} $, the probabilities
+	\item $k \in \mathbb{N}$, the number of communities.
+	\item $b_{i} \in [k]$, the group assignment of each vertex $i$.
+	\item $\omega ^{+} _{rs} \in [0, 1]$ and $\omega ^{-} _{rs} \in [0, 1]$, the probabilities
 	      of positive and negative edges, respectively, between users in
 	      group $r$ and $s$. Vertices have also a probability of not having an
 	      edge, which is equal to $1 - \omega ^{-} _{rs} - \omega ^{+} _{rs} $.
@@ -144,29 +189,42 @@ The Signed SBM is based on the following parameters:
 	      between \emph{inactive} communities: for the generation of each
 	      thread we will distinguish between \emph{active} and \emph{inactive}
 	      communities, having different probabilities of interacting.
+	\item $\hat{k} \in \mathbb{N}$, the number communities active in
+	      a thread.
 \end{itemize}
 
-Therefore, generating a thread layer\footnote{in this model we will generate
-	contents univocally associated to threads} for an interaction graph
+During the generation process, we will sample the edges from a categorical
+distribution with three parameters which we will denote as
+\begin{equation*}
+	\Omega = (\Omega^+, \Omega ^-, \Omega ^0).
+\end{equation*}
+$\Omega ^+$ and $\Omega ^-$ are the probabilities of adding a positive and
+negative edges, respectively, while $\Omega ^0$ is the probability of not
+adding any edge.
+
+\bigskip
+
+Therefore, generating a thread layer T\footnote{In this model we will generate
+	contents uniquely associated to threads.} for an interaction graph
 involves the following steps:
 \begin{enumerate}
-	\item Sample some of the communities. These are the
+	\item Sample uniformly $\hat{k}$ of the $k$ communities. These are the
 	      \emph{active} communities in the thread. The remaining communities
 	      are \emph{inactive}.
 	\item For each node pair $i, j$ consider their corresponding groups $r$ and
 	      $s$ and, if both communities are \emph{active},
 	      draw from
 	      \begin{equation*}
-		      (\omega _{rs} ^{+}, \omega _{rs} ^{-}, 1 - \omega _{rs} ^{+} - \omega _{rs} ^{-})
+		      \Omega = (\omega _{rs} ^{+}, \omega _{rs} ^{-}, 1 - \omega _{rs}
+		      ^{+} - \omega _{rs} ^{-}).
 	      \end{equation*}
-	      in order to add a positive,
-	      negative or no edge.
 	      Otherwise, if at least one of the
 	      two communities is not \emph{active}, the distribution becomes
 	      \begin{equation*}
-		      (\theta \omega _{rs} ^{+}, \theta \omega _{rs} ^{-}, 1 - \theta
+		      \Omega = (\theta \omega _{rs} ^{+}, \theta \omega _{rs} ^{-}, 1 - \theta
 		      (\omega _{rs} ^{+} + \omega _{rs} ^{-})).
 	      \end{equation*}
+	      Then, we possibly add the edge to thread $T$.
 
 \end{enumerate}
 
@@ -174,9 +232,9 @@ involves the following steps:
 \label{ssub:information_spread_model}
 
 Here we describe the Information spread model, which aims at simulating the
-process of information flowing between different users of a social media.
+process of information flowing between different users of a social network.
 
-Like in the Signed SBM, each node has a group assignment $b_i$ and
+Like in the Signed SBM, each node has a group assignment $b_i \in [k]$ and
 each pair of groups has probabilities of
 positive and negative edges ($\omega _{rs}^{+}  $ and $\omega _{rs}^{-}  $,
 respectively, with $\omega ^{-} _{rs} + \omega ^{+} _{rs}
@@ -184,14 +242,19 @@ respectively, with $\omega ^{-} _{rs} + \omega ^{+} _{rs}
 Additionally, we have the following new parameters:
 
 \begin{itemize}
-	\item $\{\phi_{rs} \}$, the parameters of a standard SBM. These are used for
-	      generating a graph $G_f$, which we will call the \emph{friend} graph,
+	\item $\{\phi_{rs} \}$, the edge probabilities of a standard SBM. A standard SBM
+	      takes as parameters a group assignment for each node (we will use
+	      $b_i$) and the
+	      probability of edge between each pair of communities (exactly $\{\phi_{rs} \}$), producing an
+	      unweighted and undirected graph.
+
+	      This model is used for generating a graph $G_f$, which we will call the \emph{friend} graph,
 	      representing the friendship relationships between the users. We will
 	      refer to neighbors in this graph as \emph{friends}.
 	\item $\beta _a$, the probability that a node is initially activated: we
 	      will distinguish between \emph{active} and \emph{inactive} nodes, that will have
 	      different probabilities of interacting.
-	\item $\beta _n$, the probability an \emph{inactive} node is activated
+	\item $\beta _n$, the probability that an \emph{inactive} node is activated
 	      from an \emph{active} friend.
 \end{itemize}
 
@@ -204,7 +267,8 @@ follows:
 	\item Initialize all nodes as \emph{inactive}.
 	\item Activate each vertex with probability $\beta_{a}  $.
 	\item Active nodes activate their inactive friends with
-	      probability $\beta_n$.
+	      probability $\beta_n$. This step is repeatedly each time a new user
+	      is activated, until the network becomes stable.
 	\item Similarly to the Signed SBM, if two nodes are both active, draw
 	      from
 	      \begin{equation*}
@@ -229,7 +293,8 @@ because of its efficiency \cite{peixoto_graph-tool_2014}.
 \subsection{Initial Real-world data analysis}%
 \label{sub:validity_problem_definition}
 
-We did an initial analysis of the data to verify the validity of the problem.
+We did an initial analysis of the data to understand basic properties of the
+real-world datasets we fetched.
 
 We can gain some insights about the existence of echo chambers by comparing
 the distribution of $\eta(C)$ and $\eta(T)$ for different interaction graphs.
@@ -244,18 +309,39 @@ for low values of $\eta(T)$ with respect to the $\eta(C)$ distribution.
 
 We report these results for
 three datasets, a first built over @nytimes, a second over @foxnews
-and a third one over @bbcnews Twitter accounts\footnotemark (\autoref{fig:eta-content-thread}).
+and a third one over @bbcnews Twitter accounts\footnotemark. The basic
+statistics of these graphs are listed in \autoref{tab:basic-statistics}. Histograms, obtained
+by distributing values in $10$ equal-sized buckets, are shown in \autoref{fig:eta-content-thread}.
 
-\footnotetext{As explained above (\autoref{par:twitter-data}), we are referring
-	to the accounts that are used to retrieve the contents of the graph}
+\footnotetext{As explained above (\autoref{sub:collection_and_preprocessing}), we are referring
+	to the accounts that are used to retrieve the contents of the graph.}
 
-By looking at these histograms it is evident, as we were expecting, that when
+By looking at these plots it is evident, as we were expecting, that when
 moving from
 contents to threads there is a significant increase in the percentage of
 threads with a very small $\eta$, meaning that it is possible that contents which
 globally have
 a non-negligible amount of negative edges produce also threads that have
-very few or no negative edges. These are the subgraphs in which we expect to find the echo chambers.
+very few or no negative edges. These are the subgraphs in which we expect to
+find the echo chambers. This is especially evident in the @nytimes and @bbcnews
+datasets, while in @foxnews this effect is less visible.
+
+\begin{table}
+	\centering
+	\caption{Basic statistics for analyzed datasets. Threads with no replies
+		are excluded from the counts.}
+	\label{tab:basic-statistics}
+	\begin{tabular}{|c c c c c c|}
+		\toprule
+		Dataset  & $|V|$ & $|E|$  & $|\mathcal{C} |$ & Threads & Fraction of
+		neg. edges                                                                         \\
+		\midrule
+		@foxnews & 45509 & 82494  & 311              & 1922    & \num{0.5884306737459694}  \\
+		@nytimes & 81318 & 118876 & 492              & 6246    & \num{0.46229684713482955} \\
+		@bbcnews & 16875 & 26636  & 380              & 1566    & \num{0.4381288481754017}  \\
+		\bottomrule
+	\end{tabular}
+\end{table}
 
 \begin{figure}
 	\begin{center}
@@ -301,7 +387,8 @@ very few or no negative edges. These are the subgraphs in which we expect to fin
 \end{figure}
 
 \bigskip
-For verifying the reliability of the definition of \emph{controversial} content
+For verifying the reliability of the definition of \emph{controversial}
+content,
 we also looked at the fraction of negative edges for different datasets, each
 associated to contents of the same topic, which we report in
 \autoref{tab:eta-subreddits}.
@@ -321,31 +408,46 @@ predominate generally have less negative interactions between the users.
 		subreddits, each for $200$ contents.}
 	\label{tab:eta-subreddits}
 	{\small
-		\begin{tabular}{c | p{6cm} | c}
+		\begin{tabular}{|c p{6cm} p{2cm} |}
+			\toprule
+			Dataset              & Description                               &
+			Fraction of neg. edges                                                                       \\
+			\midrule
 			r/cats               & Pictures and videos about cats            & \num{0.16922540125610608} \\
-			\hline
 			r/Covid19            & Scientific discussion of the pandemic     & \num{0.2981398553220806}  \\
-			\hline
 			r/programming        & Computer Programming discussions          & \num{0.30264993026499304} \\
-			\hline
 			r/climate            & News about climate and related politics   & \num{0.391787072243346}   \\
-			\hline
 			r/Football           & News, Rumors, Analysis of \mbox{football} & \num{0.41103067250904934} \\
-			\hline
 			r/Economics          & News and discussion about economics       & \num{0.41730200715730514} \\
-			\hline
 			r/Politics           & News and discussion about U.S. politics   & \num{0.5112245929821013}  \\
-			\hline
 			r/AskTrumpSupporters & {Q\&A between Trump supporters and non
 			supporters}          & \num{0.5329949238578681}                                              \\
+			\bottomrule
 		\end{tabular}
 	}
 \end{table}
 
 \bigskip
-Furthermore, for each content $C$ in an interaction graph, we plotted the relationship between the sum of
-the weights of its edges and its
-$\eta(C)$ (see \autoref{fig:edge-sum-n-interactions}).
+Furthermore, for each content $C$ in an interaction graph, we plotted in
+\autoref{fig:edge-sum-n-interactions} the relationship between its number of
+interactions and the sum of the weights of its edges.
+
+This relationship is closely related to the $\eta(C)$ of a content: let $E(C)$
+be the edges associated to content $C \in \mathcal{C} $. We have that
+\begin{align*}
+	\sum^{}_{e_{ij} \in E(C)} w_{ij} & = \sum^{}_{e_{ij} \in E^+(C)} |w_{ij}|
+	- \sum^{}_{e_{ij} \in E^-(C)} |w_{ij}|                                      \\
+	                                 & = \sum^{}_{e_{ij} \in E(C)} |w_{ij}| - 2
+	\sum^{}_{e_{ij} \in E^-(C)} |w_{ij}|.
+\end{align*}
+
+Thus, if we take the ratio with the number of interactions  and suppose
+$|w_{ij}| \approx 1$ we obtain
+\begin{equation}
+	\label{eq:angular-coeff-eta}
+	\frac{\sum^{}_{e_{ij} \in E^(C)} |w_{ij}| - 2 \sum^{}_{e_{ij} \in E^-(C)}
+	|w_{ij}|}{|E(C)|} \approx 1 - 2 \eta(C).
+\end{equation}
 
 \begin{figure}
 	\begin{center}
@@ -380,15 +482,21 @@ $\eta(C)$ (see \autoref{fig:edge-sum-n-interactions}).
 	\label{fig:edge-sum-n-interactions}
 \end{figure}
 
-These plots confirm the previous observation and, more specifically, show that
-the sum of the weights of the edges (which is closely related
-to the $\eta(C)$ of $C$), for contents related to the same topic, is distributed
-in a pattern which is very close to that of a line with rare or no outliers: as
-we would intuitively say, contents related to politics are generally
-controversial, and most of them have, as we can see in \autoref{fig:tex/out/politics200/edge-sum-n-interactions.pdf}, a high $\eta(C)$.
+We can see in the plots that content distributes in a pattern which is very
+similar to that of a line with rare or no ourliers. Due to
+\eqref{eq:angular-coeff-eta} this means that $\eta(C)$ is very similar for
+different contents $C$, thus the points create a line whose angular coefficient
+is exactly \eqref{eq:angular-coeff-eta}.
+
+Consequently, as we would intuitively say, contents related
+to politics are generally controversial, and most of them have, as we can see
+in \autoref{fig:tex/out/politics200/edge-sum-n-interactions.pdf}, have a high
+$\eta(C)$.
+
 This is even more clearly visible when plotting the histogram of $\eta(C)$ for the contents in the dataset
 (\autoref{fig:eta-distribution-content}), with most of the contents having a
-$\eta(C)$ which is very close to the fraction of negative edges in the graph.
+$\eta(C)$ which is very close to the fraction of negative edges in the graph
+reported in \autoref{tab:eta-subreddits}.
 
 \begin{figure}
 	\begin{center}
@@ -417,7 +525,7 @@ For studying how the model behaves in controlled situations we define a
 parametrized model based on the Information Spread model
 (\autoref{sub:synthetic_data}).
 
-We choose $\beta _{a} = 1$, meaning that all nodes will be active in each
+We will generate graphs with four communities, i.e.\ $k= 4$. Also, We choose $\beta _{a} = 1$, meaning that all nodes will be active in each
 thread. This a
 simplifying assumption which allows us to have a better grasp of the results.
 Because of this choice the values $\beta _n = 1$, $\theta = 1$ and
@@ -426,7 +534,7 @@ Because of this choice the values $\beta _n = 1$, $\theta = 1$ and
 	\begin{cases}
 		1, \; & \text{if } r = s, \\
 		0, \; & \text{otherwise }
-	\end{cases} \quad\quad \forall r,s \; groups
+	\end{cases} \quad\quad \text{for all } r,s \; groups
 \end{equation}
 do not influence the structure of the resulting graph.
 
@@ -437,7 +545,7 @@ a \emph{noise} variable $x$. More specifically, we choose
 	\begin{cases}
 		1 - x, \;        & \text{if } r = s, \\
 		\frac{x}{4},  \; & \text{otherwise,}
-	\end{cases} \quad\quad \forall r,s \; groups
+	\end{cases} \quad\quad \text{for all } r,s \; groups
 \end{equation}
 and
 \begin{equation}
@@ -445,7 +553,7 @@ and
 	\begin{cases}
 		x, \;                & \text{if } r = s, \\
 		\frac{1 - x}{4},  \; & \text{otherwise,}
-	\end{cases} \quad\quad \forall r,s \; groups.
+	\end{cases} \quad\quad \text{for all } r,s \; groups.
 \end{equation}
 
 In absence of noise ($x = 0$) we will generate threads whose communities are
@@ -457,8 +565,13 @@ in this case, we will consider as corresponding to a community). The general
 approach involves calling an algorithm (generally any of the methods presented
 in \autoref{ch:solving}) returning a set of users $U \subseteq V$ which will be
 labeled according to the majority of its members (by looking at the
-ground-truth assignment). Then, edges contributing to $\xi(U)$
-are removed from the graph.  After repeating $n$ times this process, where $n$ is the number
+ground-truth assignment).
+Let $E_k$ be the edges of thread $T_k$. We then remove the edges contributing to $\xi(U)$, i.e\
+\begin{equation*}
+	\{ e_{ij} \in E_k[U], T_k \in \mathcal{S}_{C}(U), C \in \mathcal{\hat{C}}
+	\}.
+\end{equation*}
+After repeating $k$ times this process, where $k$ is the number
 of communities in the model, we compare the ground-truth labels and the
 predictions through the Jaccard coefficient and the Adjusted RAND
 index\footnotemark.
@@ -478,36 +591,23 @@ Chambers.
 
 \begin{figure}
 	\begin{center}
-		\begin{subfigure}[b]{0.4\textwidth}
+		\begin{subfigure}[t]{0.4\textwidth}
 			\centering
 			\includegraphics[width=\textwidth]{tex/out/synthetic_exact/model2_noise_adj_rand.pdf}
 			\caption{Adjusted RAND index, MIP}
 			\label{fig:tex/out/synthetic_exact/model2_noise_adj_rand.pdf}
 		\end{subfigure}
 		\quad
-		\begin{subfigure}[b]{0.4\textwidth}
+		\begin{subfigure}[t]{0.4\textwidth}
 			\centering
 			\includegraphics[width=\textwidth]{tex/out/synthetic_exact/model2_noise_jaccard.pdf}
-			\caption{Jaccard Score, MIP}
-			\label{fig:tex/out/synthetic_exact/_noise_jaccard.pdf}
-		\end{subfigure}
-		\begin{subfigure}[b]{0.4\textwidth}
-			\centering
-			\includegraphics[width=\textwidth]{tex/out/synthetic_12t/model2_noise_adj_rand.pdf}
-			\caption{Adjusted RAND index, \mbox{rounding algorithm}}
-			\label{fig:tex/out/synthetic_exact/model2_noise_adj_rand.pdf}
-		\end{subfigure}
-		\quad
-		\begin{subfigure}[b]{0.4\textwidth}
-			\centering
-			\includegraphics[width=\textwidth]{tex/out/synthetic_12t/model2_noise_jaccard.pdf}
 			\caption{Jaccard Score, \mbox{rounding algorithm}}
 			\label{fig:tex/out/synthetic_exact/_noise_jaccard.pdf}
 		\end{subfigure}
 	\end{center}
 	\caption{Clustering scores on generated graphs with 12 threads and four communities, each
 		of six nodes, for different values of the noise
-		variable $x$.}
+		variable~$x$.}
 	\label{fig:clustering-mip-rounding}
 \end{figure}
 
@@ -516,44 +616,90 @@ We compared the scores obtained with the \acrshort{MIP} for the \acrshort{ECP}
 (\autoref{sub:approximation_algorithms}). Due to the use of the
 \acrshort{MIP} model these experiments have been carried out on
 small graphs with four communities, each of six nodes. The interaction graph
-contains 12 threads and we choose $\alpha = 0.2$.
+contains 12 threads and we choose $\alpha = 0.2$. We experimentally saw that
+this choice of parameters produces controversial contents, thus allowing our
+methods to be applied.
+
+Note that since we choose $\alpha = 0.2$ our analysis is partially limited for $x
+	> 0.2$ since we may produce graphs that have a fraction of negative
+\emph{intra-community} edges
+higher than $\alpha $, although it is smaller than the fraction of negative
+\emph{inter-community} edges. Nonetheless we may be able to reconstruct at least
+partially the communities.
 
 The performances of the two approaches are shown in
-\autoref{fig:clustering-mip-rounding}. We can see that the MIP model is able to
-reconstruct the communities almost perfectly for values of $x \in \{0, 0.1,
-	0.2\}$ and also achieves good results for $x = 0.3$, while the rounding
+\autoref{fig:clustering-mip-rounding}. We can see that the MIP model
+\begin{itemize}
+	\item Reconstructs the communities perfectly for values of $x \in \{0,
+		      0.1\}$.
+	\item Predicts almost perfectly the labels for $x= 0.2$.
+	\item Reconstructs partially the communities for $x = 0.3$, achieving both
+	      a Jaccard coefficient and a Adjusted RAND Index around $0.7$.
+	\item Fails to find the original groups of users for $x \geq 0.4$.
+\end{itemize}
+is able to
+, while the rounding
 algorithm performances degradates already for $x \geq 0.2$.
 
-MIP formulation is generally better at finding the communities since, if
+The MIP formulation is generally better at finding the communities since, if
 the noise $x$ is not too large, the best score is still achieved
 by selecting mostly nodes in the same community (choosing nodes from other
 communities will generally produce much more negative edges in the subgraph).
 
-
-Conversely, the rounding algorithm is more affected than MIP by noise. We
-illustrate this with one example. Consider the graph in
+Conversely, the rounding algorithm is more affected by noise than MIP. More,
+specifically:
+\begin{itemize}
+	\item Reconstructs the communities perfectly for values of $x = 0$.
+	\item Partially recognizes the communities for $x= 0.1$, obtaining a
+	      Jaccard coefficient and Adjusted RAND Index of $0.8$.
+	\item Finds few users belonging to the same community for $x = 0.2$, with
+	      scores around $0.6$.
+	\item Fails to find the original groups of users for $x \geq 0.3$.
+\end{itemize}
+We illustrate this with one example. Consider the graph in
 \autoref{fig:rounding-interaction-graph-example} for $\alpha = 0.1$:
 the MIP model will find one of the two communities as optimal solution.
 Now consider the rounding algorithm (\autoref{sub:approximation_algorithms}):
-the relaxation of the MIP will assign to all and only the positive edges value
-$0.66$ (while the negative edges get value $0$). This means that the algorithm
-will initially iterate on the positive ones, choosing randomly among them (since they have the same value).
+the relaxation of the MIP will assign to all positive edges value
+$0.66$, while the negative edges get value $0$. This means that the algorithm
+will initially iterate over the positive edges, choosing randomly among them (since they have the same value).
 We illustrate in \autoref{fig:rounding-run-unlucky} one possible iteration: in
-this case the algorithm will not be able to reconstruct exactly one of the communities
-since the considered edge will not allow the heuristic to have a single component of
+this case the algorithm will not be able to reconstruct one of the communities
+exactly since the considered edge will not allow the heuristic to have a single component of
 $\hat{G}$ associated to one of the communities.
 Conversely, in \autoref{fig:rounding-run-lucky} we can see a "luckier"
 iteration in which it is able to find one of the communities.
 
-More generally, we can say that the rounding algorithm is less robust than the MIP
-to noise, especially in the \emph{inter-community} edges, as it
-depends on the probability of picking these \emph{inter-community} edges (the
-lower it is, the higher the chances of a correct clustering).
+More generally, we can say that the rounding algorithm is less robust to noise
+than the MIP, especially if the noise produces an increase in the number of
+positive \emph{inter-community} edges, as we saw in the example of
+\autoref{fig:rounding-example}.
 
-Consequently, we can expect than if we decrease the number of these positive
-intra-community edges with respect to the number of edges inside the
-communities, the algorithm is more likely to reconstruct correctly the Echo
-Chambers.
+This is due to the fact that it may need to pick among positive edges with the
+same value (in the solution of the relaxation) during its execution: if the picked edge connects different communities, this will most
+likely prevent the algorithm from keeping a community as separate component in
+the dummy graph $\hat{G}$ (\autoref{sub:approximation_algorithms}).
+
+% This is due to the fact that the rounding algorithm performances depends on the
+% probability of picking these positive
+% \emph{inter-community} edges (the lower the probability is, the higher the
+% chances of a correct clustering).
+
+% Consequently, we can expect than if we decrease the number of these positive
+% \emph{inter-community} edges with respect to the number of positive
+% \emph{intra-community}, the algorithm is more likely to reconstruct correctly
+% the Echo Chambers.
+
+Consequently, we could improve the performances of the algorithm by decreasing the probability
+of picking inter-community edges, or, equivalently, increasing the probability
+of picking intra-community edges. For example, we could increase the latter probability
+by rising the number of threads in an interaction graph.
+
+We repeated this experiment with a different number of threads
+while maintaining the same set of parameters as before. We show the results
+obtained by the rounding algorithm in \autoref{fig:clustering-threads}: we obtain better clustering
+performances as the number of threads increases, especially for values of
+$x \in \{ 0.0, 0.1 \}$.
 
 \begin{figure}
 	\begin{center}
@@ -584,20 +730,15 @@ Chambers.
 		possible iterations of the rounding algorithm]{Possible rounding algorithm
 		executions on an interaction graph with a
 		one thread and one content. The two communities are represented by $\{ v_1, v_2,
-			v_3\}$ and $\{ v_4, v_5, v_6\}$, respectively.
+			v_3\}$ and $\{ v_4, v_5, v_6\}$, respectively. Negative and
+		positive edges are coloured in red and green, respectively.
 		For $\alpha = 0.1$ we will have that its content is
-		controversial and the exact solution involves all and only nodes in one of
+		controversial and the exact solution returns one of
 		the two communities. The rounding algorithm may fail to reconstruct
 		communities if the edge between the communities ($e_{35}$) is added early in
 		the iterations (\autoref{fig:rounding-run-unlucky}).}
+	\label{fig:rounding-example}
 \end{figure}
-
-This can be for example achieved by increasing the number of threads
-in an interaction graph. We repeated the experiment with a different number of threads
-while maintaining the same set of parameters as before. We show the results
-in \autoref{fig:clustering-threads}: we obtain better clustering
-performances as the number of threads increases, especially for values of
-$x \in \{ 0.0, 0.1 \}$.
 
 \begin{figure}
 	\begin{center}
@@ -621,46 +762,50 @@ $x \in \{ 0.0, 0.1 \}$.
 		\end{subfigure}
 	\end{center}
 	\caption{Adjusted RAND indices for graphs with four communities, each of
-		six nodes, and different number of threads.}
+		six nodes, and different number of threads, obtained with the rounding
+		algorithm.}
 	\label{fig:clustering-threads}
 \end{figure}
 
 \subsection{Detecting real-world echo chambers}%
 \label{sub:detecting_real_echo_chambers}
 
-We measured the performances of our algorithm on real-world data by
+We measured the performances of the rounding algorithm on real-world data by
 classifying the nodes of labeled datasets, similarly to what has been done
-with synthetic data.
+with synthetic data. Recall from \autoref{sec:data_collection_and_generation},
+that for these datasets we have retrieved a label for each user.
 
-More specifically, we focused on the r/arktrumpsupporters and
-@nytimes datasets \footnotemark(see
-\autoref{sec:data_collection_and_generation} for details on how labels are
-retrieved).
+We will refer to a group of users with the same label as \emph{community}.
 
-Both of them are unbalanced datasets, with r/asktrumpsupporters having a $79\%$
-and $19\%$ of the users choosing the \emph{Non Supporter} and \emph{Trump
-	Supporter} flairs, respectively (the remaining $2\%$ is
-\emph{Undecided}), while $80\%$ of @nytimes users are labeled \emph{democrats}
-and $20\%$ as \emph{republican}.
+More specifically, we focused on the r/asktrumpsupporters and
+@nytimes datasets. In the first case users label themself either as Trump Supporters ($19\%$), Non
+Supporters ($79\%$) or Undecided ($2\%$). This last group of users was ignored
+in the analysis, i.e.\ these vertices were removed from the graph.
 
-By looking at the poor results obtained with the rounding algorithm, which we show in
+In the @nytimes users are labeled either as democrats ($80\%$) or republican
+($20\%$). In this case, in order to decrease the sparsity, we selected the
+$4$-core.
+
+% Both of them are unbalanced datasets, with r/asktrumpsupporters having a
+% and  of the users choosing the \emph{Non Supporter} and \emph{Trump
+%     Supporter} flairs, respectively (the remaining  is
+% \emph{Undecided}), while  of @nytimes users are labeled \emph{democrats}
+% and  as \emph{republican}.
+
+We cluster the nodes as explained in \autoref{sub:testing_on_synthetic_data}
+and choose $\alpha $ as the median of the $\eta(C), C \in \mathcal{C} $. We run
+the rounding algorithm to find the Echo Chambers. By
+looking at the poor results, which we show in
 \autoref{tab:scores-datasets-labeled}, it is clear that the algorithm is not
 able to correctly separate the communities. We motivate this with the following
 reasons:
 \begin{itemize}
-	\item \textbf{Complexity of sentiment analysis of social media language.}
-	      Social medias often involve messages which are not easily classifiable
-	      as either friendly and hostile, both because persons often use jargon
-	      and because sometimes messages are aided by pictures and GIF which
-	      are not taken into account by the Sentiment Analyzer.
-	      % additional noise is introduced by messages in other languages as well
-	      % as messages involving medias like pictures and GIF.
-	\item \textbf{Non validity of the data model.} In trying to classify the
-	      nodes with our \acrshort{ECP} solver we suppose that the data
+	\item \textbf{Non-validity of the data model.} In trying to classify the
+	      nodes with our \acrshort{ECP} solver, we are assuming that the data
 	      contains a clear separation of the users, in which one chamber
 	      corresponds to a single community. Furthermore, we are assuming that
 	      there are only two communities in the datasets we chose, which may also
-	      be a limiting assumption, since
+	      be a limiting assumption, since:
 	      \begin{itemize}
 		      \item @nytimes may contain echo chambers related to different
 		            topics, as the set of contents does not only take into account
@@ -668,8 +813,15 @@ reasons:
 		      \item r/asktrumpsupporters may be a non-representative
 		            dataset of discussion of polarized communities (we will
 		            discuss this more in details in
-		            \autoref{sec:the_r_asktrumpsupporters_case})
+		            \autoref{sec:the_r_asktrumpsupporters_case}).
 	      \end{itemize}
+	\item \textbf{Complexity of sentiment analysis of social media language.}
+	      Social medias often involve messages which are not easily classifiable
+	      as either friendly and hostile, both because users often use jargon
+	      and because sometimes messages are aided by pictures and GIFs which
+	      are not taken into account by the sentiment analyzer.
+	      % additional noise is introduced by messages in other languages as well
+	      % as messages involving medias like pictures and GIF.
 	\item \textbf{Limitations of the rounding algorithm.} Since we are
 	      using an approximation algorithm we are not solving (exactly) the
 	      \acrshort{ECP}: this may introduce limitations to the solutions which
@@ -684,17 +836,24 @@ reasons:
 
 \begin{table}
 	\centering
-	\caption{Classification scores on two labeled datasets}
+	\caption{Classification scores on two labeled datasets obtained with the
+	rounding algorithm. $\alpha $ is chosen as the median $\eta(C)$, $C \in
+		\mathcal{C} $. For the @nytimes dataset we report the statistics
+	related to its $4$-core. $|{T}|$ indicates the number of threads}
 	\label{tab:scores-datasets-labeled}
-	\begin{tabular}{c|c|c}
-		dataset                     & Adjusted RAND index       & Jaccard score             \\
-		\hline r/asktrumpsupporters & \num{0.09453599837921367} & \num{0.01607717041800643} \\
-		@nytimes                    & \num{0.02176064966494696} & \num{0.4200626959247649}  \\
-	\end{tabular}
+	{\small
+		\begin{tabular}{|ccccc p{1.8cm} c|}
+			\toprule
+			Dataset                     & $|V|$         & $|E|$                     & $|\mathcal{C}| $          &
+			$|{T}| $                    & Adjusted RAND & Jaccard                                                                                                            \\
+			\midrule
+			\hline r/asktrumpsupporters & 11640         & 83038                     & 357
+			                            & 357           & \num{0.09453599837921367} & \num{0.01607717041800643}                                                              \\
+			@nytimes                    & 1074          & 4921                      & 139                       & 254 & \num{0.02176064966494696} & \num{0.4200626959247649} \\
+			\bottomrule
+		\end{tabular}
+	}
 \end{table}
-
-\footnotetext{For this dataset, in order to decrease the sparsity, we selected
-	the 4-core}
 
 \section{A study on r/asktrumpsupporters}%
 \label{sec:the_r_asktrumpsupporters_case}
@@ -711,19 +870,20 @@ other communities have a negative one.
 \bigskip
 
 For this analysis we add to our interaction graph another type of vertices, the
-\emph{content nodes} which we univocally associate to a content. In order to
+\emph{content nodes} which we uniquely associate to a content. More formally,
+for each content $C \in \mathcal{C} $, we add a vertex $v_C$. In order to
 add links between users and contents, we consider the sequence of comments
 leading to a specific user comment and multiply the sign of the
 associated edges to calculate the sign of the content-user edge.
 
 For example, consider a user $v_i$
 replying positively to a post related to content $C$ and user $v_j$ replying
-negatively to $v_i$. We will add a positive edge between $v_i$ and $C$ and a
-negative edge between $v_j$ and $C$.
+negatively to $v_i$. We will add a positive edge between $v_i$ and $v_C$ and a
+negative edge between $v_j$ and $v_C$.
 
 We then assign to the users linked to a content the same label of the author of
 the post if the user is connected to the content
-by a positive edge, the opposite one\footnotemark otherwise. Then, we measure the accuracy of
+by a positive edge and the opposite one\footnotemark otherwise. Then, we measure the accuracy of
 this classification.
 
 \footnotetext{We ignore the \emph{Undecided} label}
@@ -731,13 +891,16 @@ this classification.
 We show in \autoref{fig:tex/out/experimental200/experimental200-accuracy-hist}
 the histogram of the accuracy of classification of the contents in the dataset.
 We see that in very few cases it is possible to discriminate users better than
-by just using the majority label, while a big part of the contents achieve an
-accuracy between $0.5$ and $0.6$.
+by just using the majority label ($79\%$), while a big part of the contents
+achieve an accuracy between $0.5$ and $0.6$.
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.6\linewidth]{tex/out/experimental200/experimental200-accuracy-hist.pdf}
-	\caption{Content accuracy in classifying r/asktrumpsupporters users.}%
+	\caption[Distribution of accuracy of classification of r/asktrumpsupporters users for the
+		different contents]{This plot shows how the accuracy of the classification
+		process explained in \autoref{sec:the_r_asktrumpsupporters_case} is
+		distributed for the different contents $C \in \mathcal{C} $.}%
 	\label{fig:tex/out/experimental200/experimental200-accuracy-hist}
 \end{figure}
 
@@ -747,42 +910,47 @@ We explain this with the following reasons:
 	      do you think of ...' and, similarly, ``What's your idea on...''. This
 	      means that our initial hypothesis that positive and negative
 	      stances can be used for inferring the positions of
-	      the users is not correct: for this type of posts most of the users
-	      will just answer with their opinion, without being either friendly of
-	      hostile, since the user posting usually does not express his opinion.
-	\item This community of users is not a reliable sample: people attending
-	      the subreddit are the part of communities most open to discussion.
-	      For this
-	      reason we generally expect a less evident division in the opinions and
-	      less hostility in the comments.
+	      the users is not correct: for this type of posts, and thus most of the users
+	      will just answer with their opinion, without being either friendly or
+	      hostile.
+	\item This community of users is not a representative sample: people attending
+	      the subreddit are open to discuss with people of different opinion
+	      and for this reason we generally expect less hostility in the
+	      comments.
 \end{itemize}
 
-\section{Further discussion on the results}%
+\section{Further discussion of the results}%
 \label{sec:discussion}
 
-We focused our analysis and research on the rounding algorithm. We did this
-since we observed, when running the other approximation algorithms on smaller datasets
-(with less than $3000$ nodes), that its time performances were generally better
-than that of the peeling algorithm (\autoref{sub:approximation_algorithms}) and it is
-more expressive than the $\beta$ approach (\autoref{sub:approximation_algorithms}).
-We report in \autoref{tab:times-approximation} the execution
-times on some datasets.
+We focused our experiments on the rounding algorithm. We did this
+since we observed that, when running the other heuristic algorithms on smaller datasets
+(with less than $3000$ nodes), its \emph{time} performances were generally better
+than those of the peeling algorithm (\autoref{sub:approximation_algorithms}).
+Also, when compared to the $\beta$-approach, the rounding algorithm is more
+expressive: we already discussed in \autoref{sub:approximation_algorithms} that
+the $\beta$-approach is able to find only group of nodes that are connected.
+
+We report in \autoref{tab:times-approximation} the execution times on some
+datasets. While execution \emph{times} of the peeling approach explode with
+@BBCTech and r/cats, the rounding algorithm and the $\beta $-approach show a
+more stable trend, with most of the experiments of both of them being completed
+in less than $6$ seconds.
 
 \begin{table}
 	\centering
-	\caption[Execution time of the approximation algorithms]{Execution time of
-		the approximation algorithms. $\alpha$ is chosen to be the median of the
+	\caption[Execution time of the heuristics]{Execution time in seconds of
+		the heuristics. Here, $\alpha$ is chosen to be the median of the
 		$\eta(C)$ for each dataset.}
 	\label{tab:times-approximation}
 	\begin{tabular}{c|c|c|c|c|c}
-		Dataset         & |V|  & |E|  & Rounding                 & Peeling                  & $\beta$                  \\
+		Dataset         & $|V|$ & $|E|$ & Rounding                 & Peeling                  & $\beta$                  \\
 		\hline
-		@EMA\_News      & 1226 & 1842 & \num{0.9331817626953125} & \num{24.05003571510315}  & \num{36.05760359764099}  \\
-		@bbcsciencenews & 447  & 388  & \num{4.916658878326416}  & \num{175.36006140708923} & \num{0.7964000701904297} \\
+		@EMA\_News      & 1226  & 1842  & \num{0.9331817626953125} & \num{24.05003571510315}  & \num{36.05760359764099}  \\
+		@bbcsciencenews & 447   & 388   & \num{4.916658878326416}  & \num{175.36006140708923} & \num{0.7964000701904297} \\
 		% @BBCSport       & 2140 & 3100 &                          &                          &                          \\
-		@BBCNewsEnts    & 220  & 183  & \num{4.617515325546265}  & \num{138.2591540813446}  & \num{0.4381392002105713} \\
-		@BBCTech        & 793  & 719  & \num{86.20259594917297}  & \num{2798.376838684082}  & \num{0.9822568893432617} \\
-		r/cats          & 2493 & 4028 & \num{5.439620494842529}  & \num{140844.752099514}   & \num{0.7333328723907471} \\
+		@BBCNewsEnts    & 220   & 183   & \num{4.617515325546265}  & \num{138.2591540813446}  & \num{0.4381392002105713} \\
+		@BBCTech        & 793   & 719   & \num{86.20259594917297}  & \num{2798.376838684082}  & \num{0.9822568893432617} \\
+		r/cats          & 2493  & 4028  & \num{5.439620494842529}  & \num{140844.752099514}   & \num{0.7333328723907471} \\
 		% r/covid19                &                          &                         &                          &         &         \\
 	\end{tabular}
 \end{table}
@@ -792,21 +960,21 @@ times on some datasets.
 % \autoref{sub:synthetic_data}.
 \bigskip
 
-Our rounding algorithm achieves good performances on data with
-polarized communities, showing also to be more and more robust as the
+We summarize our results for the rounding algorithm as follows. It achieves good performances on data with
+polarized communities, showing also to be more robust as the
 available data increases: a larger number of threads, as we discussed
-in \autoref{sub:synthetic_data}, helps the algorithm selecting
+in \autoref{sub:testing_on_synthetic_data}, helps the algorithm selecting
 \emph{intra-community} edges, which allows it to correctly classify the nodes.
 
-Conversely, this algorithm was not able to produce a good clustering of the
+Conversely, the rounding algorithm was not able to produce a good clustering of the
 nodes in real-world data. We need to add to the discussed motivations in
 \autoref{sub:detecting_real_echo_chambers} another fundamental problem of the
 datasets built from social medias: its intrinsic sparsity. We observed,
-especially on Twitter, that even increasing the number of contents of the graph
-does not produce denser graph, as the average degree remains between one and
+especially on Twitter, that even increasing the number of contents
+does not produce denser graphs, as the average degree remains between one and
 two. This, as we have seen in the tests carried on synthetic data, is a limitation
 on the robustness of the results. Also, analyzing the denser part of the
-subgraph, a k-core, may affect the results since we expect that the echo chamber
+subgraph, a $k$-core, may affect the results since we expect that the echo chamber
 effect is especially visible in small and isolated components, maybe a small
 "bubble" of users sharing the same opinion, which may get excluded by
-the k-core selection.
+the $k$-core selection.
