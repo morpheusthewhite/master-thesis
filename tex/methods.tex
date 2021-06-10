@@ -71,7 +71,7 @@ for values of $\alpha \leq 0.5$.
 The \acrshort{MIP} model introduces variables $x$, $y$ and $z$.
 \begin{itemize}
 	\item $y$ variables are associated to vertices
-	      (\autoref{eq:ecp-vertex-def1}). Intutively $y_i = 1$ means that the
+	      (\autoref{eq:ecp-vertex-def1}). Intuitively $y_i = 1$ means that the
 	      vertex $v_{i} $ is part of the set $U \subseteq V$ considered for the
 	      score.
 	\item $x$ variables are associated to edges (\autoref{eq:ecp-edge-def1}).
@@ -229,7 +229,7 @@ MIP~\eqref{eq:ecp-exact1}-\eqref{eq:ecp-thread-def1}.
 				^{k} - \sum_{ij \in E^{-}_k } x_{ij} ^{k} = z_k (|E^{+}_{k}[U]| -
 			|E^{-}_{k}[U]|) \geq 0.
 		\end{equation}
-		Since $z_k \in [0, 1]$ the constribution of the same thread in $\xi(U)$
+		Since $z_k \in [0, 1]$ the contribution of the same thread in $\xi(U)$
 		will be greater (if $z_k \in [0, 1)$) or equal (if $z_k = 1$) to the
 		contribution of thread $T_k$ in the objective function.
 
@@ -808,7 +808,7 @@ generally).
 
 $U$ is initialized by sampling one node from the graph. There are two possible
 approaches in doing that: one is uniformly;
-the other is using probabilities proportial to the number
+the other is using probabilities proportional to the number
 of positive edges each node has.
 
 \begin{algorithm}
@@ -998,7 +998,7 @@ of users $U$.
 	\label{fig:rounding-relaxed}
 \end{figure}
 
-While one may think from these examples that the relaxation trivially assignes
+While one may think from these examples that the relaxation trivially assigns
 non-zero values only to positive edges, \autoref{fig:rounding-original2} shows
 a case in which a negative edge, $e_{31}$, gets the value of $1$. Furthermore,
 in this example the algorithm is able to reconstruct the exact solution of the problem.
