@@ -1,4 +1,5 @@
 from typing import Optional, Set
+import time
 import graph_tool.all as gt
 import treelib
 import numpy as np
@@ -2125,6 +2126,14 @@ class PolarizationGraph:
                 is_induced_property[edge] = True
 
         return is_induced_property
+
+    def threads_time_span(self):
+        start_time = int(np.min(self.times.a))
+        end_time = int(np.max(self.times.a))
+
+        start_time_str = time.ctime(start_time)
+        end_time_str = time.ctime(end_time)
+        return start_time_str, end_time_str
 
     def clustering_accuracy(
         self,
