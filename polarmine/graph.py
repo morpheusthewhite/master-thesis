@@ -33,7 +33,7 @@ class PolarizationGraph:
         # definition of graph property maps
         # edge weights (calculated with sentiment analysis classifier)
         self.weights = self.graph.new_edge_property("double")
-        self.times = self.graph.new_edge_property("double")
+        self.times = self.graph.new_edge_property("int")
         self.threads = self.graph.new_edge_property("object")
         self.comments = self.graph.new_edge_property("string")
 
