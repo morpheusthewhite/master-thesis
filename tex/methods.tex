@@ -247,43 +247,42 @@ MIP~\eqref{eq:ecp-exact1}-\eqref{eq:ecp-thread-def1}.
 Previously, we solved the \acrshort{ECP} for $\alpha \in [0, 0.5]$. Solving the problem for $\alpha \in [0, 1]$ requires the definition of
 additional variables and constraints.
 
-% todo: improve formatting
 \begin{equation}
-	\label{eq:ecp-exact2}
-	\text{maximize} \; \sum_{ T_{k} \in \mathcal{T}_{C}, \; C \in
+	\text{maximize}\quad \sum_{ T_{k} \in \mathcal{T}_{C}, \; C \in
 		\mathcal{\hat{C}} } \big( \sum^{}_{ij \in E^{+}_k } x_{ij}
 	^{k} - \sum_{ij \in E^{-} _k} x_{ij} ^{k} \big)
 \end{equation} \begin{center} subject to \end{center}
-\begin{gather}
+\begin{alignat}{3}
 	\label{eq:ecp-v12}
-	x _{ij}^{k}  \leq y_i \quad\quad \forall ij \in E_k  \\
+	                                                                 &                    & x _{ij}^{k}                                                        \leq y_i \quad\quad                   & \forall ij \in E_k                        \\
 	\label{eq:ecp-v22}
-	x _{ij}^{k}  \leq y_j \quad\quad \forall ij \in E_k \\
+	                                                                 &                    & x _{ij}^{k}                                                        \leq y_j \quad\quad                   & \forall ij \in E_k                        \\
 	\label{eq:ecp-t2}
-	x _{ij}^{k}  \leq z_k \quad\quad \forall ij \in E_k \\
+	                                                                 &                    & x _{ij}^{k}                                                        \leq z_k \quad\quad                   & \forall ij \in E_k                        \\
 	\label{eq:ecp-e2}
-	x _{ij} ^{k} \geq - 2 + y_i + y_j + z_k \quad\quad \forall ij \in E_k \\
+	                                                                 &                    & x _{ij} ^{k}                                                       \geq - 2 + y_i + y_j + z_k \quad\quad & \forall ij \in E_k                        \\
 	\label{eq:ecp-a-alpha-constraint}
-	-N_k z_k < \sum^{}_{ij \in E^-_k} a_{ij}^{k}  - \alpha \sum^{}_{ij
+	                                                                 &                    & -N_k z_k < \sum^{}_{ij \in E^-_k} a_{ij}^{k}  - \alpha \sum^{}_{ij
 		\in E_k}
-	a_{ij} ^{k} \leq M_{k} (1 - z_{k})  \quad\quad \forall T_{k} \in
-	\mathcal{T} _{C}, C \in \mathcal{\hat{C}} \\
+	a_{ij} ^{k}                   \leq M_{k} (1 - z_{k})  \quad\quad & \forall T_{k} \in
+	\mathcal{T} _{C}, C \in \mathcal{\hat{C}}                                                                                                                                                                                                    \\
 	\label{eq:ecp-a-ij-g-i-j2}
-	a_{ij}^{k} \geq -1 + y_i + y_j \quad\quad \forall ij \in E_k \\
+	                                                                 &                    & a_{ij}^{k}                                                         \geq -1 + y_i + y_j \quad\quad        & \forall ij \in E_k                        \\
 	\label{eq:ecp-a-ij-l-i2}
-	a_{ij}^{k} \leq y_i\quad\quad \forall ij \in E_k \\
+	                                                                 &                    & a_{ij}^{k}                                                         \leq y_i\quad\quad                    & \forall ij \in E_k                        \\
 	\label{eq:ecp-a-ij-l-j2}
-	a_{ij}^{k} \leq y_j \quad\quad \forall ij \in E_k \\
+	                                                                 &                    & a_{ij}^{k}                                                         \leq y_j \quad\quad                   & \forall ij \in E_k                        \\
 	\label{eq:ecp-a-domain-2}
-	0 \leq a_{ij}^{k} \leq 1 \quad\quad \forall ij \in E_k \\
+	                                                                 &                    & 0 \leq
+	a_{ij}^{k} \leq 1  \quad\quad                                    & \forall ij \in E_k                                                                                                                                                        \\
 	\label{eq:ecp-vertex-def2}
-	y _{i} \in  \{0, 1\} \quad\quad \forall i \in V \\
+	                                                                 &                    & y _{i}                                                             \in  \{0, 1\} \quad\quad              & \forall i \in V                           \\
 	\label{eq:ecp-edge-def2}
-	0 \leq x _{ij} ^{k}  \leq 1 \quad\quad \forall ij \in E_k \\
+	                                                                 &                    & 0 \leq x _{ij} ^{k}                                                \leq 1 \quad\quad                     & \forall ij \in E_k                        \\
 	\label{eq:ecp-z-domain-2}
-	z _{k} \in  \{0, 1\} \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+	                                                                 &                    & z _{k}                                                             \in  \{0, 1\} \quad\quad              & \forall T_{k} \in \mathcal{T} _{C}, C \in
 	\hat{\mathcal{C}}
-\end{gather}
+\end{alignat}
 
 Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(1 -
 	\alpha ) (|E^{-}_k| + 1)$, respectively.
@@ -453,49 +452,57 @@ For simplifying notation we define $E_{k} \coloneqq E(T_{k}), T_{k} \in
 	\text{maximize} \; \sum_{ T_{k} \in \mathcal{T}_{C}, \; C \in
 		\mathcal{\hat{C}} } \big( \sum^{}_{ij \in E^+_k} x_{ij}
 	^{k} - \sum_{ij \in E^-_k} x_{ij} ^{k} \big)
-\end{equation} \begin{center} subject to \end{center}
-\begin{gather}
+\end{equation}
+\begin{center} subject to \end{center}
+\begin{alignat}{3}
 	\label{eq:d-ecp-a-ij-l-bi}
-	a_{ij}^{k} \leq b_{i} \quad\quad \forall ij \in E_k \\
+	                                           &                                           & a_{ij}^{k} \leq b_{i} \quad\quad                                              & \forall ij \in E_k                        \\
 	\label{eq:d-ecp-a-ij-l-bj}
-	a_{ij}^{k} \leq b_{j} \quad\quad \forall ij \in E_k \\
+	                                           &                                           & a_{ij}^{k} \leq b_{j} \quad\quad                                              & \forall ij \in E_k                        \\
 	\label{eq:d-ecp-a-ij-g-ijk}
-	a _{ij} ^{k} \geq - 1 + b_i + b_j \quad\quad \forall ij \in E_k \\
+	                                           &                                           & a _{ij} ^{k} \geq - 1 + b_i + b_j \quad\quad                                  & \forall ij \in E_k                        \\
 	\label{eq:d-ecp-alpha-constraint}
-	-N_{k} z_k < \sum^{}_{ij \in E^-_k} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E_k}
-	a_{ij} ^{k}  \leq M_k (1 - z_k) \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
-	\hat{\mathcal{C}}\\
+	                                           &                                           & -N_{k} z_k < \sum^{}_{ij \in E^-_k} a_{ij}^{k}  - \alpha \sum^{}_{ij \in E_k}
+	a_{ij} ^{k}  \leq M_k (1 - z_k) \quad\quad & \forall T_{k} \in \mathcal{T} _{C}, C \in
+	\hat{\mathcal{C}}                                                                                                                                                                                                  \\
 	\label{eq:d-ecp-edge-charikar1}
-	x _{ij}^{k}  \leq y_i \quad\quad \forall ij \in E_{k} \\
+	                                           &                                           & x _{ij}^{k}  \leq y_i \quad\quad                                              & \forall ij \in E_{k}                      \\
 	\label{eq:d-ecp-edge-charikar2}
-	x _{ij} ^{k} \leq y_j \quad\quad \forall ij \in E_k \\
+	                                           &                                           & x _{ij} ^{k} \leq y_j \quad\quad                                              & \forall ij \in E_k                        \\
 	\label{eq:d-ecp-vertex-charikar1}
-	\sum^{}_{i \in V} y_i = 1 \\
+	                                           &
+	                                           & \sum^{}_{i \in V} y_i = 1
+	\quad\quad
+	                                           &                                                                                                                                                                       \\
 	\label{eq:d-ecp-vertex-l-b}
-	y_i \leq b_i \quad\quad \forall i \in V \\
+	                                           &                                           & y_i \leq b_i \quad\quad                                                       & \forall i \in V                           \\
 	\label{eq:d-ecp-vertex-g-bi-yj}
-	y_i \geq -1 + b_i + y_j \quad\quad \forall i,j \in V \\
+	                                           &                                           & y_i \geq -1 + b_i + y_j \quad\quad                                            & \forall i,j \in V                         \\
 	\label{eq:d-ecp-x-l-sum1}
-	x_{ij}^{k} \geq -2 + a_{ij} ^{k} + z_k + y_i \quad \forall ij \in E_k \\
+	                                           &
+	                                           & x_{ij}^{k} \geq -2 +
+	a_{ij} ^{k} + z_k + y_i \quad\quad         & \forall ij \in E_k                                                                                                                                                    \\
 	\label{eq:d-ecp-x-l-sum2}
-	x_{ij}^{k} \geq -2 + a_{ij} ^{k} + z_k + y_j \quad \forall ij \in E_k \\
+	                                           &
+	                                           & x_{ij}^{k} \geq -2 +
+	a_{ij} ^{k} + z_k + y_j \quad\quad         & \forall ij \in E_k                                                                                                                                                    \\
 	\label{eq:d-ecp-x-l-a}
-	x_{ij} ^{k} \leq a_{ij} ^{k} \quad\quad \forall ij \in E_k \\
+	                                           &                                           & x_{ij} ^{k} \leq a_{ij} ^{k} \quad\quad                                       & \forall ij \in E_k                        \\
 	\label{eq:d-ecp-x-l-z}
-	x_{ij} ^{k} \leq z_k \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
-	\hat{\mathcal{C}}  \\
+	                                           &                                           & x_{ij} ^{k} \leq z_k \quad\quad                                               & \forall T_{k} \in \mathcal{T} _{C}, C \in
+	\hat{\mathcal{C}}                                                                                                                                                                                                  \\
 	\label{eq:d-ecp-a-ij}
-	a _{ij} ^{k}  \in \{0, 1\} \quad\quad \forall ij \in E_k\\
+	                                           &                                           & a _{ij} ^{k}  \in \{0, 1\} \quad\quad                                         & \forall ij \in E_k                        \\
 	\label{eq:d-ecp-b-i}
-	b _{i} \in \{0, 1\} \quad\quad \forall i \in V \\
+	                                           &                                           & b _{i} \in \{0, 1\} \quad\quad                                                & \forall i \in V                           \\
 	\label{eq:d-ecp-y-i}
-	y _{i} \geq 0 \quad\quad \forall i \in V \\
+	                                           &                                           & y _{i} \geq 0 \quad\quad                                                      & \forall i \in V                           \\
 	\label{eq:d-ecp-x-ij}
-	x _{ij} ^{k}  \geq 0 \quad\quad \forall ij \in E_k\\
+	                                           &                                           & x _{ij} ^{k}  \geq 0 \quad\quad                                               & \forall ij \in E_k                        \\
 	\label{eq:d-ecp-z-k}
-	z _{k} \in \{0, 1\} \quad\quad \forall T_{k} \in \mathcal{T} _{C}, C \in
+	                                           &                                           & z _{k} \in \{0, 1\} \quad\quad                                                & \forall T_{k} \in \mathcal{T} _{C}, C \in
 	\hat{\mathcal{C}}
-\end{gather}
+\end{alignat}
 
 Where are $N_k$ and $M_k$ are constants of value $\alpha (|E_k^{+}| + 1)$ and $(1 -
 	\alpha ) ( |E^{-}_k| + 1)$, respectively.
