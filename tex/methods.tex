@@ -22,12 +22,12 @@
 We now present some techniques for calculating exactly and approximating both
 the \acrshort{ECP} and the \acrshort{D-ECP} (\autoref{sub:the_problem_definition}).
 
-\section{Exact solutions}%
+\section{Exact Solutions}%
 \label{sec:exact-solutions}
 
 We start with our exact algorithms that are based on MIPs.
 
-\subsection{A MIP model for the \acrshort{ECP}}%
+\subsection{A MIP Model for the \acrshort{ECP}}%
 \label{sub:a_mip_model_for_the_ecp}
 
 Let $G$ be an \emph{interaction graph} for contents $\mathcal{C} $ and
@@ -242,7 +242,7 @@ MIP~\eqref{eq:ecp-exact1}-\eqref{eq:ecp-thread-def1}.
 	This concludes the proof for \autoref{th:ecp-mip}.
 \end{proof}
 
-\subsubsection{A MIP model for $\alpha > 0.5$}
+\subsubsection{A MIP Model for $\alpha > 0.5$}
 
 Previously, we solved the \acrshort{ECP} for $\alpha \in [0, 0.5]$. Solving the problem for $\alpha \in [0, 1]$ requires the definition of
 additional variables and constraints.
@@ -439,7 +439,7 @@ other variables have the same meaning as in MIP~\eqref{eq:ecp-exact1}-\eqref{eq:
 	is proved.
 \end{proof}
 
-\subsection{A MIP model for the \acrshort{D-ECP}}%
+\subsection{A MIP Model for the \acrshort{D-ECP}}%
 \label{sub:a_mip_model_for_the_d_ecp}
 
 Similarly to the \acrshort{ECP}, here we propose a \acrshort{MIP} model for
@@ -795,7 +795,7 @@ We present in details algorithm focusing on \acrshort{ECP}. They can generally b
 adapted for solving the \acrshort{D-ECP} by replacing calls to
 $\textsc{Score}_{\xi}$ with $\textsc{Score}_{\psi}$.
 
-\subsection{The $\beta$-algorithm}%
+\subsection{The $\beta$-Algorithm}%
 \label{ssub:the_beta_approach}
 
 The $\beta$-algorithm is an heuristic for the \acrshort{ECP}. The
@@ -850,7 +850,7 @@ sets of users that are connected in the original graph. This is due to the fact
 that it will never add a node which is not connected to any of the vertices in
 $U$, as it produces an increase of the score equal to $0$.
 
-\subsection{Peeling algorithm}%
+\subsection{Peeling Algorithm}%
 \label{ssub:peeling_algorithm}
 
 Inspired to the greedy algorithm proposed in \cite{charikar2000greedy}, the
@@ -879,7 +879,7 @@ If many nodes produce the same score, then one of them is
 randomly selected (or, alternatively, the one which has the highest fraction of
 negative edges).
 
-\subsection{Rounding algorithm}%
+\subsection{Rounding Algorithm}%
 \label{ssub:rounding_algorithm}
 
 This algorithm reconstructs a solution starting from the results of the
@@ -1014,7 +1014,7 @@ in this example the algorithm is able to reconstruct the exact solution of the p
 	\label{fig:rounding-original2}
 \end{figure}
 
-\section{Alternative formulations}%
+\section{Alternative Formulations}%
 \label{sec:alternative-formulations}
 
 Due to the intrinsic complexity of the problems
