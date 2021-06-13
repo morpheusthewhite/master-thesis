@@ -498,14 +498,14 @@ function that calculates the density of a set of nodes $S$ in a undirected
 graph $G$, i.e.\
 
 \begin{equation*}
-	g: S, \; G \rightarrow \mathbb{R}.
+	g: S \times G \rightarrow \mathbb{R}.
 \end{equation*}
 
 Also, let $h$ be a function aggregating the value of the density of
 each snapshot of the graph sequence, i.e.\
 
 \begin{equation*}
-	h: \{ g(S, G_1), \; g(S, G_2), \; \dots, \; g(S, G_T)\} \rightarrow
+	h: g(S, G_1) \times g(S, G_2) \times \dots \times g(S, G_T) \rightarrow
 	\mathbb{R}.
 \end{equation*}
 
@@ -522,20 +522,21 @@ of the problem
 \begin{itemize}
 	\item \acrshort{DCS}-MM maximizes the Minimum of the Minimum degrees along
 	      the graph sequence, i.e.
-	      \begin{equation}
+	      \begin{align}
 		      \label{eq:dcs-mm}
-		      \min_{i \in [T]} \text{min-deg} (G_i[S]).
-	      \end{equation}
+		      g & = \text{min-deg} (G_i[S]), & f & = \min_{i \in [T]} \text{min-deg} (G_i[S]).
+	      \end{align}
 	      A non-trivial solution means finding a set of nodes which are linked
 	      in all the graphs $G_i \in \mathcal{G} $.
 	      In \cite{semertzidis2019finding} it is shown a simple greedy approach
 	      for finding the solution in polynomial time.
-	\item \acrshort{DCS}-MA uses the following as density aggregation function
-	      \begin{equation}
+	\item \acrshort{DCS}-MA uses the following functions
+	      \begin{align}
 		      \label{eq:dcs-ma}
-		      \min_{i \in [T]}
+		      g        & = \frac{\sum^{}_{v_{j} \in S } \text{deg}_{G_i[S]} (v_{j}
+		      )}{|S|}, & f                                                         & = \min_{i \in [T]}
 		      \frac{\sum^{}_{v_{j} \in S } \text{deg}_{G_i[S]} (v_{j} )}{|S|}.
-	      \end{equation}
+	      \end{align}
 	      This means finding a set of vertices $S$ which are dense in the sense
 	      that they have a non-trivial average degree in all the graphs of the
 	      sequence.
@@ -560,12 +561,11 @@ of the problem
 
 	      \begin{equation}
 		      \label{eq:dcs-am}
-		      \sum^{}_{i \in [T]} \text{min-deg} (G_i [S]),
+		      f = \sum^{}_{i \in [T]} \text{min-deg} (G_i [S]),
 	      \end{equation}
-
-	      which will push the algorithms to find a set of vertices which have
-	      degree greater than $0$ in some of the subgraphs they induce in the
-	      graph sequence.
+	      while $g$ is the same as in \eqref{eq:dcs-mm}. This choice will push
+	      the algorithms to find a set of vertices which have degree greater
+	      than $0$ in some of the subgraphs they induce in the graph sequence.
 
 	      Charikar, Naamad and Yu proved in \cite{charikar2018finding}
 	      that \acrshort{DCS}-AM is inapproximable within factor $n^{1-\epsilon} $ unless
@@ -579,13 +579,13 @@ of the problem
 
 	      \begin{equation}
 		      \label{eq:dcs-aa}
-		      \sum^{}_{i \in [T]} \frac{\sum^{}_{v_{j} \in S} \text{deg}_{G_i[S]}
+		      f = \sum^{}_{i \in [T]} \frac{\sum^{}_{v_{j} \in S} \text{deg}_{G_i[S]}
 		      (v_{j} )}{|S|}
 	      \end{equation}
 
 	      which puts fewer restrictions than the previous variants on the
 	      solutions, requiring only a high average degree on the union of the
-	      graphs.
+	      graphs. Note that $g$ is the same as in \eqref{eq:dcs-ma}.
 
 	      This problem can be solved optimally in polynomial time as it can be
 	      reduced to the classical Densest Subgraph problem
@@ -625,7 +625,10 @@ We will focus and present only an algorithm for approximating
 
 Let us first define $\textsc{Score}_{a}  $, a procedure that removes the node
 with the lowest degree in a graph while properly updating the degree of the
-other nodes (\autoref{alg:score_a}).
+other nodes. When called for the first time, this
+function initializes $\hat{H}_{\mathcal{G} }$, $\hat{E}$ and $\mathcal{F}[d] $,
+as described in \autoref{alg:score_a}, that are updated during the subsequent
+calls to the function.
 
 Note that we refer to the degree $d$ of a vertex $v_{i} $ in a weighted graph as
 the sum of the weights of the edges of the node, i.e.\ $ d_{v_i} = \sum^{}_{(v_{i} , v_{j}

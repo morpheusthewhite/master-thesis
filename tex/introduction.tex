@@ -29,7 +29,7 @@ and approximating them.
 We introduce these new approaches for finding Echo Chambers due to growing complexity and quantity of
 online interactions; the last year of social distancing forced
 many people to stay at home and consequently we can expect that the time
-they spent social medias increased from the past, thus producing a denser
+they spent on social medias increased from the past, thus producing a denser
 network of interactions.
 
 Our two problems are defined on a signed graph which distinguishes
@@ -43,7 +43,7 @@ discussing a content).
 Our idea is that Echo Chambers correspond to subgraphs discussing one or more
 controversial topics (which trigger many negative reactions in the network when
 seen as a whole) with few or no negative interactions: users in this bubble
-agree with each other, thus reinforcing their initial position.
+agree with each other, thus reinforcing their initial positions.
 
 \section{Background}
 \label{sec:background}
@@ -93,9 +93,10 @@ $e_{ij} \in E $ and as $ij \in E$.
 Representing relationships between entities which span over more than two
 dimensions requires the definition of an ever more complex structure, the
 \emph{multiplex graph}. A \emph{multiplex graph} is a set of graphs (also
-referred to as \emph{layers}) $\{ G_i = (V, E_i)\} _i$ over the same set of
-vertices $V$, each $G_i$ having its own set of vertices $E_i \subseteq V \times V $ (an
-example can be seen in \autoref{fig:tex/img/multiplex-graph}). Multiplex graphs
+referred to as \emph{layers}) $G = \{ G_i = (V, E_i)\} _i$ over the same set of
+vertices $V$, each $G_i$ having its own set of edges $E_i \subseteq V \times V
+$. An
+example can be seen in \autoref{fig:tex/img/multiplex-graph}. Multiplex graphs
 can be used, for example, to model temporal networks, where
 each \emph{layer} corresponds to a snapshot of the relationship at a certain
 point in time \cite{Newman2018}.
@@ -123,9 +124,13 @@ The \emph{interaction graph} $G$ is the graph we utilize to encode the
 information regarding the interactions between the users.
 
 \begin{definition}
-	We say that multigraph $G=(V,E^+,E^-)$ is an interaction graph if $G$ is
-	directed, weighted and signed with weights in $[-1,+1]$, and $G$ is also a
-	multiplex graph.
+	% We say that a multigraph $G=(V,E^+,E^-)$ is an interaction graph if $G$ is
+	% directed, weighted and signed with weights in $[-1,+1]$, and $G$ is also a
+	% multiplex graph.
+	A multiplex graph $G = {G_k = (V,E_k) }_k$ is called an interaction graph
+	if each $G_k$ is a directed, weighted and signed multigraph with weights in
+	$[-1,+1]$. We will often refer to the layers $G_k$ as
+	threads and therefore also denote them as $T_k$, i.e. we set $T_k = G_k$.
 \end{definition}
 
 In this graph each user is associated to a vertex $v \in V$. For this reason we
@@ -235,15 +240,16 @@ or no animosity in some subgraphs. These subgraphs are the \emph{Echo
 Given an \emph{interaction graph} $G = (V, E^{+}, E^{-})$ on some contents
 $\mathcal{C} $ and threads, let $E^{+}_k$ and $E^{-}_k$ be the set of
 positive and negative edges associated to thread $T_k$, respectively. We define
-$\eta(T)$ to be the ratio between the number of
+$\eta(T_k)$ to be the ratio between the number of
 negative edges and the total number of edges in the layer associated to thread
-$T$, i.e.
+$T_k$, i.e.
 \begin{equation*}
 	\eta(T_k) = \frac{|E^{-}_{k}|}{|E^{-}_{k}| + |E^{+}_{k}|}.
 \end{equation*}
 
-Now, for a content $C$, let $E^{+}_l = \cup_{T_k \in \mathcal{T} _C} E^+_k$ and $E^{+}_l = \cup_{T_k \in \mathcal{T} _C} E^+_k$.
-Similarly to $\eta(T)$, $\eta(C)$ is defined as the fraction of negative edges associated to
+Now, for a content $C$, let $E^{+}_l = \bigcup_{T_k \in \mathcal{T} _C} E^+_k$
+and $E^{+}_l = \bigcup_{T_k \in \mathcal{T} _C} E^+_k$.
+Similarly to $\eta(T_k)$, $\eta(C)$ is defined as the fraction of negative edges associated to
 content $C$, i.e.
 \begin{equation*}
 	\eta(C_l) = \frac{|E^{-}_{l}|}{|E^{-}_{l}| + |E^{+}_{l}|}.
@@ -341,12 +347,12 @@ Given an \emph{interaction graph} $G$ and $\alpha \in [0, 1]$ find a set of vert
 \end{problem}
 
 Note that $\psi(U) = \xi(U) / |U|$. The solutions to this problem are, in a certain sense, a \emph{stronger} concept of Echo
-Chambers: we look for a group of vertices $U$ whose
+Chambers: we look for a group of vertices~$U$ whose
 score $\xi(U)$ is high when compared to $|U|$, i.e.\ a smaller subgraph with a
 large $\xi(U)$ will be preferred over a much bigger and sparser subgraph, even
 if the latter achieves an higher Echo Chamber Score.
 
-\section{Goals}
+\section{Goals and Results}
 \label{sec:goals}
 
 This work addresses the following research questions:
@@ -358,9 +364,9 @@ This work addresses the following research questions:
 	      data?
 \end{enumerate}
 
-We will show that these problems are not approximable in polynomial time within
-some non-trivial factor and present different methods for solving and
-approximating them. We will validate one of the presented approximation
+We answer Questions $1$ and $2$ showing that these problems are not approximable in polynomial time within
+some non-trivial factor (see \autoref{ch:complexity}). In \autoref{ch:solving}, we present different methods for solving and
+approximating them. In \autoref{ch:resultsAndAnalysis}, we will validate one of the presented approximation
 algorithms over synthetic and real-world data, and see that, while in the first
 case it is able to reconstruct subgraphs whose vertices have many positive edges, in
 the second one it fails to recognize communities.
