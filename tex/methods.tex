@@ -1,24 +1,6 @@
 \chapter{Solving the \acrshort{ECP} and the \acrshort{D-ECP}}
 \label{ch:solving}
 
-% This chapter focuses on describing the main topic of the
-% research: the problems are motivated and defined in
-% \autoref{sec:the_echo_chamber_problem}, and their complexity is then analyzed
-% in \autoref{sec:problem_complexity_and_approximability}, while proposing some
-% alternative problem definitions. Algorithms and models for solving and
-% approximating the problems are then proposed in
-% \autoref{sec:solving_the_problem}; the definition of a generative model
-% concludes the chapter (\autoref{sec:generative_model}).
-
-% \section{The \acrlong{ECP}}%
-% \label{sec:the_echo_chamber_problem}
-
-% This section starts by outlining the graph on which the analysis is carried
-% out (\autoref{sub:interaction-graph}), the process for building it
-% (\autoref{sub:collection_and_preprocessing}) and finally defines the
-% \acrlong{ECP} and the \acrlong{D-ECP} (\autoref{sub:the_problem_definition} and
-% \autoref{sub:the_densest_echo_chamber_problem}).
-
 We now present some techniques for calculating exactly and approximating both
 the \acrshort{ECP} and the \acrshort{D-ECP} (\autoref{sub:the_problem_definition}).
 
@@ -89,7 +71,7 @@ MIP~\eqref{eq:ecp-exact1}-\eqref{eq:ecp-thread-def1}.
 
 \begin{theorem}
 	\label{th:ecp-mip}
-	Let $G = (V, E^{+}, E^{-})$ be an \emph{Interaction Graph} and $\alpha \in
+	Let $G = \{G_k = (V,E_k) \}_k$ be an \emph{Interaction Graph} and $\alpha \in
 		[0, 0.5]$. Then
 
 	\begin{equation}
@@ -313,7 +295,7 @@ other variables have the same meaning as in MIP~\eqref{eq:ecp-exact1}-\eqref{eq:
 
 \begin{theorem}
 	\label{th:ecp-mip}
-	Let $G = (V, E^{+}, E^{-})$ be an \emph{Interaction Graph} and $\alpha \in
+	Let $G = \{G_k = (V,E_k) \}_k$ be an \emph{Interaction Graph} and $\alpha \in
 		[0, 1]$. Then
 
 	\begin{equation}
@@ -519,7 +501,7 @@ transformed into a valid constraint as explained in
 
 \begin{theorem}
 	\label{th:d-ecp-mip}
-	Let $G = (V, E^{+}, E^{-})$ be an \emph{Interaction Graph} and $\alpha \in
+	Let $G = \{G_k = (V,E_k) \}_k$ be an \emph{Interaction Graph} and $\alpha \in
 		[0, 1]$.
 
 	\begin{equation}
@@ -772,7 +754,7 @@ in the \acrshort{MIP}s, as the sums iterate over positive and negative edges.
 
 \begin{algorithm}
 	\SetAlgoLined
-	\KwIn{Interaction graph $G = (V, E^{+}, E^-)$, a set of users $U
+	\KwIn{Interaction graph $G = \{G_k = (V,E_k) \}_k$, a set of users $U
 			\subseteq V$, $\alpha \in [0, 1]$}
 	\KwResult{$\xi(U)$}
 	$N^{+} (T) \leftarrow 0, \; N^{-} (T) \leftarrow 0\; $ for all threads $T

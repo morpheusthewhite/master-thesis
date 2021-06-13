@@ -94,11 +94,14 @@ respectively, with $\omega ^{-} _{rs} + \omega ^{+} _{rs}
 Additionally, we have the following new parameters:
 
 \begin{itemize}
-	\item $\{\phi_{rs} \}$, the edge probabilities of a standard SBM. A standard SBM
-	      takes as parameters a group assignment for each node (we will use
-	      $b_i$) and the
-	      probability of edge between each pair of communities (exactly $\{\phi_{rs} \}$), producing an
-	      unweighted and undirected graph.
+	\item $\{\phi_{rs} \}$, the edge probabilities of a standard SBM.
+	      A standard SBM is a model for generating undirected and unweighted
+	      graphs with community-like structures. It takes as parameters the number
+	      of community $k$, a group assignment for each node (we will use $b_i$)
+	      and the probability of edge between each pair of communities (exactly
+	      $\{\phi_{rs} \}$). Then, for each pair of nodes $v_i$ and $v_j$
+	      belonging to communities $r$ and $s$, respectively, it adds an edge
+	      between $v_i$ and $v_j$ with probability $\phi_{rs}$.
 
 	      This model is used for generating a graph $G_f$, which we will call the \emph{friend} graph,
 	      representing the friendship relationships between the users. We will
@@ -658,7 +661,7 @@ corrects the RAND Index "by chance", i.e. compares it to the expected index
 refer to \cite{CharuC.Aggarwal2013}.
 
 \begin{algorithm}
-	\KwIn{$G = (V, E) \leftarrow $ interaction graph, $\alpha \in [0, 1]$,
+	\KwIn{$G = \{G_k = (V,E_k) \}_k \leftarrow $ interaction graph, $\alpha \in [0, 1]$,
 		$\mathcal{L} $ ground truth labels of $V$, $\mathcal{I} $ possible
 		labels}
 	\KwOut{Jaccard and Adjusted RAND index}
