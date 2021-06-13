@@ -730,13 +730,30 @@ Chambers.
 			\label{fig:tex/out/synthetic_exact/_noise_jaccard.pdf}
 		\end{subfigure}
 	\end{center}
-	\caption{Clustering scores on generated graphs with 12 threads and four communities, each
+	\caption[MIP and rounding algorithm clustering scores on generated graphs]{Clustering scores on generated graphs with 12 threads and four communities, each
 		of six nodes, for different values of the noise
-		variable~$x$.}
+		variable~$x$. Running times are reported in
+		\autoref{tab:synthetic-times}.}
 	\label{fig:clustering-mip-rounding}
 \end{figure}
 
-We compared the scores obtained with the \acrshort{MIP} for the \acrshort{ECP}
+\begin{table}
+	\centering
+	\caption{Running times of \acrshort{MIP} and rounding algorithm on
+		synthetic data, in seconds.}
+	\label{tab:synthetic-times}
+	\begin{tabular}{|c|cccccc|}
+		\toprule
+		                   & \multicolumn{6}{c|}{$x$}                                       \\
+		                   & 0                        & 0.1  & 0.2  & 0.3   & 0.4   & 0.5   \\
+		\midrule
+		\acrshort{MIP}     & 1762                     & 2441 & 7247 & 24543 & 38992 & 41345 \\
+		Rounding Algorithm & 26                       & 30   & 40   & 39    & 41    & 40    \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+We cothe scores obtained with the \acrshort{MIP} for the \acrshort{ECP}
 (\autoref{sub:a_mip_model_for_the_ecp}) and the Rounding algorithm
 (\autoref{sub:approximation_algorithms}). Due to the use of the
 \acrshort{MIP} model these experiments have been carried out on
@@ -882,7 +899,8 @@ $x \in \{ 0.0, 0.1 \}$.
 			\label{fig:tex/out/synthetic_8t/model2_noise_adj_rand.pdf}
 		\end{subfigure}
 	\end{center}
-	\caption{Adjusted RAND indices for graphs with four communities, each of
+	\caption[Adjusted RAND indices for graphs with different number of
+		threads]{Adjusted RAND indices for graphs with four communities, each of
 		six nodes, and different number of threads, obtained with the rounding
 		algorithm.}
 	\label{fig:clustering-threads}
@@ -970,7 +988,8 @@ reasons:
 
 \begin{table}
 	\centering
-	\caption{Classification scores obtained with the
+	\caption[Classification scores obtained with the
+		rounding algorithm on two labeled datasets]{Classification scores obtained with the
 		rounding algorithm on two labeled datasets. $\alpha $ is chosen as the
 		median $\eta(C)$, $C \in
 			\mathcal{C} $. For the @nytimes dataset we report the statistics
