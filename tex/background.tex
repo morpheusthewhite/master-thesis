@@ -708,14 +708,14 @@ The algorithm starts by solving the \acrshort{DCS} problem on each of the
 graphs $G_{i} $ in $\mathcal{G} $ and finding the corresponding set of vertices
 $S_{i} $ of the solution. Then $\mathcal{L}_{2}  $ is chosen as the pair of graphs which
 have the most similar set of vertices in the respective solutions, where the
-similarity is measured through the Jaccard coefficient \footnotemark.
+similarity is measured through the Jaccard coefficient.
 
-\footnotetext{Given two sets $C_1$ and $C_2$ the Jaccard coefficient is equal
-	to \cite{CharuC.Aggarwal2013}
-	\begin{equation*}
-		Jaccard(C_1, C_2) = \frac{|C_1 \bigcap C_2|}{|C_1 \bigcup C_2|}
-	\end{equation*}
-}
+The Jaccard coefficient is measure of similarity between two sets. More specifically, given two sets $C_1$ and $C_2$, the Jaccard coefficient is equal
+to \cite{CharuC.Aggarwal2013}
+\begin{equation*}
+	Jaccard(C_1, C_2) = \frac{|C_1 \cap C_2|}{|C_1 \cup C_2|}.
+\end{equation*}
+
 The \acrshort{DCS} problem is now solved on $\mathcal{L} _{2} $ to obtain a set
 of vertices $S_C$ which is compared against the other $S_i$ previously computed
 solutions to

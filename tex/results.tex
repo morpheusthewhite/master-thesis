@@ -48,9 +48,11 @@ distribution with three parameters which we will denote as
 \begin{equation*}
 	\Omega = (\Omega^+, \Omega ^-, \Omega ^0).
 \end{equation*}
-$\Omega ^+$ and $\Omega ^-$ are the probabilities of adding a positive and
+Here, $\Omega ^+$ and $\Omega ^-$ are the probabilities of adding a positive and
 negative edges, respectively, while $\Omega ^0$ is the probability of not
-adding any edge.
+adding any edge. Note that since this is a probability distribution, we will
+have $\Omega ^+, \Omega ^-, \Omega ^0 \geq 0$ and $\Omega ^+ + \Omega ^- +
+	\Omega ^0 = 1$.
 
 \bigskip
 
@@ -167,6 +169,9 @@ Then, in order to find all threads related to $C$, we search Twitter for
 the content URL to obtain the tweets containing it. Each of these tweets
 will correspond to a different thread.
 
+For each thread we then construct the tree of replies through a DFS,
+recursevily fetching users replying to a comment.
+
 \medskip
 
 In order to validate our methods, we also construct datasets in which users are labeled either as
@@ -233,9 +238,9 @@ The model, given a string of text, returns a probability distribution
 \begin{equation*}
 	(p_{neg}, p_{neu}, p_{pos})
 \end{equation*}
-
 whose parameters represent the probabilities of negative,
-neutral and positive sentiment. Let
+neutral and positive sentiment. Note that since this is a probability distribution, we will
+have $p_{neg}, p_{neu}, p_{pos} \geq 0$ and $p_{neg} + p_{neu} + p_{pos} = 1$. Let
 \begin{align}
 	\label{eq:}
 	p_n & \coloneqq p_{neg}, & p_p & \coloneqq p_{pos} + p_{neu}.
@@ -257,14 +262,14 @@ theme gather. We think that this contributes to create community of users which 
 active and more likely to discuss among each other, as they end up looking at the
 same posts and discussions.
 
-Twitter, instead, is a much less "centralized" social media where there a lot
-of \emph{hubs} (users with many followers) that discuss very similar topics but
-have disjoint communities.
-Think, as an example, to the Twitter accounts of Joe Biden and Donald Trump. We expect that
-most of the followers of the first one are not followers of the latter, and
-vice versa, even if both of them discuss U.S. politics. This means that many
-users, even if they are interested in the same theme (U.S. politics in our example)
-will rarely interact between each other.
+Twitter, instead, is a much less "centralized" social media with a lot of
+\emph{hubs} (users with many followers) that discuss similar topics but have
+disjoint communities.  Think, as an example, of the Twitter accounts of Joe
+Biden and Donald Trump. We expect that most of the followers of the first one
+are not followers of the latter, and vice versa, even if both of them discuss
+U.S. politics. This means that many users, even if they are interested in the
+same theme (U.S. politics in our example), will rarely interact with each
+other.
 
 The "centralization" of Reddit produces, in our data model, contents that are
 associated with few threads. We observed that even the most discussed articles
@@ -327,9 +332,10 @@ achieve an accuracy between $0.5$ and $0.6$.
 		different contents]{This plot shows how the accuracy of the classification
 		process explained in \autoref{sec:the_r_asktrumpsupporters_case} is
 		distributed for the different contents $C \in \mathcal{C} $. The graph
-		used for the analysis contains $1850$ user vertices and
-		$16470$ edges between them. Furthermore, there are $71$ content nodes
-		and $5773$ content-user edges.}%
+		used for the analysis (built on r/asktrumpsupporters) contains $1850$ user vertices and
+		$16470$ edges between them. Furthermore, we introduce
+		$71$ content nodes and $5773$ edges between content and user
+		vertices.}%
 	\label{fig:tex/out/experimental200/experimental200-accuracy-hist}
 \end{figure}
 
@@ -543,7 +549,7 @@ $|w_{ij}| \approx 1$ we obtain
 		\end{subfigure}
 	\end{center}
 	\caption[Sum edges over number of interactions for many datasets]{Plots of
-		sum of the edges weights over the number of interaction for contents
+		sum of the edge weights over the number of interactions for contents
 		from different datasets/subreddits.}
 	\label{fig:edge-sum-n-interactions}
 \end{figure}
@@ -641,7 +647,15 @@ Let $E_k$ be the edges of thread $T_k$. We then remove the edges contributing to
 After repeating $k$ times this process, where $k$ is the number
 of communities in the model, we compare the ground-truth labels and the
 predictions through the Jaccard coefficient and the Adjusted RAND
-index\footnotemark.
+index. We already introduced the Jaccard
+coefficient in \autoref{sub:the_o_2_bff_problem}.
+
+The Adjusted RAND index is a measure of similarity between
+different clusterings. It is based on the RAND index, which compares
+the number of agreeing pairs in the two solutions; the Adjusted RAND index
+corrects the RAND Index "by chance", i.e. compares it to the expected index
+(i.e.\ of a random assignment). For more details we
+refer to \cite{CharuC.Aggarwal2013}.
 
 \begin{algorithm}
 	\KwIn{$G = (V, E) \leftarrow $ interaction graph, $\alpha \in [0, 1]$,
@@ -660,7 +674,7 @@ index\footnotemark.
 			C \in \mathcal{\hat{C}}\}$ \;
 
 		$l \leftarrow $ majority label of users $U$ in $\mathcal{L} $ \;
-		// Do not label again labeled nodes \;
+		// Do not re-label previously labeled nodes \;
 		$U' \leftarrow U \setminus \{ v \in U \; s.t. \; \mathcal{P}[v] \neq -1
 			\}$ \;
 		$\mathcal{P}[v] = l $ for all $v \in U'$ \;
@@ -677,13 +691,6 @@ index\footnotemark.
 	\caption{Clustering process}
 	\label{alg:clustering_process}
 \end{algorithm}
-
-\footnotetext{The Adjusted RAND index is a measure of similarity between
-	different clusterings. It is based on the RAND index, which compares
-	the number of agreeing pairs in the $2$ solutions; the Adjusted one corrects
-	the RAND Index "by chance", i.e. compares it to the expected index
-	(i.e.\ of a random assignment). For more details we
-	refer to \cite{CharuC.Aggarwal2013}.}
 
 What we expect is that, as the value of $x$ increases, the produced threads
 will have generally more negative edges inside a community and more positive
@@ -735,20 +742,19 @@ contains 12 threads and we choose $\alpha = 0.2$. We experimentally saw that
 this choice of parameters produces controversial contents, thus allowing our
 methods to be applied.
 
-Note that since we choose $\alpha = 0.2$ our analysis is partially limited for $x
-	> 0.2$ since we may produce graphs that have a fraction of negative
-\emph{intra-community} edges
-higher than $\alpha $, although it is smaller than the fraction of negative
-\emph{inter-community} edges. Nonetheless, we may be able to reconstruct at least
-partially the communities.
+Note that since we choose $\alpha = 0.2$, our analysis is partially limited for
+$x > 0.2$ since we may produce graphs that have a fraction of negative
+\emph{intra-community} edges higher than $\alpha $, although it is smaller than
+the fraction of negative \emph{inter-community} edges. Nonetheless, we may be
+able to reconstruct the communities at least partially.
 
 The performances of the two approaches are shown in
-\autoref{fig:clustering-mip-rounding}. We can see that the MIP model
+\autoref{fig:clustering-mip-rounding}. We can see that the MIP model:
 \begin{itemize}
-	\item Reconstructs perfectly the communities for values of $x \in \{0,
+	\item Reconstructs the communities perfectly for values of $x \in \{0,
 		      0.1\}$.
-	\item Predicts almost perfectly the labels for $x= 0.2$.
-	\item Reconstructs partially the communities for $x = 0.3$, achieving both
+	\item Predicts the labels almost perfectly for $x= 0.2$.
+	\item Reconstructs the communities partially for $x = 0.3$, achieving both
 	      a Jaccard coefficient and an Adjusted RAND Index around $0.7$.
 	\item Fails to find the original groups of users for $x \geq 0.4$.
 \end{itemize}
@@ -761,7 +767,7 @@ communities will generally add many more negative edges to the subgraph).
 Conversely, the rounding algorithm is more affected by noise than MIP. More
 specifically, the rounding algorithm:
 \begin{itemize}
-	\item Reconstructs the communities perfectly for values of $x = 0$.
+	\item Reconstructs the communities perfectly for $x = 0$.
 	\item Partially recognizes the communities for $x= 0.1$, obtaining a
 	      Jaccard coefficient and Adjusted RAND Index around $0.8$.
 	\item Finds few users belonging to the same community for $x = 0.2$, with

@@ -80,7 +80,8 @@ The \acrshort{MIP} model introduces variables $x$, $y$ and $z$.
 	      i.e. $T_k \in \mathcal{S}_{C} (U)$.
 	\item $z$ variables are associated to threads
 	      (\autoref{eq:ecp-thread-def1}). A value greater than 0
-	      is generally associated to \emph{non-controversial} threads.
+	      is generally associated to \emph{non-controversial} threads and
+	      \emph{controversial} threads have value $z_k = 0$.
 \end{itemize}
 
 We will now show that the \acrshort{ECP} can be solved through
@@ -214,7 +215,6 @@ MIP~\eqref{eq:ecp-exact1}-\eqref{eq:ecp-thread-def1}.
 			% \\
 			% x_{ij}^{k} = c \iff z_k = c \land y_i = 1 \land y_j = 1,
 		\end{gather*}
-
 		meaning that if $z_k = c$ all and only the variables $x_{ij}^{k}$
 		associated to edges $e_{ij} \in E_k$ induced by $U$
 		will get value $c$ (any other $x_{ij}^{k}$ will get value $0$ for
@@ -248,6 +248,7 @@ Previously, we solved the \acrshort{ECP} for $\alpha \in [0, 0.5]$. Solving the 
 additional variables and constraints.
 
 \begin{equation}
+	\label{eq:ecp-exact2}
 	\text{maximize}\quad \sum_{ T_{k} \in \mathcal{T}_{C}, \; C \in
 		\mathcal{\hat{C}} } \big( \sum^{}_{ij \in E^{+}_k } x_{ij}
 	^{k} - \sum_{ij \in E^{-} _k} x_{ij} ^{k} \big)
@@ -305,13 +306,15 @@ We will however use \eqref{eq:ecp-a-alpha-constraint} for simplifying notation.
 This problem requires the introduction of variables $a_{ij}^{k}$,
 associated to edges \eqref{eq:ecp-a-domain-2}, which
 generally take value one if they are associated to an edge induced by the
-set of vertices considered as solution (i.e. $y_i$ with value one). The
+set of vertices considered as solution (i.e. $y_i$ with value one). Note that,
+in order to contribute to the score, $x_{ij}^{k}$ also require that the
+corresponding thread $T_k \in S_C(U)$. The
 other variables have the same meaning as in MIP~\eqref{eq:ecp-exact1}-\eqref{eq:ecp-thread-def1}.
 
 \begin{theorem}
 	\label{th:ecp-mip}
 	Let $G = (V, E^{+}, E^{-})$ be an \emph{Interaction Graph} and $\alpha \in
-		[0, 1]$.
+		[0, 1]$. Then
 
 	\begin{equation}
 		\max_{U \subseteq V} \xi(U) = \text{OPT(MIP)}
@@ -326,7 +329,7 @@ other variables have the same meaning as in MIP~\eqref{eq:ecp-exact1}-\eqref{eq:
 	\begin{claim}
 		\label{th:claim-v-b-xi2}
 		For any $U \subseteq V$, the
-		MIP~\eqref{eq:ecp-exact1}-\eqref{eq:ecp-thread-def1} gets value $\geq \xi(U)$.
+		MIP~\eqref{eq:ecp-exact2}-\eqref{eq:ecp-z-domain-2} gets value $\geq \xi(U)$.
 	\end{claim}
 
 	It is easy to see that by choosing $x_{ij}^{k}, \; y_i, \; z_k$ as in
@@ -367,12 +370,12 @@ other variables have the same meaning as in MIP~\eqref{eq:ecp-exact1}-\eqref{eq:
 		\end{align}
 		Consider now a thread $T_k \in \mathcal{S}_C(U)$. By definition, we
 		have that
-		\begin{alignat}
+		\begin{align}
 			\eta(T_k) \leq \alpha & \implies \frac{|E^{-}_{k}[U]|}{|E_{k}[U]|} \leq \alpha \\
 			\label{eq:ecpp-nc-thread2}
 			                      & \implies |E^{-}_{k}[U]| - \alpha \cdot
 			|E_{k}[U]| \leq 0.
-		\end{alignat}
+		\end{align}
 		Now suppose $z_k = 0$. This means that
 		\eqref{eq:ecp-a-alpha-constraint} resolves to
 		\begin{equation*}
@@ -381,7 +384,9 @@ other variables have the same meaning as in MIP~\eqref{eq:ecp-exact1}-\eqref{eq:
 			a_{ij} ^{k} \leq M_{k}
 		\end{equation*}
 		Which is not satisfied due to \eqref{eq:ecpp-nc-thread2} and
-		\eqref{eq:ecpp-a-E-sets}.
+		\eqref{eq:ecpp-a-E-sets}, since they imply that $\sum^{}_{ij \in E^-_k} a_{ij}^{k}  - \alpha \sum^{}_{ij
+				\in E_k}
+			a_{ij} ^{k} \leq 0$.
 
 		Thus, $z_k = 1$. This
 		means that the constraint resolves to
@@ -400,7 +405,7 @@ other variables have the same meaning as in MIP~\eqref{eq:ecp-exact1}-\eqref{eq:
 
 		Consequently, because of \eqref{eq:ecpp-z-iff-xij}, we have that
 		\begin{equation}
-			T_k \in \mathcal{S}_C(U) \iff x_{ij}^{k} = 1 \; \forall \;i, j, \in U
+			T_k \in \mathcal{S}_C(U) \iff x_{ij}^{k} = 1 \; \forall \;i, j \in U
 		\end{equation}
 		meaning that each \emph{non-controversial} $T_k$ will contribute to
 		$\xi$ and $v$ with the same score, i.e.
@@ -753,14 +758,17 @@ We now present some heuristic algorithms for solving the \acrshort{ECP} and
 \acrshort{D-ECP}. We start by describing how $\xi(U)$ and $\psi(U)$ can be
 computed in practice.
 
-Let $\textsc{Score}_{\xi} (U)$ and $\textsc{Score}_{\psi} (U)$ be the functions computing the
-\emph{Echo Chamber Score} and \emph{Densest-Echo Chamber Score} of $U$,
-respectively. These subroutines iterate over the edges of the vertices in $U$,
-ignoring those that are not induced by $U$, and counting for each thread $T \in
-	\mathcal{T}_{C}, C \in \mathcal{\hat{C}} $ the number of edges and negative edges
-to see which are \emph{controversial}, then calculating their contributions
-(\autoref{alg:score_xi} shows in detail $\textsc{Score}_\xi$;
-$\textsc{Score}_\psi$ can simply be computed as $\textsc{Score}_\xi(U)/|U|$).
+Let $\textsc{Score}_{\xi} (U)$ and $\textsc{Score}_{\psi} (U)$ be the functions
+computing the \emph{Echo Chamber Score} and \emph{Densest-Echo Chamber Score}
+of $U$, respectively. These subroutines iterate over the edges of the vertices
+in $U$, ignoring those that are not induced by $U$, and counting for each
+thread $T \in \mathcal{T}_{C}, C \in \mathcal{\hat{C}} $ the number of edges
+and negative edges to see which are \emph{controversial}, then calculating
+their contributions (\autoref{alg:score_xi} shows in detail
+$\textsc{Score}_\xi$; $\textsc{Score}_\psi$ can simply be computed as
+$\textsc{Score}_\xi(U)/|U|$).  Note that this algorithm operates also on the
+weights $w_{ij}^{k}$ of the edges. This is something that is "implicitely" done
+in the \acrshort{MIP}s, as the sums iterate over positive and negative edges.
 
 \begin{algorithm}
 	\SetAlgoLined
@@ -798,7 +806,7 @@ $\textsc{Score}_\psi$ can simply be computed as $\textsc{Score}_\xi(U)/|U|$).
 	\label{alg:score_xi}
 \end{algorithm}
 
-We present in details algorithm focusing on \acrshort{ECP}. They can generally be
+We present our algorithms focusing on \acrshort{ECP} in detail. They can generally be
 adapted for solving the \acrshort{D-ECP} by replacing calls to
 $\textsc{Score}_{\xi}$ with $\textsc{Score}_{\psi}$.
 
@@ -1034,7 +1042,7 @@ the \emph{interaction graph}.
 \subsection{The \acrlong{PA} Graph}%
 \label{sub:pa-graph}
 
-Let $G = (V, E^{+}, E^{-})$ be the \emph{interaction graph}, let $E_k$ and
+Let $G = \{G_k = (V,E_k) \}_k$ be the \emph{interaction graph}, let $E_k$ and
 $E^-_k$ denote the edges and negative edges in thread $T_k$,
 respectively. We define $\delta(v_{i}, v_{j})$ and
 $\delta^{-} (v_{i}, v_{j})$ to be the sum of the edges and negative edges, respectively,
@@ -1082,7 +1090,7 @@ separately for each thread.
 
 \bigskip
 
-More specifically, given an \emph{interaction graph} $G = (V, E^{+}, E^{-})$,
+More specifically, given an \emph{interaction graph} $G = \{G_k = (V,E_k) \}_k$,
 let $E(T)$ and
 $E^-(T)$ denote the edges and negative edges in thread $T$,
 respectively. We define $\delta_{T}(v_{i}, v_{j})$ and
