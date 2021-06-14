@@ -404,7 +404,10 @@ datasets, while in @foxnews this effect is less visible.
 \begin{table}
 	\centering
 	\caption{Basic statistics for analyzed datasets. Threads with no replies
-		are excluded from the counts.}
+		are excluded from the counts. @nytimes dataset is built from contents
+		between the 13th and 21th of May, @foxnews between the 22nd and 29th of
+		April and @bbcnews
+		between the 26th and 31st of May.}
 	\label{tab:basic-statistics}
 	\begin{tabular}{|c c c c c c|}
 		\toprule
@@ -479,8 +482,10 @@ predominate generally have less negative interactions between the users.
 
 \begin{table}
 	\centering
-	\caption[Fraction of negative edges in different subreddits]{Fraction of negative edges for datasets build on different
-		subreddits, each for $200$ contents.}
+	\caption[Fraction of negative edges in different subreddits]{Fraction of
+		negative edges for datasets built on different
+		subreddits, each for $200$ contents between December 14, 2020 and
+		March 11, 2021.}
 	\label{tab:eta-subreddits}
 	{\small
 		\begin{tabular}{|c p{6cm} p{2cm} |}
@@ -964,7 +969,10 @@ reasons:
 		rounding algorithm on two labeled datasets. $\alpha $ is chosen as the
 		median $\eta(C)$, $C \in
 			\mathcal{C} $. For the @nytimes dataset we report the statistics
-		related to its $4$-core. $|\{T\}|$ indicates the number of threads.}
+		related to its $4$-core. $|\{T\}|$ indicates the number of threads. The
+		contents of @nytimes belong to the period between the 2nd and 8th of May,
+		while the contents of r/asktrumpsupporters are between December 27, 2020 and
+		May 7, 2021.}
 	\label{tab:scores-datasets-labeled}
 	{\small
 		\begin{tabular}{|ccccc p{1.8cm} c|}
@@ -1001,7 +1009,8 @@ in less than $6$ seconds.
 	\centering
 	\caption[Execution time of the heuristics]{Execution time in seconds of
 		the heuristics. Here, $\alpha$ is chosen to be the median of the
-		$\eta(C)$ for each dataset.}
+		$\eta(C)$ for each dataset. The contents of the datasets belong to the
+		period between the 26th of May and the 1st of June.}
 	\label{tab:times-approximation}
 	\begin{tabular}{c|c|c|c|c|c}
 		Dataset         & $|V|$ & $|E|$ & Rounding                 & Peeling                  & $\beta$                  \\
