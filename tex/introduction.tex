@@ -237,7 +237,7 @@ or no animosity in some subgraphs. These subgraphs are the \emph{Echo
 
 \bigskip
 
-Given an \emph{interaction graph} $G = (V, E^{+}, E^{-})$ on some contents
+Given an \emph{interaction graph} $G = \{G_k = (V,E_k) \}_k$ on some contents
 $\mathcal{C} $ and threads, let $E^{+}_k$ and $E^{-}_k$ be the set of
 positive and negative edges associated to thread $T_k$, respectively. We define
 $\eta(T_k)$ to be the ratio between the number of
@@ -301,7 +301,7 @@ We now define the Echo Chamber Score of a set of vertices $U$.
 	\begin{equation}
 		\label{eq:echo-chamber-score}
 		\xi(U) = \sum^{}_{\mathcal{C} \in \mathcal{\hat{C}}} \sum^{}_{T[U] \in
-		\mathcal{S} (U)} (|T^{+} [U]| - |T ^{-} [U]|).
+		\mathcal{S}_C (U)} (|T^{+} [U]| - |T ^{-} [U]|).
 	\end{equation}
 \end{definition}
 
@@ -337,7 +337,7 @@ For this reason it is interesting also to study another variant of the
 	\begin{equation}
 		\label{eq:densest-echo-chamber-score}
 		\psi(U) = \sum^{}_{\mathcal{C} \in \mathcal{\hat{C}}} \sum^{}_{T[U] \in
-		\mathcal{S} (U)} \frac{(|T^{+} [U]| - |T ^{-} [U]|)}{|U|}.
+		\mathcal{S}_C (U)} \frac{(|T^{+} [U]| - |T ^{-} [U]|)}{|U|}.
 	\end{equation}
 \end{definition}
 
