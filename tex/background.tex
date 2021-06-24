@@ -37,7 +37,7 @@ is then the set of optimization problems with the following properties:
 	      $x$ is feasible, i.e.\ whether $r \in S$;
 	\item for every instance of the problem $x$
 	      and feasible solution for that problem $s \in S$ there is a
-	      polynomial $q \; s.t.  \; s \leq q(|x|)$ (i.e. the size of every
+	      polynomial $q \; s.t.  \; |s| \leq q(|x|)$ (i.e. the size of every
 	      solution is bounded by a polynomial in $x$).
 \end{itemize}
 
@@ -195,7 +195,7 @@ constraints over the variables \cite{Bertsimas1997,Vanderbei2008}:
 %     a_1 x_1 + \dots + a_n x_n \geq b
 % \end{align*}
 %
-In general is possible to formulate any \acrshort{LP} problem as follows (called \emph{standard form}) \cite{Vanderbei2008}
+In general it is possible to formulate any \acrshort{LP} problem as follows (called \emph{standard form}) \cite{Vanderbei2008}
 
 \begin{alignat}{3}
 	\label{eq:standard-form}
@@ -209,7 +209,7 @@ In general is possible to formulate any \acrshort{LP} problem as follows (called
 
 The $x_i$ are known also as \emph{decision variables}; a choice of $ \mathbf{x}
 $ is called \emph{solution} and \emph{feasible solution} if it satisfies the
-constraints, \emph{optimum} if it \emph{feasible} and maximizes the \emph{objective function}
+constraints, \emph{optimum} if it is \emph{feasible} and maximizes the \emph{objective function}
 \cite{Vanderbei2008}.
 
 \subsection{Solving an LP Problem}%

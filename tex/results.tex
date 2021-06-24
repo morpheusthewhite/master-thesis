@@ -122,7 +122,7 @@ follows:
 	\item Initialize all nodes as \emph{inactive}.
 	\item Activate each vertex with probability $\beta_{a}  $.
 	\item Active nodes activate their inactive friends with
-	      probability $\beta_n$. This step is repeatedly each time a new user
+	      probability $\beta_n$. This step is repeated each time a new user
 	      is activated, until the network becomes stable.
 	\item Similarly to the Signed SBM, if two nodes are both active, draw
 	      from
@@ -348,7 +348,7 @@ We explain this with the following reasons:
 	      do you think of ...' and, similarly, ``What's your idea on...''. This
 	      means that our initial hypothesis that positive and negative
 	      stances can be used for inferring the positions of
-	      the users is not correct: for this type of posts, and thus most of the users
+	      the users is not correct: for this type of posts most of the users
 	      will just answer with their opinion, without being either friendly or
 	      hostile.
 	\item This community of users is not a representative sample: people attending
@@ -734,7 +734,7 @@ Chambers.
 	\caption[MIP and rounding algorithm clustering running times on generated
 		graphs]{Running times on generated graphs with 12 threads and four communities, each
 		of six nodes, for different values of the noise
-		variable~$x$.}
+		variable~$x$. The times are expressed in seconds.}
 	\label{tab:synthetic-times}
 	\begin{tabular}{|c|cccccc|}
 		\toprule
@@ -747,7 +747,7 @@ Chambers.
 	\end{tabular}
 \end{table}
 
-We cothe scores obtained with the \acrshort{MIP} for the \acrshort{ECP}
+We report the scores obtained with the \acrshort{MIP} for the \acrshort{ECP}
 (\autoref{sub:a_mip_model_for_the_ecp}) and the Rounding algorithm
 (\autoref{sub:approximation_algorithms}). Due to the use of the
 \acrshort{MIP} model these experiments have been carried out on
