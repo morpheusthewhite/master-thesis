@@ -12,7 +12,15 @@ from polarmine.graph import PolarizationGraph
 from polarmine.utils import plot_degree_distribution, print_top_k
 from polarmine.collectors.reddit_collector import RedditCollector
 from polarmine.collectors.twitter_collector import TwitterCollector
-
+from polarmine.ecp import (
+    score_from_vertices_index,
+    ECPComponentsSolver,
+    ECPMIPSolver,
+    ECPRoundingSolver,
+    ECPBetaSolver,
+    ECPPeelingSolver,
+)
+from polarmine.decp import DECPMIPSolver
 
 parser = argparse.ArgumentParser(description="Polarmine")
 
@@ -256,10 +264,12 @@ def print_scores(
 
         if greedy:
             start = time.time()
-            score, users_index, nc_threads = graph.score_components(alpha)
+            score, users_index, [], nc_threads = ECPComponentsSolver().solve(
+                graph, alpha
+            )
             results_score[f"components_{alpha}"] = (score, users_index)
             print(
-                f"(Connected components) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+                f"(Connected components) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
                 file=scores_txt_file,
             )
             end = time.time()
@@ -269,14 +279,15 @@ def print_scores(
             )
 
             results_greedy_beta_pos = {}
+            beta_solver = ECPBetaSolver()
             for beta in [i / 10 for i in range(6, 11, 1)]:
                 start = time.time()
-                score, users_index, nc_threads = graph.score_greedy_beta(
-                    alpha, beta
+                score, users_index, _, nc_threads = beta_solver.solve(
+                    graph, alpha, beta
                 )
                 results_greedy_beta_pos[beta] = (score, users_index)
                 print(
-                    f"(Greedy beta={beta}, pos. sampling) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+                    f"(Greedy beta={beta}, pos. sampling) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
                     file=scores_txt_file,
                 )
                 end = time.time()
@@ -288,14 +299,15 @@ def print_scores(
             results_score[f"greedy_beta_pos_{alpha}"] = results_greedy_beta_pos
 
             results_greedy_beta_uni = {}
+            beta_solver = ECPBetaSolver(positiveness_samples=False)
             for beta in [i / 10 for i in range(6, 11, 1)]:
                 start = time.time()
-                score, users_index, nc_threads = graph.score_greedy_beta(
+                score, users_index, [], nc_threads = beta_solver.solve(
                     alpha, beta, positiveness_samples=False
                 )
                 results_greedy_beta_uni[beta] = (score, users_index)
                 print(
-                    f"(Greedy beta={beta}, unif. sampling) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+                    f"(Greedy beta={beta}, unif. sampling) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
                     file=scores_txt_file,
                 )
                 end = time.time()
@@ -307,10 +319,12 @@ def print_scores(
             results_score[f"greedy_beta_uni_{alpha}"] = results_greedy_beta_uni
 
             start = time.time()
-            score, users_index, nc_threads = graph.score_greedy_peeling(alpha)
+            score, users_index, [], nc_threads = ECPPeelingSolver().solve(
+                graph, alpha
+            )
             results_score[f"greedy_peeling_{alpha}"] = (score, users_index)
             print(
-                f"(Greedy peeling) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+                f"(Greedy peeling) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
                 file=scores_txt_file,
             )
             end = time.time()
@@ -320,23 +334,10 @@ def print_scores(
             )
 
         if mip:
-            # start = time.time()
-            # score, users_index, _, nc_threads = graph.score_mip(
-            #     alpha, relaxation=True
-            # )
-            # results_score[f"mip_relaxation_{alpha"] = (score, users_index)
-            # print(
-            #     f"(MIP relaxation) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
-            #     file=scores_txt_file,
-            # )
-            # end = time.time()
-            # print(
-            #     f"(MIP relaxation) Elapsed time: {end - start}",
-            #     file=times_txt_file,
-            # )
-
             start = time.time()
-            score, users_index, edges, nc_threads = graph.score_mip(alpha)
+            score, users_index, edges, nc_threads = ECPMIPSolver().solve(
+                graph, alpha
+            )
             results_score[f"mip_{alpha}"] = (score, users_index, edges)
             print(
                 f"(MIP) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
@@ -349,8 +350,8 @@ def print_scores(
             )
 
             start = time.time()
-            score, users_index, edges, nc_threads = graph.score_mip_densest(
-                alpha
+            score, users_index, edges, nc_threads = DECPMIPSolver().solve(
+                graph, alpha
             )
             results_score[f"mip-densest_{alpha}"] = (score, users_index, edges)
             print(
@@ -365,15 +366,15 @@ def print_scores(
 
         if appr:
             start = time.time()
-            score, users_index, nc_threads = graph.score_relaxation_algorithm(
-                alpha
+            score, users_index, [], nc_threads = ECPRoundingSolver().solve(
+                graph, alpha
             )
             results_score[f"mip_rounding_algorithm_{alpha}"] = (
                 score,
                 users_index,
             )
             print(
-                f"(MIP rounding algorithm) Echo chamber score: {score} on {len(users_index)} vertices with {nc_threads} non controversial threads",
+                f"(MIP rounding algorithm) Echo chamber score: {score} on {len(users_index)} vertices with {len(nc_threads)} non controversial threads",
                 file=scores_txt_file,
             )
             end = time.time()

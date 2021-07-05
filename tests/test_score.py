@@ -2,6 +2,15 @@ import os
 
 from polarmine.collectors.reddit_collector import RedditCollector
 from polarmine.graph import PolarizationGraph
+from polarmine.ecp import (
+    score_from_vertices_index,
+    ECPComponentsSolver,
+    ECPMIPSolver,
+    ECPRoundingSolver,
+    ECPBetaSolver,
+    ECPPeelingSolver,
+)
+from polarmine.decp import DECPMIPSolver
 
 
 # folder containing the graph file
@@ -37,28 +46,28 @@ def test_graph_score_components():
     graph = PolarizationGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
-    graph.score_components(0.2)
+    ECPComponentsSolver().solve(graph, 0.2)
 
 
 def test_graph_score_greedy_beta_positiveness():
     graph = PolarizationGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
-    graph.score_greedy_beta(0.1)
+    ECPBetaSolver().solve(graph, 0.1)
 
 
 def test_graph_score_greedy_beta_uniform():
     graph = PolarizationGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
-    graph.score_greedy_beta(0.1, positiveness_samples=False)
+    ECPBetaSolver(positiveness_samples=False).solve(graph, 0.1)
 
 
 def test_graph_score_greedy_peeling():
     graph = PolarizationGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
-    graph.score_greedy_peeling(0.1)
+    ECPPeelingSolver().solve(graph, 0.1)
 
 
 def test_graph_score_mip():
@@ -67,8 +76,9 @@ def test_graph_score_mip():
     graph.remove_self_loops()
 
     alpha = 0.3
-    score, users, _, _ = graph.score_mip(alpha)
-    score_vertices, _ = graph.score_from_vertices_index(users, alpha)
+
+    score, users, _, _ = ECPMIPSolver().solve(graph, alpha)
+    score_vertices, _ = score_from_vertices_index(graph, users, alpha)
     assert score_vertices == score
 
 
@@ -78,10 +88,10 @@ def test_graph_score_mip_densest():
     graph.remove_self_loops()
 
     alpha = 0.3
-    score, users, _, _ = graph.score_mip_densest(alpha)
-    score_vertices, _ = graph.score_from_vertices_index(users, alpha)
+    score, users, _, _ = DECPMIPSolver().solve(graph, alpha)
+    score_vertices, _ = score_from_vertices_index(graph, users, alpha)
     assert len(users) > 0
-    assert score_vertices / len(users) == score
+    assert score_vertices / float(len(users)) == score
 
 
 def test_graph_score_mip_relaxation():
@@ -89,15 +99,16 @@ def test_graph_score_mip_relaxation():
     assert graph is not None
     graph.remove_self_loops()
 
-    graph.score_mip(0.1, relaxation=True)
+    alpha = 0.3
+    ECPMIPSolver(relaxation=True).solve(graph, alpha)
 
 
-def test_graph_score_mip_relaxation_r():
+def test_graph_score_rounding():
     graph = PolarizationGraph.from_file(GRAPH_PATH)
     assert graph is not None
     graph.remove_self_loops()
 
-    graph.score_relaxation_algorithm(0.1)
+    ECPRoundingSolver().solve(graph, 0.1)
 
 
 def test_graph_echo_chamber_selection():
