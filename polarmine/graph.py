@@ -3,7 +3,6 @@ import time
 import graph_tool.all as gt
 import treelib
 import numpy as np
-import pulp
 from transformers import AutoModelForSequenceClassification
 from transformers import AutoTokenizer
 from scipy.special import softmax
@@ -11,6 +10,7 @@ from sklearn import metrics
 
 from polarmine.comment import Comment
 from polarmine.thread import Thread
+from polarmine.ecp import ECPMIPSolver, score_from_vertices_index
 from polarmine import densest
 
 SENTIMENT_MAX_TEXT_LENGTH = 128
@@ -19,9 +19,6 @@ VERTEX_SIZE_SHOW = 50
 
 
 CLUSTERING_APPROXIMATION = "appr"
-CLUSTERING_EXACT = "exact"
-CLUSTERING_NC_SUBGRAPH = "densest_nc_subgraph"
-CLUSTERING_02_BFF = "o2_bff"
 
 
 class PolarizationGraph:
@@ -847,15 +844,6 @@ class PolarizationGraph:
 
         return thread_edges_dict
 
-    # TODO: remove
-    def score_from_vertices_index(
-        self,
-        vertices_index: list[int],
-        alpha: float,
-        controversial_contents: set = None,
-    ) -> (float, list[str]):
-        raise NotImplementedError
-
     def controversial_contents(self, alpha: float) -> set:
         content_dict = self.negative_edges_fraction_content_dict()
         controversial_contents = set()
@@ -904,24 +892,13 @@ class PolarizationGraph:
         """calculate the distribution of positive edges among vertices
 
         Returns:
-            np.array: the parameters of a categorical distribution, based on the
-        fraction of negative edges of the vertex
+            np.array: the parameters of a categorical distribution, based on
+            the fraction of negative edges of the vertex
         """
         vertices_positiveness = self.vertices_positiveness()
         total_positiveness = np.sum(vertices_positiveness)
 
         return vertices_positiveness / total_positiveness
-
-    # TODO: remove
-    def score_mip(
-        self, alpha: float, relaxation: bool = False
-    ) -> (int, list[int], list[tuple], list[int]):
-        raise NotImplementedError
-
-    def score_relaxation_algorithm(
-        self, alpha: float
-    ) -> (int, list[int], int):
-        raise NotImplementedError
 
     def __aggregate_edges__(
         self,
@@ -1068,20 +1045,20 @@ class PolarizationGraph:
         controversial_contents: set = None,
     ):
         if vertices_index is None:
-            _, users, _, _ = self.score_mip(alpha, controversial_contents)
+            _, vertices_index, _, _ = ECPMIPSolver().solve(self, alpha)
 
         edge_filter = self.graph.new_edge_property("bool", val=False)
         vertex_filter = self.graph.new_vertex_property("bool", val=False)
 
-        _, nc_threads = self.score_from_vertices_index(
-            vertices_index, alpha, controversial_contents
+        _, nc_threads = score_from_vertices_index(
+            self, vertices_index, alpha, controversial_contents
         )
 
         # use a set for faster search
-        vertices_index = set(vertices_index)
+        vertices_index_set = set(vertices_index)
         nc_threads = set(nc_threads)
 
-        for vertex_index in vertices_index:
+        for vertex_index in vertices_index_set:
             vertex = self.graph.vertex(vertex_index)
             vertex_filter[vertex] = True
 
@@ -1090,7 +1067,7 @@ class PolarizationGraph:
                 # node is in the echo chamber
                 if (
                     self.threads[edge].url in nc_threads
-                    and int(edge.target()) in vertices_index
+                    and int(edge.target()) in vertices_index_set
                 ):
                     edge_filter[edge] = True
 
@@ -1320,112 +1297,7 @@ class PolarizationGraph:
         alpha: float,
         method: str = CLUSTERING_APPROXIMATION,
     ):
-        current_edge_filter, _ = self.graph.get_edge_filter()
-        if current_edge_filter is None:
-            current_edge_filter = self.graph.new_edge_property("bool")
-            current_edge_filter.a = np.ones_like(current_edge_filter.a)
-
-        vertices_assignment = np.array(vertices_assignment)
-
-        # array containing prediction of group for each vertex
-        vertices_predicted = np.empty_like(vertices_assignment)
-        vertices_predicted[:] = -1
-
-        iterations_score = []
-        iterations_vertices = []
-
-        num_threads = self.num_threads()
-
-        for i in range(n_clusters):
-            if method == CLUSTERING_APPROXIMATION:
-                score, vertices, _ = self.score_relaxation_algorithm(alpha)
-                score, nc_threads = self.score_from_vertices_index(
-                    vertices, alpha
-                )
-            elif method == CLUSTERING_NC_SUBGRAPH:
-                _, vertices = self.score_densest_nc_subgraph(alpha, False)
-                nc_threads = []
-            elif method == CLUSTERING_02_BFF:
-                _, vertices = self.o2_bff_dcs_am(
-                    alpha, np.ceil(num_threads / 2)
-                )
-                nc_threads = []
-            else:
-                score, vertices, _, nc_threads = self.score_mip(alpha)
-                vertices = self.largest_component_vertices(vertices)
-
-            if len(vertices) == 0:
-                break
-
-            # compute jaccard coefficient for the current classification
-            subgraph_vertices_assignment = vertices_assignment[vertices]
-            majority_class = np.bincount(subgraph_vertices_assignment).argmax()
-
-            # filter out vertices which were already predicted as part of an
-            # echo chamber
-            vertex_already_predicted = vertices_predicted > -1
-
-            # assign a label only to vertices which weren't part of another
-            # echo chamber
-            current_vertex_prediction = np.zeros_like(vertices_predicted)
-            current_vertex_prediction[vertices] = majority_class + 1
-            current_vertex_prediction = current_vertex_prediction * (
-                1 - vertex_already_predicted
-            )
-
-            vertices_predicted += current_vertex_prediction
-
-            induced_edges_property = self.is_induced_edge(
-                set(vertices), set(nc_threads)
-            )
-
-            # exclude induced vertices, i.e. keep edges that are not induced
-            # and unfilter previously
-            current_edge_filter.a = np.logical_and(
-                current_edge_filter.a,
-                np.logical_not(induced_edges_property.a),
-            )
-            self.graph.set_edge_filter(current_edge_filter)
-
-            class_assignment = (vertices_assignment == majority_class).astype(
-                np.int32
-            )
-            class_prediction = np.zeros_like(class_assignment)
-            class_prediction[vertices] = 1
-            iteration_score = metrics.jaccard_score(
-                class_assignment, class_prediction
-            )
-            iterations_score.append(iteration_score)
-
-            iterations_vertices.append(vertices)
-
-        current_vertex_filter, _ = self.graph.get_vertex_filter()
-        selected_vertices = list(np.where(current_vertex_filter.a != 0)[0])
-
-        # ignore the unselected nodes for computing the clustering statistics
-        vertices_assignment = vertices_assignment[selected_vertices]
-        vertices_predicted = vertices_predicted[selected_vertices]
-
-        self.clear_filters()
-
-        adjusted_rand_score = metrics.adjusted_rand_score(
-            vertices_assignment, vertices_predicted
-        )
-        rand_score = metrics.rand_score(
-            vertices_assignment, vertices_predicted
-        )
-
-        jaccard_score = metrics.jaccard_score(
-            vertices_assignment, vertices_predicted, average="micro"
-        )
-
-        return (
-            adjusted_rand_score,
-            rand_score,
-            jaccard_score,
-            iterations_score,
-            iterations_vertices,
-        )
+        raise NotImplementedError
 
     def clear_filters(self):
         self.graph.clear_filters()

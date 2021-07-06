@@ -116,7 +116,7 @@ def test_graph_echo_chamber_selection():
     assert graph is not None
     graph.remove_self_loops()
 
-    _, vertices, edges, _ = graph.score_mip(0.4)
+    _, vertices, edges, _ = ECPMIPSolver().solve(graph, 0.4)
     graph.select_echo_chamber(0.4, vertices)
 
     assert graph.num_edges() == len(edges)

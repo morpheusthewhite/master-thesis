@@ -13,7 +13,6 @@ from polarmine.utils import plot_degree_distribution, print_top_k
 from polarmine.collectors.reddit_collector import RedditCollector
 from polarmine.collectors.twitter_collector import TwitterCollector
 from polarmine.ecp import (
-    score_from_vertices_index,
     ECPComponentsSolver,
     ECPMIPSolver,
     ECPRoundingSolver,

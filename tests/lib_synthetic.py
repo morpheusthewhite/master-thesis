@@ -3,12 +3,11 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+from polarmine.ecp.ecp_solver import ECPSolver
+from polarmine.ecp import ECPRoundingSolver
+from polarmine.validation import clustering_accuracy
 from polarmine.graph import (
     PolarizationGraph,
-    CLUSTERING_EXACT,
-    CLUSTERING_02_BFF,
-    CLUSTERING_APPROXIMATION,
-    CLUSTERING_NC_SUBGRAPH,
 )
 
 OUTDIR = os.path.join("out", "synthetic")
@@ -19,11 +18,11 @@ def evaluate_graph(
     alpha: float,
     n_communities: int,
     communities: list[int],
-    method: str = CLUSTERING_APPROXIMATION,
+    solver: ECPSolver,
 ):
 
     start = time.time()
-    score, _, _ = graph.score_relaxation_algorithm(alpha)
+    score, _, _, _ = ECPRoundingSolver().solve(graph, alpha)
 
     (
         adjusted_rand_score,
@@ -31,7 +30,7 @@ def evaluate_graph(
         jaccard_score,
         iterations_score,
         _,
-    ) = graph.clustering_accuracy(communities, n_communities, alpha, method)
+    ) = clustering_accuracy(graph, communities, n_communities, alpha, solver)
     end = time.time()
 
     return (

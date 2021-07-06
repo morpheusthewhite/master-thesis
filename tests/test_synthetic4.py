@@ -134,7 +134,6 @@ def test_synthetic(results_outfile, n_iterations: int = 5):
                 alpha,
                 n_communities,
                 communities,
-                CLUSTERING_APPROXIMATION,
             )
 
             scores[k] = score
