@@ -1,10 +1,10 @@
 from typing import List, Set, Iterable, Optional
 import numpy as np
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 
 
 def score_from_vertices_index(
-    graph: PolarizationGraph,
+    graph: InteractionGraph,
     vertices_index: Iterable[int],
     alpha: float,
     controversial_contents: Set[str] = None,
@@ -12,7 +12,7 @@ def score_from_vertices_index(
     """Calculate the Echo Chamber Score produced by a set of vertices
 
     Args:
-        graph (PolarizationGraph): the interaction graph
+        graph (InteractionGraph): the interaction graph
         vertices_index (list[int]): the indices of the vertices in the graph
         that are considered as solution
         alpha (float): alpha of Echo Chamber Score
@@ -41,7 +41,7 @@ def score_from_vertices_index(
 
 
 def __neighbours_merge__(
-    graph: PolarizationGraph,
+    graph: InteractionGraph,
     neighbours: Set[int],
     vertex: int,
     vertices: Iterable[int],
@@ -53,7 +53,7 @@ def __neighbours_merge__(
 
 
 def __neighbours_subtract__(
-    graph: PolarizationGraph,
+    graph: InteractionGraph,
     neighbours: Set[int],
     vertex_removed: int,
     vertices: Iterable[int],
@@ -85,7 +85,7 @@ def __neighbours_subtract__(
 
 
 def __find_worst_vertex__(
-    graph: PolarizationGraph,
+    graph: InteractionGraph,
     vertices: list[int],
     alpha: float,
     controversial_contents: Optional[Set[str]],
@@ -120,7 +120,7 @@ def __find_worst_vertex__(
 
 
 def __find_best_neighbour__(
-    graph: PolarizationGraph,
+    graph: InteractionGraph,
     vertices: list[int],
     neighbours: Iterable[int],
     alpha: float,

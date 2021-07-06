@@ -5,14 +5,14 @@ from polarmine.ecp.utils import (
     score_from_vertices_index,
     __find_worst_vertex__,
 )
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 
 
 class ECPPeelingSolver(ECPSolver):
     """Solve the ECP through the peeling algorithm"""
 
     def solve(
-        self, graph: PolarizationGraph, alpha: float
+        self, graph: InteractionGraph, alpha: float
     ) -> tuple[float, List[int], List[int], List[str]]:
         """Calculate the echo chamber score using the "peeling" greedy approach
 

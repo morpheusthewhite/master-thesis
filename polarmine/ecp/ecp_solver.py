@@ -1,6 +1,6 @@
 from typing import List
 from abc import ABC, abstractmethod
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 
 
 class ECPSolver(ABC):
@@ -11,6 +11,6 @@ class ECPSolver(ABC):
 
     @abstractmethod
     def solve(
-        self, graph: PolarizationGraph, alpha: float
+        self, graph: InteractionGraph, alpha: float
     ) -> tuple[float, List[int], List[int], List[str]]:
         pass

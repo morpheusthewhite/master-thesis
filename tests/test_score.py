@@ -1,7 +1,7 @@
 import os
 
 from polarmine.collectors.reddit_collector import RedditCollector
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 from polarmine.ecp import (
     score_from_vertices_index,
     ECPComponentsSolver,
@@ -30,7 +30,7 @@ def test_graph_save():
         )
     )
 
-    graph = PolarizationGraph(contents)
+    graph = InteractionGraph(contents)
     assert graph is not None
 
     # create the folder containing the graph if it does not exist
@@ -43,35 +43,35 @@ def test_graph_save():
 
 
 def test_graph_score_components():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     ECPComponentsSolver().solve(graph, 0.2)
 
 
 def test_graph_score_greedy_beta_positiveness():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     ECPBetaSolver().solve(graph, 0.1)
 
 
 def test_graph_score_greedy_beta_uniform():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     ECPBetaSolver(positiveness_samples=False).solve(graph, 0.1)
 
 
 def test_graph_score_greedy_peeling():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     ECPPeelingSolver().solve(graph, 0.1)
 
 
 def test_graph_score_mip():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
     graph.remove_self_loops()
 
@@ -83,7 +83,7 @@ def test_graph_score_mip():
 
 
 def test_graph_score_mip_densest():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
     graph.remove_self_loops()
 
@@ -95,7 +95,7 @@ def test_graph_score_mip_densest():
 
 
 def test_graph_score_mip_relaxation():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
     graph.remove_self_loops()
 
@@ -104,7 +104,7 @@ def test_graph_score_mip_relaxation():
 
 
 def test_graph_score_rounding():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
     graph.remove_self_loops()
 
@@ -112,7 +112,7 @@ def test_graph_score_rounding():
 
 
 def test_graph_echo_chamber_selection():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
     graph.remove_self_loops()
 
@@ -123,7 +123,7 @@ def test_graph_echo_chamber_selection():
 
 
 def test_graph_score_densest_nc_subgraph_simple():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
     graph.remove_self_loops()
 
@@ -133,7 +133,7 @@ def test_graph_score_densest_nc_subgraph_simple():
 
 
 def test_graph_score_densest_nc_subgraph():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
     graph.remove_self_loops()
 
@@ -143,7 +143,7 @@ def test_graph_score_densest_nc_subgraph():
 
 
 def test_graph_score_o2_bff():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
     graph.remove_self_loops()
 

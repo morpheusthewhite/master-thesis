@@ -1,11 +1,11 @@
 import os
 import matplotlib.pyplot as plt
 
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 
 
 def plot_degree_distribution(
-    graph: PolarizationGraph, save_path: str, degree: str = "total"
+    graph: InteractionGraph, save_path: str, degree: str = "total"
 ):
     # show degree distribution
     probabilities, bins = graph.degree_distribution(degree)

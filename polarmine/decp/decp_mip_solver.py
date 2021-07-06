@@ -3,7 +3,7 @@ import pulp
 
 from polarmine.decp.decp_solver import DECPSolver
 from polarmine.ecp.utils import score_from_vertices_index
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 
 
 class DECPMIPSolver(DECPSolver):
@@ -12,7 +12,7 @@ class DECPMIPSolver(DECPSolver):
         self.relaxation = relaxation
 
     def solve(
-        self, graph: PolarizationGraph, alpha: float
+        self, graph: InteractionGraph, alpha: float
     ) -> tuple[float, List[int], List[int], List[str]]:
 
         variables_cat = pulp.LpContinuous if self.relaxation else pulp.LpBinary

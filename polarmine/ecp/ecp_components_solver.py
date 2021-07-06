@@ -4,7 +4,7 @@ import graph_tool.all as gt
 
 from polarmine.ecp.ecp_solver import ECPSolver
 from polarmine.ecp.utils import score_from_vertices_index
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 
 
 class ECPComponentsSolver(ECPSolver):
@@ -12,7 +12,7 @@ class ECPComponentsSolver(ECPSolver):
     possible solution"""
 
     def solve(
-        self, graph: PolarizationGraph, alpha: float
+        self, graph: InteractionGraph, alpha: float
     ) -> tuple[float, List[int], List[int], List[str]]:
         component_label, _ = gt.label_components(graph.graph, directed=False)
         controversial_contents = graph.controversial_contents(alpha)

@@ -8,7 +8,7 @@ import time
 import numpy as np
 from typing import Optional
 
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 from polarmine.utils import plot_degree_distribution, print_top_k
 from polarmine.collectors.reddit_collector import RedditCollector
 from polarmine.collectors.twitter_collector import TwitterCollector
@@ -220,7 +220,7 @@ args = parser.parse_args()
 
 
 def print_scores(
-    graph: PolarizationGraph,
+    graph: InteractionGraph,
     greedy: bool,
     mip: bool,
     appr: bool,
@@ -441,7 +441,7 @@ def print_scores(
             pickle.dump(results_score, pickle_file)
 
 
-def print_stats(graph: PolarizationGraph, save_path):
+def print_stats(graph: InteractionGraph, save_path):
     # dictionary to be pickled
     results_stats = {}
 
@@ -723,7 +723,7 @@ def main():
 
     # either load the graph or mine it
     if args.load is not None:
-        graph = PolarizationGraph.from_file(args.load)
+        graph = InteractionGraph.from_file(args.load)
     else:
         # mine data and store it
         contents = iter([])
@@ -744,7 +744,7 @@ def main():
 
             contents = itertools.chain(contents, twitter_iter)
 
-        graph = PolarizationGraph(contents)
+        graph = InteractionGraph(contents)
 
         if args.dump is not None:
             graph.dump(args.dump)

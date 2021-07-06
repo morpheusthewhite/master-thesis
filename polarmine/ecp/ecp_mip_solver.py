@@ -2,7 +2,7 @@ from typing import List, Union
 import pulp
 
 from polarmine.ecp.ecp_solver import ECPSolver
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 
 
 class ECPMIPSolver(ECPSolver):
@@ -11,7 +11,7 @@ class ECPMIPSolver(ECPSolver):
         self.relaxation = relaxation
 
     def solve(
-        self, graph: PolarizationGraph, alpha: float
+        self, graph: InteractionGraph, alpha: float
     ) -> Union[
         tuple[float, List[int], List[int], List[str]],
         tuple[float, List[float], List[float], List[float]],

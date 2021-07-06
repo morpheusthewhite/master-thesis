@@ -4,7 +4,7 @@ import sys
 import os
 from pprint import pprint
 
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 from polarmine.utils import plot_degree_distribution, print_top_k
 
 MIP_PARAM = "MIP"
@@ -73,7 +73,7 @@ def analyze(
     score: str = None,
     alpha: float = 0.4,
 ):
-    graph = PolarizationGraph.from_file(graph_filename)
+    graph = InteractionGraph.from_file(graph_filename)
     graph.remove_self_loops()
 
     if save_path is not None:

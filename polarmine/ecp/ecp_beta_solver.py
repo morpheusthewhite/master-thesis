@@ -9,7 +9,7 @@ from polarmine.ecp.utils import (
     __find_worst_vertex__,
     __neighbours_subtract__,
 )
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 
 
 class ECPBetaSolver(ECPSolver):
@@ -39,7 +39,7 @@ class ECPBetaSolver(ECPSolver):
         self.positiveness_samples = positiveness_samples
 
     def solve(
-        self, graph: PolarizationGraph, alpha: float
+        self, graph: InteractionGraph, alpha: float
     ) -> tuple[float, List[int], List[int], List[str]]:
         """Calculate the echo chamber score using the beta greedy approach
 

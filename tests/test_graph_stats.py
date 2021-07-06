@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 from polarmine.collectors.reddit_collector import RedditCollector
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 
 
 # folder containing the graph file
@@ -23,7 +23,7 @@ def test_graph_save():
         )
     )
 
-    graph = PolarizationGraph(contents)
+    graph = InteractionGraph(contents)
     assert graph is not None
 
     # create the folder containing the graph if it does not exist
@@ -36,19 +36,19 @@ def test_graph_save():
 
 
 def test_graph_load():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
 
 def test_graph_negative():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.negative_edges_fraction()
 
 
 def test_graph_negative_kcore():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.select_kcore(2)
@@ -56,7 +56,7 @@ def test_graph_negative_kcore():
 
 
 def test_graph_negative_dict():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     thread_dict = graph.negative_edges_fraction_thread_dict()
@@ -67,7 +67,7 @@ def test_graph_negative_dict():
 
 
 def test_graph_negative_dict_kcore():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.select_kcore(2)
@@ -76,14 +76,14 @@ def test_graph_negative_dict_kcore():
 
 
 def test_graph_clustering():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.global_clustering()
 
 
 def test_graph_clustering_kcore():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.select_kcore(2)
@@ -91,21 +91,21 @@ def test_graph_clustering_kcore():
 
 
 def test_graph_average_degree():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.average_degree()
 
 
 def test_graph_average_degree_unique():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.average_degree(unique=True)
 
 
 def test_graph_average_degree_kcore():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     kcore = 2
@@ -114,7 +114,7 @@ def test_graph_average_degree_kcore():
 
 
 def test_graph_average_degree_kcore_unique():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.select_kcore(2)
@@ -122,7 +122,7 @@ def test_graph_average_degree_kcore_unique():
 
 
 def test_graph_degree_dist():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     cumulative_probabilities, _ = graph.degree_distribution()
@@ -133,7 +133,7 @@ def test_graph_degree_dist():
 
 
 def test_graph_degree_dist_kcore():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.select_kcore(2)
@@ -145,7 +145,7 @@ def test_graph_degree_dist_kcore():
 
 
 def test_graph_degree_values():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     values = graph.degree_values()
@@ -154,7 +154,7 @@ def test_graph_degree_values():
 
 
 def test_graph_degree_hist():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     counts, _ = graph.degree_histogram()
@@ -164,7 +164,7 @@ def test_graph_degree_hist():
 
 
 def test_graph_degree_hist_kcore():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.select_kcore(2)
@@ -175,7 +175,7 @@ def test_graph_degree_hist_kcore():
 
 
 def test_graph_kcore_size():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.select_kcore(2)
@@ -185,7 +185,7 @@ def test_graph_kcore_size():
 
 
 def test_graph_average_shortest_path_length():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.select_kcore(2)
@@ -194,7 +194,7 @@ def test_graph_average_shortest_path_length():
 
 
 def test_graph_median_shortest_path_length():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     median_shortest_path_length = graph.median_shortest_path_length()
@@ -202,7 +202,7 @@ def test_graph_median_shortest_path_length():
 
 
 def test_graph_fidelity_histogram():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     fidelities = graph.fidelity_values()
@@ -210,7 +210,7 @@ def test_graph_fidelity_histogram():
 
 
 def test_graph_interactions():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     interactions_dict = graph.n_interactions_dict()
@@ -221,7 +221,7 @@ def test_graph_interactions():
 
 
 def test_graph_interactions_kcore():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.select_kcore(2)
@@ -231,7 +231,7 @@ def test_graph_interactions_kcore():
 
 
 def test_graph_edge_sum_interactions():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     interactions_dict = graph.edge_sum_n_interactions_dict()
@@ -242,7 +242,7 @@ def test_graph_edge_sum_interactions():
 
 
 def test_graph_edge_sum_interactions_kcore():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.select_kcore(2)
@@ -252,7 +252,7 @@ def test_graph_edge_sum_interactions_kcore():
 
 
 def test_graph_content_thread_neg_fraction():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     content_thread_neg_fraction = graph.content_thread_neg_fraction()
@@ -266,7 +266,7 @@ def test_graph_content_thread_neg_fraction():
 
 
 def test_graph_content_thread_neg_fraction_kcore():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     graph.select_kcore(2)
@@ -280,7 +280,7 @@ def test_graph_content_thread_neg_fraction_kcore():
 
 
 def test_graph_alpha_median():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     alpha_median = graph.alpha_median()
@@ -288,7 +288,7 @@ def test_graph_alpha_median():
 
 
 def test_graph_num_contents():
-    graph = PolarizationGraph.from_file(GRAPH_PATH)
+    graph = InteractionGraph.from_file(GRAPH_PATH)
     assert graph is not None
 
     assert graph.num_contents() == N_CONTENTS

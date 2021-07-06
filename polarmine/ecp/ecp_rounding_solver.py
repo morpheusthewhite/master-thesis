@@ -5,14 +5,14 @@ import graph_tool.all as gt
 from polarmine.ecp.ecp_solver import ECPSolver
 from polarmine.ecp.ecp_mip_solver import ECPMIPSolver
 from polarmine.ecp.utils import score_from_vertices_index
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 
 
 class ECPRoundingSolver(ECPSolver):
     """Solve the ECP through the rounding algorithm"""
 
     def solve(
-        self, graph: PolarizationGraph, alpha: float
+        self, graph: InteractionGraph, alpha: float
     ) -> tuple[float, List[int], List[int], List[str]]:
         controversial_contents = graph.controversial_contents(alpha)
 

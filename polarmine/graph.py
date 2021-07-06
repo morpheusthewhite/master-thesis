@@ -6,7 +6,6 @@ import numpy as np
 from transformers import AutoModelForSequenceClassification
 from transformers import AutoTokenizer
 from scipy.special import softmax
-from sklearn import metrics
 
 from polarmine.comment import Comment
 from polarmine.thread import Thread
@@ -18,10 +17,7 @@ MODEL = "cardiffnlp/twitter-roberta-base-sentiment"
 VERTEX_SIZE_SHOW = 50
 
 
-CLUSTERING_APPROXIMATION = "appr"
-
-
-class PolarizationGraph:
+class InteractionGraph:
 
     """A graph class providing methods for polarization analysis """
 
@@ -1290,15 +1286,6 @@ class PolarizationGraph:
         end_time_str = time.ctime(end_time)
         return start_time_str, end_time_str
 
-    def clustering_accuracy(
-        self,
-        vertices_assignment: list[int],
-        n_clusters: int,
-        alpha: float,
-        method: str = CLUSTERING_APPROXIMATION,
-    ):
-        raise NotImplementedError
-
     def clear_filters(self):
         self.graph.clear_filters()
         return
@@ -1316,7 +1303,7 @@ class PolarizationGraph:
         theta: float,
         n_active_communities: int,
     ):
-        """Creates a PolarizationGraph object from the given model parameters
+        """Creates a InteractionGraph object from the given model parameters
 
         Args:
             n_nodes (np.array): a numpy array with the number of elements in each class
@@ -1352,7 +1339,7 @@ class PolarizationGraph:
         beta_a: float,
         beta_n: float,
     ):
-        """Creates a PolarizationGraph object from the given model parameters
+        """Creates a InteractionGraph object from the given model parameters
 
         Args:
             n_nodes (np.array): a numpy array with the number of elements in each class
@@ -1380,7 +1367,7 @@ class PolarizationGraph:
 
     @classmethod
     def from_file(cls, filename: str):
-        """Creates a PolarizationGraph object from the graph stored in a file
+        """Creates a InteractionGraph object from the graph stored in a file
 
         Args:
             filename (str): filename of the file where the graph is stored

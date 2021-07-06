@@ -7,14 +7,14 @@ from polarmine.ecp.ecp_solver import ECPSolver
 from polarmine.ecp import ECPRoundingSolver
 from polarmine.validation import clustering_accuracy
 from polarmine.graph import (
-    PolarizationGraph,
+    InteractionGraph,
 )
 
 OUTDIR = os.path.join("out", "synthetic")
 
 
 def evaluate_graph(
-    graph: PolarizationGraph,
+    graph: InteractionGraph,
     alpha: float,
     n_communities: int,
     communities: list[int],
@@ -44,7 +44,7 @@ def evaluate_graph(
 
 
 def print_results(
-    graph: PolarizationGraph,
+    graph: InteractionGraph,
     omega_positive: np.array,
     omega_negative: np.array,
     scores: np.array,

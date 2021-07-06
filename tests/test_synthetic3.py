@@ -2,7 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from polarmine.graph import PolarizationGraph
+from polarmine.graph import InteractionGraph
 from lib_synthetic import (
     evaluate_graph,
     print_results,
@@ -111,7 +111,7 @@ def test_synthetic(results_outfile, n_iterations: int = 5):
 
         for k in range(n_iterations):
             # generate a graph
-            graph = PolarizationGraph.from_model2(
+            graph = InteractionGraph.from_model2(
                 n_nodes,
                 n_threads,
                 phi,
