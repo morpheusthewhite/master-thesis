@@ -11,6 +11,7 @@ from polarmine.ecp import (
     ECPPeelingSolver,
 )
 from polarmine.decp import DECPMIPSolver
+from polarmine.alternative import PASolver, TPADensestSolver, TPAO2BFFSolver
 
 
 # folder containing the graph file
@@ -129,7 +130,7 @@ def test_graph_score_densest_nc_subgraph_simple():
 
     alpha = 0.4
 
-    graph.score_densest_nc_subgraph(alpha, simple=True)
+    PASolver().solve(graph, alpha)
 
 
 def test_graph_score_densest_nc_subgraph():
@@ -139,7 +140,7 @@ def test_graph_score_densest_nc_subgraph():
 
     alpha = 0.4
 
-    graph.score_densest_nc_subgraph(alpha, simple=False)
+    TPADensestSolver().solve(graph, alpha)
 
 
 def test_graph_score_o2_bff():
@@ -149,5 +150,5 @@ def test_graph_score_o2_bff():
 
     alpha = 0.2
 
-    score, vertices = graph.o2_bff_dcs_am(alpha, 2)
+    score, vertices = TPAO2BFFSolver(2).solve(graph, alpha)
     assert score > 0

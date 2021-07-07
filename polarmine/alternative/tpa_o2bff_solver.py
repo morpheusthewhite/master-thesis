@@ -1,82 +1,19 @@
+from typing import List, Iterable
 import itertools
-import pulp
-import graph_tool.all as gt
 import numpy as np
-
+import graph_tool.all as gt
 from sklearn.metrics import jaccard_score
 
-
-def densest_subgraph(
-    num_vertices: int, edges: list[int]
-) -> (float, list[int]):
-    """Find densest subgraph by using Charikar's LP model
-
-    Args:
-        num_vertices (int): the number of vertices in the graph
-        edges (list[int]): array of edges, each represented by a pair of
-        indices (of the vertices) and the corresponding weight. Each index
-        should be in {0, ..., num_vertices-1}
-
-    Returns:
-        (float, list[int]): the density and the indices of the vertices in the
-        densest subgraph
-    """
-    model = pulp.LpProblem("densest-subgraph", pulp.LpMaximize)
-    vertices_variables = [
-        pulp.LpVariable(
-            f"y_{index}",
-            lowBound=0,
-        )
-        for index in range(num_vertices)
-    ]
-
-    objective = 0
-
-    for i, edge in enumerate(edges):
-        source = edge[0]
-        target = edge[1]
-        weight = edge[2]
-
-        edge_var = pulp.LpVariable(
-            f"x_{source}_{target}_{i}",
-            lowBound=0,
-        )
-
-        objective += weight * edge_var
-
-        model += edge_var <= vertices_variables[source]
-        model += edge_var <= vertices_variables[target]
-
-    model += pulp.lpSum(vertices_variables) == 1
-    model += objective
-    model.solve()
-
-    density = pulp.value(model.objective)
-
-    vertices = []
-    for i, vertex_variable in enumerate(vertices_variables):
-        if pulp.value(vertex_variable) > 0:
-            vertices.append(i)
-
-    return density, vertices
+from polarmine.alternative.alternative_solver import AlternativeSolver
+from polarmine.alternative.utils import (
+    nc_graph,
+    select_contents,
+    densest_subgraph,
+)
+from polarmine.graph import InteractionGraph
 
 
-def select_contents(graph: gt.Graph, contents: list[str]):
-    contents = graph.edge_properties["content"]
-    edge_filter = graph.new_edge_property("bool")
-
-    for edge in graph.edges():
-        edge_filter[edge] = contents[edge] in contents
-
-    current_edge_filter, _ = graph.get_edge_filter()
-
-    if current_edge_filter is not None:
-        edge_filter.a = np.logical_and(edge_filter.a, current_edge_filter.a)
-
-    graph.set_edge_filter(edge_filter)
-
-
-def dcs_am_exact(graph: gt.Graph):
+def dcs_am_exact(graph: gt.Graph) -> tuple[float, List[int]]:
     """Compute exactly DCS-AM using Charikar's k-core algorithm
 
     Args:
@@ -95,7 +32,7 @@ def dcs_am_exact(graph: gt.Graph):
 
     contents = set(graph.edge_properties["content"])
 
-    def find_k_list_core(graph: gt.Graph, k_list: list[int]) -> np.array:
+    def find_k_list_core(graph: gt.Graph, k_list: Iterable[int]) -> np.ndarray:
         for content, k in zip(contents, k_list):
             select_contents(graph, [content])
             select_kcore(graph, k)
@@ -175,7 +112,7 @@ def dcs_am_from_vertices(graph: gt.Graph) -> int:
     return dcs_am_score
 
 
-def find_bff_a(graph: gt.Graph, num_contents: int) -> (int, list[int]):
+def find_bff_a(graph: gt.Graph, num_contents: int) -> tuple[int, List[int]]:
     num_vertices = graph.num_vertices()
 
     def filter_vertex(vertex: int):
@@ -190,7 +127,7 @@ def find_bff_a(graph: gt.Graph, num_contents: int) -> (int, list[int]):
     max_dcs_am_score = -1
     max_dcs_am_vertices = []
 
-    for i in range(num_vertices):
+    for _ in range(num_vertices):
         # initialize the min with 2 since its maximum possible value is 1 (1
         # edge per layer
         min_score = 2
@@ -215,7 +152,7 @@ def find_bff_a(graph: gt.Graph, num_contents: int) -> (int, list[int]):
 
 def o2_bff_dcs_am_incremental_overlap(
     graph: gt.Graph, k: int
-) -> (int, list[int]):
+) -> tuple[int, List[int]]:
     contents = list(set(graph.edge_properties["content"]))
 
     # return a trivial solution if there are less than 2 contents
@@ -223,14 +160,15 @@ def o2_bff_dcs_am_incremental_overlap(
     if len(contents) < 2:
         return 0, []
 
-    num_vertices = graph.num_vertices()
+    edges = graph.get_edges()
+    num_vertices = np.max(edges) + 1
     S_i = []
 
     for content in contents:
         select_contents(graph, [content])
 
         edges = graph.get_edges()
-        num_vertices = np.max(edges) + 1
+
         weights = np.ones((edges.shape[0], 1), dtype=np.int32)
         edges_weight = np.hstack((edges, weights))
 
@@ -243,7 +181,7 @@ def o2_bff_dcs_am_incremental_overlap(
         S_i.append(vertices_i_bin)
         graph.clear_filters()
 
-    max_pair = ()
+    max_pair = (-1, -1)
     max_jaccard_score = -1
 
     # find the pair of vertices which are most similar (jaccard score)
@@ -251,7 +189,7 @@ def o2_bff_dcs_am_incremental_overlap(
         i, j = indices_pair
         vertices_i, vertices_j = S_i[i], S_i[j]
 
-        score = jaccard_score(vertices_i, vertices_j)
+        score: float = jaccard_score(vertices_i, vertices_j)
         if score > max_jaccard_score:
             max_jaccard_score = score
             max_pair = (i, j)
@@ -296,3 +234,32 @@ def o2_bff_dcs_am_incremental_overlap(
     graph.clear_filters()
 
     return find_bff_a(graph, len(contents))
+
+
+class TPAO2BFFSolver(AlternativeSolver):
+    """Solve the O2-BFF problem on the Thread Pair Aggregated graph"""
+
+    def __init__(self, k, *args, **kwargs):
+        super(AlternativeSolver, self).__init__(*args, **kwargs)
+        self.k = k
+
+    def solve(
+        self, graph: InteractionGraph, alpha: float
+    ) -> tuple[float, List[int]]:
+        num_vertices, edges = nc_graph(graph, alpha, False, layer=True)
+
+        # construct the graph with the given vertices and edges
+        graph_o2bff = gt.Graph()
+        vertices = list(graph_o2bff.add_vertex(num_vertices))
+
+        # create the content edge property for the graph
+        content_property = graph_o2bff.new_edge_property("string")
+        graph_o2bff.ep["content"] = content_property
+
+        for edge in edges:
+            edge_desc = graph_o2bff.add_edge(
+                vertices[edge[0]], vertices[edge[1]]
+            )
+            content_property[edge_desc] = edge[2]
+
+        return o2_bff_dcs_am_incremental_overlap(graph_o2bff, self.k)

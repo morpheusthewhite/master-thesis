@@ -9,8 +9,6 @@ from scipy.special import softmax
 
 from polarmine.comment import Comment
 from polarmine.thread import Thread
-from polarmine.ecp import ECPMIPSolver, score_from_vertices_index
-from polarmine import densest
 
 SENTIMENT_MAX_TEXT_LENGTH = 128
 MODEL = "cardiffnlp/twitter-roberta-base-sentiment"
@@ -896,159 +894,30 @@ class InteractionGraph:
 
         return vertices_positiveness / total_positiveness
 
-    def __aggregate_edges__(
-        self,
-        edges_ij: list[gt.Edge],
-        alpha: float,
-        controversial_contents: set,
-        simple: bool,
-    ):
-        """Aggregate edges of a certain vertex
-
-        Args:
-            edges_ij (list[gt.Edge]): the list of edges between a pair of
-            vertices
-            alpha (float): alpha used for definying controversy
-            controversial_contents (set): the list of controversial contents
-            simple (bool): if True does not aggregate separately edges
-            belonging to different threads
-
-        Returns:
-            the list of contents in which the edges will have a pair if simple
-            is False, 1 or 0 otherwise (if there is an edge or not,
-            respectively)
-        """
-        if simple:
-            delta_minus_ij = 0
-            delta_ij = 0
-
-            for edge in edges_ij:
-                edge_content = self.threads[edge].content
-
-                if edge_content in controversial_contents:
-                    edge_weight = self.weights[edge]
-
-                    if edge_weight > 0:
-                        delta_ij += edge_weight
-                    else:
-                        delta_ij -= edge_weight
-                        delta_minus_ij -= edge_weight
-
-            if delta_ij > 0 and delta_minus_ij / delta_ij <= alpha:
-                return 1
-            else:
-                return 0
-        else:
-            # deltas for each thread
-            thread_deltas_ij = {}
-
-            for edge in edges_ij:
-                edge_content = self.threads[edge].content
-
-                if edge_content in controversial_contents:
-                    edge_weight = self.weights[edge]
-                    edge_thread = self.threads[edge].url
-
-                    (
-                        delta_minus_ij,
-                        delta_ij,
-                    ) = thread_deltas_ij.get(edge_thread, (0, 0))
-
-                    if edge_weight > 0:
-                        delta_ij += edge_weight
-                    else:
-                        delta_ij -= edge_weight
-                        delta_minus_ij -= edge_weight
-
-                    thread_deltas_ij[edge_thread] = (delta_minus_ij, delta_ij)
-
-            threads = []
-            for thread, delta_tuple in thread_deltas_ij.items():
-                delta_minus_ij, delta_ij = delta_tuple
-
-                if delta_minus_ij / delta_ij <= alpha:
-                    threads.append(thread)
-
-            return threads
-
-    def nc_graph(
-        self, alpha: float, simple: bool = True, layer: bool = False
-    ) -> list[int]:
-        controversial_contents = self.controversial_contents(alpha)
-
-        # edges of the G_d graph
-        edges = []
-
-        vertex_i = -1
-        for vertex_i in self.graph.vertices():
-            i = int(vertex_i)
-
-            for vertex_j in self.graph.vertices():
-                j = int(vertex_j)
-
-                if j > i:
-                    edges_ij = self.graph.edge(
-                        vertex_i, vertex_j, all_edges=True
-                    )
-
-                    edges_aggregated = self.__aggregate_edges__(
-                        edges_ij, alpha, controversial_contents, simple
-                    )
-
-                    if simple:
-                        if edges_aggregated > 0:
-                            edges.append([i, j, 1])
-                    elif layer:
-                        edges.extend(
-                            [[i, j, thread] for thread in edges_aggregated]
-                        )
-                    else:
-                        # layer is false and simple is false
-                        n_edges_aggregated = len(edges_aggregated)
-                        if n_edges_aggregated > 0:
-                            edges.append([i, j, n_edges_aggregated])
-
-        num_vertices = int(vertex_i) + 1
-        return num_vertices, edges
-
     def score_densest_nc_subgraph(
         self, alpha: float, simple: bool = True
     ) -> (float, list[int]):
-        num_vertices, edges = self.nc_graph(alpha, simple, False)
-        return densest.densest_subgraph(num_vertices, edges)
+        raise NotImplementedError
 
     def o2_bff_dcs_am(self, alpha: float, k: int) -> (int, list[int]):
-        num_vertices, edges = self.nc_graph(alpha, False, layer=True)
-
-        # construct the graph with the given vertices and edges
-        graph = gt.Graph()
-        vertices = list(graph.add_vertex(num_vertices))
-
-        # create the content edge property for the graph
-        content_property = graph.new_edge_property("string")
-        graph.ep["content"] = content_property
-
-        for edge in edges:
-            edge_desc = graph.add_edge(vertices[edge[0]], vertices[edge[1]])
-            content_property[edge_desc] = edge[2]
-
-        return densest.o2_bff_dcs_am_incremental_overlap(graph, k)
+        raise NotImplementedError
 
     def select_echo_chamber(
         self,
         alpha: float,
-        vertices_index: list[int] = None,
+        vertices_index: list[int],
         controversial_contents: set = None,
     ):
-        if vertices_index is None:
-            _, vertices_index, _, _ = ECPMIPSolver().solve(self, alpha)
 
         edge_filter = self.graph.new_edge_property("bool", val=False)
         vertex_filter = self.graph.new_vertex_property("bool", val=False)
 
-        _, nc_threads = score_from_vertices_index(
-            self, vertices_index, alpha, controversial_contents
-        )
+        # TODO: fix me
+        raise NotImplementedError
+        nc_threads = []
+        #  _, nc_threads = score_from_vertices_index(
+        #      self, vertices_index, alpha, controversial_contents
+        #  )
 
         # use a set for faster search
         vertices_index_set = set(vertices_index)
