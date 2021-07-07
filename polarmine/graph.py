@@ -894,45 +894,6 @@ class InteractionGraph:
 
         return vertices_positiveness / total_positiveness
 
-    def select_echo_chamber(
-        self,
-        alpha: float,
-        vertices_index: list[int],
-        controversial_contents: set = None,
-    ):
-
-        edge_filter = self.graph.new_edge_property("bool", val=False)
-        vertex_filter = self.graph.new_vertex_property("bool", val=False)
-
-        # TODO: fix me
-        raise NotImplementedError
-        nc_threads = []
-        #  _, nc_threads = score_from_vertices_index(
-        #      self, vertices_index, alpha, controversial_contents
-        #  )
-
-        # use a set for faster search
-        vertices_index_set = set(vertices_index)
-        nc_threads = set(nc_threads)
-
-        for vertex_index in vertices_index_set:
-            vertex = self.graph.vertex(vertex_index)
-            vertex_filter[vertex] = True
-
-            for edge in vertex.out_edges():
-                # check if both the thread is non controversial and the target
-                # node is in the echo chamber
-                if (
-                    self.threads[edge].url in nc_threads
-                    and int(edge.target()) in vertices_index_set
-                ):
-                    edge_filter[edge] = True
-
-        self.graph.set_vertex_filter(vertex_filter)
-        self.graph.set_edge_filter(edge_filter)
-
-        return
-
     def __edge_sample__(
         self,
         i: int,

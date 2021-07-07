@@ -151,3 +151,41 @@ def __find_best_neighbour__(
     neighbour_best = neighbours_best[neighbour_best_index]
 
     return neighbour_best, score_neighbour_best
+
+
+def select_echo_chamber(
+    graph: InteractionGraph,
+    alpha: float,
+    vertices_index: List[int],
+    controversial_contents: Set[str] = None,
+):
+
+    edge_filter = graph.graph.new_edge_property("bool", val=False)
+    vertex_filter = graph.graph.new_vertex_property("bool", val=False)
+
+    nc_threads = []
+    _, nc_threads = score_from_vertices_index(
+        graph, vertices_index, alpha, controversial_contents
+    )
+
+    # use a set for faster search
+    vertices_index_set = set(vertices_index)
+    nc_threads = set(nc_threads)
+
+    for vertex_index in vertices_index_set:
+        vertex = graph.graph.vertex(vertex_index)
+        vertex_filter[vertex] = True
+
+        for edge in vertex.out_edges():
+            # check if both the thread is non controversial and the target
+            # node is in the echo chamber
+            if (
+                graph.threads[edge].url in nc_threads
+                and int(edge.target()) in vertices_index_set
+            ):
+                edge_filter[edge] = True
+
+    graph.graph.set_vertex_filter(vertex_filter)
+    graph.graph.set_edge_filter(edge_filter)
+
+    return

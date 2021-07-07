@@ -6,6 +6,7 @@ from pprint import pprint
 
 from polarmine.graph import InteractionGraph
 from polarmine.utils import plot_degree_distribution, print_top_k
+from polarmine.ecp.utils import select_echo_chamber
 
 MIP_PARAM = "MIP"
 ROUNDING_PARAM = "rounding"
@@ -120,7 +121,7 @@ def analyze(
         score_key = f"{score_key}_{alpha}"
 
         users = scores[score_key][1]
-        graph.select_echo_chamber(alpha, users)
+        select_echo_chamber(graph, alpha, users)
 
         # save to file the discussion in each Echo Chamber
         components = graph.components()

@@ -2,6 +2,7 @@ import os
 
 from polarmine.collectors.reddit_collector import RedditCollector
 from polarmine.graph import InteractionGraph
+from polarmine.ecp.utils import select_echo_chamber
 from polarmine.ecp import (
     score_from_vertices_index,
     ECPComponentsSolver,
@@ -118,7 +119,7 @@ def test_graph_echo_chamber_selection():
     graph.remove_self_loops()
 
     _, vertices, edges, _ = ECPMIPSolver().solve(graph, 0.4)
-    graph.select_echo_chamber(0.4, vertices)
+    select_echo_chamber(graph, 0.4, vertices)
 
     assert graph.num_edges() == len(edges)
 
