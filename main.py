@@ -19,6 +19,7 @@ from polarmine.ecp import (
     ECPBetaSolver,
     ECPPeelingSolver,
 )
+from polarmine.alternative import PASolver, TPADensestSolver, TPAO2BFFSolver
 from polarmine.decp import DECPMIPSolver
 
 parser = argparse.ArgumentParser(description="Polarmine")
@@ -383,34 +384,34 @@ def print_scores(
             )
 
             start = time.time()
-            score, users_index = graph.score_densest_nc_subgraph(alpha)
-            results_score[f"densest_nc_subgraph_simple_{alpha}"] = (
+            score, users_index = PASolver().solve(graph, alpha)
+            results_score[f"PA_graph_solution_{alpha}"] = (
                 score,
                 users_index,
             )
             print(
-                f"(Densest nc subgraph (unthreaded)) Echo chamber score: {score} on {len(users_index)} vertices",
+                f"((PA graph) Echo chamber score: {score} on {len(users_index)} vertices",
                 file=scores_txt_file,
             )
             end = time.time()
             print(
-                f"(Densest nc subgraph (unthreaded)) Elapsed time: {end - start}",
+                f"(PA graph) Elapsed time: {end - start}",
                 file=times_txt_file,
             )
 
             start = time.time()
-            score, users_index = graph.score_densest_nc_subgraph(alpha, False)
-            results_score[f"densest_nc_subgraph_{alpha}"] = (
+            score, users_index = TPADensestSolver().solve(graph, alpha)
+            results_score[f"TPA_densest_solution_{alpha}"] = (
                 score,
                 users_index,
             )
             print(
-                f"(Densest nc subgraph (threaded)) Echo chamber score: {score} on {len(users_index)} vertices",
+                f"(TPA graph densest) Echo chamber score: {score} on {len(users_index)} vertices",
                 file=scores_txt_file,
             )
             end = time.time()
             print(
-                f"(Densest nc subgraph (threaded)) Elapsed time: {end - start}",
+                f"(TPA graph densest) Elapsed time: {end - start}",
                 file=times_txt_file,
             )
 
@@ -418,18 +419,18 @@ def print_scores(
             start = time.time()
             n_contents = graph.num_contents(alpha)
             k = int(np.ceil(n_contents / 10))
-            score, users_index = graph.o2_bff_dcs_am(alpha, k)
-            results_score[f"bff_{alpha}"] = (
+            score, users_index = TPAO2BFFSolver(k).solve(graph, alpha)
+            results_score[f"TPA_bff_solution_{alpha}"] = (
                 score,
                 users_index,
             )
             print(
-                f"(O2-BFF(DCS-AM)) Echo chamber score: {score} on {len(users_index)} vertices for k={k}",
+                f"(TPA graph O2-BFF) Echo chamber score: {score} on {len(users_index)} vertices for k={k}",
                 file=scores_txt_file,
             )
             end = time.time()
             print(
-                f"(O2-BFF(DCS-AM)) Elapsed time: {end - start}",
+                f"(TPA graph O2-BFF) Elapsed time: {end - start}",
                 file=times_txt_file,
             )
 

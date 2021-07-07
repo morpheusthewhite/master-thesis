@@ -894,14 +894,6 @@ class InteractionGraph:
 
         return vertices_positiveness / total_positiveness
 
-    def score_densest_nc_subgraph(
-        self, alpha: float, simple: bool = True
-    ) -> (float, list[int]):
-        raise NotImplementedError
-
-    def o2_bff_dcs_am(self, alpha: float, k: int) -> (int, list[int]):
-        raise NotImplementedError
-
     def select_echo_chamber(
         self,
         alpha: float,
@@ -1131,7 +1123,20 @@ class InteractionGraph:
         positive_edges = edges[edges[:, 2] >= 0]
         return positive_edges
 
-    def is_induced_edge(self, vertices: set, threads: set):
+    def is_induced_edge(
+        self, vertices: Set[int], threads: Set[str]
+    ) -> gt.EdgePropertyMap:
+        """Checks which edges are induced by a set of vertices in the given threads
+
+        Args:
+            vertices (set): a set of vertices
+            threads (set): a set of threads. If empty, then the all the threds will be considered
+
+        Returns:
+            gt.EdgePropertyMap: the boolean EdgePropertyMap which is True for
+            the edges induced by the vertices in the layers of the graphs
+            associated to the threads.
+        """
         is_induced_property = self.graph.new_edge_property("bool")
 
         for edge in self.graph.edges():
