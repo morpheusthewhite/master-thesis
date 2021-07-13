@@ -41,7 +41,7 @@ def test_synthetic(results_outfile, n_iterations: int = 5):
     # controversy parameter
     alpha = 0.2
 
-    n_members = 6
+    n_members = 8
     n_communities = len(omega_positive_no_noise)
     n_nodes = [n_members] * n_communities
     #  n_nodes = [7, 6, 5, 4]
@@ -124,6 +124,7 @@ def test_synthetic(results_outfile, n_iterations: int = 5):
                 adjusted_rand_score,
                 jaccard_score,
                 iterations_score,
+                purity_score,
                 duration,
             ) = evaluate_graph(
                 graph,

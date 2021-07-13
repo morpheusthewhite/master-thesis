@@ -226,6 +226,7 @@ def test_synthetic(results_outfile, iterations: int = 1):
                     adjusted_rand_score,
                     jaccard_score,
                     iterations_score,
+                    purity_score,
                     duration,
                 ) = evaluate_graph(graph, alpha, n_communities, communities)
 

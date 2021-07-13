@@ -128,6 +128,7 @@ def test_synthetic(results_outfile, n_iterations: int = 5):
                 adjusted_rand_score,
                 jaccard_score,
                 iterations_score,
+                purity_score,
                 duration,
             ) = evaluate_graph(
                 graph,

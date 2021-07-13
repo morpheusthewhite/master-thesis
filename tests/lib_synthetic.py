@@ -32,6 +32,7 @@ def evaluate_graph(
         rand_score,
         jaccard_score,
         iterations_score,
+        purity_score,
         _,
     ) = clustering_accuracy(graph, communities, n_communities, alpha, solver)
     end = time.time()
@@ -42,6 +43,7 @@ def evaluate_graph(
         adjusted_rand_score,
         jaccard_score,
         iterations_score,
+        purity_score,
         end - start,
     )
 
