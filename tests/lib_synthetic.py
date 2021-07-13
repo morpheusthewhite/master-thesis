@@ -19,7 +19,7 @@ def evaluate_graph(
     alpha: float,
     n_communities: int,
     communities: list[int],
-    solver: Optional[ECPSolver],
+    solver: Optional[ECPSolver] = None,
 ):
     if solver is None:
         solver = ECPRoundingSolver()
