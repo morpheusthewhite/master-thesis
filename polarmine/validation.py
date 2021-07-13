@@ -130,10 +130,6 @@ def clustering_accuracy(
         vertices_assignment, vertices_predicted, average="micro"
     )
 
-    import pdb
-
-    pdb.set_trace()
-
     return (
         adjusted_rand_score,
         rand_score,
