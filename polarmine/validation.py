@@ -36,7 +36,6 @@ def clustering_accuracy(
             _, vertices = solver.solve(graph, alpha)
             nc_threads = []
 
-        # TODO: find largest component?
         vertices = graph.largest_component_vertices(vertices)
 
         if len(vertices) == 0:
@@ -83,15 +82,13 @@ def clustering_accuracy(
 
         # count the number of vertices in which prediction corresponds to
         # vertex label
-        class_assignment = (vertices_assignment == vertices_predicted).astype(
-            np.int32
-        )
+
         # vertices for which there is a prediction
         vertices_with_prediction = np.where(vertices_predicted != -1)[0]
         # boolean array which is true where the prediction correspond to the
         # ground truth
         vertices_prediction_is_correct = (
-            class_assignment[vertices_with_prediction]
+            vertices_assignment[vertices_with_prediction]
             == vertices_predicted[vertices_with_prediction]
         )
 
