@@ -2132,8 +2132,8 @@ class PolarizationGraph:
         vertices_predicted = np.empty_like(vertices_assignment)
         vertices_predicted[:] = -1
 
-        iterations_score = []
-        iterations_precision_score = []
+        iterations_jaccard_score = []
+        iterations_purity = []
         iterations_vertices = []
 
         for i in range(n_clusters):
@@ -2151,8 +2151,33 @@ class PolarizationGraph:
             if len(vertices) == 0:
                 break
 
-            vertices_predicted[vertices] = i
+            # compute jaccard coefficient for the current classification
+            subgraph_vertices_assignment = vertices_assignment[vertices]
+            majority_class = np.bincount(subgraph_vertices_assignment).argmax()
 
+            # filter out vertices which were already predicted as part of an
+            # echo chamber
+            vertex_already_predicted = vertices_predicted > -1
+
+            # assign a label only to vertices which weren't part of another
+            # echo chamber
+            current_vertex_prediction: np.ndarray = np.zeros_like(
+                vertices_predicted
+            )
+            # add 1 to majority class since we will add this values to
+            # vertices_predicted which is inialized to -1
+            current_vertex_prediction[vertices] = majority_class + 1
+            # values to add to vertices_predicted, taking into account the fact
+            # that some of the vertices were previously predicted
+            current_vertex_prediction = current_vertex_prediction * (
+                1 - vertex_already_predicted
+            )
+
+            # this will update only vertices that were not previously predicted
+            vertices_predicted += current_vertex_prediction
+
+            # find the edges induced by the solution of the ECP
+            # and remove them from the graph (i.e. filter them out)
             induced_edges_property = self.is_induced_edge(
                 set(vertices), set(nc_threads)
             )
@@ -2164,34 +2189,43 @@ class PolarizationGraph:
             )
             self.graph.set_edge_filter(current_edge_filter)
 
-            # compute jaccard coefficient for the current classification
-            subgraph_vertices_assignment = vertices_assignment[vertices]
+            #
+            # count the number of vertices in which prediction corresponds to
+            # vertex label
+            #
 
-            majority_class = np.bincount(subgraph_vertices_assignment).argmax()
-
-            class_assignment = (vertices_assignment == majority_class).astype(
-                np.int32
+            # vertices for which there is a prediction
+            vertices_with_prediction = np.where(vertices_predicted != -1)[0]
+            # boolean array which is true where the prediction correspond to the
+            # ground truth
+            vertices_prediction_is_correct = (
+                vertices_assignment[vertices_with_prediction]
+                == vertices_predicted[vertices_with_prediction]
             )
-            class_prediction = np.zeros_like(class_assignment)
-            class_prediction[vertices] = 1
-            iteration_score = metrics.jaccard_score(
-                class_assignment, class_prediction
-            )
-            iterations_score.append(iteration_score)
 
-            iteration_precision_score = np.sum(
-                np.logical_and(class_prediction, class_assignment)
-            ) / np.sum(class_prediction)
-            iterations_precision_score.append(iteration_precision_score)
+            # calculate accuracy until now, i.e. fraction of correct predicted
+            # labels
+            iteration_purity = (
+                np.sum(vertices_prediction_is_correct)
+                / vertices_prediction_is_correct.shape[0]
+            )
+
+            iteration_jaccard_score = metrics.jaccard_score(
+                vertices_assignment[vertices_with_prediction],
+                vertices_predicted[vertices_with_prediction],
+                average="micro",
+            )
+            iterations_jaccard_score.append(iteration_jaccard_score)
+            iterations_purity.append(iteration_purity)
 
             iterations_vertices.append(vertices)
 
         current_vertex_filter, _ = self.graph.get_vertex_filter()
-        selected_vertices = list(np.where(current_vertex_filter.a != 0)[0])
 
         # ignore the unselected nodes for computing the clustering statistics
-        vertices_assignment = vertices_assignment[selected_vertices]
-        vertices_predicted = vertices_predicted[selected_vertices]
+        vertices_with_prediction = np.where(vertices_predicted != -1)[0]
+        vertices_assignment = vertices_assignment[vertices_with_prediction]
+        vertices_predicted = vertices_predicted[vertices_with_prediction]
 
         self.clear_filters()
 
@@ -2202,15 +2236,16 @@ class PolarizationGraph:
             vertices_assignment, vertices_predicted
         )
 
-        jaccard_score = metrics.jaccard_score(
+        jaccard_score: float = metrics.jaccard_score(
             vertices_assignment, vertices_predicted, average="micro"
         )
+
         return (
             adjusted_rand_score,
             rand_score,
             jaccard_score,
-            iterations_score,
-            iterations_precision_score,
+            iterations_jaccard_score,
+            iterations_purity,
             iterations_vertices,
         )
 
