@@ -4,7 +4,7 @@ from sklearn import metrics
 
 from polarmine.graph import InteractionGraph
 from polarmine.ecp.ecp_solver import ECPSolver
-from polarmine.ecp.alternative.alternative_solver import AlternativeSolver
+from polarmine.alternative.alternative_solver import AlternativeSolver
 
 
 def clustering_accuracy(
