@@ -1,3 +1,4 @@
+from typing import Optional
 import time
 import os
 import numpy as np
@@ -18,11 +19,13 @@ def evaluate_graph(
     alpha: float,
     n_communities: int,
     communities: list[int],
-    solver: ECPSolver,
+    solver: Optional[ECPSolver],
 ):
+    if solver is None:
+        solver = ECPRoundingSolver()
 
     start = time.time()
-    score, _, _, _ = ECPRoundingSolver().solve(graph, alpha)
+    score, _, _, _ = solver.solve(graph, alpha)
 
     (
         adjusted_rand_score,
