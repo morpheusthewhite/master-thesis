@@ -262,7 +262,7 @@ def score_clustering(
         rand_score,
         jaccard,
         jaccard_iterations,
-        precision_iterations,
+        purity_iterations,
         iteration_vertices,
     ) = graph.clustering_accuracy(
         graph.labels.a, 2, alpha, method=CLUSTERING_APPROXIMATION
@@ -288,16 +288,16 @@ def score_clustering(
         plt.close()
 
     plt.figure()
-    plt.title("Precision score over iterations")
-    plt.plot(precision_iterations)
+    plt.title("Purity score over iterations")
+    plt.plot(purity_iterations)
     plt.xlabel("Iteration number")
-    plt.ylabel("Precision score")
+    plt.ylabel("Purity score")
 
     if save_path is not None:
-        precision_iterations_pdf = os.path.join(
-            save_path, "precision_iterations.pdf"
+        purity_iterations_pdf = os.path.join(
+            save_path, "purity_iterations.pdf"
         )
-        plt.savefig(precision_iterations_pdf)
+        plt.savefig(purity_iterations_pdf)
     else:
         plt.show()
         plt.close()
