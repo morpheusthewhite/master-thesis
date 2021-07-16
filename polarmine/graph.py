@@ -1,4 +1,4 @@
-from typing import Optional, Set
+from typing import Optional, Set, List
 import graph_tool.all as gt
 import treelib
 import numpy as np
@@ -40,6 +40,24 @@ CLUSTERING_APPROXIMATION = "appr"
 CLUSTERING_EXACT = "exact"
 CLUSTERING_NC_SUBGRAPH = "densest_nc_subgraph"
 CLUSTERING_02_BFF = "o2_bff"
+
+
+def purity(vertices: List[int], assignment: np.ndarray) -> float:
+    # get the labels of the vertices
+    vertices_assignment = assignment[vertices]
+
+    # set of labels of vertices
+    labels = set(vertices_assignment)
+
+    max_label_count = 0
+
+    for label in labels:
+        # number of vertices with label `label`
+        label_count = np.sum(vertices_assignment == label)
+
+        max_label_count = max(label_count, max_label_count)
+
+    return max_label_count / len(vertices)
 
 
 class PolarizationGraph:
@@ -2101,6 +2119,51 @@ class PolarizationGraph:
                 node_is_active,
             )
 
+    def get_positive_edges(self):
+        edges = self.graph.get_edges([self.weights])
+        positive_edges = edges[edges[:, 2] >= 0]
+        return positive_edges
+
+    def positive_components(self, vertices: List[int]) -> List[List[int]]:
+        current_edge_filter, _ = self.graph.get_edge_filter()
+        current_vertex_filter, _ = self.graph.get_vertex_filter()
+
+        # exclude negative edges
+        is_positive_edge = self.weights.a >= 0
+        tmp_edge_filter = self.graph.new_edge_property("bool")
+        tmp_edge_filter.a = np.logical_and(
+            is_positive_edge, current_edge_filter.a
+        )
+
+        # consider G[U], i.e. only the given vertices
+        tmp_vertex_filter = self.graph.new_vertex_property("bool")
+        tmp_vertex_filter.a[vertices] = 1
+
+        # set the appropriate filters in the graph
+        self.graph.set_edge_filter(tmp_edge_filter)
+        self.graph.set_vertex_filter(tmp_vertex_filter)
+
+        # find the components in G^+[U], i.e. considering only positive
+        # edges in G[U]
+        components, _ = gt.label_components(self.graph, directed=False)
+
+        # get the labels only for `vertices`
+        components_label_vertices = components.a[vertices]
+        n_components = max(components_label_vertices) + 1
+
+        components_list = []
+        vertices = np.array(vertices)
+        for k in range(n_components):
+            # get vertices in the component with label k
+            component_vertices = vertices[components_label_vertices == k]
+            components_list.append(component_vertices)
+
+        # restore filters
+        self.graph.set_edge_filter(current_edge_filter)
+        self.graph.set_vertex_filter(current_vertex_filter)
+
+        return components_list
+
     def is_induced_edge(self, vertices: set, threads: set):
         is_induced_property = self.graph.new_edge_property("bool")
 
@@ -2133,7 +2196,7 @@ class PolarizationGraph:
         vertices_predicted[:] = -1
 
         iterations_jaccard_score = []
-        iterations_purity = []
+        purities = []
         iterations_vertices = []
 
         for i in range(n_clusters):
@@ -2144,12 +2207,18 @@ class PolarizationGraph:
                 )
             else:
                 score, vertices, _, nc_threads = self.score_mip(alpha)
-                vertices = self.largest_component_vertices(vertices)
 
             # handle the case in which there are no vertices in the result,
             # i.e. no echo chamber was found
             if len(vertices) == 0:
                 break
+
+            # get components if considering only positive edges in the graph
+            components = self.positive_components(vertices)
+
+            for component in components:
+                purity_value = purity(component, vertices_assignment)
+                purities.append([i, purity_value])
 
             # compute jaccard coefficient for the current classification
             subgraph_vertices_assignment = vertices_assignment[vertices]
@@ -2196,19 +2265,6 @@ class PolarizationGraph:
 
             # vertices for which there is a prediction
             vertices_with_prediction = np.where(vertices_predicted != -1)[0]
-            # boolean array which is true where the prediction correspond to the
-            # ground truth
-            vertices_prediction_is_correct = (
-                vertices_assignment[vertices_with_prediction]
-                == vertices_predicted[vertices_with_prediction]
-            )
-
-            # calculate accuracy until now, i.e. fraction of correct predicted
-            # labels
-            iteration_purity = (
-                np.sum(vertices_prediction_is_correct)
-                / vertices_prediction_is_correct.shape[0]
-            )
 
             iteration_jaccard_score = metrics.jaccard_score(
                 vertices_assignment[vertices_with_prediction],
@@ -2216,8 +2272,6 @@ class PolarizationGraph:
                 average="micro",
             )
             iterations_jaccard_score.append(iteration_jaccard_score)
-            iterations_purity.append(iteration_purity)
-
             iterations_vertices.append(vertices)
 
         current_vertex_filter, _ = self.graph.get_vertex_filter()
@@ -2245,7 +2299,7 @@ class PolarizationGraph:
             rand_score,
             jaccard_score,
             iterations_jaccard_score,
-            iterations_purity,
+            purities,
             iterations_vertices,
         )
 
