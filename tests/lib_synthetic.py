@@ -22,7 +22,8 @@ def evaluate_graph(
         adjusted_rand_score,
         rand_score,
         jaccard_score,
-        iterations_score,
+        _,
+        purities,
         _,
     ) = graph.clustering_accuracy(communities, n_communities, alpha)
     end = time.time()
@@ -32,7 +33,8 @@ def evaluate_graph(
         rand_score,
         adjusted_rand_score,
         jaccard_score,
-        iterations_score,
+        # iterations_jaccard,
+        purities,
         end - start,
     )
 
@@ -46,7 +48,7 @@ def print_results(
     rand_scores: np.array,
     adjusted_rand_scores: np.array,
     jaccard_scores: np.array,
-    iterations_score: list[float],
+    purities: list[float],
     outfile,
     plotfilename,
 ):
@@ -76,7 +78,7 @@ def print_results(
 
     # plot scores along iterations
     plt.figure()
-    plt.plot(iterations_score)
+    plt.scatter([elem[0] for elem in purities], [elem[1] for elem in purities])
     plt.savefig(plotfilename)
 
     print("-" * 30, file=outfile)
