@@ -29,7 +29,7 @@ def test_synthetic(results_outfile, iterations: int = 1):
     # GRAPH 1
     # -----------------------------------
 
-    n_nodes = [20, 20, 20, 20]
+    n_nodes = [5, 5, 5, 5]
     omega_positive = np.array(
         [
             [0.9, 0.01, 0.01, 0.01],
@@ -48,103 +48,7 @@ def test_synthetic(results_outfile, iterations: int = 1):
         ]
     )
     n_nodes_list.append(n_nodes)
-    n_threads_list.append(18)
-    omega_positive_list.append(np.array(omega_positive) / 8)
-    omega_negative_list.append(np.array(omega_negative) / 8)
-    phi_list.append(np.array(phi))
-    theta_list.append(0.1)
-    beta_a_list.append(1 / 8)
-    beta_n_list.append(1 / 3)
-
-    # -----------------------------------
-    # GRAPH 2
-    # -----------------------------------
-
-    n_nodes = [20, 20, 20, 20]
-    omega_positive = np.array(
-        [
-            [0.8, 0.03, 0.03, 0.03],
-            [0.03, 0.8, 0.03, 0.03],
-            [0.03, 0.03, 0.8, 0.03],
-            [0.03, 0.03, 0.03, 0.8],
-        ]
-    )
-    omega_negative = np.ones_like(omega_positive) - omega_positive
-    phi = np.array(
-        [
-            [0.7, 0.2, 0.2, 0.2],
-            [0.2, 0.7, 0.2, 0.2],
-            [0.2, 0.2, 0.7, 0.2],
-            [0.2, 0.2, 0.2, 0.7],
-        ]
-    )
-
-    n_nodes_list.append(n_nodes)
-    n_threads_list.append(8)
-    omega_positive_list.append(np.array(omega_positive) / 4)
-    omega_negative_list.append(np.array(omega_negative) / 8)
-    phi_list.append(np.array(phi))
-    theta_list.append(0.1)
-    beta_a_list.append(1 / 8)
-    beta_n_list.append(1 / 3)
-
-    # -----------------------------------
-    # GRAPH 3
-    # -----------------------------------
-
-    n_nodes = [20, 20, 20, 20]
-    omega_positive = np.array(
-        [
-            [0.7, 0.1, 0.1, 0.1],
-            [0.1, 0.7, 0.1, 0.1],
-            [0.1, 0.1, 0.7, 0.1],
-            [0.1, 0.1, 0.1, 0.7],
-        ]
-    )
-    omega_negative = np.ones_like(omega_positive) - omega_positive
-    phi = np.array(
-        [
-            [0.6, 0.4, 0.4, 0.4],
-            [0.4, 0.6, 0.4, 0.4],
-            [0.4, 0.4, 0.6, 0.4],
-            [0.4, 0.4, 0.4, 0.6],
-        ]
-    )
-
-    n_nodes_list.append(n_nodes)
-    n_threads_list.append(8)
-    omega_positive_list.append(np.array(omega_positive) / 32)
-    omega_negative_list.append(np.array(omega_negative) / 64)
-    phi_list.append(np.array(phi) / 8)
-    theta_list.append(0.1)
-    beta_a_list.append(1 / 1)
-    beta_n_list.append(1 / 3)
-
-    # -----------------------------------
-    # GRAPH 4
-    # -----------------------------------
-
-    n_nodes = [20, 20, 20, 20]
-    omega_positive = np.array(
-        [
-            [0.5, 0.4, 0.4, 0.4],
-            [0.4, 0.5, 0.4, 0.4],
-            [0.4, 0.4, 0.5, 0.4],
-            [0.4, 0.4, 0.4, 0.5],
-        ]
-    )
-    omega_negative = np.ones_like(omega_positive) - omega_positive
-    phi = np.array(
-        [
-            [0.5, 0.5, 0.5, 0.5],
-            [0.5, 0.5, 0.5, 0.5],
-            [0.5, 0.5, 0.5, 0.5],
-            [0.5, 0.5, 0.5, 0.5],
-        ]
-    )
-
-    n_nodes_list.append(n_nodes)
-    n_threads_list.append(8)
+    n_threads_list.append(2)
     omega_positive_list.append(np.array(omega_positive) / 8)
     omega_negative_list.append(np.array(omega_negative) / 8)
     phi_list.append(np.array(phi))
@@ -225,7 +129,7 @@ def test_synthetic(results_outfile, iterations: int = 1):
                     rand_score,
                     adjusted_rand_score,
                     jaccard_score,
-                    iterations_score,
+                    purities,
                     duration,
                 ) = evaluate_graph(graph, alpha, n_communities, communities)
 
@@ -249,7 +153,7 @@ def test_synthetic(results_outfile, iterations: int = 1):
                 rand_scores,
                 adjusted_rand_scores,
                 jaccard_scores,
-                iterations_score,
+                purities,
                 results_outfile,
                 plotfilename,
             )
