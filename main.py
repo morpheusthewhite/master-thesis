@@ -251,7 +251,7 @@ def score_clustering(
         rand_score,
         jaccard,
         jaccard_iterations,
-        purity_iterations,
+        purities,
         iteration_vertices,
     ) = graph.clustering_accuracy(graph.labels.a, alpha)
 
@@ -276,7 +276,7 @@ def score_clustering(
 
     plt.figure()
     plt.title("Purity score over iterations")
-    plt.plot(purity_iterations)
+    plt.scatter([elem[0] for elem in purities], [elem[1] for elem in purities])
     plt.xlabel("Iteration number")
     plt.ylabel("Purity score")
 
