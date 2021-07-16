@@ -1,10 +1,70 @@
 from typing import List, Union
 import numpy as np
 from sklearn import metrics
+import graph_tool.all as gt
 
 from polarmine.graph import InteractionGraph
 from polarmine.ecp.ecp_solver import ECPSolver
 from polarmine.alternative.alternative_solver import AlternativeSolver
+
+
+def purity(vertices: List[int], assignment: np.ndarray) -> float:
+    # get the labels of the vertices
+    vertices_assignment = assignment[vertices]
+
+    # set of labels of vertices
+    labels = set(vertices_assignment)
+
+    max_label_count = 0
+
+    for label in labels:
+        # number of vertices with label `label`
+        label_count = np.sum(vertices_assignment == label)
+
+        max_label_count = max(label_count, max_label_count)
+
+    return max_label_count / len(vertices)
+
+
+def positive_components(
+    graph: InteractionGraph, vertices: List[int]
+) -> List[List[int]]:
+    current_edge_filter, _ = graph.graph.get_edge_filter()
+    current_vertex_filter, _ = graph.graph.get_vertex_filter()
+
+    # exclude negative edges
+    is_positive_edge = graph.weights.a >= 0
+    tmp_edge_filter = graph.graph.new_edge_property("bool")
+    tmp_edge_filter.a = np.logical_and(is_positive_edge, current_edge_filter.a)
+
+    # consider G[U], i.e. only the given vertices
+    tmp_vertex_filter = graph.graph.new_vertex_property("bool")
+    tmp_vertex_filter.a[vertices] = 1
+
+    # set the appropriate filters in the graph
+    graph.graph.set_edge_filter(tmp_edge_filter)
+    graph.graph.set_vertex_filter(tmp_vertex_filter)
+
+    # find the components in G^+[U], i.e. considering only positive
+    # edges in G[U]
+    components, _ = gt.label_components(graph.graph, directed=False)
+
+    # get the labels only for `vertices`
+    components_label_vertices = components.a[vertices]
+    n_components = max(components_label_vertices) + 1
+
+    components_list = []
+    vertices = np.array(vertices)
+    for k in range(n_components):
+        # get vertices in the component with label k
+        component_vertices = vertices[components_label_vertices == k]
+        components_list.append(component_vertices)
+
+    # restore filters
+    graph.graph.set_edge_filter(current_edge_filter)
+    graph.graph.set_vertex_filter(current_vertex_filter)
+
+    return components_list
 
 
 def clustering_accuracy(
@@ -26,10 +86,10 @@ def clustering_accuracy(
     vertices_predicted[:] = -1
 
     iterations_jaccard_score = []
-    iterations_purity = []
+    purities = []
     iterations_vertices = []
 
-    for _ in range(n_clusters):
+    for i in range(n_clusters):
         if isinstance(solver, ECPSolver):
             _, vertices, _, nc_threads = solver.solve(graph, alpha)
         else:
@@ -40,6 +100,13 @@ def clustering_accuracy(
 
         if len(vertices) == 0:
             break
+
+        # get components if considering only positive edges in the graph
+        components = positive_components(graph, vertices)
+
+        for component in components:
+            purity_value = purity(component, vertices_assignment)
+            purities.append([i, purity_value])
 
         # compute jaccard coefficient for the current classification
         subgraph_vertices_assignment = vertices_assignment[vertices]
@@ -85,19 +152,6 @@ def clustering_accuracy(
 
         # vertices for which there is a prediction
         vertices_with_prediction = np.where(vertices_predicted != -1)[0]
-        # boolean array which is true where the prediction correspond to the
-        # ground truth
-        vertices_prediction_is_correct = (
-            vertices_assignment[vertices_with_prediction]
-            == vertices_predicted[vertices_with_prediction]
-        )
-
-        # calculate accuracy until now, i.e. fraction of correct predicted
-        # labels
-        iteration_purity = (
-            np.sum(vertices_prediction_is_correct)
-            / vertices_prediction_is_correct.shape[0]
-        )
 
         iteration_jaccard_score = metrics.jaccard_score(
             vertices_assignment[vertices_with_prediction],
@@ -105,7 +159,6 @@ def clustering_accuracy(
             average="micro",
         )
         iterations_jaccard_score.append(iteration_jaccard_score)
-        iterations_purity.append(iteration_purity)
 
         iterations_vertices.append(vertices)
 
@@ -132,6 +185,6 @@ def clustering_accuracy(
         rand_score,
         jaccard_score,
         iterations_jaccard_score,
-        iterations_purity,
+        purities,
         iterations_vertices,
     )
