@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union, List
 import time
 import os
 import numpy as np
@@ -32,7 +32,7 @@ def evaluate_graph(
         rand_score,
         jaccard_score,
         iterations_score,
-        purity_score,
+        purities,
         _,
     ) = clustering_accuracy(graph, communities, n_communities, alpha, solver)
     end = time.time()
@@ -43,7 +43,7 @@ def evaluate_graph(
         adjusted_rand_score,
         jaccard_score,
         iterations_score,
-        purity_score,
+        purities,
         end - start,
     )
 
@@ -58,8 +58,9 @@ def print_results(
     adjusted_rand_scores: np.array,
     jaccard_scores: np.array,
     iterations_score: list[float],
+    purities: List[List[Union[int, float]]],
     outfile,
-    plotfilename,
+    plotfilename: str,
 ):
     # Will save to file only one of the graphs
     print("-" * 30, file=outfile)
@@ -88,6 +89,10 @@ def print_results(
     # plot scores along iterations
     plt.plot(iterations_score)
     plt.savefig(plotfilename)
+    plt.clf()
+
+    plt.scatter([elem[0] for elem in purities], [elem[1] for elem in purities])
+    plt.savefig(plotfilename.replace(".pdf", "_purities.pdf"))
     plt.clf()
 
     print("-" * 30, file=outfile)
