@@ -48,7 +48,7 @@ class PolarizationGraph:
 
     def __init__(
         self,
-        discussion_trees: list[treelib.Tree],
+        discussion_trees: List[treelib.Tree],
         close_triangles: bool = True,
     ):
         self.graph = gt.Graph()
@@ -309,8 +309,8 @@ class PolarizationGraph:
         edge_color: bool = True,
         edge_width: bool = True,
         output: Optional[str] = None,
-        communities: Optional[list[int]] = None,
-        show_vertices: list[int] = None,
+        communities: Optional[List[int]] = None,
+        show_vertices: List[int] = None,
     ) -> None:
         """draw the graph
 
@@ -389,20 +389,20 @@ class PolarizationGraph:
         components, _ = gt.label_components(self.graph, directed=False)
         return np.max(components.a) + 1
 
-    def __vertices_components__(self, vertices_index: list[int]) -> np.array:
+    def __vertices_components__(self, vertices_index: List[int]) -> np.array:
         components, _ = gt.label_components(self.graph, directed=False)
         return components.a[vertices_index]
 
     def largest_component_vertices(
-        self, vertices_index: list[int]
-    ) -> list[int]:
+        self, vertices_index: List[int]
+    ) -> List[int]:
         """Finds the largest components of the given vertices in the graph
 
         Args:
-            vertices_index (list[int]): the list of the vertices index
+            vertices_index (List[int]): the list of the vertices index
 
         Returns:
-            list[int]: the list of the vertices index in the largest component
+            List[int]: the list of the vertices index in the largest component
         """
         if len(vertices_index) == 0:
             return []
@@ -422,7 +422,7 @@ class PolarizationGraph:
 
     def get_echo_chamber_discussion(
         self, vertices_index: Set[int]
-    ) -> list[str]:
+    ) -> List[str]:
         """Finds comments posted by users
 
         Args:
@@ -451,11 +451,11 @@ class PolarizationGraph:
 
         return comments
 
-    def components(self) -> list[list[int]]:
+    def components(self) -> List[List[int]]:
         """components.
 
         Returns:
-            list[list[int]]: of list of list, each with the vertex in the connected components
+            List[List[int]]: of list of list, each with the vertex in the connected components
         """
         components, _ = gt.label_components(self.graph, directed=False)
         n_components = np.max(components.a) + 1
@@ -467,12 +467,12 @@ class PolarizationGraph:
 
         return components_list
 
-    def num_components_from_vertices(self, vertices: list[int]):
+    def num_components_from_vertices(self, vertices: List[int]):
         """Count the number of different components associated to the given
         vertices
 
         Args:
-            vertices (list[int]): the list of the indices of the vertices
+            vertices (List[int]): the list of the indices of the vertices
         """
         components, _ = gt.label_components(self.graph, directed=False)
         return len(set(components.a[vertices]))
@@ -751,14 +751,14 @@ class PolarizationGraph:
 
             return degree_accumulator / self.graph.num_vertices()
 
-    def degree_distribution(self, degree="total") -> (list[int], list[int]):
+    def degree_distribution(self, degree="total") -> (List[int], List[int]):
         """compute cumulative degree distribution (takes into account multiedges)
 
         Args:
             degree: which degree to consider. Either "total", "in" or "out"
 
         Returns:
-            (list[int], list[int]): the cumulative probability of the degree for
+            (List[int], List[int]): the cumulative probability of the degree for
             each value and the list of values
         """
         counts, bins = gt.vertex_hist(self.graph, degree)
@@ -770,14 +770,14 @@ class PolarizationGraph:
 
         return counts / np.sum(counts), bins
 
-    def degree_histogram(self, degree="total") -> (list[int], list[int]):
+    def degree_histogram(self, degree="total") -> (List[int], List[int]):
         """compute histogram of the degree
 
         Args:
             degree: which degree to consider. Either "total", "in" or "out"
 
         Returns:
-            (list[int], list[int]): the list of number of elements in each bin
+            (List[int], List[int]): the list of number of elements in each bin
             and the start of each bin
         """
         counts, bins = gt.vertex_hist(self.graph, degree)
@@ -866,7 +866,7 @@ class PolarizationGraph:
 
     def __vertices_subthreads_dict__(
         self,
-        vertices_index: list[int],
+        vertices_index: List[int],
         alpha: int,
         controversial_contents: set = None,
     ) -> dict:
@@ -874,7 +874,7 @@ class PolarizationGraph:
         vertices
 
         Args:
-            vertices_index (list[int]): the list of vertices of the subgraphs
+            vertices_index (List[int]): the list of vertices of the subgraphs
             alpha (int): alpha for controversy definition
             controversial_contents (set): the set of controversial_contents
 
@@ -923,10 +923,10 @@ class PolarizationGraph:
 
     def score_from_vertices_index(
         self,
-        vertices_index: list[int],
+        vertices_index: List[int],
         alpha: float,
         controversial_contents: set = None,
-    ) -> (float, list[str]):
+    ) -> (float, List[str]):
         thread_edges_dict = self.__vertices_subthreads_dict__(
             vertices_index, alpha, controversial_contents
         )
@@ -960,7 +960,7 @@ class PolarizationGraph:
         alpha_median = np.median(np.array(negative_edges_fractions))
         return alpha_median
 
-    def score_components(self, alpha: int) -> (int, list[int], int):
+    def score_components(self, alpha: int) -> (int, List[int], int):
         comp, _ = gt.label_components(self.graph, directed=False)
         controversial_contents = self.controversial_contents(alpha)
 
@@ -986,8 +986,8 @@ class PolarizationGraph:
 
     def __find_best_neighbour__(
         self,
-        vertices: list[int],
-        neighbours: list[int],
+        vertices: List[int],
+        neighbours: List[int],
         alpha: float,
         controversial_contents: set(),
     ) -> (int, int):
@@ -1016,7 +1016,7 @@ class PolarizationGraph:
 
     def __find_worst_vertex__(
         self,
-        vertices: list[int],
+        vertices: List[int],
         alpha: float,
         controversial_contents: set(),
     ) -> (int, int):
@@ -1051,7 +1051,7 @@ class PolarizationGraph:
         beta: float = 1,
         n_starts: int = -1,
         positiveness_samples: bool = True,
-    ) -> (int, list[int]):
+    ) -> (int, List[int]):
         """Calculate the echo chamber score using the beta greedy approach
 
         Args:
@@ -1173,14 +1173,14 @@ class PolarizationGraph:
                 neighbours.add(new_neighbour)
 
     def __neighbours_subtract__(
-        self, neighbours: list[int], vertex_removed: int, vertices: set
+        self, neighbours: List[int], vertex_removed: int, vertices: set
     ):
         """remove from neighbours vertices which are no more reachable from vertices
 
         Args:
             neighbours (set(int)): a list of nodes
             vertex_removed (int): the vertex that has been removed
-            vertices (list[int]): vertices of which neighbours should be kept
+            vertices (List[int]): vertices of which neighbours should be kept
         """
         neighbours_removed = self.graph.get_all_neighbours(vertex_removed)
         for neighbour_removed in neighbours_removed:
@@ -1202,7 +1202,7 @@ class PolarizationGraph:
                     neighbours.remove(neighbour_removed)
         return
 
-    def score_greedy_peeling(self, alpha: float) -> (int, list[int]):
+    def score_greedy_peeling(self, alpha: float) -> (int, List[int]):
         """Calculate the echo chamber score using the "peeling" greedy approach
 
         Args:
@@ -1285,7 +1285,7 @@ class PolarizationGraph:
 
     def score_mip(
         self, alpha: float, relaxation: bool = False
-    ) -> (int, list[int], list[tuple], list[int]):
+    ) -> (int, List[int], List[tuple], List[int]):
         variables_cat = pulp.LpContinuous if relaxation else pulp.LpBinary
         variables_lb = 0 if relaxation else None
         variables_ub = 1 if relaxation else None
@@ -1516,7 +1516,7 @@ class PolarizationGraph:
 
     def score_mip_densest(
         self, alpha: float, relaxation: bool = False
-    ) -> (int, list[int], list[tuple], list[int]):
+    ) -> (int, List[int], List[tuple], List[int]):
         variables_cat = pulp.LpContinuous if relaxation else pulp.LpBinary
         variables_lb = 0 if relaxation else None
         variables_ub = 1 if relaxation else None
@@ -1724,7 +1724,7 @@ class PolarizationGraph:
 
     def score_relaxation_algorithm(
         self, alpha: float
-    ) -> (int, list[int], int):
+    ) -> (int, List[int], int):
         controversial_contents = self.controversial_contents(alpha)
 
         score, users, edges, nc_threads = self.score_mip(
@@ -1820,7 +1820,7 @@ class PolarizationGraph:
 
     def __aggregate_edges__(
         self,
-        edges_ij: list[gt.Edge],
+        edges_ij: List[gt.Edge],
         alpha: float,
         controversial_contents: set,
         simple: bool,
@@ -1828,7 +1828,7 @@ class PolarizationGraph:
         """Aggregate edges of a certain vertex
 
         Args:
-            edges_ij (list[gt.Edge]): the list of edges between a pair of
+            edges_ij (List[gt.Edge]): the list of edges between a pair of
             vertices
             alpha (float): alpha used for definying controversy
             controversial_contents (set): the list of controversial contents
@@ -1895,7 +1895,7 @@ class PolarizationGraph:
 
     def nc_graph(
         self, alpha: float, simple: bool = True, layer: bool = False
-    ) -> list[int]:
+    ) -> List[int]:
         controversial_contents = self.controversial_contents(alpha)
 
         # edges of the G_d graph
@@ -1934,11 +1934,11 @@ class PolarizationGraph:
 
     def score_densest_nc_subgraph(
         self, alpha: float, simple: bool = True
-    ) -> (float, list[int]):
+    ) -> (float, List[int]):
         num_vertices, edges = self.nc_graph(alpha, simple, False)
         return densest.densest_subgraph(num_vertices, edges)
 
-    def o2_bff_dcs_am(self, alpha: float, k: int) -> (int, list[int]):
+    def o2_bff_dcs_am(self, alpha: float, k: int) -> (int, List[int]):
         num_vertices, edges = self.nc_graph(alpha, False, layer=True)
 
         # construct the graph with the given vertices and edges
@@ -1958,7 +1958,7 @@ class PolarizationGraph:
     def select_echo_chamber(
         self,
         alpha: float,
-        vertices_index: list[int] = None,
+        vertices_index: List[int] = None,
         controversial_contents: set = None,
     ):
         if vertices_index is None:
@@ -1997,7 +1997,7 @@ class PolarizationGraph:
         self,
         i: int,
         j: int,
-        node_groups: list[int],
+        node_groups: List[int],
         omega_positive: np.array,
         omega_negative: np.array,
         theta: float,
@@ -2047,14 +2047,14 @@ class PolarizationGraph:
         self,
         thread_id: str,
         content_id: str,
-        nodes: list[gt.Vertex],
-        node_groups: list[int],
+        nodes: List[gt.Vertex],
+        node_groups: List[int],
         omega_positive: np.array,
         omega_negative: np.array,
         theta: float,
         group_activation: bool,
         active_communities: set = None,
-        node_is_active: list[int] = None,
+        node_is_active: List[int] = None,
     ):
         for i, node_i in enumerate(nodes):
             for j, node_j in enumerate(nodes):
@@ -2237,7 +2237,7 @@ class PolarizationGraph:
 
     def clustering_accuracy(
         self,
-        vertices_assignment: list[int],
+        vertices_assignment: List[int],
         n_clusters: int,
         alpha: float,
         method: str = CLUSTERING_APPROXIMATION,

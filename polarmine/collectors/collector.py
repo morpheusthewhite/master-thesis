@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from treelib import Tree
+from typing import List
 
 
 class Collector(ABC):
@@ -13,7 +14,7 @@ class Collector(ABC):
         page: str = None,
         limit: int = 10000,
         cross: bool = True,
-    ) -> list[Tree]:
+    ) -> List[Tree]:
         """collect comment threads relative to content
 
         Args:
@@ -26,6 +27,6 @@ class Collector(ABC):
             cross: include also repost of a certain content
 
         Returns:
-            list[Tree]: the list of discussion trees of the retrieved contents
+            List[Tree]: the list of discussion trees of the retrieved contents
         """
         pass
