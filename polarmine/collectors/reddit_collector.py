@@ -2,7 +2,7 @@ import praw
 import random
 import treelib
 import itertools
-from typing import Optional
+from typing import Optional, List
 
 from polarmine.collectors.collector import Collector
 from polarmine.thread import Thread
@@ -19,7 +19,7 @@ class RedditCollector(Collector):
 
     def __find_contents_id__(
         self, ncontents: int, keyword: Optional[str], page: Optional[str]
-    ) -> list[str]:
+    ) -> List[str]:
         """Find contents
 
         Args:
@@ -32,7 +32,7 @@ class RedditCollector(Collector):
                 https://praw.readthedocs.io/en/latest/code_overview/reddit_instance.html#praw.Reddit.subreddit
 
         Returns:
-            list[str]: the list of found praw submissions
+            List[str]: the list of found praw submissions
         """
         if page is not None:
             contents_id = self.reddit.subreddit(page).hot(limit=ncontents)
@@ -94,7 +94,7 @@ class RedditCollector(Collector):
         keyword: str,
         limit: int,
         cross: bool,
-    ) -> list[treelib.Tree]:
+    ) -> List[treelib.Tree]:
         """Use a submission to create the associated threads (of comments)
 
         Args:
@@ -193,7 +193,7 @@ class RedditCollector(Collector):
         page: str = None,
         limit: int = 10000,
         cross: bool = True,
-    ) -> list[treelib.Tree]:
+    ) -> List[treelib.Tree]:
         """collect content and their relative threads as tree.
 
         Args:
@@ -209,7 +209,7 @@ class RedditCollector(Collector):
             cross (bool): if True includes also crossposts of the found submissions
 
         Returns:
-            list[Tree]: a list of tree, each associated to a submission.
+            List[Tree]: a list of tree, each associated to a submission.
                 The root node is associated to the start of the thread
                 itself and its `data`
                 is a Content object, while for the other nodes it is a `Comment`

@@ -5,7 +5,7 @@ import tweepy
 import itertools
 import urllib
 import validators
-from typing import Optional, Iterator
+from typing import Optional, Iterator, List
 
 from polarmine.collectors.collector import Collector
 from polarmine.thread import Thread
@@ -61,7 +61,7 @@ class TwitterCollector(Collector):
         ncontents: int,
         keyword: Optional[str],
         page: Optional[str],
-    ) -> list[tweepy.Status]:
+    ) -> List[tweepy.Status]:
         """Find n statuses containing `keyword` or from a certain user `page`.
         Either `keyword` or `page` must not be None
 
@@ -71,7 +71,7 @@ class TwitterCollector(Collector):
             page (Optional[str]): the user from which tweets are retrieved
 
         Returns:
-            list[tweepy.Status]: a list of statuses
+            List[tweepy.Status]: a list of statuses
         """
         nstatuses_found = 0
         statuses_found = []
@@ -304,7 +304,7 @@ class TwitterCollector(Collector):
         limit: int,
         cross: bool,
         exclude_share: set,
-    ) -> list[treelib.Tree]:
+    ) -> List[treelib.Tree]:
         """Find threads of comments associated to a certain status
 
         Args:
@@ -317,7 +317,7 @@ class TwitterCollector(Collector):
             it will be updated with the content if not present in the set
 
         Returns:
-            list[treelib.Tree]: the discussions trees associated with the
+            List[treelib.Tree]: the discussions trees associated with the
             status. The root node,
             corresponding to a root status, is associated with a
             `Thread` object in the node `data` while the other nodes have
@@ -416,7 +416,7 @@ class TwitterCollector(Collector):
         page: str = None,
         limit: int = 10000,
         cross: bool = True,
-    ) -> list[treelib.Tree]:
+    ) -> List[treelib.Tree]:
         """collect content and their relative comment threads
 
         Args:
@@ -431,7 +431,7 @@ class TwitterCollector(Collector):
             in the result
 
         Returns:
-            list[Tree]: a list of tree, each associated to a thread.
+            List[Tree]: a list of tree, each associated to a thread.
             The root node is associated to the discussion root and its `data`
             is a Thread object, while for the other nodes it is a `Comment`
         """

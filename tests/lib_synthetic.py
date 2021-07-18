@@ -1,6 +1,7 @@
 import time
 import os
 import numpy as np
+from typing import List
 import matplotlib.pyplot as plt
 
 from polarmine.graph import PolarizationGraph
@@ -12,7 +13,7 @@ def evaluate_graph(
     graph: PolarizationGraph,
     alpha: float,
     n_communities: int,
-    communities: list[int],
+    communities: List[int],
 ):
 
     start = time.time()
@@ -48,7 +49,7 @@ def print_results(
     rand_scores: np.array,
     adjusted_rand_scores: np.array,
     jaccard_scores: np.array,
-    purities: list[float],
+    purities: List[float],
     outfile,
     plotfilename,
 ):

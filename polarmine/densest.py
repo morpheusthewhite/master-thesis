@@ -2,23 +2,24 @@ import itertools
 import pulp
 import graph_tool.all as gt
 import numpy as np
+from typing import List
 
 from sklearn.metrics import jaccard_score
 
 
 def densest_subgraph(
-    num_vertices: int, edges: list[int]
-) -> (float, list[int]):
+    num_vertices: int, edges: List[int]
+) -> (float, List[int]):
     """Find densest subgraph by using Charikar's LP model
 
     Args:
         num_vertices (int): the number of vertices in the graph
-        edges (list[int]): array of edges, each represented by a pair of
+        edges (List[int]): array of edges, each represented by a pair of
         indices (of the vertices) and the corresponding weight. Each index
         should be in {0, ..., num_vertices-1}
 
     Returns:
-        (float, list[int]): the density and the indices of the vertices in the
+        (float, List[int]): the density and the indices of the vertices in the
         densest subgraph
     """
     model = pulp.LpProblem("densest-subgraph", pulp.LpMaximize)
@@ -61,7 +62,7 @@ def densest_subgraph(
     return density, vertices
 
 
-def select_contents(graph: gt.Graph, contents: list[str]):
+def select_contents(graph: gt.Graph, contents: List[str]):
     contents = graph.edge_properties["content"]
     edge_filter = graph.new_edge_property("bool")
 
@@ -95,7 +96,7 @@ def dcs_am_exact(graph: gt.Graph):
 
     contents = set(graph.edge_properties["content"])
 
-    def find_k_list_core(graph: gt.Graph, k_list: list[int]) -> np.array:
+    def find_k_list_core(graph: gt.Graph, k_list: List[int]) -> np.array:
         for content, k in zip(contents, k_list):
             select_contents(graph, [content])
             select_kcore(graph, k)
@@ -175,7 +176,7 @@ def dcs_am_from_vertices(graph: gt.Graph) -> int:
     return dcs_am_score
 
 
-def find_bff_a(graph: gt.Graph, num_contents: int) -> (int, list[int]):
+def find_bff_a(graph: gt.Graph, num_contents: int) -> (int, List[int]):
     num_vertices = graph.num_vertices()
 
     def filter_vertex(vertex: int):
@@ -215,7 +216,7 @@ def find_bff_a(graph: gt.Graph, num_contents: int) -> (int, list[int]):
 
 def o2_bff_dcs_am_incremental_overlap(
     graph: gt.Graph, k: int
-) -> (int, list[int]):
+) -> (int, List[int]):
     contents = list(set(graph.edge_properties["content"]))
 
     # return a trivial solution if there are less than 2 contents

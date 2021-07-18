@@ -1,3 +1,4 @@
+from typing import List
 from abc import ABC, abstractmethod
 from treelib import Tree
 
@@ -13,7 +14,7 @@ class Collector(ABC):
         page: str = None,
         limit: int = 10000,
         cross: bool = True,
-    ) -> list[Tree]:
+    ) -> List[Tree]:
         """collect comment threads relative to content
 
         Args:
