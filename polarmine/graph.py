@@ -2285,7 +2285,7 @@ class PolarizationGraph:
 
             for component in components:
                 purity_value = purity(component, vertices_assignment)
-                purities.append([i, purity_value])
+                purities.append(purity_value)
 
             # compute jaccard coefficient for the current classification
             subgraph_vertices_assignment = vertices_assignment[vertices]
