@@ -2269,7 +2269,7 @@ class PolarizationGraph:
                 nc_threads = []
             elif method == CLUSTERING_02_BFF:
                 _, vertices = self.o2_bff_dcs_am(
-                    alpha, np.ceil(self.num_threads() / 2)
+                    alpha, np.ceil(self.num_threads() // 2)
                 )
                 nc_threads = []
             else:
