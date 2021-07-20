@@ -289,7 +289,7 @@ def score_clustering(
 
     plt.figure()
     plt.title("Purity score over iterations")
-    plt.scatter([elem[0] for elem in purities], [elem[1] for elem in purities])
+    plt.hist(purities)
     plt.xlabel("Iteration number")
     plt.ylabel("Purity score")
 

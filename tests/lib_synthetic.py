@@ -79,7 +79,7 @@ def print_results(
 
     # plot scores along iterations
     plt.figure()
-    plt.scatter([elem[0] for elem in purities], [elem[1] for elem in purities])
+    plt.hist(purities)
     plt.savefig(plotfilename)
 
     print("-" * 30, file=outfile)
