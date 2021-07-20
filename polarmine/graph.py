@@ -1901,6 +1901,7 @@ class PolarizationGraph:
         # edges of the G_d graph
         edges = []
 
+        vertex_i = 0
         for vertex_i in self.graph.vertices():
             i = int(vertex_i)
 
