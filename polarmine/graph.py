@@ -1944,7 +1944,11 @@ class PolarizationGraph:
 
         # construct the graph with the given vertices and edges
         graph = gt.Graph()
-        vertices = list(graph.add_vertex(num_vertices))
+        vertices = (
+            list(graph.add_vertex(num_vertices))
+            if num_vertices > 0
+            else [graph.add_vertex(num_vertices)]
+        )
 
         # create the content edge property for the graph
         content_property = graph.new_edge_property("string")
