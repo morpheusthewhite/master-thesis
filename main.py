@@ -12,6 +12,7 @@ from polarmine.graph import (
     PolarizationGraph,
     CLUSTERING_EXACT,
     CLUSTERING_APPROXIMATION,
+    CLUSTERING_02_BFF,
 )
 from polarmine.utils import plot_degree_distribution, print_top_k
 from polarmine.collectors.reddit_collector import RedditCollector
@@ -265,7 +266,7 @@ def score_clustering(
         purities,
         iteration_vertices,
     ) = graph.clustering_accuracy(
-        graph.labels.a, 2, alpha, method=CLUSTERING_APPROXIMATION
+        graph.labels.a, 2, alpha, method=CLUSTERING_02_BFF
     )
 
     print(f"Adjusted RAND score: {adj_rand_score}", file=clustering_txt_file)
@@ -290,8 +291,8 @@ def score_clustering(
     plt.figure()
     plt.title("Purity score over iterations")
     plt.hist(purities)
-    plt.xlabel("Iteration number")
-    plt.ylabel("Purity score")
+    plt.xlabel("Purity")
+    plt.ylabel("Number of components")
 
     if save_path is not None:
         purity_iterations_pdf = os.path.join(
