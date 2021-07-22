@@ -1946,7 +1946,7 @@ class PolarizationGraph:
         graph = gt.Graph()
         vertices = (
             list(graph.add_vertex(num_vertices))
-            if num_vertices > 0
+            if num_vertices > 1
             else [graph.add_vertex(num_vertices)]
         )
 
