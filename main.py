@@ -290,15 +290,16 @@ def score_clustering(
 
     plt.figure()
     plt.title("Purity score over iterations")
-    plt.hist(purities)
-    plt.xlabel("Purity")
-    plt.ylabel("Number of components")
+    plt.scatter(
+        list(map(lambda elem: elem[0], purities)),
+        list(map(lambda elem: elem[1], purities)),
+    )
+    plt.xlabel("Number of elements")
+    plt.ylabel("Purity")
 
     if save_path is not None:
-        purity_iterations_pdf = os.path.join(
-            save_path, "purity_iterations.pdf"
-        )
-        plt.savefig(purity_iterations_pdf)
+        purity_elements_pdf = os.path.join(save_path, "purity_elements.pdf")
+        plt.savefig(purity_elements_pdf)
     else:
         plt.show()
         plt.close()

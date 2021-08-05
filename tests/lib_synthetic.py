@@ -77,9 +77,9 @@ def print_results(
         file=outfile,
     )
 
-    # plot scores along iterations
+    # plot scatter of scores
     plt.figure()
-    plt.hist(purities)
+    plt.scatter(purities)
     plt.savefig(plotfilename)
 
     print("-" * 30, file=outfile)
