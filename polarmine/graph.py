@@ -49,7 +49,7 @@ class PolarizationGraph:
     def __init__(
         self,
         discussion_trees: List[treelib.Tree],
-        close_triangles: bool = True,
+        close_triangles: bool = False,
     ):
         self.graph = gt.Graph()
 
