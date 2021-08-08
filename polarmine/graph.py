@@ -2248,6 +2248,9 @@ class PolarizationGraph:
         method: str = CLUSTERING_APPROXIMATION,
     ):
         current_edge_filter, _ = self.graph.get_edge_filter()
+        previous_edge_filter = current_edge_filter
+        previous_vertex_filter, _ = self.graph.get_vertex_filter()
+
         if current_edge_filter is None:
             current_edge_filter = self.graph.new_edge_property("bool")
             current_edge_filter.a = np.ones_like(current_edge_filter.a)
@@ -2353,7 +2356,9 @@ class PolarizationGraph:
         vertices_assignment = vertices_assignment[vertices_with_prediction]
         vertices_predicted = vertices_predicted[vertices_with_prediction]
 
-        self.clear_filters()
+        # restore initial filters
+        self.graph.set_edge_filter(previous_edge_filter)
+        self.graph.set_vertex_filter(previous_vertex_filter)
 
         adjusted_rand_score = metrics.adjusted_rand_score(
             vertices_assignment, vertices_predicted
