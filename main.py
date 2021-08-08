@@ -13,9 +13,9 @@ from polarmine.graph import (
     CLUSTERING_EXACT,
     CLUSTERING_APPROXIMATION,
     CLUSTERING_02_BFF,
+    purity,
 )
 from polarmine.utils import plot_degree_distribution, print_top_k
-from polarmine.collectors.reddit_collector import RedditCollector
 from polarmine.collectors.twitter_collector import TwitterCollector
 
 
@@ -266,7 +266,7 @@ def score_clustering(
         purities,
         iteration_vertices,
     ) = graph.clustering_accuracy(
-        graph.labels.a, 2, alpha, method=CLUSTERING_02_BFF
+        graph.labels.a, 2, alpha, method=CLUSTERING_APPROXIMATION
     )
 
     print(f"Adjusted RAND score: {adj_rand_score}", file=clustering_txt_file)
@@ -289,7 +289,7 @@ def score_clustering(
         plt.close()
 
     plt.figure()
-    plt.title("Purity score over iterations")
+    plt.title("Purity score over cluster size")
     plt.scatter(
         list(map(lambda elem: elem[0], purities)),
         list(map(lambda elem: elem[1], purities)),
@@ -300,6 +300,39 @@ def score_clustering(
     if save_path is not None:
         purity_elements_pdf = os.path.join(save_path, "purity_elements.pdf")
         plt.savefig(purity_elements_pdf)
+    else:
+        plt.show()
+        plt.close()
+
+    label_distribution = graph.label_distribution()
+
+    plt.figure()
+    plt.title("Purity random baseline")
+
+    # number of times the experiment is repeated
+    plt.scatter(
+        list(map(lambda elem: elem[0], purities)),
+        list(
+            map(
+                lambda elem: np.max(
+                    np.random.default_rng().multinomial(
+                        n=elem[0],
+                        pvals=label_distribution,
+                    )
+                )
+                / elem[0],
+                purities,
+            ),
+        ),
+    )
+    plt.xlabel("Number of elements")
+    plt.ylabel("Purity")
+
+    if save_path is not None:
+        purity_random_elements_pdf = os.path.join(
+            save_path, "purity_random_elements.pdf"
+        )
+        plt.savefig(purity_random_elements_pdf)
     else:
         plt.show()
         plt.close()
